@@ -22,6 +22,26 @@ function formatPrice(won: number): string {
   return `월 ${Math.round(won / 10000)}만원~`;
 }
 
+function CarImage({ imageKey, model }: { imageKey: string; model: string }) {
+  const [error, setError] = useState(false);
+  return (
+    <div className="w-full aspect-[5/3] bg-gray-100 overflow-hidden">
+      {error ? (
+        <div className="w-full h-full flex items-center justify-center text-gray-300 text-xs">
+          🚗
+        </div>
+      ) : (
+        <img
+          src={`/cars/${imageKey}.webp`}
+          alt={model}
+          className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
+          onError={() => setError(true)}
+        />
+      )}
+    </div>
+  );
+}
+
 export function PopularEstimatesClient({ vehicles }: { vehicles: VehicleWithPrice[] }) {
   const [selected, setSelected] = useState<string>('전체');
 
@@ -55,29 +75,30 @@ export function PopularEstimatesClient({ vehicles }: { vehicles: VehicleWithPric
           <Link
             key={v.id}
             href={`/cars/${v.slug}`}
-            className="flex flex-col p-4 rounded-xl border-2 border-gray-200 bg-white hover:border-accent hover:shadow-md transition-all group"
+            className="flex flex-col rounded-xl border-2 border-gray-200 bg-white hover:border-accent hover:shadow-md transition-all overflow-hidden group"
           >
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[11px] font-semibold text-gray-400 bg-gray-100 px-2 py-0.5 rounded">
-                {v.brand}
-              </span>
-              <span className="text-[11px] text-gray-400">
-                {CATEGORY_MAP[v.category] ?? v.category}
-              </span>
+            <CarImage imageKey={v.imageKey} model={v.model} />
+            <div className="p-3">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[10px] font-semibold text-gray-400">{v.brand}</span>
+                <span className="text-[10px] text-gray-400">
+                  {CATEGORY_MAP[v.category] ?? v.category}
+                </span>
+              </div>
+              <p className="font-bold text-gray-900 text-sm leading-snug mb-1.5 group-hover:text-accent transition-colors">
+                {v.model}
+              </p>
+              {v.price ? (
+                <p className="text-accent font-bold text-base">
+                  {formatPrice(v.price.min)}
+                </p>
+              ) : (
+                <p className="text-gray-400 text-sm">견적 문의</p>
+              )}
+              <p className="text-xs text-accent font-semibold mt-1.5">
+                자세히 보기 →
+              </p>
             </div>
-            <span className="font-bold text-gray-900 text-sm leading-snug mb-2 group-hover:text-accent transition-colors">
-              {v.model}
-            </span>
-            {v.price ? (
-              <span className="text-accent font-bold text-base">
-                {formatPrice(v.price.min)}
-              </span>
-            ) : (
-              <span className="text-gray-400 text-sm">견적 문의</span>
-            )}
-            <span className="text-xs text-accent font-semibold mt-2">
-              자세히 보기 →
-            </span>
           </Link>
         ))}
       </div>
