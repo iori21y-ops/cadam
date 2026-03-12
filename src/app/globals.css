@@ -14,7 +14,7 @@
   --color-warning: #F39C12;
   --color-danger: #E74C3C;
   --color-kakao: #FEE500;
-  --font-sans: "Pretendard", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-sans: var(--font-pretendard), -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: ui-monospace, monospace;
 }
 
@@ -30,6 +30,21 @@ body {
 }
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
+}
+
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: #CBD5E1 transparent;
+}
+.scrollbar-thin::-webkit-scrollbar {
+  height: 4px;
+}
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: #CBD5E1;
+  border-radius: 9999px;
 }
 
 @keyframes slide {

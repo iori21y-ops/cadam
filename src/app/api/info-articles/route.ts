@@ -43,7 +43,9 @@ export async function GET() {
       })
     );
 
-    return NextResponse.json({ articles });
+    return NextResponse.json({ articles }, {
+      headers: { 'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400' },
+    });
   } catch (err) {
     console.error('Info articles API error:', err);
     return NextResponse.json({ articles: [] });

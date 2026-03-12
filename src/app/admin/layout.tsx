@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { createBrowserSupabaseClient } from '@/lib/supabase';
+import { useDragScroll } from '@/hooks/useDragScroll';
 
 const NAV_ITEMS = [
   { href: '/admin', label: '대시보드' },
@@ -22,6 +23,7 @@ export default function AdminLayout({
   const pathname = usePathname();
   const [isChecking, setIsChecking] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const dragScroll = useDragScroll();
 
   const isLoginPage = pathname === '/admin/login';
 
@@ -76,7 +78,14 @@ export default function AdminLayout({
           >
             카담 Admin
           </Link>
-          <div className="flex items-center gap-1 overflow-x-auto flex-1 min-w-0 scrollbar-hide">
+          <div
+            ref={dragScroll.ref}
+            onMouseDown={dragScroll.onMouseDown}
+            onMouseLeave={dragScroll.onMouseLeave}
+            onMouseUp={dragScroll.onMouseUp}
+            onMouseMove={dragScroll.onMouseMove}
+            className="flex items-center gap-1 overflow-x-auto flex-1 min-w-0 scrollbar-hide cursor-grab select-none"
+          >
             {NAV_ITEMS.map((item) => {
               const isActive =
                 item.href === '/admin'

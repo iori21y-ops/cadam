@@ -51,7 +51,9 @@ export async function GET() {
         linkUrl: link_url,
       }));
 
-    return NextResponse.json({ promotions });
+    return NextResponse.json({ promotions }, {
+      headers: { 'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400' },
+    });
   } catch (err) {
     console.error('Promotions API error:', err);
     return NextResponse.json(

@@ -1,9 +1,17 @@
 import type { Metadata } from 'next';
+import localFont from 'next/font/local';
 import Script from 'next/script';
 import './globals.css';
 import { NavBar } from '@/components/NavBar';
-import { Toast } from '@/components/Toast';
 import { GAPageView } from '@/components/GAPageView';
+import { DynamicToast } from '@/components/DynamicToast';
+
+const pretendard = localFont({
+  src: './fonts/PretendardVariable.woff2',
+  display: 'swap',
+  weight: '100 900',
+  variable: '--font-pretendard',
+});
 
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
 
@@ -18,26 +26,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko">
-      <head>
-        <link rel="preconnect" href="https://cdn.jsdelivr.net" />
-        <link
-          rel="preload"
-          as="style"
-          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"
-        />
-        <link
-          rel="stylesheet"
-          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"
-        />
-      </head>
-      <body className="font-sans antialiased bg-white">
+    <html lang="ko" className={pretendard.variable}>
+      <body className={`${pretendard.className} antialiased bg-white`}>
         <div className="min-w-[360px] max-w-[1024px] mx-auto w-full">
           <GAPageView />
           <NavBar />
           {children}
         </div>
-        <Toast />
+        <DynamicToast />
         {GA_ID && (
           <>
             <Script

@@ -76,10 +76,12 @@ export default function AdminInfoPage() {
   const [excerptInput, setExcerptInput] = useState('');
   const [categoryInput, setCategoryInput] = useState('rental');
   const [vehicleSlugInput, setVehicleSlugInput] = useState('');
+  const [brandFilter, setBrandFilter] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const [editState, setEditState] = useState<EditState | null>(null);
+  const [editBrandFilter, setEditBrandFilter] = useState<string>('');
 
   const fetchArticles = useCallback(async () => {
     setLoading(true);
@@ -261,7 +263,7 @@ export default function AdminInfoPage() {
                 <button
                   key={opt.value}
                   type="button"
-                  onClick={() => { setCategoryInput(opt.value); setVehicleSlugInput(''); }}
+                  onClick={() => { setCategoryInput(opt.value); setVehicleSlugInput(''); setBrandFilter(''); }}
                   className={`px-4 py-2 rounded-lg text-sm font-semibold border transition-all ${
                     categoryInput === opt.value
                       ? 'bg-accent text-white border-accent'
@@ -280,13 +282,30 @@ export default function AdminInfoPage() {
               <label className="block text-sm font-semibold text-gray-700 mb-1.5">
                 차종 선택 (선택)
               </label>
+              {/* 제조사 필터 */}
+              <div className="flex gap-2 mb-2 overflow-x-auto pb-1 scrollbar-hide">
+                {['전체', ...BRANDS].map((b) => (
+                  <button
+                    key={b}
+                    type="button"
+                    onClick={() => { setBrandFilter(b === '전체' ? '' : b); setVehicleSlugInput(''); }}
+                    className={`px-3 py-1 rounded-full text-xs font-semibold border whitespace-nowrap transition-all ${
+                      (b === '전체' ? brandFilter === '' : brandFilter === b)
+                        ? 'bg-accent text-white border-accent'
+                        : 'bg-white text-gray-600 border-gray-300 hover:border-accent'
+                    }`}
+                  >
+                    {b}
+                  </button>
+                ))}
+              </div>
               <select
                 value={vehicleSlugInput}
                 onChange={(e) => setVehicleSlugInput(e.target.value)}
                 className="w-full py-3 px-4 border border-gray-300 rounded-lg outline-none focus:border-accent bg-white text-sm"
               >
                 <option value="">전체 / 미지정</option>
-                {BRANDS.map((brand) => (
+                {(brandFilter ? BRANDS.filter((b) => b === brandFilter) : BRANDS).map((brand) => (
                   <optgroup key={brand} label={brand}>
                     {VEHICLE_LIST.filter((v) => v.brand === brand).map((v) => (
                       <option key={v.slug} value={v.slug}>
@@ -478,6 +497,7 @@ export default function AdminInfoPage() {
                                 onClick={() => {
                                   if (isEditing) {
                                     setEditState(null);
+                                    setEditBrandFilter('');
                                   } else {
                                     setEditState({
                                       id: article.id,
@@ -487,6 +507,7 @@ export default function AdminInfoPage() {
                                       vehicle_slug: article.vehicle_slug ?? '',
                                       saving: false,
                                     });
+                                    setEditBrandFilter('');
                                   }
                                 }}
                                 className="px-2.5 py-1 rounded-lg text-xs font-medium bg-gray-100 text-gray-700 hover:bg-gray-200"
@@ -531,13 +552,30 @@ export default function AdminInfoPage() {
                               {editState.category === 'car' && (
                                 <div>
                                   <label className="block text-xs font-semibold text-gray-600 mb-1">차종 선택 (선택)</label>
+                                  {/* 제조사 필터 */}
+                                  <div className="flex gap-2 mb-2 overflow-x-auto pb-1 scrollbar-hide">
+                                    {['전체', ...BRANDS].map((b) => (
+                                      <button
+                                        key={b}
+                                        type="button"
+                                        onClick={() => { setEditBrandFilter(b === '전체' ? '' : b); setEditState({ ...editState, vehicle_slug: '' }); }}
+                                        className={`px-3 py-1 rounded-full text-xs font-semibold border whitespace-nowrap transition-all ${
+                                          (b === '전체' ? editBrandFilter === '' : editBrandFilter === b)
+                                            ? 'bg-accent text-white border-accent'
+                                            : 'bg-white text-gray-600 border-gray-300 hover:border-accent'
+                                        }`}
+                                      >
+                                        {b}
+                                      </button>
+                                    ))}
+                                  </div>
                                   <select
                                     value={editState.vehicle_slug}
                                     onChange={(e) => setEditState({ ...editState, vehicle_slug: e.target.value })}
                                     className="w-full py-2 px-3 border border-gray-300 rounded-lg text-sm outline-none focus:border-accent bg-white"
                                   >
                                     <option value="">전체 / 미지정</option>
-                                    {BRANDS.map((brand) => (
+                                    {(editBrandFilter ? BRANDS.filter((b) => b === editBrandFilter) : BRANDS).map((brand) => (
                                       <optgroup key={brand} label={brand}>
                                         {VEHICLE_LIST.filter((v) => v.brand === brand).map((v) => (
                                           <option key={v.slug} value={v.slug}>

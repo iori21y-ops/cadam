@@ -1,8 +1,8 @@
-'use client';
-
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Footer } from '@/components/Footer';
+import { createServerSupabaseClient } from '@/lib/supabase-server';
+
+export const revalidate = 3600;
 
 interface Promotion {
   id: string;
@@ -12,53 +12,74 @@ interface Promotion {
   linkUrl: string | null;
 }
 
-export default function PromotionsPage() {
-  const router = useRouter();
-  const [promotions, setPromotions] = useState<Promotion[]>([]);
-  const [loading, setLoading] = useState(true);
+interface PromotionRow {
+  id: string;
+  title: string;
+  description: string | null;
+  image_url: string | null;
+  link_url: string | null;
+  is_active: boolean;
+  display_order: number;
+  start_date: string | null;
+  end_date: string | null;
+}
 
-  useEffect(() => {
-    document.cookie = 'inflow_page=/promotions; path=/; max-age=86400';
-  }, []);
+function isWithinDateRange(row: PromotionRow, today: string): boolean {
+  if (row.start_date && row.start_date > today) return false;
+  if (row.end_date && row.end_date < today) return false;
+  return true;
+}
 
-  useEffect(() => {
-    fetch('/api/promotions')
-      .then((res) => res.json())
-      .then((data: { promotions?: Promotion[]; error?: string }) => {
-        if (data.promotions) setPromotions(data.promotions);
-      })
-      .catch(() => setPromotions([]))
-      .finally(() => setLoading(false));
-  }, []);
+async function getPromotions(): Promise<Promotion[]> {
+  try {
+    const supabase = await createServerSupabaseClient();
+    const { data, error } = await supabase
+      .from('promotions')
+      .select('id, title, description, image_url, link_url, is_active, display_order, start_date, end_date')
+      .eq('is_active', true)
+      .order('display_order', { ascending: true });
+
+    if (error) return [];
+
+    const today = new Date().toISOString().slice(0, 10);
+    return (data as PromotionRow[])
+      .filter((row) => isWithinDateRange(row, today))
+      .map(({ id, title, description, image_url, link_url }) => ({
+        id,
+        title,
+        description,
+        imageUrl: image_url,
+        linkUrl: link_url,
+      }));
+  } catch {
+    return [];
+  }
+}
+
+export default async function PromotionsPage() {
+  const promotions = await getPromotions();
 
   return (
     <div className="min-h-screen flex flex-col">
       {/* Hero */}
-      <section
-        className="flex flex-col items-center justify-center px-5 py-16 min-h-[40vh] bg-gradient-to-br from-primary to-accent text-white text-center"
-      >
+      <section className="flex flex-col items-center justify-center px-5 py-16 min-h-[40vh] bg-gradient-to-br from-primary to-accent text-white text-center">
         <h1 className="text-2xl sm:text-3xl font-bold leading-tight mb-3">
           이달의 프로모션
         </h1>
         <p className="text-base sm:text-lg text-white/90 mb-6">
           카담에서 진행 중인 특별 혜택을 확인하세요
         </p>
-        <button
-          type="button"
-          onClick={() => router.push('/quote')}
+        <Link
+          href="/quote"
           className="px-8 py-3.5 rounded-lg font-bold text-accent bg-white hover:opacity-90 transition-opacity"
         >
           무료 견적 받기
-        </button>
+        </Link>
       </section>
 
       {/* 프로모션 목록 */}
       <section className="px-5 py-12 flex-1">
-        {loading ? (
-          <div className="flex justify-center py-16">
-            <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
-          </div>
-        ) : promotions.length === 0 ? (
+        {promotions.length === 0 ? (
           <div className="py-16 text-center">
             <p className="text-gray-500 text-lg mb-2">
               현재 진행 중인 프로모션이 없습니다
@@ -77,6 +98,7 @@ export default function PromotionsPage() {
                       <img
                         src={p.imageUrl}
                         alt={p.title}
+                        loading="lazy"
                         className="w-full h-full object-cover"
                       />
                     ) : (

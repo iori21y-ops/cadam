@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import dynamic from 'next/dynamic';
 import { useHydrated } from '@/hooks/useHydrated';
 import { useQuoteStore } from '@/store/quoteStore';
 import { useLeaveIntent } from '@/hooks/useLeaveIntent';
@@ -12,7 +13,11 @@ import { Step3Period } from '@/components/steps/Step3Period';
 import { Step4Mileage } from '@/components/steps/Step4Mileage';
 import { Step5Payment } from '@/components/steps/Step5Payment';
 import { Step6Contact } from '@/components/steps/Step6Contact';
-import { LeaveModal } from '@/components/LeaveModal';
+
+const LeaveModal = dynamic(
+  () => import('@/components/LeaveModal').then((m) => ({ default: m.LeaveModal })),
+  { ssr: false }
+);
 
 export default function QuotePage() {
   const hydrated = useHydrated();

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { VEHICLE_LIST } from '@/constants/vehicles';
+import { useDragScroll } from '@/hooks/useDragScroll';
 
 interface Article {
   id: string;
@@ -80,6 +81,22 @@ const CATEGORY_FILTERS = [
   { value: 'car', label: '자동차' },
 ];
 
+function DragScrollDiv({ className, children }: { className?: string; children: React.ReactNode }) {
+  const drag = useDragScroll();
+  return (
+    <div
+      ref={drag.ref}
+      onMouseDown={drag.onMouseDown}
+      onMouseLeave={drag.onMouseLeave}
+      onMouseUp={drag.onMouseUp}
+      onMouseMove={drag.onMouseMove}
+      className={className}
+    >
+      {children}
+    </div>
+  );
+}
+
 function ArticleCard({ article, isShorts }: { article: Article; isShorts: boolean }) {
   return (
     <a
@@ -95,6 +112,7 @@ function ArticleCard({ article, isShorts }: { article: Article; isShorts: boolea
           <img
             src={article.thumbnailUrl}
             alt={article.title}
+            loading="lazy"
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             onError={(e) => {
               const el = e.currentTarget;
@@ -120,13 +138,16 @@ function ArticleCard({ article, isShorts }: { article: Article; isShorts: boolea
   );
 }
 
-export function InfoArticles() {
-  const [articles, setArticles] = useState<Article[]>([]);
-  const [loading, setLoading] = useState(true);
+export function InfoArticles({ initialArticles }: { initialArticles?: Article[] }) {
+  const [articles, setArticles] = useState<Article[]>(initialArticles ?? []);
+  const [loading, setLoading] = useState(!initialArticles);
   const [selectedCategory, setSelectedCategory] = useState<'all' | 'rental' | 'car'>('all');
+  const [selectedBrand, setSelectedBrand] = useState<string>('all');
   const [selectedVehicle, setSelectedVehicle] = useState<string>('all');
+  const dragScroll = useDragScroll();
 
   useEffect(() => {
+    if (initialArticles) return;
     fetch('/api/info-articles')
       .then((res) => res.json())
       .then((data: { articles?: Article[] }) => {
@@ -135,7 +156,7 @@ export function InfoArticles() {
       })
       .catch(() => setArticles(MOCK_ARTICLES))
       .finally(() => setLoading(false));
-  }, []);
+  }, [initialArticles]);
 
   // 자동차 카테고리에서 실제 등록된 차종 목록 추출
   const availableVehicles = useMemo(() => {
@@ -146,9 +167,35 @@ export function InfoArticles() {
       .filter(Boolean) as typeof VEHICLE_LIST;
   }, [articles]);
 
-  // 카테고리 변경 시 차종 필터 초기화
+  // 등록된 차종의 제조사 목록 (순서 유지)
+  const availableBrands = useMemo(() => {
+    const seen = new Set<string>();
+    const list: string[] = [];
+    for (const v of availableVehicles) {
+      if (!seen.has(v.brand)) {
+        seen.add(v.brand);
+        list.push(v.brand);
+      }
+    }
+    return list;
+  }, [availableVehicles]);
+
+  // 선택된 제조사의 차종 목록
+  const filteredVehicles = useMemo(() => {
+    if (selectedBrand === 'all') return availableVehicles;
+    return availableVehicles.filter((v) => v.brand === selectedBrand);
+  }, [availableVehicles, selectedBrand]);
+
+  // 카테고리 변경 시 필터 초기화
   const handleCategoryChange = (cat: 'all' | 'rental' | 'car') => {
     setSelectedCategory(cat);
+    setSelectedBrand('all');
+    setSelectedVehicle('all');
+  };
+
+  // 제조사 변경 시 차종 초기화
+  const handleBrandChange = (brand: string) => {
+    setSelectedBrand(brand);
     setSelectedVehicle('all');
   };
 
@@ -157,15 +204,19 @@ export function InfoArticles() {
     if (selectedCategory !== 'all') {
       result = result.filter((a) => a.category === selectedCategory);
     }
-    if (selectedCategory === 'car' && selectedVehicle !== 'all') {
-      result = result.filter((a) =>
-        selectedVehicle === '_none'
-          ? !a.vehicleSlug
-          : a.vehicleSlug === selectedVehicle
-      );
+    if (selectedCategory === 'car') {
+      if (selectedVehicle !== 'all') {
+        result = result.filter((a) =>
+          selectedVehicle === '_none' ? !a.vehicleSlug : a.vehicleSlug === selectedVehicle
+        );
+      } else if (selectedBrand !== 'all') {
+        // 제조사만 선택된 경우: 해당 브랜드 차종 or 미지정 글
+        const brandSlugs = new Set(filteredVehicles.map((v) => v.slug));
+        result = result.filter((a) => !a.vehicleSlug || brandSlugs.has(a.vehicleSlug));
+      }
     }
     return result;
-  }, [articles, selectedCategory, selectedVehicle]);
+  }, [articles, selectedCategory, selectedBrand, selectedVehicle, filteredVehicles]);
 
   return (
     <section className="py-8 flex-1">
@@ -194,10 +245,39 @@ export function InfoArticles() {
         ))}
       </div>
 
+      {/* 제조사 필터 (자동차 선택 시, 등록된 차종이 2개 브랜드 이상일 때) */}
+      {selectedCategory === 'car' && availableBrands.length > 1 && (
+        <div className="overflow-x-auto mb-2">
+          <div className="flex gap-2 px-5 pb-1 scrollbar-hide" style={{ width: 'max-content' }}>
+            {['전체', ...availableBrands].map((b) => (
+              <button
+                key={b}
+                type="button"
+                onClick={() => handleBrandChange(b === '전체' ? 'all' : b)}
+                className={`px-3 py-1 rounded-full text-xs font-semibold border transition-all whitespace-nowrap ${
+                  (b === '전체' ? selectedBrand === 'all' : selectedBrand === b)
+                    ? 'bg-accent text-white border-accent'
+                    : 'bg-white text-gray-600 border-gray-300 hover:border-accent'
+                }`}
+              >
+                {b}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* 차종 필터 (자동차 선택 시, 등록된 차종이 있을 때) */}
-      {selectedCategory === 'car' && availableVehicles.length > 0 && (
-        <div className="overflow-x-auto mb-5">
-          <div className="flex gap-2 px-5 pb-1" style={{ width: 'max-content' }}>
+      {selectedCategory === 'car' && filteredVehicles.length > 0 && (
+        <div
+          ref={dragScroll.ref}
+          onMouseDown={dragScroll.onMouseDown}
+          onMouseLeave={dragScroll.onMouseLeave}
+          onMouseUp={dragScroll.onMouseUp}
+          onMouseMove={dragScroll.onMouseMove}
+          className="overflow-x-auto px-5 mb-5 pb-2 scrollbar-thin cursor-grab select-none"
+        >
+          <div className="flex gap-2 pb-1" style={{ width: 'max-content' }}>
             <button
               type="button"
               onClick={() => setSelectedVehicle('all')}
@@ -209,7 +289,7 @@ export function InfoArticles() {
             >
               전체
             </button>
-            {availableVehicles.map((v) => (
+            {filteredVehicles.map((v) => (
               <button
                 key={v.slug}
                 type="button"
@@ -251,13 +331,13 @@ export function InfoArticles() {
                   <h3 className="text-sm font-bold text-gray-700">{group.label}</h3>
                   <span className="text-xs text-gray-400">{items.length}</span>
                 </div>
-                <div className="overflow-x-auto">
+                <DragScrollDiv className="overflow-x-auto scrollbar-thin cursor-grab select-none">
                   <div className="flex gap-3 px-5 pb-2" style={{ width: 'max-content' }}>
                     {items.map((a) => (
                       <ArticleCard key={a.id} article={a} isShorts={group.isShorts} />
                     ))}
                   </div>
-                </div>
+                </DragScrollDiv>
               </div>
             );
           })}
