@@ -13,6 +13,7 @@ interface InfoArticle {
   published_at: string | null;
   is_active: boolean;
   display_order: number;
+  category: string;
 }
 
 function parseUrl(url: string): { sourceType: string; thumbnailUrl: string | null } {
@@ -41,21 +42,16 @@ function parseUrl(url: string): { sourceType: string; thumbnailUrl: string | nul
   }
 }
 
-function getSourceLabel(sourceType: string | null): string {
-  switch (sourceType) {
-    case 'youtube':
-      return '유튜브';
-    case 'blog':
-      return '블로그';
-    default:
-      return '정보';
-  }
-}
+const CATEGORY_OPTIONS = [
+  { value: 'rental', label: '장기렌터카' },
+  { value: 'car', label: '자동차' },
+];
 
 interface EditState {
   id: string;
   title: string;
   excerpt: string;
+  category: string;
   saving: boolean;
 }
 
@@ -67,6 +63,7 @@ export default function AdminInfoPage() {
   const [urlInput, setUrlInput] = useState('');
   const [titleInput, setTitleInput] = useState('');
   const [excerptInput, setExcerptInput] = useState('');
+  const [categoryInput, setCategoryInput] = useState('rental');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -79,7 +76,7 @@ export default function AdminInfoPage() {
       const supabase = createBrowserSupabaseClient();
       const { data, error: err } = await supabase
         .from('info_articles')
-        .select('id, title, excerpt, link_url, thumbnail_url, source_type, published_at, is_active, display_order')
+        .select('id, title, excerpt, link_url, thumbnail_url, source_type, published_at, is_active, display_order, category')
         .order('display_order', { ascending: true })
         .order('created_at', { ascending: false });
 
@@ -133,12 +130,14 @@ export default function AdminInfoPage() {
         source_type: sourceType,
         is_active: true,
         display_order: articles.length,
+        category: categoryInput,
       });
 
       if (err) throw err;
       setUrlInput('');
       setTitleInput('');
       setExcerptInput('');
+      setCategoryInput('rental');
       fetchArticles();
     } catch (err) {
       const msg = err instanceof Error
@@ -175,6 +174,7 @@ export default function AdminInfoPage() {
         .update({
           title,
           excerpt: editState.excerpt.trim() || null,
+          category: editState.category,
           updated_at: new Date().toISOString(),
         })
         .eq('id', editState.id);
@@ -222,6 +222,10 @@ export default function AdminInfoPage() {
     }
   };
 
+  const getCategoryLabel = (category: string) => {
+    return CATEGORY_OPTIONS.find((o) => o.value === category)?.label ?? category;
+  };
+
   return (
     <div className="max-w-[1200px] mx-auto p-5">
       <h1 className="text-xl font-bold text-primary mb-6">정보관리</h1>
@@ -233,6 +237,27 @@ export default function AdminInfoPage() {
           블로그나 유튜브 등 외부 URL을 붙여넣으면 정보 페이지에 노출됩니다.
         </p>
         <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+              카테고리 <span className="text-danger">*</span>
+            </label>
+            <div className="flex gap-2">
+              {CATEGORY_OPTIONS.map((opt) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => setCategoryInput(opt.value)}
+                  className={`px-4 py-2 rounded-lg text-sm font-semibold border transition-all ${
+                    categoryInput === opt.value
+                      ? 'bg-accent text-white border-accent'
+                      : 'bg-white text-gray-600 border-gray-300 hover:border-accent'
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-1.5">
               URL <span className="text-danger">*</span>
@@ -364,6 +389,15 @@ export default function AdminInfoPage() {
                             </div>
                             {/* 제목 / URL */}
                             <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-2 mb-0.5">
+                                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                                  article.category === 'car'
+                                    ? 'bg-blue-100 text-blue-700'
+                                    : 'bg-accent/10 text-accent'
+                                }`}>
+                                  {getCategoryLabel(article.category)}
+                                </span>
+                              </div>
                               <h3 className="font-semibold text-gray-900 text-sm truncate">{article.title}</h3>
                               <a
                                 href={article.link_url}
@@ -397,6 +431,7 @@ export default function AdminInfoPage() {
                                       id: article.id,
                                       title: article.title,
                                       excerpt: article.excerpt ?? '',
+                                      category: article.category ?? 'rental',
                                       saving: false,
                                     });
                                   }
@@ -416,6 +451,25 @@ export default function AdminInfoPage() {
                           </div>
                           {isEditing && editState && (
                             <div className="mt-3 pt-3 border-t border-gray-100 space-y-3">
+                              <div>
+                                <label className="block text-xs font-semibold text-gray-600 mb-1">카테고리</label>
+                                <div className="flex gap-2">
+                                  {CATEGORY_OPTIONS.map((opt) => (
+                                    <button
+                                      key={opt.value}
+                                      type="button"
+                                      onClick={() => setEditState({ ...editState, category: opt.value })}
+                                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
+                                        editState.category === opt.value
+                                          ? 'bg-accent text-white border-accent'
+                                          : 'bg-white text-gray-600 border-gray-300 hover:border-accent'
+                                      }`}
+                                    >
+                                      {opt.label}
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
                               <div>
                                 <label className="block text-xs font-semibold text-gray-600 mb-1">제목</label>
                                 <input

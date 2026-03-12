@@ -10,14 +10,7 @@ interface Article {
   thumbnailUrl: string | null;
   sourceType: string;
   publishedAt: string | null;
-}
-
-function getSourceLabel(sourceType: string): string {
-  switch (sourceType) {
-    case 'youtube': return '유튜브';
-    case 'blog': return '블로그';
-    default: return '정보';
-  }
+  category: string;
 }
 
 function getDisplayType(article: Article): 'blog' | 'youtube' | 'shorts' {
@@ -35,6 +28,7 @@ const MOCK_ARTICLES: Article[] = [
     thumbnailUrl: 'https://img.youtube.com/vi/9bZkp7q19f0/mqdefault.jpg',
     sourceType: 'youtube',
     publishedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+    category: 'rental',
   },
   {
     id: 'mock-2',
@@ -44,6 +38,7 @@ const MOCK_ARTICLES: Article[] = [
     thumbnailUrl: 'https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg',
     sourceType: 'youtube',
     publishedAt: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000).toISOString(),
+    category: 'rental',
   },
   {
     id: 'mock-3',
@@ -53,15 +48,17 @@ const MOCK_ARTICLES: Article[] = [
     thumbnailUrl: null,
     sourceType: 'blog',
     publishedAt: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString(),
+    category: 'rental',
   },
   {
     id: 'mock-4',
-    title: '보증금 0원 장기렌트, 괜찮을까?',
-    excerpt: '보증금 없이 장기렌트하는 조건과 주의사항을 알아봅니다.',
+    title: '2025 신차 TOP 10 완전 정복',
+    excerpt: '올해 주목해야 할 신차 라인업을 소개합니다.',
     linkUrl: 'https://blog.naver.com',
     thumbnailUrl: null,
     sourceType: 'blog',
     publishedAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+    category: 'car',
   },
 ];
 
@@ -69,6 +66,12 @@ const GROUPS = [
   { type: 'blog' as const, label: '블로그', isShorts: false },
   { type: 'shorts' as const, label: '쇼츠', isShorts: true },
   { type: 'youtube' as const, label: '유튜브', isShorts: false },
+];
+
+const CATEGORY_FILTERS = [
+  { value: 'all', label: '전체' },
+  { value: 'rental', label: '장기렌터카' },
+  { value: 'car', label: '자동차' },
 ];
 
 function ArticleCard({ article, isShorts }: { article: Article; isShorts: boolean }) {
@@ -114,6 +117,7 @@ function ArticleCard({ article, isShorts }: { article: Article; isShorts: boolea
 export function InfoArticles() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState<'all' | 'rental' | 'car'>('all');
 
   useEffect(() => {
     fetch('/api/info-articles')
@@ -126,20 +130,42 @@ export function InfoArticles() {
       .finally(() => setLoading(false));
   }, []);
 
+  const filteredArticles = selectedCategory === 'all'
+    ? articles
+    : articles.filter((a) => a.category === selectedCategory);
+
   return (
     <section className="py-8 flex-1">
       <h2 className="text-xl font-bold text-primary mb-1 text-center px-5">
         장기렌터카 정보
       </h2>
-      <p className="text-sm text-gray-500 mb-6 text-center px-5">
+      <p className="text-sm text-gray-500 mb-5 text-center px-5">
         블로그, 유튜브 등에서 유용한 정보를 모았습니다
       </p>
+
+      {/* 카테고리 필터 */}
+      <div className="flex gap-2 px-5 mb-6">
+        {CATEGORY_FILTERS.map((f) => (
+          <button
+            key={f.value}
+            type="button"
+            onClick={() => setSelectedCategory(f.value as 'all' | 'rental' | 'car')}
+            className={`px-4 py-1.5 rounded-full text-sm font-semibold border transition-all ${
+              selectedCategory === f.value
+                ? 'bg-accent text-white border-accent'
+                : 'bg-white text-gray-600 border-gray-300 hover:border-accent'
+            }`}
+          >
+            {f.label}
+          </button>
+        ))}
+      </div>
 
       {loading ? (
         <div className="flex justify-center py-20">
           <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
         </div>
-      ) : articles.length === 0 ? (
+      ) : filteredArticles.length === 0 ? (
         <div className="mx-5 py-16 text-center rounded-xl bg-gray-50 border border-gray-200">
           <p className="text-gray-500">아직 등록된 정보가 없습니다</p>
           <p className="text-gray-400 text-sm mt-1">추후 블로그·유튜브 콘텐츠가 연결됩니다</p>
@@ -147,7 +173,7 @@ export function InfoArticles() {
       ) : (
         <div className="space-y-8">
           {GROUPS.map((group) => {
-            const items = articles.filter((a) => getDisplayType(a) === group.type);
+            const items = filteredArticles.filter((a) => getDisplayType(a) === group.type);
             if (items.length === 0) return null;
             return (
               <div key={group.type}>

@@ -9,6 +9,7 @@ interface ArticleRow {
   thumbnail_url: string | null;
   source_type: string | null;
   published_at: string | null;
+  category: string | null;
 }
 
 export async function GET() {
@@ -17,7 +18,7 @@ export async function GET() {
 
     const { data, error } = await supabase
       .from('info_articles')
-      .select('id, title, excerpt, link_url, thumbnail_url, source_type, published_at')
+      .select('id, title, excerpt, link_url, thumbnail_url, source_type, published_at, category')
       .eq('is_active', true)
       .order('display_order', { ascending: true })
       .order('published_at', { ascending: false, nullsFirst: false });
@@ -28,7 +29,7 @@ export async function GET() {
     }
 
     const articles = (data as ArticleRow[]).map(
-      ({ id, title, excerpt, link_url, thumbnail_url, source_type, published_at }) => ({
+      ({ id, title, excerpt, link_url, thumbnail_url, source_type, published_at, category }) => ({
         id,
         title,
         excerpt,
@@ -36,6 +37,7 @@ export async function GET() {
         thumbnailUrl: thumbnail_url,
         sourceType: source_type ?? 'blog',
         publishedAt: published_at,
+        category: category ?? 'rental',
       })
     );
 
