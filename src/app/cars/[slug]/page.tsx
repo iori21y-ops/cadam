@@ -7,6 +7,7 @@ import { PriceCompareTable } from '@/components/cars/PriceCompareTable';
 import { RelatedCars } from '@/components/cars/RelatedCars';
 import { CarCtaSection } from '@/components/cars/CarCtaSection';
 import { CarSeoAnalytics } from '@/components/cars/CarSeoAnalytics';
+import { CarArticles } from '@/components/cars/CarArticles';
 
 export const revalidate = 3600;
 
@@ -19,6 +20,15 @@ interface PriceRangeRow {
   annual_km: number;
   min_monthly: number;
   max_monthly: number;
+}
+
+interface ArticleRow {
+  id: string;
+  title: string;
+  link_url: string;
+  thumbnail_url: string | null;
+  source_type: string | null;
+  display_order: number;
 }
 
 export async function generateMetadata({
@@ -47,12 +57,6 @@ export async function generateMetadata({
   };
 }
 
-const RENT_BENEFITS = [
-  '✅ 보험/세금 렌트료에 포함',
-  '✅ 정비 포함 가능 (종합 패키지)',
-  '✅ 법인 사업자 전액 비용 처리',
-];
-
 export default async function CarPage({
   params,
 }: {
@@ -63,18 +67,35 @@ export default async function CarPage({
   if (!vehicle) notFound();
 
   const supabase = await createServerSupabaseClient();
-  const { data: priceRanges, error } = await supabase
-    .from('price_ranges')
-    .select('contract_months, annual_km, min_monthly, max_monthly')
-    .eq('car_brand', vehicle.brand)
-    .eq('car_model', vehicle.model)
-    .eq('is_active', true);
+
+  const [{ data: priceRanges, error }, { data: articleRows }] = await Promise.all([
+    supabase
+      .from('price_ranges')
+      .select('contract_months, annual_km, min_monthly, max_monthly')
+      .eq('car_brand', vehicle.brand)
+      .eq('car_model', vehicle.model)
+      .eq('is_active', true),
+    supabase
+      .from('info_articles')
+      .select('id, title, link_url, thumbnail_url, source_type, display_order')
+      .eq('vehicle_slug', vehicle.slug)
+      .eq('is_active', true)
+      .order('display_order', { ascending: true }),
+  ]);
 
   const priceRows: PriceRangeRow[] = error ? [] : (priceRanges ?? []);
   const minPrice =
     priceRows.length > 0
       ? Math.min(...priceRows.map((r) => r.min_monthly))
       : null;
+
+  const articles = ((articleRows ?? []) as ArticleRow[]).map((r) => ({
+    id: r.id,
+    title: r.title,
+    linkUrl: r.link_url,
+    thumbnailUrl: r.thumbnail_url,
+    sourceType: r.source_type ?? 'blog',
+  }));
 
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://cadam.co.kr';
   const jsonLd = {
@@ -114,9 +135,6 @@ export default async function CarPage({
           <h2 className="text-lg font-bold text-primary mb-4">
             계약 조건별 월 납부금
           </h2>
-          <p className="text-xs text-gray-500 mb-3">
-            ISR(revalidate=3600) + On-demand Revalidation
-          </p>
           {priceRows.length > 0 ? (
             <PriceCompareTable priceRanges={priceRows} />
           ) : (
@@ -126,21 +144,7 @@ export default async function CarPage({
           )}
         </section>
 
-        <section className="px-5 py-8">
-          <h2 className="text-lg font-bold text-primary mb-4">
-            장기렌트 장점
-          </h2>
-          <div className="flex flex-col gap-2">
-            {RENT_BENEFITS.map((text) => (
-              <div
-                key={text}
-                className="bg-gray-100 py-3 px-4 rounded-lg text-[13px] text-gray-700"
-              >
-                {text}
-              </div>
-            ))}
-          </div>
-        </section>
+        <CarArticles articles={articles} />
 
         <div className="px-5 pb-4">
           <CarCtaSection vehicle={vehicle} />
