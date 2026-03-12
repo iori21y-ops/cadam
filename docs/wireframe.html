@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>카담(CADAM) — 와이어프레임 프로토타입 (PRD v3.4)</title>
+<style>
+  @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Pretendard', -apple-system, sans-serif; background: #F0F2F5; color: #333; }
+
+  :root {
+    --primary: #1B3A5C; --accent: #2E86C1; --accent-light: #EBF5FB;
+    --success: #27AE60; --warning: #F39C12; --danger: #E74C3C;
+    --gray-100: #F8F9FA; --gray-200: #E9ECEF; --gray-300: #DEE2E6;
+    --gray-400: #ADB5BD; --gray-500: #6C757D; --gray-700: #495057; --gray-900: #212529;
+    --kakao: #FEE500;
+  }
+
+  /* Navigation */
+  .nav { position: sticky; top: 0; z-index: 50; background: #fff; border-bottom: 1px solid var(--gray-200); padding: 12px 0; }
+  .nav-inner { max-width: 1200px; margin: 0 auto; padding: 0 20px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; align-items: center; }
+  .nav-btn { padding: 8px 16px; border: 1px solid var(--gray-200); border-radius: 20px; background: #fff; color: var(--gray-700); font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+  .nav-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .nav-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .nav-title { font-size: 14px; font-weight: 800; color: var(--primary); margin-right: 12px; }
+
+  /* Phone Frame */
+  .phone-container { display: flex; justify-content: center; padding: 24px 16px 40px; }
+  .phone { width: 375px; min-height: 700px; max-height: 812px; background: #fff; border-radius: 24px; box-shadow: 0 8px 40px rgba(0,0,0,0.12); overflow: hidden; display: flex; flex-direction: column; border: 1px solid var(--gray-200); position: relative; }
+  .phone-header { height: 44px; background: var(--gray-100); display: flex; align-items: center; justify-content: center; border-bottom: 1px solid var(--gray-200); flex-shrink: 0; position: relative; }
+  .phone-header span { font-size: 13px; font-weight: 600; color: var(--gray-700); }
+  .phone-body { flex: 1; overflow-y: auto; }
+  .back-btn { position: absolute; left: 16px; background: none; border: none; font-size: 16px; cursor: pointer; color: var(--accent); font-weight: 600; }
+  .phone-bottom { padding: 12px 20px 20px; flex-shrink: 0; }
+
+  /* Progress Bar */
+  .progress { padding: 12px 20px 0; }
+  .progress-info { display: flex; justify-content: space-between; margin-bottom: 6px; }
+  .progress-info span { font-size: 12px; color: var(--gray-500); }
+  .progress-info .pct { color: var(--accent); font-weight: 600; }
+  .progress-bar { height: 4px; background: var(--gray-200); border-radius: 2px; }
+  .progress-fill { height: 100%; background: var(--accent); border-radius: 2px; transition: width 0.3s; }
+
+  /* Headings */
+  .step-head { padding: 28px 20px 8px; text-align: center; }
+  .step-head h2 { font-size: 22px; font-weight: 700; color: var(--gray-900); line-height: 1.4; }
+  .step-head p { font-size: 14px; color: var(--gray-500); margin-top: 8px; }
+
+  /* Option Cards */
+  .options { padding: 12px 20px; display: flex; flex-direction: column; gap: 10px; }
+  .opt-card { width: 100%; padding: 16px 18px; background: #fff; border: 2px solid var(--gray-200); border-radius: 12px; cursor: pointer; text-align: left; display: flex; align-items: center; gap: 12px; transition: all 0.15s; position: relative; }
+  .opt-card:hover { border-color: var(--accent); background: var(--accent-light); }
+  .opt-card.selected { border-color: var(--accent); background: var(--accent-light); }
+  .opt-card .emoji { font-size: 24px; }
+  .opt-card .label { font-size: 16px; font-weight: 600; color: var(--gray-900); }
+  .opt-card .sub { font-size: 13px; color: var(--gray-500); margin-top: 2px; }
+  .opt-card .check { color: var(--accent); font-size: 18px; font-weight: 700; margin-left: auto; display: none; }
+  .opt-card.selected .check { display: block; }
+  .opt-card.selected .label { color: var(--accent); }
+  .badge { position: absolute; top: -8px; right: 12px; background: var(--warning); color: #fff; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px; }
+
+  /* Grid */
+  .grid-2 { padding: 12px 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .grid-card { padding: 14px 10px; border: 2px solid var(--gray-200); border-radius: 12px; background: #fff; cursor: pointer; text-align: center; transition: all 0.15s; }
+  .grid-card:hover { border-color: var(--accent); background: var(--accent-light); }
+  .grid-card.selected { border-color: var(--accent); background: var(--accent-light); }
+  .grid-card .name { font-size: 14px; font-weight: 600; color: var(--gray-900); }
+  .grid-card .seg { font-size: 11px; color: var(--gray-400); margin-top: 4px; }
+
+  /* Tabs */
+  .tabs { display: flex; border-bottom: 2px solid var(--gray-200); margin: 0 20px; }
+  .tab { flex: 1; padding: 10px 0; border: none; background: none; font-size: 14px; font-weight: 600; cursor: pointer; color: var(--gray-400); border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.15s; }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .sub-tabs { display: flex; gap: 8px; padding: 10px 20px; }
+  .sub-tab { padding: 6px 14px; border-radius: 16px; border: 1px solid var(--gray-300); background: #fff; font-size: 12px; font-weight: 600; cursor: pointer; color: var(--gray-500); }
+  .sub-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  /* CTA Button */
+  .cta { width: 100%; padding: 16px 0; border: none; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.15s; }
+  .cta-primary { background: var(--accent); color: #fff; }
+  .cta-primary:hover { background: #2577B0; }
+  .cta-primary.disabled { background: var(--gray-300); color: var(--gray-500); cursor: default; }
+  .cta-kakao { background: var(--kakao); color: #3C1E1E; }
+  .cta-outline { background: none; border: 2px solid var(--accent); color: var(--accent); }
+
+  /* Form */
+  .form-group { padding: 0 20px; margin-bottom: 16px; }
+  .form-label { font-size: 13px; font-weight: 600; color: var(--gray-700); display: block; margin-bottom: 6px; }
+  .form-input { width: 100%; padding: 14px 16px; border: 1px solid var(--gray-300); border-radius: 8px; font-size: 16px; outline: none; font-family: inherit; }
+  .form-input:focus { border-color: var(--accent); }
+  .checkbox-row { display: flex; align-items: flex-start; gap: 10px; padding: 0 20px; margin-top: 16px; cursor: pointer; }
+  .checkbox-row input { width: 20px; height: 20px; margin-top: 2px; accent-color: var(--accent); }
+  .checkbox-row span { font-size: 14px; color: var(--gray-700); line-height: 1.5; }
+  .checkbox-row a { color: var(--accent); font-size: 12px; }
+
+  /* Result */
+  .result-icon { width: 64px; height: 64px; border-radius: 50%; background: #E8F8F0; display: flex; align-items: center; justify-content: center; margin: 20px auto 16px; font-size: 32px; }
+  .price-card { margin: 0 20px; padding: 20px; background: linear-gradient(135deg, var(--primary), var(--accent)); border-radius: 16px; text-align: center; color: #fff; }
+  .price-card .label { font-size: 13px; opacity: 0.8; }
+  .price-card .amount { font-size: 32px; font-weight: 800; margin-top: 8px; }
+  .summary-card { margin: 16px 20px; background: var(--gray-100); border-radius: 12px; padding: 16px; }
+  .summary-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--gray-200); }
+  .summary-row:last-child { border: none; }
+  .summary-row .key { font-size: 13px; color: var(--gray-500); }
+  .summary-row .val { font-size: 13px; font-weight: 600; color: var(--gray-900); }
+
+  /* Info Page */
+  .hero { background: linear-gradient(135deg, var(--primary), var(--accent)); padding: 40px 20px; text-align: center; color: #fff; }
+  .hero h1 { font-size: 26px; font-weight: 800; line-height: 1.4; }
+  .hero p { font-size: 14px; opacity: 0.8; margin-top: 10px; }
+  .hero .btn { display: inline-block; margin-top: 20px; padding: 14px 32px; background: #fff; color: var(--accent); border: none; border-radius: 8px; font-size: 15px; font-weight: 700; cursor: pointer; }
+  .section { padding: 24px 20px; }
+  .section h3 { font-size: 18px; font-weight: 700; color: var(--gray-900); margin-bottom: 12px; }
+
+  /* Compare Table */
+  .compare-table { border-radius: 12px; overflow: hidden; border: 1px solid var(--gray-200); }
+  .compare-row { display: grid; grid-template-columns: 1fr 1fr 1fr; }
+  .compare-header { background: var(--primary); }
+  .compare-header div { padding: 10px 8px; font-size: 12px; font-weight: 700; color: #fff; text-align: center; }
+  .compare-body div { padding: 10px 8px; font-size: 12px; text-align: center; }
+  .compare-body:nth-child(odd) { background: var(--gray-100); }
+  .compare-accent { color: var(--accent); font-weight: 600; }
+
+  /* Promo Cards */
+  .promo-scroll { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 8px; }
+  .promo-card { min-width: 200px; background: var(--gray-100); border-radius: 12px; padding: 16px; flex-shrink: 0; }
+  .promo-img { height: 80px; background: var(--gray-200); border-radius: 8px; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; color: var(--gray-400); font-size: 12px; }
+  .promo-card .title { font-size: 14px; font-weight: 700; color: var(--gray-900); }
+  .promo-card .desc { font-size: 12px; color: var(--gray-500); margin-top: 4px; }
+
+  /* Popular Grid */
+  .pop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .pop-card { border: 1px solid var(--gray-200); border-radius: 12px; padding: 14px; text-align: center; }
+  .pop-card .name { font-size: 15px; font-weight: 700; }
+  .pop-card .price { font-size: 18px; font-weight: 800; color: var(--accent); margin: 6px 0; }
+  .pop-card .btn { padding: 6px 16px; background: var(--accent-light); color: var(--accent); border: none; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; }
+
+  /* Admin */
+  .admin-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+  .admin-stat { background: var(--gray-100); border-radius: 12px; padding: 14px; text-align: center; }
+  .admin-stat .label { font-size: 12px; color: var(--gray-500); }
+  .admin-stat .value { font-size: 22px; font-weight: 800; margin-top: 4px; }
+  .admin-stat.hot .value { color: var(--danger); }
+  .admin-row { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--gray-200); gap: 12px; }
+  .admin-row .info { flex: 1; }
+  .admin-row .name { font-size: 14px; font-weight: 700; color: var(--gray-900); }
+  .admin-row .meta { font-size: 13px; color: var(--gray-500); margin-top: 2px; }
+  .admin-row .time { font-size: 11px; color: var(--gray-400); }
+  .status-badge { font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 12px; }
+  .status-pending { color: var(--danger); background: #FDEDEC; }
+  .status-consulting { color: var(--warning); background: #FEF9E7; }
+  .status-completed { color: var(--success); background: #E8F8F0; }
+  .lead-badge { font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; margin-left: 6px; }
+  .lead-hot { background: #FDEDEC; color: var(--danger); }
+  .lead-warm { background: #FEF9E7; color: var(--warning); }
+  .lead-cool { background: #FFF9E6; color: #B7950B; }
+  .admin-menu { display: flex; flex-direction: column; gap: 8px; margin-top: 20px; }
+  .admin-menu-btn { width: 100%; padding: 14px 16px; background: var(--gray-100); border: 1px solid var(--gray-200); border-radius: 10px; font-size: 14px; font-weight: 600; color: var(--gray-700); cursor: pointer; text-align: left; }
+
+  /* CRM Panel */
+  .crm-panel { background: var(--gray-100); border-radius: 12px; padding: 16px; margin-top: 12px; }
+  .crm-panel h4 { font-size: 14px; font-weight: 700; color: var(--gray-700); margin-bottom: 8px; }
+  .crm-panel textarea { width: 100%; height: 60px; border: 1px solid var(--gray-300); border-radius: 8px; padding: 10px; font-size: 13px; font-family: inherit; resize: none; }
+  .crm-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; }
+  .crm-row .label { font-size: 13px; color: var(--gray-500); }
+  .crm-select { padding: 6px 10px; border: 1px solid var(--gray-300); border-radius: 6px; font-size: 13px; }
+
+  /* SEO Page */
+  .seo-hero { background: var(--gray-100); padding: 24px 20px; text-align: center; }
+  .seo-hero .car-img { width: 200px; height: 120px; background: var(--gray-200); border-radius: 12px; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; color: var(--gray-400); font-size: 12px; }
+  .seo-hero .car-name { font-size: 24px; font-weight: 800; color: var(--gray-900); }
+  .seo-hero .tags { display: flex; gap: 6px; justify-content: center; margin-top: 8px; }
+  .tag { padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+  .tag-segment { background: var(--accent-light); color: var(--accent); }
+  .tag-fuel { background: #E8F8F0; color: var(--success); }
+  .seo-price { font-size: 22px; font-weight: 800; color: var(--accent); margin-top: 12px; }
+  .price-table { width: 100%; border-collapse: collapse; border-radius: 8px; overflow: hidden; }
+  .price-table th { background: var(--primary); color: #fff; padding: 10px 8px; font-size: 12px; font-weight: 600; }
+  .price-table td { padding: 10px 8px; font-size: 13px; text-align: center; border-bottom: 1px solid var(--gray-200); }
+  .price-table tr:nth-child(even) { background: var(--gray-100); }
+
+  /* Footer */
+  .footer { background: var(--gray-100); padding: 20px; border-top: 1px solid var(--gray-200); }
+  .footer p { font-size: 12px; color: var(--gray-500); margin-bottom: 4px; }
+  .footer .legal { font-size: 11px; color: var(--gray-400); margin-top: 10px; }
+
+  /* Leave Modal */
+  .modal-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 100; border-radius: 24px; }
+  .modal-box { background: #fff; border-radius: 16px; padding: 24px; margin: 20px; width: 100%; max-width: 320px; text-align: center; }
+  .modal-box h3 { font-size: 20px; font-weight: 700; margin: 8px 0; }
+  .modal-box p { font-size: 14px; color: var(--gray-500); line-height: 1.5; margin-bottom: 16px; }
+  .modal-dismiss { background: none; border: none; color: var(--gray-400); font-size: 13px; cursor: pointer; text-decoration: underline; margin-top: 8px; }
+
+  /* Flow Diagram */
+  .flow-container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+  .flow-title { text-align: center; font-size: 20px; font-weight: 800; color: var(--primary); margin-bottom: 20px; }
+  .flow-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
+  .flow-box { background: #fff; border: 2px solid var(--gray-200); border-radius: 12px; padding: 14px; text-align: center; cursor: pointer; transition: all 0.15s; }
+  .flow-box:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+  .flow-box .icon { font-size: 24px; margin-bottom: 6px; }
+  .flow-box .name { font-size: 13px; font-weight: 700; color: var(--gray-900); }
+  .flow-box .path { font-size: 11px; color: var(--gray-400); margin-top: 4px; font-family: monospace; }
+  .flow-arrow { display: flex; align-items: center; justify-content: center; color: var(--gray-400); font-size: 20px; }
+
+  .hidden { display: none; }
+  .helper-text { text-align: center; font-size: 12px; color: var(--gray-400); max-width: 400px; margin: 8px auto 0; }
+</style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="nav">
+  <div class="nav-inner">
+    <span class="nav-title">카담(CADAM) 와이어프레임</span>
+    <button class="nav-btn active" onclick="showScreen('sitemap')">🗺️ 사이트맵</button>
+    <button class="nav-btn" onclick="showScreen('step')">📝 Page 1: 견적</button>
+    <button class="nav-btn" onclick="showScreen('info')">📰 Page 2: 정보</button>
+    <button class="nav-btn" onclick="showScreen('seo')">🔍 SEO 페이지</button>
+    <button class="nav-btn" onclick="showScreen('result')">✅ 견적 결과</button>
+    <button class="nav-btn" onclick="showScreen('admin')">⚙️ Admin</button>
+    <button class="nav-btn" onclick="showScreen('crm')">💼 CRM 상세</button>
+    <button class="nav-btn" onclick="showScreen('leave')">🚪 이탈 모달</button>
+  </div>
+</nav>
+
+<!-- SITEMAP -->
+<div id="screen-sitemap">
+  <div class="flow-container">
+    <div class="flow-title">📐 전체 사이트 구조 — 카담(CADAM)</div>
+    <p style="text-align:center;color:var(--gray-500);font-size:14px;margin-bottom:24px;">각 박스를 클릭하면 해당 화면으로 이동합니다</p>
+
+    <div style="margin-bottom:24px;">
+      <h3 style="font-size:15px;font-weight:700;color:var(--primary);margin-bottom:12px;">🟢 고객 화면</h3>
+      <div class="flow-grid">
+        <div class="flow-box" onclick="showScreen('step')"><div class="icon">📝</div><div class="name">Page 1: 견적 플로우</div><div class="path">/</div></div>
+        <div class="flow-box" onclick="showScreen('info')"><div class="icon">📰</div><div class="name">Page 2: 정보/프로모션</div><div class="path">/info</div></div>
+        <div class="flow-box" onclick="showScreen('result')"><div class="icon">✅</div><div class="name">견적 결과</div><div class="path">/result</div></div>
+        <div class="flow-box" onclick="showScreen('seo')"><div class="icon">🔍</div><div class="name">SEO 차종별</div><div class="path">/cars/[slug]</div></div>
+        <div class="flow-box"><div class="icon">🔒</div><div class="name">개인정보 처리방침</div><div class="path">/privacy</div></div>
+      </div>
+    </div>
+
+    <div style="margin-bottom:24px;">
+      <h3 style="font-size:15px;font-weight:700;color:var(--primary);margin-bottom:12px;">🔵 관리자 화면</h3>
+      <div class="flow-grid">
+        <div class="flow-box" onclick="showScreen('admin')"><div class="icon">📊</div><div class="name">대시보드</div><div class="path">/admin</div></div>
+        <div class="flow-box" onclick="showScreen('crm')"><div class="icon">💼</div><div class="name">상담 관리 (CRM)</div><div class="path">/admin/consultations</div></div>
+        <div class="flow-box"><div class="icon">🎫</div><div class="name">프로모션 관리</div><div class="path">/admin/promotions</div></div>
+        <div class="flow-box"><div class="icon">💰</div><div class="name">가격표 관리</div><div class="path">/admin/prices</div></div>
+        <div class="flow-box"><div class="icon">🔑</div><div class="name">로그인</div><div class="path">/admin/login</div></div>
+      </div>
+    </div>
+
+    <div style="margin-bottom:24px;">
+      <h3 style="font-size:15px;font-weight:700;color:var(--primary);margin-bottom:12px;">⚡ API 엔드포인트</h3>
+      <div class="flow-grid">
+        <div class="flow-box"><div class="icon">📤</div><div class="name">상담 신청</div><div class="path">POST /api/consultation</div></div>
+        <div class="flow-box"><div class="icon">💵</div><div class="name">견적 조회</div><div class="path">GET /api/price-range</div></div>
+        <div class="flow-box"><div class="icon">🎁</div><div class="name">프로모션 조회</div><div class="path">GET /api/promotions</div></div>
+        <div class="flow-box"><div class="icon">🔄</div><div class="name">ISR 재생성</div><div class="path">POST /api/revalidate</div></div>
+      </div>
+    </div>
+
+    <div>
+      <h3 style="font-size:15px;font-weight:700;color:var(--primary);margin-bottom:12px;">📝 Page 1 스텝 플로우</h3>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:center;">
+        <div style="background:var(--accent-light);padding:10px 16px;border-radius:10px;text-align:center;min-width:100px;">
+          <div style="font-size:11px;color:var(--accent);font-weight:700;">Step 1</div>
+          <div style="font-size:12px;color:var(--gray-700);margin-top:2px;">차종/예산 분기</div>
+        </div>
+        <div style="color:var(--gray-400);">→</div>
+        <div style="background:var(--accent-light);padding:10px 16px;border-radius:10px;text-align:center;min-width:100px;">
+          <div style="font-size:11px;color:var(--accent);font-weight:700;">Step 2</div>
+          <div style="font-size:12px;color:var(--gray-700);margin-top:2px;">차종 or 예산</div>
+        </div>
+        <div style="color:var(--gray-400);">→</div>
+        <div style="background:var(--accent-light);padding:10px 16px;border-radius:10px;text-align:center;min-width:100px;">
+          <div style="font-size:11px;color:var(--accent);font-weight:700;">Step 3</div>
+          <div style="font-size:12px;color:var(--gray-700);margin-top:2px;">계약 기간</div>
+        </div>
+        <div style="color:var(--gray-400);">→</div>
+        <div style="background:var(--accent-light);padding:10px 16px;border-radius:10px;text-align:center;min-width:100px;">
+          <div style="font-size:11px;color:var(--accent);font-weight:700;">Step 4</div>
+          <div style="font-size:12px;color:var(--gray-700);margin-top:2px;">주행거리</div>
+        </div>
+        <div style="color:var(--gray-400);">→</div>
+        <div style="background:var(--accent-light);padding:10px 16px;border-radius:10px;text-align:center;min-width:100px;">
+          <div style="font-size:11px;color:var(--accent);font-weight:700;">Step 5</div>
+          <div style="font-size:12px;color:var(--gray-700);margin-top:2px;">보증금/선납금</div>
+        </div>
+        <div style="color:var(--gray-400);">→</div>
+        <div style="background:var(--accent-light);padding:10px 16px;border-radius:10px;text-align:center;min-width:100px;">
+          <div style="font-size:11px;color:var(--accent);font-weight:700;">Step 6</div>
+          <div style="font-size:12px;color:var(--gray-700);margin-top:2px;">연락처+동의</div>
+        </div>
+        <div style="color:var(--gray-400);">→</div>
+        <div style="background:#E8F8F0;padding:10px 16px;border-radius:10px;text-align:center;min-width:100px;">
+          <div style="font-size:11px;color:var(--success);font-weight:700;">Result</div>
+          <div style="font-size:12px;color:var(--gray-700);margin-top:2px;">견적 결과</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STEP FLOW -->
+<div id="screen-step" class="hidden">
+  <div class="phone-container">
+    <div class="phone" id="step-phone">
+      <div class="phone-header">
+        <button class="back-btn" id="step-back" onclick="prevStep()" style="display:none;">← 뒤로</button>
+        <span id="step-title">Page 1 — Step 1/6</span>
+      </div>
+      <div class="phone-body" id="step-body"></div>
+    </div>
+  </div>
+  <p class="helper-text">카드를 클릭하면 다음 단계로 이동합니다. 좌상단 '뒤로'로 이전 단계 복귀 가능.</p>
+</div>
+
+<!-- INFO PAGE -->
+<div id="screen-info" class="hidden">
+  <div class="phone-container">
+    <div class="phone">
+      <div class="phone-header"><span>Page 2 — 정보/프로모션 (/info)</span></div>
+      <div class="phone-body">
+        <div class="hero">
+          <h1>장기렌터카,<br>더 똑똑하게 시작하세요</h1>
+          <p>맞춤 견적부터 계약까지, 전문 상담사가 함께합니다</p>
+          <button class="btn" onclick="showScreen('step')">무료 견적 받기 →</button>
+        </div>
+        <div class="section">
+          <h3>구매? 렌트? 뭐가 유리할까?</h3>
+          <div class="compare-table">
+            <div class="compare-row compare-header"><div>항목</div><div>신차 구매</div><div>장기렌트</div></div>
+            <div class="compare-row compare-body"><div>초기 비용</div><div>전액/할부</div><div class="compare-accent">보증금만</div></div>
+            <div class="compare-row compare-body"><div>보험/세금</div><div>직접 납부</div><div class="compare-accent">포함</div></div>
+            <div class="compare-row compare-body"><div>정비</div><div>직접 관리</div><div class="compare-accent">포함 가능</div></div>
+            <div class="compare-row compare-body"><div>비용 처리</div><div>감가상각</div><div class="compare-accent">전액 가능</div></div>
+          </div>
+        </div>
+        <div class="section">
+          <h3>🔥 이달의 특별 혜택</h3>
+          <div class="promo-scroll">
+            <div class="promo-card"><div class="promo-img">배너 이미지</div><div class="title">쏘나타 특가</div><div class="desc">최대 30% 할인 혜택</div></div>
+            <div class="promo-card"><div class="promo-img">배너 이미지</div><div class="title">투싼 프로모션</div><div class="desc">보증금 0원 이벤트</div></div>
+            <div class="promo-card"><div class="promo-img">배너 이미지</div><div class="title">그랜저 이벤트</div><div class="desc">48개월 특별 조건</div></div>
+          </div>
+        </div>
+        <div class="section">
+          <h3>인기 차종 월 렌트료</h3>
+          <div class="pop-grid">
+            <div class="pop-card"><div class="name">투싼</div><div class="price">월 35만~</div><button class="btn">견적 받기</button></div>
+            <div class="pop-card"><div class="name">쏘나타</div><div class="price">월 32만~</div><button class="btn">견적 받기</button></div>
+            <div class="pop-card"><div class="name">그랜저</div><div class="price">월 45만~</div><button class="btn">견적 받기</button></div>
+            <div class="pop-card"><div class="name">K5</div><div class="price">월 30만~</div><button class="btn">견적 받기</button></div>
+            <div class="pop-card"><div class="name">스포티지</div><div class="price">월 34만~</div><button class="btn">견적 받기</button></div>
+            <div class="pop-card"><div class="name">카니발</div><div class="price">월 50만~</div><button class="btn">견적 받기</button></div>
+          </div>
+        </div>
+        <div class="section">
+          <h3>빠른 상담 신청</h3>
+          <div style="background:var(--gray-100);border-radius:12px;padding:16px;">
+            <input class="form-input" placeholder="이름" style="margin-bottom:8px;">
+            <input class="form-input" placeholder="연락처 (010-1234-5678)" style="margin-bottom:8px;">
+            <label style="display:flex;gap:8px;align-items:center;margin-bottom:12px;font-size:13px;color:var(--gray-700);"><input type="checkbox" style="accent-color:var(--accent);"> 개인정보 수집 동의</label>
+            <button class="cta cta-primary">상담 신청</button>
+          </div>
+        </div>
+        <div class="footer">
+          <p>운영시간: 평일 09:00~18:00</p>
+          <p>연락처: 02-1234-5678</p>
+          <p>카카오톡 채널: @카담 (개설 예정)</p>
+          <p class="legal">개인정보 처리방침 | 사업자 정보</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SEO PAGE -->
+<div id="screen-seo" class="hidden">
+  <div class="phone-container">
+    <div class="phone">
+      <div class="phone-header"><button class="back-btn" onclick="showScreen('sitemap')">← 뒤로</button><span>SEO 페이지 — /cars/tucson</span></div>
+      <div class="phone-body">
+        <div class="seo-hero">
+          <div class="car-img">차량 이미지 (webp)</div>
+          <div class="car-name">투싼 (NX4)</div>
+          <div class="tags"><span class="tag tag-segment">준중형 SUV</span><span class="tag tag-fuel">가솔린</span></div>
+          <div class="seo-price">월 35만원부터~</div>
+        </div>
+        <div style="padding:16px 20px;">
+          <button class="cta cta-primary" style="margin-bottom:12px;" onclick="showScreen('step')">이 차량으로 무료 견적 받기</button>
+        </div>
+        <div class="section">
+          <h3>계약 조건별 월 납부금</h3>
+          <p style="font-size:12px;color:var(--gray-500);margin-bottom:10px;">ISR(revalidate=3600) + On-demand Revalidation</p>
+          <table class="price-table">
+            <tr><th>계약 기간</th><th>연 2만km</th><th>연 3만km</th></tr>
+            <tr><td>36개월</td><td style="color:var(--accent);font-weight:600;">45만~</td><td>48만~</td></tr>
+            <tr><td>48개월</td><td style="color:var(--accent);font-weight:600;">38만~</td><td>41만~</td></tr>
+            <tr><td>60개월</td><td style="color:var(--accent);font-weight:600;">33만~</td><td>36만~</td></tr>
+          </table>
+        </div>
+        <div class="section">
+          <h3>장기렌트 장점</h3>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div style="background:var(--gray-100);padding:12px;border-radius:8px;font-size:13px;">✅ 보험/세금 렌트료에 포함</div>
+            <div style="background:var(--gray-100);padding:12px;border-radius:8px;font-size:13px;">✅ 정비 포함 가능 (종합 패키지)</div>
+            <div style="background:var(--gray-100);padding:12px;border-radius:8px;font-size:13px;">✅ 법인 사업자 전액 비용 처리</div>
+          </div>
+        </div>
+        <div class="section">
+          <h3>비슷한 차종도 확인해 보세요</h3>
+          <div style="display:flex;gap:10px;overflow-x:auto;">
+            <div style="min-width:120px;border:1px solid var(--gray-200);border-radius:10px;padding:12px;text-align:center;">
+              <div style="font-size:14px;font-weight:700;">싼타페</div><div style="font-size:12px;color:var(--accent);margin-top:4px;">월 42만~</div>
+            </div>
+            <div style="min-width:120px;border:1px solid var(--gray-200);border-radius:10px;padding:12px;text-align:center;">
+              <div style="font-size:14px;font-weight:700;">스포티지</div><div style="font-size:12px;color:var(--accent);margin-top:4px;">월 34만~</div>
+            </div>
+            <div style="min-width:120px;border:1px solid var(--gray-200);border-radius:10px;padding:12px;text-align:center;">
+              <div style="font-size:14px;font-weight:700;">쏘렌토</div><div style="font-size:12px;color:var(--accent);margin-top:4px;">월 40만~</div>
+            </div>
+          </div>
+        </div>
+        <div style="padding:12px 20px 20px;display:flex;flex-direction:column;gap:10px;">
+          <button class="cta cta-kakao">💬 카카오톡으로 상담하기</button>
+          <button class="cta cta-outline">📞 전화 상담 요청</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div id="screen-result" class="hidden">
+  <div class="phone-container">
+    <div class="phone">
+      <div class="phone-header"><span>견적 결과 — /result</span></div>
+      <div class="phone-body">
+        <div style="padding:20px;text-align:center;">
+          <div class="result-icon">✅</div>
+          <h2 style="font-size:22px;font-weight:700;">견적 요청이 완료되었습니다!</h2>
+          <p style="font-size:14px;color:var(--gray-500);margin-top:8px;">전문 상담사가 빠르게 연락드리겠습니다</p>
+        </div>
+        <div class="price-card"><div class="label">예상 월 납부금</div><div class="amount">35만 ~ 45만원</div></div>
+        <div class="summary-card">
+          <div style="font-size:14px;font-weight:700;color:var(--gray-700);margin-bottom:12px;">선택 내역</div>
+          <div class="summary-row"><span class="key">차종</span><span class="val">현대 투싼 프리미엄</span></div>
+          <div class="summary-row"><span class="key">계약 기간</span><span class="val">48개월</span></div>
+          <div class="summary-row"><span class="key">주행거리</span><span class="val">연 2만km</span></div>
+          <div class="summary-row"><span class="key">보증금</span><span class="val">100만원</span></div>
+          <div class="summary-row"><span class="key">선납금</span><span class="val">10%</span></div>
+        </div>
+        <div style="padding:8px 20px;display:flex;flex-direction:column;gap:10px;">
+          <button class="cta cta-kakao">💬 카카오톡으로 상담하기</button>
+          <button class="cta cta-outline">📞 전화 상담 요청</button>
+          <button style="background:none;border:none;color:var(--gray-400);font-size:13px;cursor:pointer;text-decoration:underline;margin-top:4px;" onclick="showScreen('step')">다른 차량도 견적 받아보기</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div id="screen-admin" class="hidden">
+  <div class="phone-container">
+    <div class="phone">
+      <div class="phone-header"><span>Admin — 대시보드 (/admin)</span></div>
+      <div class="phone-body" style="padding:20px;">
+        <div class="admin-cards">
+          <div class="admin-stat"><div class="label">오늘 신청</div><div class="value" style="color:var(--accent);">3건</div></div>
+          <div class="admin-stat"><div class="label">미처리</div><div class="value" style="color:var(--danger);">2건</div></div>
+          <div class="admin-stat hot"><div class="label">🔥 HOT 리드</div><div class="value">1건</div></div>
+          <div class="admin-stat"><div class="label">이번 주</div><div class="value" style="color:var(--success);">12건</div></div>
+          <div class="admin-stat" style="grid-column:span 2;"><div class="label">전환율</div><div class="value" style="color:var(--warning);">8.3%</div></div>
+        </div>
+
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:8px;">📞 오늘의 콜백</h3>
+        <div style="background:#FEF9E7;border-radius:10px;padding:12px;margin-bottom:16px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div><span style="font-size:14px;font-weight:700;">이영희</span><span style="font-size:12px;color:var(--gray-500);margin-left:8px;">쏘나타 인스퍼</span></div>
+            <span style="font-size:12px;color:var(--warning);font-weight:600;">14:00</span>
+          </div>
+          <div style="font-size:12px;color:var(--gray-500);margin-top:4px;">메모: 48개월 조건 재확인 요청</div>
+        </div>
+
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:8px;">최근 신청</h3>
+        <div style="background:#FDEDEC;border-left:4px solid var(--danger);border-radius:8px;padding:12px;margin-bottom:8px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div><span style="font-size:14px;font-weight:700;">김민수</span><span class="lead-badge lead-hot">HOT 85</span></div>
+            <span class="status-badge status-pending">미처리</span>
+          </div>
+          <div style="font-size:13px;color:var(--gray-500);margin-top:4px;">투싼 프리미엄 · 48개월 · 10분 전</div>
+        </div>
+        <div class="admin-row">
+          <div class="info"><div class="name">이영희 <span class="lead-badge lead-warm">WARM 62</span></div><div class="meta">쏘나타 인스퍼 · 36개월 · 1시간 전</div></div>
+          <span class="status-badge status-consulting">상담중</span>
+        </div>
+        <div class="admin-row">
+          <div class="info"><div class="name">박철수 <span class="lead-badge lead-cool">COOL 35</span></div><div class="meta">K5 시그니처 · 60개월 · 3시간 전</div></div>
+          <span class="status-badge status-completed">완료</span>
+        </div>
+
+        <div class="admin-menu">
+          <button class="admin-menu-btn" onclick="showScreen('crm')">📋 상담 관리 (CRM)</button>
+          <button class="admin-menu-btn">🎫 프로모션 관리</button>
+          <button class="admin-menu-btn">💰 가격표 관리</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CRM DETAIL -->
+<div id="screen-crm" class="hidden">
+  <div class="phone-container">
+    <div class="phone">
+      <div class="phone-header"><button class="back-btn" onclick="showScreen('admin')">← 뒤로</button><span>CRM 상세 — 김민수</span></div>
+      <div class="phone-body" style="padding:20px;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+          <div style="width:48px;height:48px;background:var(--accent-light);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:var(--accent);">김</div>
+          <div>
+            <div style="font-size:18px;font-weight:700;">김민수 <span class="lead-badge lead-hot">HOT 85</span></div>
+            <div style="font-size:14px;color:var(--accent);cursor:pointer;">📞 010-1234-5678</div>
+          </div>
+        </div>
+
+        <div class="summary-card" style="margin:0 0 12px;">
+          <div style="font-size:13px;font-weight:700;color:var(--gray-700);margin-bottom:8px;">선택 내역</div>
+          <div class="summary-row"><span class="key">차종</span><span class="val">현대 투싼 프리미엄</span></div>
+          <div class="summary-row"><span class="key">계약기간</span><span class="val">48개월</span></div>
+          <div class="summary-row"><span class="key">주행거리</span><span class="val">연 2만km</span></div>
+          <div class="summary-row"><span class="key">보증금/선납금</span><span class="val">100만원 / 10%</span></div>
+          <div class="summary-row"><span class="key">예상 금액</span><span class="val" style="color:var(--accent);">35~45만원</span></div>
+        </div>
+
+        <div class="summary-card" style="margin:0 0 12px;background:#F0F7FF;">
+          <div style="font-size:13px;font-weight:700;color:var(--gray-700);margin-bottom:8px;">유입 정보</div>
+          <div class="summary-row"><span class="key">유입 경로</span><span class="val">utm: naver_blog</span></div>
+          <div class="summary-row"><span class="key">Referrer</span><span class="val">blog.naver.com</span></div>
+          <div class="summary-row"><span class="key">랜딩 페이지</span><span class="val">/cars/tucson</span></div>
+          <div class="summary-row"><span class="key">기기</span><span class="val">Mobile</span></div>
+        </div>
+
+        <div class="crm-panel">
+          <h4>📝 상담 메모</h4>
+          <textarea placeholder="상담 내용을 기록하세요...">48개월 조건으로 상담 진행. 보증금 추가 납부 시 월 납부금 재안내 예정.</textarea>
+          <button class="cta cta-primary" style="margin-top:8px;padding:10px;font-size:13px;">메모 저장</button>
+        </div>
+
+        <div class="crm-panel">
+          <h4>📅 재연락 예약</h4>
+          <input type="datetime-local" class="form-input" value="2026-03-11T14:00" style="font-size:14px;">
+          <button class="cta cta-primary" style="margin-top:8px;padding:10px;font-size:13px;">예약 저장</button>
+        </div>
+
+        <div class="crm-panel">
+          <div class="crm-row"><span class="label">상담 상태</span>
+            <select class="crm-select"><option>미처리 (pending)</option><option selected>상담중 (consulting)</option><option>완료 (completed)</option></select>
+          </div>
+          <div class="crm-row"><span class="label">상담 결과</span>
+            <select class="crm-select"><option value="">— 미정 —</option><option>🟢 계약완료</option><option>🔴 타사계약</option><option>🟡 보류</option><option>⚫ 부재</option><option>⚪ 취소</option></select>
+          </div>
+          <div class="crm-row"><span class="label">배정 상담사</span>
+            <select class="crm-select"><option>상담사 A</option><option selected>상담사 B</option></select>
+          </div>
+        </div>
+
+        <div class="crm-panel" style="margin-top:12px;">
+          <h4>📧 알림 발송 이력</h4>
+          <div class="summary-row"><span class="key">이메일</span><span class="val" style="color:var(--success);">✅ 발송 완료 (10:23)</span></div>
+          <div class="summary-row"><span class="key">카카오 알림톡</span><span class="val" style="color:var(--gray-400);">— Phase 2 —</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LEAVE MODAL -->
+<div id="screen-leave" class="hidden">
+  <div class="phone-container">
+    <div class="phone">
+      <div class="phone-header"><span>이탈 방지 모달</span></div>
+      <div class="phone-body">
+        <div class="progress"><div class="progress-info"><span>Step 3/6</span><span class="pct">50%</span></div><div class="progress-bar"><div class="progress-fill" style="width:50%;"></div></div></div>
+        <div class="step-head"><h2>계약 기간을 선택해 주세요</h2></div>
+        <div class="modal-overlay">
+          <div class="modal-box">
+            <div style="font-size:28px;">🙌</div>
+            <h3>잠깐! 거의 다 왔어요</h3>
+            <p>모든 항목을 선택하시면<br>더 정확한 견적을 받아보실 수 있습니다</p>
+            <div style="background:var(--gray-100);padding:8px 12px;border-radius:8px;margin-bottom:16px;font-size:13px;">선택한 차종: <strong>투싼 프리미엄</strong></div>
+            <button class="cta cta-primary" onclick="showScreen('step')">이어서 견적 받기</button>
+            <button class="modal-dismiss" onclick="showScreen('sitemap')">나중에 할게요</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Screen management
+function showScreen(id) {
+  document.querySelectorAll('[id^="screen-"]').forEach(el => el.classList.add('hidden'));
+  document.getElementById('screen-' + id).classList.remove('hidden');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  const mapping = { sitemap: 0, step: 1, info: 2, seo: 3, result: 4, admin: 5, crm: 6, leave: 7 };
+  document.querySelectorAll('.nav-btn')[mapping[id]]?.classList.add('active');
+  if (id === 'step') { currentStep = 1; renderStep(); }
+  window.scrollTo(0, 0);
+}
+
+// Step Flow
+let currentStep = 1;
+let selections = { path: null, car: null, budget: null, period: null, km: null, deposit: null, prepay: null };
+
+const cars = {
+  '현대': [
+    { n: '캐스퍼', s: '경차' }, { n: '아반떼', s: '준중형' }, { n: '쏘나타', s: '중형' }, { n: '그랜저', s: '준대형' },
+    { n: '코나', s: '소형 SUV' }, { n: '투싼', s: 'SUV' }, { n: '싼타페', s: 'SUV' }, { n: '팰리세이드', s: '대형 SUV' },
+    { n: '아이오닉 5', s: 'EV' }, { n: '아이오닉 6', s: 'EV' }
+  ],
+  '기아': [
+    { n: '모닝', s: '경차' }, { n: 'K3', s: '준중형' }, { n: 'K5', s: '중형' }, { n: 'K8', s: '준대형' },
+    { n: '셀토스', s: '소형 SUV' }, { n: '스포티지', s: 'SUV' }, { n: '쏘렌토', s: 'SUV' }, { n: '모하비', s: '대형 SUV' },
+    { n: 'EV6', s: 'EV' }, { n: '카니발', s: '다목적' }
+  ],
+  '제네시스': [
+    { n: 'G70', s: '스포츠' }, { n: 'G80', s: '대형' }, { n: 'G90', s: '플래그십' },
+    { n: 'GV60', s: 'EV' }, { n: 'GV70', s: 'SUV' }, { n: 'GV80', s: '대형 SUV' }
+  ]
+};
+
+let activeBrand = '현대';
+
+function renderStep() {
+  const body = document.getElementById('step-body');
+  const title = document.getElementById('step-title');
+  const back = document.getElementById('step-back');
+  title.textContent = `Page 1 — Step ${currentStep}/6`;
+  back.style.display = currentStep > 1 ? 'block' : 'none';
+
+  let html = `<div class="progress"><div class="progress-info"><span>Step ${currentStep}/6</span><span class="pct">${Math.round(currentStep/6*100)}%</span></div><div class="progress-bar"><div class="progress-fill" style="width:${currentStep/6*100}%;"></div></div></div>`;
+
+  if (currentStep === 1) {
+    html += `<div class="step-head"><h2>당신에게 더 중요한 선택은<br>무엇인가요?</h2></div>
+    <div class="options">
+      <div class="opt-card" onclick="selections.path='car';currentStep=2;renderStep();"><span class="emoji">🚗</span><div><div class="label">차종 먼저 선택할게요</div><div class="sub">원하는 차량을 직접 고르기</div></div></div>
+      <div class="opt-card" onclick="selections.path='budget';currentStep=2;renderStep();"><span class="emoji">💰</span><div><div class="label">월 예산 먼저 정할게요</div><div class="sub">예산에 맞는 차량 추천받기</div></div></div>
+    </div>`;
+  } else if (currentStep === 2 && selections.path === 'car') {
+    html += `<div class="step-head"><h2>차종을 선택해 주세요</h2></div>
+    <div class="tabs">
+      ${Object.keys(cars).map(b => `<button class="tab ${b === activeBrand ? 'active' : ''}" onclick="activeBrand='${b}';renderStep();">${b}</button>`).join('')}
+    </div>
+    <div class="sub-tabs"><span class="sub-tab active">전체</span><span class="sub-tab">세단</span><span class="sub-tab">SUV</span><span class="sub-tab">EV</span></div>
+    <div class="grid-2" style="max-height:340px;overflow-y:auto;">
+      ${cars[activeBrand].map(c => `<div class="grid-card" onclick="selections.car='${c.n}';currentStep=3;renderStep();"><div class="name">${c.n}</div><div class="seg">${c.s}</div></div>`).join('')}
+    </div>`;
+  } else if (currentStep === 2 && selections.path === 'budget') {
+    html += `<div class="step-head"><h2>희망하시는 월 예산을<br>선택해 주세요</h2></div>
+    <div class="options">
+      ${['30만원 이하', '30~50만원', '50~70만원', '70~100만원', '100만원 이상'].map(b => `<div class="opt-card" onclick="selections.budget='${b}';currentStep=3;renderStep();"><div><div class="label">${b}</div></div></div>`).join('')}
+    </div>`;
+  } else if (currentStep === 3) {
+    html += `<div class="step-head"><h2>계약 기간을 선택해 주세요</h2><p>기간이 길수록 월 납부금이 낮아집니다</p></div>
+    <div class="options">
+      <div class="opt-card" onclick="selections.period=36;currentStep=4;renderStep();"><span class="emoji">📅</span><div><div class="label">36개월</div><div class="sub">3년</div></div></div>
+      <div class="opt-card" onclick="selections.period=48;currentStep=4;renderStep();" style="position:relative;"><span class="badge">인기</span><span class="emoji">📅</span><div><div class="label">48개월</div><div class="sub">4년</div></div></div>
+      <div class="opt-card" onclick="selections.period=60;currentStep=4;renderStep();"><span class="emoji">📅</span><div><div class="label">60개월</div><div class="sub">5년</div></div></div>
+    </div>`;
+  } else if (currentStep === 4) {
+    html += `<div class="step-head"><h2>연간 예상 주행거리를<br>선택해 주세요</h2><p>출퇴근 기준 약 2만km</p></div>
+    <div class="options">
+      <div class="opt-card" onclick="selections.km=10000;currentStep=5;renderStep();"><div><div class="label">연 1만km</div><div class="sub">주말 위주 이용</div></div></div>
+      <div class="opt-card" onclick="selections.km=20000;currentStep=5;renderStep();" style="position:relative;"><span class="badge">인기</span><div><div class="label">연 2만km</div><div class="sub">출퇴근 기본</div></div></div>
+      <div class="opt-card" onclick="selections.km=30000;currentStep=5;renderStep();"><div><div class="label">연 3만km</div><div class="sub">업무 겸용</div></div></div>
+      <div class="opt-card" onclick="selections.km=40000;currentStep=5;renderStep();"><div><div class="label">연 4만km 이상</div><div class="sub">장거리/영업용</div></div></div>
+    </div>`;
+  } else if (currentStep === 5) {
+    html += `<div class="step-head"><h2>보증금 · 선납금을 선택해 주세요</h2><p>높을수록 월 납부금이 낮아집니다</p></div>
+    <div style="padding:0 20px;">
+      <p style="font-size:14px;font-weight:700;color:var(--gray-700);margin:12px 0 8px;">보증금</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        ${[{v:0,l:'0원'},{v:1000000,l:'100만원'},{v:2000000,l:'200만원'},{v:3000000,l:'300만원+'}].map(d =>
+          `<button onclick="selections.deposit=${d.v};this.parentElement.querySelectorAll('button').forEach(b=>b.style.borderColor='var(--gray-200)',b=>b.style.background='#fff');this.style.borderColor='var(--accent)';this.style.background='var(--accent-light)';" style="padding:12px;border:2px solid var(--gray-200);border-radius:10px;background:#fff;cursor:pointer;font-size:14px;font-weight:600;color:var(--gray-700);">${d.l}</button>`
+        ).join('')}
+      </div>
+      <p style="font-size:14px;font-weight:700;color:var(--gray-700);margin:18px 0 8px;">선납금</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        ${[{v:0,l:'0%'},{v:10,l:'10%'},{v:20,l:'20%'},{v:30,l:'30%'}].map(p =>
+          `<button onclick="selections.prepay=${p.v};this.parentElement.querySelectorAll('button').forEach(b=>b.style.borderColor='var(--gray-200)',b=>b.style.background='#fff');this.style.borderColor='var(--accent)';this.style.background='var(--accent-light)';" style="padding:12px;border:2px solid var(--gray-200);border-radius:10px;background:#fff;cursor:pointer;font-size:14px;font-weight:600;color:var(--gray-700);">${p.l}</button>`
+        ).join('')}
+      </div>
+    </div>
+    <div class="phone-bottom"><button class="cta cta-primary" onclick="currentStep=6;renderStep();">다음</button></div>`;
+  } else if (currentStep === 6) {
+    html += `<div class="step-head"><h2>마지막 단계입니다!</h2><p>전문 상담사가 맞춤 견적을 보내드립니다</p></div>
+    <div class="form-group"><label class="form-label">이름</label><input class="form-input" placeholder="홍길동"></div>
+    <div class="form-group"><label class="form-label">연락처</label><input class="form-input" type="tel" placeholder="010-1234-5678"></div>
+    <div class="checkbox-row"><input type="checkbox" id="agree"><span>개인정보 수집 및 이용에 동의합니다 <a href="#">[전문보기]</a></span></div>
+    <div class="phone-bottom" style="margin-top:16px;"><button class="cta cta-primary" onclick="showScreen('result')">무료 견적 받기</button></div>`;
+  }
+
+  body.innerHTML = html;
+}
+
+function prevStep() {
+  if (currentStep > 1) { currentStep--; renderStep(); }
+}
+
+// Init
+renderStep();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,33 @@
+# 📅 장기렌터카 랜딩페이지 바이브코딩 24일 마스터 스케줄러
+
+## 📌 1주차: 초기 환경 구축 및 프론트엔드 기반 (Day 1 ~ Day 7)
+- [ ] **Day 1 (환경 세팅):** Node.js 다운로드(nodejs.org) 및 Cursor AI, Git 설치 완료. 터미널 버전 확인(`node -v`, `git -v`).
+- [ ] **Day 2 (프로젝트 생성):** `npx create-next-app@latest rent-landing` 실행 (TypeScript, Tailwind, App Router 포함).
+- [ ] **Day 3 (패키지 설치 및 배포):** Supabase 패키지 설치. Github 리포지토리 생성 후 Vercel에 초기 프로젝트 배포 연동.
+- [ ] **Day 4 (AI 통제 세팅):** `.cursor/rules` 파일 생성. 확정된 기획서를 `docs/PRD.md` 파일로 저장하여 Cursor AI에 컨텍스트 주입.
+- [ ] **Day 5 (레이아웃 틀):** 100vh 풀스크린, 상단 프로그레스 바, 하단 이전/다음 CTA 버튼 컴포넌트(`Layout.tsx`) 렌더링.
+- [ ] **Day 6 (상태 복구 세팅 - 보완사항):** Zustand와 `localStorage`를 연동하여 새로고침 시에도 입력 데이터가 100% 복구되는 전역 스토어(`useConsultationStore.ts`) 구축.
+- [ ] **Day 7 (Step 1~2 UI):** 차종 vs 월 예산 분기 화면 및 현대/기아/제네시스 차량 선택 카드 그리드 뷰 컴포넌트 개발.
+
+## 📌 2주차: 스택 플로우 퍼널 완성 및 이탈 방어 (Day 8 ~ Day 14)
+- [ ] **Day 8 (Step 3~4 UI):** 계약기간(36/48/60개월) 및 주행거리(1만~4만km) 선택 컴포넌트 구현.
+- [ ] **Day 9 (Step 5~6 UI):** 보증금/선납금(원화 단위) 선택 및 고객 이름/연락처 폼 컴포넌트 구현.
+- [ ] **Day 10 (애니메이션 연동):** `framer-motion` 라이브러리를 활용해 Step 1~6 전환 시 0.3초 딜레이의 좌우 슬라이드 애니메이션 적용.
+- [ ] **Day 11 (이탈 방지 모달 - 보완사항):** 마우스 커서가 상단 0px을 벗어나거나 모바일 뒤로가기 입력 시 출력되는 이탈 방어 모달(`LeaveModal.tsx`) 로직 구현.
+- [ ] **Day 12 (1차 통합 테스트):** Cursor AI의 Composer 기능을 이용해 프론트엔드 6단계 전체 플로우 버그 픽스 및 상태 관리 검증.
+- [ ] **Day 13 (Page 2 Hero 뷰):** 정보 페이지(`/info`)의 최상단 배너 및 구매 vs 렌트 비교 테이블 마크업 완료.
+- [ ] **Day 14 (프론트엔드 코드 리뷰):** 전체 UI의 모바일 반응형(최소 폭 360px) 레이아웃 깨짐 현상 디버깅.
+
+## 📌 3주차: 데이터베이스 연동 및 관리자 페이지 구축 (Day 15 ~ Day 21)
+- [ ] **Day 15 (DB 테이블 생성):** Supabase 대시보드에서 `consultations`, `price_ranges`, `promotions` 테이블 SQL 쿼리 실행.
+- [ ] **Day 16 (보안 RLS & 더미 데이터 - 보완사항):** 일반 유저는 `INSERT`만 가능하도록 RLS 정책 적용. 10개 차종의 가격표(`.csv`)를 `price_ranges` 테이블에 Insert.
+- [ ] **Day 17 (저장 API 연동):** 프론트엔드의 6단계 폼 제출 시 `/api/consultation` 라우트를 통해 Supabase DB에 100% 저장되도록 연동.
+- [ ] **Day 18 (조회 API 연동):** 정보 페이지(`/info`)에서 DB의 렌트료 범위를 1초 이내에 불러오는 `/api/price-range` 연동.
+- [ ] **Day 19 (이메일 알림 연동):** Resend API를 적용하여 DB 저장 완료 트리거 발생 후 2초 이내에 관리자 이메일 발송 함수 세팅.
+- [ ] **Day 20 (어드민 UI 로직):** `/admin` 라우트를 생성하고 신청 내역을 테이블 형태로 출력(Select)하는 뷰 개발.
+- [ ] **Day 21 (어드민 인증/권한):** Supabase Auth를 연결하여 로그인된 관리자만 접속하고 상태(status)를 Update 할 수 있도록 보안 처리.
+
+## 📌 4주차: QA 테스트 및 프로덕션 런칭 (Day 22 ~ Day 24)
+- [ ] **Day 22 (End-to-End QA):** 실제 스마트폰 환경에서 Step 1부터 제출, 이메일 수신, 어드민 상태 변경까지 전 과정 통합 테스트.
+- [ ] **Day 23 (분석 툴 세팅):** Google Analytics 4 (GA4) 측정 ID를 Vercel 환경 변수에 등록하고 각 Step 전환율(%) 추적 이벤트 스크립트 삽입.
+- [ ] **Day 24 (도메인 연결 및 오픈):** 구입한 도메인을 Vercel 셋팅에 CNAME으로 등록 후 최종 배포(HTTPS 확인). 메타 태그 최적화 점검 완료.

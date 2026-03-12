@@ -1,0 +1,153 @@
+import { Metadata } from 'next';
+import { notFound } from 'next/navigation';
+import { VEHICLE_LIST, getVehicleBySlug } from '@/constants/vehicles';
+import { createServerSupabaseClient } from '@/lib/supabase-server';
+import { CarHero } from '@/components/cars/CarHero';
+import { PriceCompareTable } from '@/components/cars/PriceCompareTable';
+import { RelatedCars } from '@/components/cars/RelatedCars';
+import { CarCtaSection } from '@/components/cars/CarCtaSection';
+import { CarSeoAnalytics } from '@/components/cars/CarSeoAnalytics';
+
+export const revalidate = 3600;
+
+export async function generateStaticParams() {
+  return VEHICLE_LIST.map((v) => ({ slug: v.slug }));
+}
+
+interface PriceRangeRow {
+  contract_months: number;
+  annual_km: number;
+  min_monthly: number;
+  max_monthly: number;
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const vehicle = getVehicleBySlug(slug);
+  if (!vehicle) return { title: '차량을 찾을 수 없습니다' };
+
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://cadam.co.kr';
+  const imageUrl = `${baseUrl}/cars/${vehicle.imageKey}.webp`;
+
+  return {
+    title: vehicle.seoTitle,
+    description: vehicle.seoDescription,
+    openGraph: {
+      title: vehicle.seoTitle,
+      description: vehicle.seoDescription,
+      images: [imageUrl],
+    },
+    alternates: {
+      canonical: `${baseUrl}/cars/${slug}`,
+    },
+  };
+}
+
+const RENT_BENEFITS = [
+  '✅ 보험/세금 렌트료에 포함',
+  '✅ 정비 포함 가능 (종합 패키지)',
+  '✅ 법인 사업자 전액 비용 처리',
+];
+
+export default async function CarPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  const vehicle = getVehicleBySlug(slug);
+  if (!vehicle) notFound();
+
+  const supabase = await createServerSupabaseClient();
+  const { data: priceRanges, error } = await supabase
+    .from('price_ranges')
+    .select('contract_months, annual_km, min_monthly, max_monthly')
+    .eq('car_brand', vehicle.brand)
+    .eq('car_model', vehicle.model)
+    .eq('is_active', true);
+
+  const priceRows: PriceRangeRow[] = error ? [] : (priceRanges ?? []);
+  const minPrice =
+    priceRows.length > 0
+      ? Math.min(...priceRows.map((r) => r.min_monthly))
+      : null;
+
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://cadam.co.kr';
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: `${vehicle.brand} ${vehicle.model} 장기렌트`,
+    description: vehicle.seoDescription,
+    image: `${baseUrl}/cars/${vehicle.imageKey}.webp`,
+    brand: {
+      '@type': 'Brand',
+      name: vehicle.brand,
+    },
+    ...(minPrice != null && {
+      offers: {
+        '@type': 'Offer',
+        price: minPrice,
+        priceCurrency: 'KRW',
+      },
+    }),
+  };
+
+  return (
+    <>
+      <CarSeoAnalytics carSlug={vehicle.slug} carBrand={vehicle.brand} />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <div className="min-h-screen bg-white pb-8">
+        <CarHero vehicle={vehicle} minPrice={minPrice} />
+
+        <div className="px-5 py-4">
+          <CarCtaSection vehicle={vehicle} />
+        </div>
+
+        <section className="px-5 py-8">
+          <h2 className="text-lg font-bold text-primary mb-4">
+            계약 조건별 월 납부금
+          </h2>
+          <p className="text-xs text-gray-500 mb-3">
+            ISR(revalidate=3600) + On-demand Revalidation
+          </p>
+          {priceRows.length > 0 ? (
+            <PriceCompareTable priceRanges={priceRows} />
+          ) : (
+            <div className="py-8 text-center text-gray-500 rounded-lg border border-gray-200 bg-gray-50">
+              상담 문의
+            </div>
+          )}
+        </section>
+
+        <section className="px-5 py-8">
+          <h2 className="text-lg font-bold text-primary mb-4">
+            장기렌트 장점
+          </h2>
+          <div className="flex flex-col gap-2">
+            {RENT_BENEFITS.map((text) => (
+              <div
+                key={text}
+                className="bg-gray-100 py-3 px-4 rounded-lg text-[13px] text-gray-700"
+              >
+                {text}
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <div className="px-5 pb-4">
+          <CarCtaSection vehicle={vehicle} />
+        </div>
+
+        <RelatedCars currentVehicle={vehicle} />
+      </div>
+    </>
+  );
+}
