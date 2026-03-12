@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { VEHICLE_LIST } from '@/constants/vehicles';
 
 interface Article {
   id: string;
@@ -11,6 +12,7 @@ interface Article {
   sourceType: string;
   publishedAt: string | null;
   category: string;
+  vehicleSlug: string | null;
 }
 
 function getDisplayType(article: Article): 'blog' | 'youtube' | 'shorts' {
@@ -29,6 +31,7 @@ const MOCK_ARTICLES: Article[] = [
     sourceType: 'youtube',
     publishedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
     category: 'rental',
+    vehicleSlug: null,
   },
   {
     id: 'mock-2',
@@ -39,6 +42,7 @@ const MOCK_ARTICLES: Article[] = [
     sourceType: 'youtube',
     publishedAt: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000).toISOString(),
     category: 'rental',
+    vehicleSlug: null,
   },
   {
     id: 'mock-3',
@@ -49,6 +53,7 @@ const MOCK_ARTICLES: Article[] = [
     sourceType: 'blog',
     publishedAt: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString(),
     category: 'rental',
+    vehicleSlug: null,
   },
   {
     id: 'mock-4',
@@ -59,6 +64,7 @@ const MOCK_ARTICLES: Article[] = [
     sourceType: 'blog',
     publishedAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
     category: 'car',
+    vehicleSlug: null,
   },
 ];
 
@@ -118,6 +124,7 @@ export function InfoArticles() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<'all' | 'rental' | 'car'>('all');
+  const [selectedVehicle, setSelectedVehicle] = useState<string>('all');
 
   useEffect(() => {
     fetch('/api/info-articles')
@@ -130,9 +137,35 @@ export function InfoArticles() {
       .finally(() => setLoading(false));
   }, []);
 
-  const filteredArticles = selectedCategory === 'all'
-    ? articles
-    : articles.filter((a) => a.category === selectedCategory);
+  // 자동차 카테고리에서 실제 등록된 차종 목록 추출
+  const availableVehicles = useMemo(() => {
+    const carArticles = articles.filter((a) => a.category === 'car');
+    const slugs = [...new Set(carArticles.map((a) => a.vehicleSlug).filter(Boolean))] as string[];
+    return slugs
+      .map((slug) => VEHICLE_LIST.find((v) => v.slug === slug))
+      .filter(Boolean) as typeof VEHICLE_LIST;
+  }, [articles]);
+
+  // 카테고리 변경 시 차종 필터 초기화
+  const handleCategoryChange = (cat: 'all' | 'rental' | 'car') => {
+    setSelectedCategory(cat);
+    setSelectedVehicle('all');
+  };
+
+  const filteredArticles = useMemo(() => {
+    let result = articles;
+    if (selectedCategory !== 'all') {
+      result = result.filter((a) => a.category === selectedCategory);
+    }
+    if (selectedCategory === 'car' && selectedVehicle !== 'all') {
+      result = result.filter((a) =>
+        selectedVehicle === '_none'
+          ? !a.vehicleSlug
+          : a.vehicleSlug === selectedVehicle
+      );
+    }
+    return result;
+  }, [articles, selectedCategory, selectedVehicle]);
 
   return (
     <section className="py-8 flex-1">
@@ -144,12 +177,12 @@ export function InfoArticles() {
       </p>
 
       {/* 카테고리 필터 */}
-      <div className="flex gap-2 px-5 mb-6">
+      <div className="flex gap-2 px-5 mb-3">
         {CATEGORY_FILTERS.map((f) => (
           <button
             key={f.value}
             type="button"
-            onClick={() => setSelectedCategory(f.value as 'all' | 'rental' | 'car')}
+            onClick={() => handleCategoryChange(f.value as 'all' | 'rental' | 'car')}
             className={`px-4 py-1.5 rounded-full text-sm font-semibold border transition-all ${
               selectedCategory === f.value
                 ? 'bg-accent text-white border-accent'
@@ -160,6 +193,43 @@ export function InfoArticles() {
           </button>
         ))}
       </div>
+
+      {/* 차종 필터 (자동차 선택 시, 등록된 차종이 있을 때) */}
+      {selectedCategory === 'car' && availableVehicles.length > 0 && (
+        <div className="overflow-x-auto mb-5">
+          <div className="flex gap-2 px-5 pb-1" style={{ width: 'max-content' }}>
+            <button
+              type="button"
+              onClick={() => setSelectedVehicle('all')}
+              className={`px-3 py-1 rounded-full text-xs font-semibold border transition-all whitespace-nowrap ${
+                selectedVehicle === 'all'
+                  ? 'bg-gray-800 text-white border-gray-800'
+                  : 'bg-white text-gray-600 border-gray-300 hover:border-gray-600'
+              }`}
+            >
+              전체
+            </button>
+            {availableVehicles.map((v) => (
+              <button
+                key={v.slug}
+                type="button"
+                onClick={() => setSelectedVehicle(v.slug)}
+                className={`px-3 py-1 rounded-full text-xs font-semibold border transition-all whitespace-nowrap ${
+                  selectedVehicle === v.slug
+                    ? 'bg-gray-800 text-white border-gray-800'
+                    : 'bg-white text-gray-600 border-gray-300 hover:border-gray-600'
+                }`}
+              >
+                {v.model}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {!loading && selectedCategory === 'car' && availableVehicles.length === 0 && (
+        <div className="mb-5" />
+      )}
 
       {loading ? (
         <div className="flex justify-center py-20">
