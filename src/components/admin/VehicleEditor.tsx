@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { createBrowserSupabaseClient } from '@/lib/supabase';
-import { VEHICLE_LIST, type Brand } from '@/constants/vehicles';
+import { VEHICLE_LIST } from '@/constants/vehicles';
 
 const CONTRACT_MONTHS = [36, 48, 60] as const;
 const ANNUAL_KM = [10000, 20000, 30000, 40000] as const;
@@ -26,6 +26,8 @@ export interface VehicleEditorProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
+  customBrand?: string;
+  customModel?: string;
 }
 
 function makePriceKey(months: number, km: number): PriceKey {
@@ -47,17 +49,26 @@ function formatWon(n: number): string {
   return Math.round(n / 10000) + '만';
 }
 
-export function VehicleEditor({ vehicleSlug, isOpen, onClose, onSuccess }: VehicleEditorProps) {
+export function VehicleEditor({ vehicleSlug, isOpen, onClose, onSuccess, customBrand, customModel }: VehicleEditorProps) {
   const [setting, setSetting] = useState<VehicleSetting>({ thumbnailUrl: '', minCarPrice: '', maxCarPrice: '' });
   const [priceMatrix, setPriceMatrix] = useState<Record<PriceKey, PriceCell>>(emptyMatrix());
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [editBrand, setEditBrand] = useState(customBrand ?? '');
+  const [editModel, setEditModel] = useState(customModel ?? '');
 
-  const vehicle = vehicleSlug ? VEHICLE_LIST.find((v) => v.slug === vehicleSlug) ?? null : null;
+  const vehicleFromList = vehicleSlug ? VEHICLE_LIST.find((v) => v.slug === vehicleSlug) ?? null : null;
+  const isCustom = vehicleFromList === null && !!vehicleSlug;
+  const brand = vehicleFromList?.brand ?? editBrand;
+  const model = vehicleFromList?.model ?? editModel;
 
   const loadData = useCallback(async () => {
-    if (!vehicleSlug || !vehicle) return;
+    if (!vehicleSlug) return;
+    const vFromList = VEHICLE_LIST.find((v) => v.slug === vehicleSlug) ?? null;
+    const currentBrand = vFromList?.brand ?? customBrand ?? '';
+    const currentModel = vFromList?.model ?? customModel ?? '';
+    if (!currentBrand || !currentModel) return;
     setLoading(true);
     setError(null);
     try {
@@ -71,8 +82,8 @@ export function VehicleEditor({ vehicleSlug, isOpen, onClose, onSuccess }: Vehic
         supabase
           .from('price_ranges')
           .select('contract_months, annual_km, min_monthly, max_monthly')
-          .eq('car_brand', vehicle.brand)
-          .eq('car_model', vehicle.model)
+          .eq('car_brand', currentBrand)
+          .eq('car_model', currentModel)
           .eq('is_active', true),
       ]);
 
@@ -93,17 +104,21 @@ export function VehicleEditor({ vehicleSlug, isOpen, onClose, onSuccess }: Vehic
     } finally {
       setLoading(false);
     }
-  }, [vehicleSlug, vehicle]);
+  }, [vehicleSlug, customBrand, customModel]);
 
   useEffect(() => {
     if (isOpen && vehicleSlug) {
+      setEditBrand(customBrand ?? '');
+      setEditModel(customModel ?? '');
       loadData();
     } else {
       setSetting({ thumbnailUrl: '', minCarPrice: '', maxCarPrice: '' });
       setPriceMatrix(emptyMatrix());
       setError(null);
+      setEditBrand('');
+      setEditModel('');
     }
-  }, [isOpen, vehicleSlug, loadData]);
+  }, [isOpen, vehicleSlug, customBrand, customModel, loadData]);
 
   const updateCell = (key: PriceKey, field: 'min' | 'max', raw: string) => {
     const value = Number(raw.replace(/[^0-9]/g, '')) || 0;
@@ -114,22 +129,22 @@ export function VehicleEditor({ vehicleSlug, isOpen, onClose, onSuccess }: Vehic
   };
 
   const handleSave = async () => {
-    if (!vehicle || !vehicleSlug) return;
+    if (!vehicleSlug || !brand || !model) return;
     setSaving(true);
     setError(null);
     try {
       const supabase = createBrowserSupabaseClient();
 
-      // vehicle_settings upsert
       await supabase.from('vehicle_settings').upsert({
         vehicle_slug: vehicleSlug,
+        car_brand: brand,
+        car_model: model,
         thumbnail_url: setting.thumbnailUrl.trim() || null,
         min_car_price: setting.minCarPrice ? Number(setting.minCarPrice) * 10000 : null,
         max_car_price: setting.maxCarPrice ? Number(setting.maxCarPrice) * 10000 : null,
         updated_at: new Date().toISOString(),
       }, { onConflict: 'vehicle_slug' });
 
-      // price_ranges upsert (12개 조합)
       for (const months of CONTRACT_MONTHS) {
         for (const km of ANNUAL_KM) {
           const key = makePriceKey(months, km);
@@ -139,8 +154,8 @@ export function VehicleEditor({ vehicleSlug, isOpen, onClose, onSuccess }: Vehic
           const { data: existing } = await supabase
             .from('price_ranges')
             .select('id')
-            .eq('car_brand', vehicle.brand)
-            .eq('car_model', vehicle.model)
+            .eq('car_brand', brand)
+            .eq('car_model', model)
             .eq('contract_months', months)
             .eq('annual_km', km)
             .maybeSingle();
@@ -152,8 +167,8 @@ export function VehicleEditor({ vehicleSlug, isOpen, onClose, onSuccess }: Vehic
               .eq('id', existing.id);
           } else {
             await supabase.from('price_ranges').insert({
-              car_brand: vehicle.brand,
-              car_model: vehicle.model,
+              car_brand: brand,
+              car_model: model,
               contract_months: months,
               annual_km: km,
               min_monthly: cell.min,
@@ -164,7 +179,6 @@ export function VehicleEditor({ vehicleSlug, isOpen, onClose, onSuccess }: Vehic
         }
       }
 
-      // revalidate
       try {
         await fetch('/api/admin/revalidate', {
           method: 'POST',
@@ -199,8 +213,8 @@ export function VehicleEditor({ vehicleSlug, isOpen, onClose, onSuccess }: Vehic
       >
         <div className="flex items-center justify-between p-4 border-b border-gray-200 shrink-0">
           <div>
-            <p className="text-xs text-gray-400">{vehicle?.brand}</p>
-            <h2 className="text-lg font-bold text-gray-900">{vehicle?.model}</h2>
+            <p className="text-xs text-gray-400">{brand || '새 차종'}</p>
+            <h2 className="text-lg font-bold text-gray-900">{model || '정보 입력'}</h2>
           </div>
           <button type="button" onClick={onClose} className="px-3 py-1.5 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100">
             닫기
@@ -213,6 +227,35 @@ export function VehicleEditor({ vehicleSlug, isOpen, onClose, onSuccess }: Vehic
           </div>
         ) : (
           <div className="flex-1 overflow-y-auto p-4 space-y-6">
+            {/* 커스텀 차종: 제조사/차종명 편집 */}
+            {isCustom && (
+              <div className="space-y-3">
+                <h3 className="text-sm font-bold text-gray-700 border-b border-gray-100 pb-1">제조사 / 차종명</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-600 mb-1">제조사</label>
+                    <input
+                      type="text"
+                      value={editBrand}
+                      onChange={(e) => setEditBrand(e.target.value)}
+                      placeholder="예: BMW"
+                      className="w-full py-2 px-3 border border-gray-300 rounded-lg text-sm outline-none focus:border-accent"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-600 mb-1">차종명</label>
+                    <input
+                      type="text"
+                      value={editModel}
+                      onChange={(e) => setEditModel(e.target.value)}
+                      placeholder="예: 5시리즈"
+                      className="w-full py-2 px-3 border border-gray-300 rounded-lg text-sm outline-none focus:border-accent"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* 썸네일 & 차량 가격 */}
             <div className="space-y-3">
               <h3 className="text-sm font-bold text-gray-700 border-b border-gray-100 pb-1">기본 정보</h3>

@@ -9,8 +9,8 @@ const NAV_ITEMS = [
   { href: '/admin', label: '대시보드' },
   { href: '/admin/consultations', label: '상담 관리' },
   { href: '/admin/info', label: '정보관리' },
-  { href: '/admin/promotions', label: '프로모션' },
-  { href: '/admin/prices', label: '인기차종' },
+  { href: '/admin/promotions', label: '프로모션 관리' },
+  { href: '/admin/prices', label: '인기차종 관리' },
 ] as const;
 
 export default function AdminLayout({
