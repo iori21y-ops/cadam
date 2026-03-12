@@ -302,44 +302,69 @@ export default function AdminPricesPage() {
         .filter((s) => s.vehicle_slug && s.car_brand && s.car_model);
 
       if (settingsToUpsert.length > 0) {
-        await supabase.from('vehicle_settings').upsert(settingsToUpsert, { onConflict: 'vehicle_slug' });
+        const { error: settingsError } = await supabase
+          .from('vehicle_settings')
+          .upsert(settingsToUpsert, { onConflict: 'vehicle_slug' });
+        if (settingsError) throw new Error(`설정 저장 실패: ${settingsError.message}`);
       }
 
-      // 2. price_ranges: 차종별 삭제 후 재삽입
+      // 2. price_ranges: 기존 비활성화 후 신규 삽입 (DELETE 권한 불필요)
       let priceUpdated = 0;
-      await Promise.all(
-        rows.map(async (row) => {
-          const brand = row[1]?.trim();
-          const model = row[2]?.trim();
-          if (!brand || !model) return;
+      const priceErrors: string[] = [];
 
-          const toInsert: Record<string, unknown>[] = [];
-          let colIdx = 8;
-          for (const months of CONTRACT_MONTHS) {
-            for (const km of ANNUAL_KM) {
-              const minVal = parseInt(row[colIdx]) || 0;
-              const maxVal = parseInt(row[colIdx + 1]) || 0;
-              colIdx += 2;
-              if (minVal || maxVal) {
-                toInsert.push({ car_brand: brand, car_model: model, contract_months: months, annual_km: km, min_monthly: minVal, max_monthly: maxVal, is_active: true });
-              }
+      for (const row of rows) {
+        const brand = row[1]?.trim();
+        const model = row[2]?.trim();
+        if (!brand || !model) continue;
+
+        const toInsert: Record<string, unknown>[] = [];
+        let colIdx = 8;
+        for (const months of CONTRACT_MONTHS) {
+          for (const km of ANNUAL_KM) {
+            const minVal = parseInt(row[colIdx]) || 0;
+            const maxVal = parseInt(row[colIdx + 1]) || 0;
+            colIdx += 2;
+            if (minVal || maxVal) {
+              toInsert.push({ car_brand: brand, car_model: model, contract_months: months, annual_km: km, min_monthly: minVal, max_monthly: maxVal, is_active: true });
             }
           }
+        }
 
-          if (toInsert.length > 0) {
-            await supabase.from('price_ranges').delete().eq('car_brand', brand).eq('car_model', model);
-            await supabase.from('price_ranges').insert(toInsert);
-            priceUpdated++;
+        if (toInsert.length > 0) {
+          // 기존 레코드 비활성화
+          const { error: deactivateError } = await supabase
+            .from('price_ranges')
+            .update({ is_active: false })
+            .eq('car_brand', brand)
+            .eq('car_model', model)
+            .eq('is_active', true);
+
+          if (deactivateError) {
+            priceErrors.push(`${model} 비활성화 실패: ${deactivateError.message}`);
+            continue;
           }
-        })
-      );
+
+          // 신규 삽입
+          const { error: insertError } = await supabase.from('price_ranges').insert(toInsert);
+          if (insertError) {
+            priceErrors.push(`${model} 가격 저장 실패: ${insertError.message}`);
+            continue;
+          }
+          priceUpdated++;
+        }
+      }
 
       try {
         await fetch('/api/admin/revalidate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ slug: 'all' }) });
       } catch { /* ignore */ }
 
-      setUploadResult(`완료: ${settingsToUpsert.length}개 차종 설정, ${priceUpdated}개 차종 가격 업데이트`);
       await fetchData();
+
+      if (priceErrors.length > 0) {
+        setUploadResult(`부분 완료: ${settingsToUpsert.length}개 설정, ${priceUpdated}개 가격 업데이트\n오류: ${priceErrors.join(' / ')}`);
+      } else {
+        setUploadResult(`완료: ${settingsToUpsert.length}개 차종 설정, ${priceUpdated}개 차종 가격 업데이트`);
+      }
     } catch (err) {
       setUploadResult(`오류: ${err instanceof Error ? err.message : '업로드 실패'}`);
     } finally {
