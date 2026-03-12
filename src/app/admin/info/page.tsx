@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { createBrowserSupabaseClient } from '@/lib/supabase';
+import { VEHICLE_LIST } from '@/constants/vehicles';
 
 interface InfoArticle {
   id: string;
@@ -14,6 +15,7 @@ interface InfoArticle {
   is_active: boolean;
   display_order: number;
   category: string;
+  vehicle_slug: string | null;
 }
 
 function parseUrl(url: string): { sourceType: string; thumbnailUrl: string | null } {
@@ -47,11 +49,20 @@ const CATEGORY_OPTIONS = [
   { value: 'car', label: '자동차' },
 ];
 
+const BRANDS = ['현대', '기아', '제네시스'] as const;
+
+function getVehicleLabel(slug: string | null): string {
+  if (!slug) return '';
+  const v = VEHICLE_LIST.find((v) => v.slug === slug);
+  return v ? `${v.brand} ${v.model}` : slug;
+}
+
 interface EditState {
   id: string;
   title: string;
   excerpt: string;
   category: string;
+  vehicle_slug: string;
   saving: boolean;
 }
 
@@ -64,6 +75,7 @@ export default function AdminInfoPage() {
   const [titleInput, setTitleInput] = useState('');
   const [excerptInput, setExcerptInput] = useState('');
   const [categoryInput, setCategoryInput] = useState('rental');
+  const [vehicleSlugInput, setVehicleSlugInput] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -76,7 +88,7 @@ export default function AdminInfoPage() {
       const supabase = createBrowserSupabaseClient();
       const { data, error: err } = await supabase
         .from('info_articles')
-        .select('id, title, excerpt, link_url, thumbnail_url, source_type, published_at, is_active, display_order, category')
+        .select('id, title, excerpt, link_url, thumbnail_url, source_type, published_at, is_active, display_order, category, vehicle_slug')
         .order('display_order', { ascending: true })
         .order('created_at', { ascending: false });
 
@@ -131,6 +143,7 @@ export default function AdminInfoPage() {
         is_active: true,
         display_order: articles.length,
         category: categoryInput,
+        vehicle_slug: categoryInput === 'car' ? (vehicleSlugInput || null) : null,
       });
 
       if (err) throw err;
@@ -138,6 +151,7 @@ export default function AdminInfoPage() {
       setTitleInput('');
       setExcerptInput('');
       setCategoryInput('rental');
+      setVehicleSlugInput('');
       fetchArticles();
     } catch (err) {
       const msg = err instanceof Error
@@ -175,6 +189,7 @@ export default function AdminInfoPage() {
           title,
           excerpt: editState.excerpt.trim() || null,
           category: editState.category,
+          vehicle_slug: editState.category === 'car' ? (editState.vehicle_slug || null) : null,
           updated_at: new Date().toISOString(),
         })
         .eq('id', editState.id);
@@ -222,9 +237,8 @@ export default function AdminInfoPage() {
     }
   };
 
-  const getCategoryLabel = (category: string) => {
-    return CATEGORY_OPTIONS.find((o) => o.value === category)?.label ?? category;
-  };
+  const getCategoryLabel = (category: string) =>
+    CATEGORY_OPTIONS.find((o) => o.value === category)?.label ?? category;
 
   return (
     <div className="max-w-[1200px] mx-auto p-5">
@@ -237,6 +251,7 @@ export default function AdminInfoPage() {
           블로그나 유튜브 등 외부 URL을 붙여넣으면 정보 페이지에 노출됩니다.
         </p>
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* 카테고리 */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-1.5">
               카테고리 <span className="text-danger">*</span>
@@ -246,7 +261,7 @@ export default function AdminInfoPage() {
                 <button
                   key={opt.value}
                   type="button"
-                  onClick={() => setCategoryInput(opt.value)}
+                  onClick={() => { setCategoryInput(opt.value); setVehicleSlugInput(''); }}
                   className={`px-4 py-2 rounded-lg text-sm font-semibold border transition-all ${
                     categoryInput === opt.value
                       ? 'bg-accent text-white border-accent'
@@ -258,6 +273,33 @@ export default function AdminInfoPage() {
               ))}
             </div>
           </div>
+
+          {/* 차종 선택 (자동차 카테고리일 때만) */}
+          {categoryInput === 'car' && (
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                차종 선택 (선택)
+              </label>
+              <select
+                value={vehicleSlugInput}
+                onChange={(e) => setVehicleSlugInput(e.target.value)}
+                className="w-full py-3 px-4 border border-gray-300 rounded-lg outline-none focus:border-accent bg-white text-sm"
+              >
+                <option value="">전체 / 미지정</option>
+                {BRANDS.map((brand) => (
+                  <optgroup key={brand} label={brand}>
+                    {VEHICLE_LIST.filter((v) => v.brand === brand).map((v) => (
+                      <option key={v.slug} value={v.slug}>
+                        {v.model}
+                      </option>
+                    ))}
+                  </optgroup>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {/* URL */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-1.5">
               URL <span className="text-danger">*</span>
@@ -271,6 +313,8 @@ export default function AdminInfoPage() {
               className="w-full py-3 px-4 border border-gray-300 rounded-lg outline-none focus:border-accent"
             />
           </div>
+
+          {/* 제목 */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-1.5">
               제목 <span className="text-danger">*</span>
@@ -284,6 +328,8 @@ export default function AdminInfoPage() {
               className="w-full py-3 px-4 border border-gray-300 rounded-lg outline-none focus:border-accent"
             />
           </div>
+
+          {/* 요약 */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-1.5">
               요약 (선택)
@@ -296,6 +342,7 @@ export default function AdminInfoPage() {
               className="w-full py-3 px-4 border border-gray-300 rounded-lg outline-none focus:border-accent resize-none"
             />
           </div>
+
           {submitError && (
             <p className="text-sm text-danger">{submitError}</p>
           )}
@@ -389,7 +436,7 @@ export default function AdminInfoPage() {
                             </div>
                             {/* 제목 / URL */}
                             <div className="min-w-0 flex-1">
-                              <div className="flex items-center gap-2 mb-0.5">
+                              <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
                                 <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
                                   article.category === 'car'
                                     ? 'bg-blue-100 text-blue-700'
@@ -397,6 +444,11 @@ export default function AdminInfoPage() {
                                 }`}>
                                   {getCategoryLabel(article.category)}
                                 </span>
+                                {article.category === 'car' && article.vehicle_slug && (
+                                  <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-gray-100 text-gray-600">
+                                    {getVehicleLabel(article.vehicle_slug)}
+                                  </span>
+                                )}
                               </div>
                               <h3 className="font-semibold text-gray-900 text-sm truncate">{article.title}</h3>
                               <a
@@ -432,6 +484,7 @@ export default function AdminInfoPage() {
                                       title: article.title,
                                       excerpt: article.excerpt ?? '',
                                       category: article.category ?? 'rental',
+                                      vehicle_slug: article.vehicle_slug ?? '',
                                       saving: false,
                                     });
                                   }
@@ -449,8 +502,11 @@ export default function AdminInfoPage() {
                               </button>
                             </div>
                           </div>
+
+                          {/* 인라인 수정 */}
                           {isEditing && editState && (
                             <div className="mt-3 pt-3 border-t border-gray-100 space-y-3">
+                              {/* 카테고리 */}
                               <div>
                                 <label className="block text-xs font-semibold text-gray-600 mb-1">카테고리</label>
                                 <div className="flex gap-2">
@@ -458,7 +514,7 @@ export default function AdminInfoPage() {
                                     <button
                                       key={opt.value}
                                       type="button"
-                                      onClick={() => setEditState({ ...editState, category: opt.value })}
+                                      onClick={() => setEditState({ ...editState, category: opt.value, vehicle_slug: '' })}
                                       className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
                                         editState.category === opt.value
                                           ? 'bg-accent text-white border-accent'
@@ -470,6 +526,31 @@ export default function AdminInfoPage() {
                                   ))}
                                 </div>
                               </div>
+
+                              {/* 차종 선택 */}
+                              {editState.category === 'car' && (
+                                <div>
+                                  <label className="block text-xs font-semibold text-gray-600 mb-1">차종 선택 (선택)</label>
+                                  <select
+                                    value={editState.vehicle_slug}
+                                    onChange={(e) => setEditState({ ...editState, vehicle_slug: e.target.value })}
+                                    className="w-full py-2 px-3 border border-gray-300 rounded-lg text-sm outline-none focus:border-accent bg-white"
+                                  >
+                                    <option value="">전체 / 미지정</option>
+                                    {BRANDS.map((brand) => (
+                                      <optgroup key={brand} label={brand}>
+                                        {VEHICLE_LIST.filter((v) => v.brand === brand).map((v) => (
+                                          <option key={v.slug} value={v.slug}>
+                                            {v.model}
+                                          </option>
+                                        ))}
+                                      </optgroup>
+                                    ))}
+                                  </select>
+                                </div>
+                              )}
+
+                              {/* 제목 */}
                               <div>
                                 <label className="block text-xs font-semibold text-gray-600 mb-1">제목</label>
                                 <input
@@ -480,6 +561,8 @@ export default function AdminInfoPage() {
                                   className="w-full py-2 px-3 border border-gray-300 rounded-lg text-sm outline-none focus:border-accent"
                                 />
                               </div>
+
+                              {/* 요약 */}
                               <div>
                                 <label className="block text-xs font-semibold text-gray-600 mb-1">요약</label>
                                 <textarea
@@ -489,6 +572,7 @@ export default function AdminInfoPage() {
                                   className="w-full py-2 px-3 border border-gray-300 rounded-lg text-sm outline-none focus:border-accent resize-none"
                                 />
                               </div>
+
                               <button
                                 type="button"
                                 onClick={handleEditSave}
