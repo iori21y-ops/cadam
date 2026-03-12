@@ -20,13 +20,15 @@ export default function AdminPromotionsPage() {
       const { data, error: err } = await supabase
         .from('promotions')
         .select('id, title, description, image_url, link_url, is_active, display_order, start_date, end_date')
-        .order('display_order', { ascending: true })
-        .order('created_at', { ascending: false });
+        .order('display_order', { ascending: true });
 
       if (err) throw err;
       setPromotions((data as PromotionData[]) ?? []);
     } catch (err) {
-      setError(err instanceof Error ? err.message : '목록 로드 실패');
+      const msg = err instanceof Error
+        ? err.message
+        : (err as { message?: string })?.message ?? '목록 로드 실패';
+      setError(msg);
     } finally {
       setLoading(false);
     }
