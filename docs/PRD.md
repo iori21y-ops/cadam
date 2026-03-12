@@ -1,11 +1,27 @@
 # Product Requirements Document (PRD): 카담 — 장기렌터카 랜딩페이지 MVP
 
-> **Version:** 3.4 (Cursor AI 바이브코딩용 최종 마스터본)  
-> **Last Updated:** 2026-03-10  
-> **Status:** Development Ready  
+> **Version:** 3.5 (Cursor AI 바이브코딩용 최종 마스터본)
+> **Last Updated:** 2026-03-12
+> **Status:** Development Ready
 > **Rule:** AI는 본 문서에 명시되지 않은 임의의 폴더 생성이나 개발 일정(Phase) 추론을 절대 금지하며, 오직 명시된 기술 스택과 구조에 맞춰 코드를 생성할 것.
 
 ### 변경 이력
+**v3.4 → v3.5:**
+1. **Tailwind CSS v4** 방식 확정: `tailwind.config.ts` 불필요. `globals.css`의 `@theme inline` 블록에서 색상/폰트 변수 선언
+2. **라우팅 구조 변경**: `/` = 랜딩 페이지, `/quote` = 견적 스텝 플로우 (기존 `/`에서 분리)
+3. **`/promotions`** 전용 페이지 추가 (기존 `/info` 내 프로모션 섹션과 별도)
+4. **`info_articles` 테이블** 추가 (장기렌터카 정보 아티클 — URL + 노출 토글)
+5. **`/api/info-articles`** API 추가
+6. **`/api/admin/revalidate`**, **`/api/admin/dashboard`**, **`/api/admin/callbacks`** Admin 전용 API 추가 (Supabase Auth 인증 기반)
+7. **`/admin/info`** 정보관리 페이지 추가 (Admin 메뉴)
+8. **`/info` 페이지** InfoArticles 섹션 추가
+9. **File Structure** 실제 구현 기준으로 전면 업데이트:
+   - `lib/supabase.ts` → `supabase-client.ts` + `supabase-server.ts` 분리
+   - `lib/phoneUtils.ts` 독립 파일 (`utils.ts`에서 분리)
+   - `store/toastStore.ts`, `hooks/useToast.ts` 추가
+   - `components/NavBar.tsx`, `components/GAPageView.tsx`, `components/steps/SelectionSummary.tsx` 추가
+   - `components/info/InfoArticles.tsx` 추가
+
 **v3.3 → v3.4:**
 1. 브랜드명 확정: **카담(CADAM)** — 도메인 후보: cadam.co.kr
 2. 관리자 이메일 확정: iori21y@gmail.com
@@ -28,25 +44,41 @@
 - **Brand:** 카담(CADAM) — "카(Car) + 담다", 차량을 담당하는 전문 서비스
 - **Domain:** cadam.co.kr (확정 전 — 가용 여부 확인 필요)
 - **Goal:** 장기렌터카 맞춤 상담 DB 확보 (목표 전환율: 5%)
-- **Tech Stack:** Next.js 15 (App Router), TypeScript, Tailwind CSS, Supabase, Vercel, Upstash Redis
+- **Tech Stack:** Next.js 15 (App Router), TypeScript, **Tailwind CSS v4**, Supabase, Vercel, Upstash Redis
 - **State Management:** Zustand + persist middleware
 - **Rate Limiting:** Upstash Redis (무료 티어: 일 10,000 커맨드. 트래픽 증가 시 유료 전환, 월 $10 이내)
 - **Admin Email:** iori21y@gmail.com (알림 수신 + Supabase Auth 로그인)
 - **Admin Password:** Supabase Auth Dashboard에서 직접 설정 (보안상 문서 기재 금지)
 - **Design System:**
-  - Colors: Primary `#1B3A5C`, Accent `#2E86C1`, Background `#FFFFFF`, Success `#27AE60`, Warning `#F39C12`, Danger `#E74C3C`
+  - Colors: Primary `#1B3A5C`, Accent `#2E86C1`, Background `#FFFFFF`, Success `#27AE60`, Warning `#F39C12`, Danger `#E74C3C`, Kakao `#FEE500`
   - Typography: Pretendard (웹폰트, `font-display: swap` + preload)
   - Layout: Mobile First (min-width: 360px, max-width: 1024px 데스크톱 컨테이너 중앙 정렬)
   - Border Radius: 12px (카드), 8px (버튼, 인풋)
   - Shadow: `0 2px 8px rgba(0,0,0,0.08)` (카드 기본)
+
+> **[v3.5] Tailwind CSS v4 설정 방식:** `tailwind.config.ts` 파일을 생성하지 않는다. 색상·폰트는 `src/app/globals.css`의 `@theme inline` 블록에서 CSS 변수로 선언하며, 이 변수가 Tailwind 유틸리티 클래스로 자동 매핑된다.
+> ```css
+> @import "tailwindcss";
+> @theme inline {
+>   --color-primary: #1B3A5C;
+>   --color-accent: #2E86C1;
+>   --color-success: #27AE60;
+>   --color-warning: #F39C12;
+>   --color-danger: #E74C3C;
+>   --color-kakao: #FEE500;
+>   --font-sans: "Pretendard", -apple-system, BlinkMacSystemFont, sans-serif;
+> }
+> ```
 
 ---
 
 ## 2. Site Architecture
 
 ```
-/                        → Page 1: 견적 스텝 플로우 (메인)
-/info                    → Page 2: 정보/프로모션 페이지
+/                        → 랜딩 페이지 (브랜드 소개 + CTA → /quote)
+/quote                   → 견적 스텝 플로우 (Step 1~6)
+/info                    → 장기렌터카 정보 + 프로모션 + 아티클 페이지
+/promotions              → 프로모션 전용 페이지
 /result                  → 견적 결과 화면
 /cars/[slug]             → SEO 차종별 상세 페이지 (ISR, revalidate=3600)
 /admin                   → 관리자 대시보드 (Auth 보호)
@@ -54,11 +86,16 @@
 /admin/consultations     → 상담 관리 (CRM)
 /admin/promotions        → 프로모션 관리
 /admin/prices            → 가격표 관리
+/admin/info              → 정보관리 (info_articles URL 등록·노출 토글·삭제)
 /privacy                 → 개인정보 처리방침
 /api/consultation        → POST: 상담 신청
 /api/price-range         → GET: 견적 조회
 /api/promotions          → GET: 프로모션 조회
-/api/revalidate          → POST: On-demand ISR 재생성 (Admin 가격 수정 시)
+/api/info-articles       → GET: 장기렌터카 정보 아티클 조회
+/api/revalidate          → POST: On-demand ISR 재생성 (REVALIDATION_SECRET 검증)
+/api/admin/revalidate    → POST: Admin 전용 ISR 재생성 (Supabase Auth 인증)
+/api/admin/dashboard     → GET: 대시보드 요약 데이터 (Auth 인증)
+/api/admin/callbacks     → GET: 오늘의 콜백 리스트 (Auth 인증)
 ```
 
 ---
@@ -143,6 +180,34 @@
 | `start_date` | date | 시작일 |
 | `end_date` | date | 종료일 |
 
+**info_articles (장기렌터카 정보 아티클)**
+
+> 외부 블로그·뉴스 기사 URL을 등록하여 `/info` 페이지에 카드 형태로 노출. 관리자가 `/admin/info`에서 등록·토글·삭제.
+
+| Column | Type | Description |
+|:---|:---|:---|
+| `id` | uuid, PK, default gen_random_uuid() | 고유 식별자 |
+| `title` | varchar(200), NOT NULL | 아티클 제목 |
+| `url` | varchar(500), NOT NULL | 외부 링크 URL |
+| `description` | text, nullable | 한 줄 설명 |
+| `thumbnail_url` | varchar(500), nullable | 썸네일 이미지 URL |
+| `is_active` | boolean, default true | 노출 여부 |
+| `display_order` | int, default 0 | 정렬 순서 |
+| `created_at` | timestamptz, default now() | 등록일시 |
+
+**RLS (info_articles):**
+| 역할 | 권한 |
+|:---|:---|
+| anon (비인증) | SELECT만 허용 (is_active=true) |
+| authenticated (관리자) | SELECT, INSERT, UPDATE, DELETE 허용 |
+
+**인덱스:**
+```sql
+CREATE INDEX idx_info_articles_active ON info_articles(is_active, display_order);
+```
+
+---
+
 **notification_log (알림 발송 이력)**
 
 | Column | Type | Description |
@@ -161,6 +226,7 @@
 | consultations | INSERT만 허용 | SELECT, UPDATE 허용 |
 | price_ranges | SELECT만 허용 (is_active=true) | SELECT, INSERT, UPDATE, DELETE 허용 |
 | promotions | SELECT만 허용 (is_active=true) | SELECT, INSERT, UPDATE, DELETE 허용 |
+| info_articles | SELECT만 허용 (is_active=true) | SELECT, INSERT, UPDATE, DELETE 허용 |
 | notification_log | 접근 불가 | SELECT, INSERT, UPDATE 허용 |
 
 ### 3.3. Indexes
@@ -308,10 +374,13 @@ export const getAllSlugs = () => VEHICLE_LIST.map(v => v.slug);
 
 ---
 
-## 5. Frontend: Page 1 — 견적 스텝 플로우 (`/`)
+## 5. Frontend: 메인 랜딩 페이지 (`/`) + 견적 스텝 플로우 (`/quote`)
+
+> **[v3.5 변경]** 기존 `/`에 있던 Step 플로우가 `/quote`로 분리됨. `/`는 브랜드 랜딩 페이지로, 주요 CTA는 `/quote`로 연결.
 
 ### 5.1. State Management
-- `src/store/quoteStore.ts` (Zustand + `persist` 미들웨어)
+- `src/store/quoteStore.ts` (Zustand + `persist` 미들웨어) — `/quote` Step 플로우 상태
+- `src/store/toastStore.ts` (Zustand) — Toast 알림 전역 상태 (`src/hooks/useToast.ts`로 접근)
 - `src/hooks/useHydrated.ts` — SSR Hydration mismatch 방지
 
 ### 5.2. Step Flow 상세
@@ -370,7 +439,8 @@ export const getAllSlugs = () => VEHICLE_LIST.map(v => v.slug);
 
 ### 5.5. 에러 처리 & Toast
 
-> 파일: `src/components/Toast.tsx`
+> 파일: `src/components/Toast.tsx` + `src/store/toastStore.ts`
+> 훅: `src/hooks/useToast.ts` (`toastStore`를 래핑한 편의 훅)
 > 위치: 화면 하단 중앙 (모바일 safe-area 고려, bottom: 80px)
 > 애니메이션: 하단에서 슬라이드업 → 3초 유지 → 페이드아웃
 > 색상: 에러(Danger 배경 흰 텍스트), 성공(Success 배경 흰 텍스트)
@@ -469,12 +539,23 @@ export async function POST(req: NextRequest) {
 
 ## 7. Frontend: Page 2 — 정보/프로모션 (`/info`)
 
-**① Hero 배너:** 그라디언트 배경(`#1B3A5C` → `#2E86C1`), 60~70vh, CTA → `/`
+**① Hero 배너:** 그라디언트 배경(`#1B3A5C` → `#2E86C1`), 60~70vh, CTA → `/quote`
 **② 장기렌터카 안내:** 구매 vs 렌트 비교 테이블
-**③ 이달의 프로모션:** `promotions` 테이블 (is_active=true), 가로 스크롤 카드
-**④ 인기 차종 견적:** price_ranges 인기 6개 + `/cars/[slug]` 링크
-**⑤ 간단 상담 폼:** 이름+연락처+개인정보 동의 (step_completed=0, inflow_page='/info')
-**⑥ Footer:** 운영시간, 연락처(tap-to-call, 번호 확정 전 placeholder), 카카오톡 채널(개설 전 placeholder), 개인정보 처리방침 링크, 사업자 정보(등록 전 placeholder), "© 카담(CADAM)" 표기
+**③ 이달의 프로모션:** `promotions` 테이블 (is_active=true), 가로 스크롤 카드 → `/promotions`로 더보기 링크
+**④ 장기렌터카 정보 아티클 (InfoArticles):** `info_articles` 테이블 (is_active=true), 카드 그리드. 각 카드: 제목 + 한 줄 설명 + 외부 링크(새 탭). 컴포넌트: `src/components/info/InfoArticles.tsx`
+**⑤ 인기 차종 견적:** price_ranges 인기 6개 + `/cars/[slug]` 링크
+**⑥ 간단 상담 폼:** 이름+연락처+개인정보 동의 (step_completed=0, inflow_page='/info')
+**⑦ Footer:** 운영시간, 연락처(tap-to-call, 번호 확정 전 placeholder), 카카오톡 채널(개설 전 placeholder), 개인정보 처리방침 링크, 사업자 정보(등록 전 placeholder), "© 카담(CADAM)" 표기
+
+---
+
+## 7-A. Frontend: 프로모션 전용 페이지 (`/promotions`)
+
+> **[v3.5 신규]** `/info` 내 프로모션 섹션과 별도로 존재하는 독립 페이지.
+
+**① Hero:** 간단한 헤더 타이틀 "이달의 프로모션"
+**② 프로모션 전체 목록:** `promotions` 테이블 (is_active=true, display_order 정렬), 카드 그리드 (이미지 + 제목 + 설명 + 링크)
+**③ CTA:** "견적 받기" → `/quote`
 
 ---
 
@@ -577,13 +658,29 @@ npm install @upstash/ratelimit @upstash/redis
 - 쿼리: `?brand=현대&model=투싼&months=48&km=20000`
 - Response: `{ minMonthly, maxMonthly, conditions }`
 
-### 8.5. 이메일 알림 (Resend)
+### 8.5-a. GET `/api/info-articles`
+- **[v3.5 신규]** `info_articles` 테이블에서 `is_active=true` 레코드 조회
+- `display_order` 오름차순 정렬
+- Response: `{ articles: InfoArticle[] }`
+- anon 접근 허용 (RLS: SELECT only)
+
+### 8.5-b. Admin 전용 API (`/api/admin/*`) [v3.5 신규]
+
+> 모두 Supabase Auth 세션 검증 필수. 미인증 시 401 반환.
+
+| 엔드포인트 | 메서드 | 설명 |
+|:---|:---|:---|
+| `/api/admin/revalidate` | POST | ISR 재생성 — Supabase Auth 인증 기반 (기존 `/api/revalidate`는 REVALIDATION_SECRET 기반으로 병행 유지) |
+| `/api/admin/dashboard` | GET | 대시보드 요약 데이터 (오늘 신청, 미처리, HOT 리드, 이번 주 신청, 전환율) |
+| `/api/admin/callbacks` | GET | 오늘의 콜백 리스트 (`callback_time` = 오늘인 건) |
+
+### 8.6. 이메일 알림 (Resend)
 - Trigger: consultation INSERT 즉시
 - To: `process.env.ADMIN_EMAIL` (= iori21y@gmail.com)
 - Subject: `[새 상담] {이름} - {차종} (리드: {lead_score}점)`
 - Body: HTML 테이블 (고객 정보 + 선택 내역 + 예상 견적 + 리드 등급)
 
-### 8.6. 카카오 알림톡 [Phase 2]
+### 8.7. 카카오 알림톡 [Phase 2]
 - `src/lib/kakao.ts` — 파일 생성하되 함수 내부는 `// Phase 2 구현 예정` 주석만 작성
 - `kakao_sent` 컬럼 로직 작성 금지
 
@@ -671,7 +768,25 @@ npm install @upstash/ratelimit @upstash/redis
 
 **삭제:** 확인 모달 ("정말 삭제하시겠습니까?") → Supabase DELETE
 
-### 9.5. 가격표 관리 (`/admin/prices`)
+### 9.5. 정보관리 (`/admin/info`) [v3.5 신규]
+
+> `info_articles` 테이블 관리 — `/info` 페이지에 노출할 장기렌터카 정보 아티클 URL 등록·관리.
+
+**목록 뷰:** 카드형 (제목 + URL + 활성 토글 + 정렬 순서)
+
+**등록/수정 폼:**
+| 필드 | 입력 타입 | 필수 |
+|:---|:---|:---|
+| 제목 | text input | ✅ |
+| URL | text input (외부 링크) | ✅ |
+| 한 줄 설명 | textarea | |
+| 썸네일 이미지 URL | text input | |
+| 정렬 순서 | number input | |
+| 노출 여부 | toggle switch | ✅ |
+
+**삭제:** 확인 모달 → Supabase DELETE
+
+### 9.6. 가격표 관리 (`/admin/prices`)
 
 **목록 뷰:** 브랜드 > 차종 아코디언 트리 구조
 
@@ -804,7 +919,7 @@ npm install @upstash/ratelimit @upstash/redis
 └── rules                           # Cursor AI 코딩 규칙 (최신 방식)
 
 docs/
-├── PRD.md                          # 기획서 (PRD v3.4)
+├── PRD.md                          # 기획서 (PRD v3.5)
 └── wireframe.html                  # UI/UX 와이어프레임 (퍼블리싱 참고)
 
 scripts/
@@ -813,9 +928,12 @@ scripts/
 
 src/
 ├── app/
+│   ├── globals.css                 # Tailwind v4 (@theme inline 색상/폰트 변수 선언)
 │   ├── layout.tsx                  # 루트 레이아웃 (Pretendard 폰트, GA4)
-│   ├── page.tsx                    # Page 1: 견적 스텝 플로우
-│   ├── info/page.tsx               # Page 2: 정보/프로모션
+│   ├── page.tsx                    # 랜딩 페이지 (브랜드 소개 + CTA → /quote)
+│   ├── quote/page.tsx              # 견적 스텝 플로우 (Step 1~6)
+│   ├── info/page.tsx               # 장기렌터카 정보 + 프로모션 + InfoArticles
+│   ├── promotions/page.tsx         # 프로모션 전용 페이지
 │   ├── result/page.tsx             # 견적 결과 화면
 │   ├── cars/
 │   │   └── [slug]/page.tsx         # SEO 차종별 페이지 (ISR revalidate=3600)
@@ -826,13 +944,24 @@ src/
 │   │   ├── login/page.tsx          # 로그인
 │   │   ├── consultations/page.tsx  # 상담 관리 (CRM 테이블 + 상세 패널)
 │   │   ├── promotions/page.tsx     # 프로모션 CRUD
-│   │   └── prices/page.tsx         # 가격표 CRUD + Revalidation 트리거
+│   │   ├── prices/page.tsx         # 가격표 CRUD + Revalidation 트리거
+│   │   └── info/page.tsx           # 정보관리 (info_articles CRUD)
 │   └── api/
 │       ├── consultation/route.ts   # 상담 신청 (Rate Limit + Lead Score + 알림)
 │       ├── price-range/route.ts    # 견적 조회
 │       ├── promotions/route.ts     # 프로모션 조회
-│       └── revalidate/route.ts     # On-demand ISR 재생성
+│       ├── info-articles/route.ts  # 장기렌터카 정보 아티클 조회
+│       ├── revalidate/route.ts     # On-demand ISR 재생성 (REVALIDATION_SECRET 검증)
+│       └── admin/
+│           ├── revalidate/route.ts # Admin ISR 재생성 (Supabase Auth 인증)
+│           ├── dashboard/route.ts  # 대시보드 요약 데이터
+│           └── callbacks/route.ts  # 오늘의 콜백 리스트
 ├── components/
+│   ├── NavBar.tsx                  # 공통 네비게이션 바
+│   ├── Footer.tsx                  # 공통 푸터
+│   ├── Toast.tsx                   # 토스트 알림 컴포넌트 (toastStore 구독)
+│   ├── GAPageView.tsx              # GA4 페이지뷰 이벤트 (클라이언트 컴포넌트)
+│   ├── LeaveModal.tsx              # 이탈 방지 모달
 │   ├── steps/
 │   │   ├── StepLayout.tsx          # 공통 풀스크린 레이아웃
 │   │   ├── ProgressBar.tsx         # 프로그레스 바
@@ -842,13 +971,16 @@ src/
 │   │   ├── Step3Period.tsx         # 계약 기간
 │   │   ├── Step4Mileage.tsx        # 주행거리
 │   │   ├── Step5Payment.tsx        # 보증금/선납금
-│   │   └── Step6Contact.tsx        # 연락처 + 개인정보 동의
+│   │   ├── Step6Contact.tsx        # 연락처 + 개인정보 동의
+│   │   └── SelectionSummary.tsx    # 현재까지 선택 내역 요약 표시
 │   ├── cars/
 │   │   ├── CarHero.tsx             # SEO 페이지 Hero
+│   │   ├── CarCtaSection.tsx       # CTA 섹션 (견적 + 카카오 + 전화)
+│   │   ├── CarSeoAnalytics.tsx     # SEO 페이지 GA4 이벤트 (클라이언트)
 │   │   ├── PriceCompareTable.tsx   # 조건별 가격 비교표
 │   │   └── RelatedCars.tsx         # 관련 차종 (프론트엔드 filter)
-│   ├── LeaveModal.tsx              # 이탈 방지 모달
-│   ├── Toast.tsx                   # 토스트 알림 (하단 슬라이드업)
+│   ├── info/
+│   │   └── InfoArticles.tsx        # 장기렌터카 정보 아티클 카드 그리드
 │   └── admin/
 │       ├── ConsultationTable.tsx   # 상담 목록 (HOT 리드 하이라이팅)
 │       ├── ConsultationDetail.tsx  # CRM 상세 패널 (메모, 콜백, 결과)
@@ -859,19 +991,24 @@ src/
 ├── constants/
 │   └── vehicles.ts                 # 차량 데이터 45종 (slug, SEO 포함)
 ├── store/
-│   └── quoteStore.ts               # Zustand + persist
+│   ├── quoteStore.ts               # 견적 Step 상태 (Zustand + persist)
+│   └── toastStore.ts               # Toast 전역 상태 (Zustand)
 ├── lib/
-│   ├── supabase.ts                 # Supabase 클라이언트
+│   ├── supabase-client.ts          # Supabase 브라우저 클라이언트 ('use client' 환경용)
+│   ├── supabase-server.ts          # Supabase 서버 클라이언트 (Server Component/API Route용)
+│   ├── supabase.ts                 # 공통 Supabase 타입 및 re-export
 │   ├── rateLimit.ts                # Upstash Redis Rate Limiter
 │   ├── gtag.ts                     # GA4 유틸리티
 │   ├── leadScore.ts                # 리드 점수 계산 (서버사이드 전용)
+│   ├── phoneUtils.ts               # 전화번호 포맷/검증 유틸 (010-XXXX-XXXX)
 │   ├── kakao.ts                    # Phase 2 placeholder (주석만)
 │   ├── notification.ts             # 이메일 발송 (Resend)
-│   └── utils.ts                    # 공통 유틸 (전화번호 포맷, 해시 등)
+│   └── utils.ts                    # 공통 유틸 (해시 등)
 ├── middleware.ts                   # HTTP 헤더 기반 쿠키 수집
 └── hooks/
     ├── useHydrated.ts              # SSR Hydration 훅
-    └── useLeaveIntent.ts           # 이탈 감지 훅
+    ├── useLeaveIntent.ts           # 이탈 감지 훅
+    └── useToast.ts                 # toastStore 래핑 훅 (컴포넌트에서 Toast 호출)
 
 public/
 └── cars/                           # 차량 이미지 (webp)

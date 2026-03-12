@@ -71,7 +71,10 @@ export default function AdminInfoPage() {
       if (err) throw err;
       setArticles((data as InfoArticle[]) ?? []);
     } catch (err) {
-      setError(err instanceof Error ? err.message : '목록 로드 실패');
+      const msg = err instanceof Error
+        ? err.message
+        : (err as { message?: string })?.message ?? '목록 로드 실패';
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -122,7 +125,10 @@ export default function AdminInfoPage() {
       setExcerptInput('');
       fetchArticles();
     } catch (err) {
-      setSubmitError(err instanceof Error ? err.message : '등록 실패');
+      const msg = err instanceof Error
+        ? err.message
+        : (err as { message?: string })?.message ?? '등록 실패';
+      setSubmitError(msg);
     } finally {
       setIsSubmitting(false);
     }

@@ -117,6 +117,18 @@ export default function HomePage() {
       </section>
 
       <Footer />
+
+      {/* 관리자 버튼 */}
+      <div className="flex justify-center py-4 bg-gray-50 border-t border-gray-100">
+        <a
+          href="/admin"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
+        >
+          관리자
+        </a>
+      </div>
     </div>
   );
 }

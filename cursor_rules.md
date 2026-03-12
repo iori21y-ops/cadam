@@ -28,8 +28,10 @@
 - Next.js 15 환경이므로 동적 라우팅 페이지(page.tsx)나 메타데이터 생성 시 params 및 searchParams는 반드시 비동기(Promise)로 처리하고 await 하여 사용할 것
 
 ### Tailwind CSS
-- 색상은 Design System 변수 사용: primary(#1B3A5C), accent(#2E86C1), success(#27AE60), warning(#F39C12), danger(#E74C3C)
-- tailwind.config.ts에 위 색상을 커스텀 색상으로 등록
+- **Tailwind CSS v4** 사용. `tailwind.config.ts` 파일 생성 금지.
+- 색상/폰트는 `src/app/globals.css`의 `@theme inline` 블록에 CSS 변수로 선언 (이미 설정 완료). 임의로 변경하지 말 것.
+- 색상 변수: `--color-primary`(#1B3A5C), `--color-accent`(#2E86C1), `--color-success`(#27AE60), `--color-warning`(#F39C12), `--color-danger`(#E74C3C), `--color-kakao`(#FEE500)
+- Tailwind 클래스 사용 시: `bg-primary`, `text-accent`, `border-danger` 등으로 참조
 - 모바일 퍼스트: 기본 스타일은 모바일, md: 이상에서 데스크톱 대응
 - 인라인 style 속성 사용 금지 (모든 스타일은 Tailwind 클래스)
 
