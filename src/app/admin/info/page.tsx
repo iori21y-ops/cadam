@@ -18,14 +18,20 @@ interface InfoArticle {
 function parseUrl(url: string): { sourceType: string; thumbnailUrl: string | null } {
   try {
     const lower = url.trim().toLowerCase();
-    if (lower.includes('youtube.com/watch') || lower.includes('youtu.be/')) {
+    if (
+      lower.includes('youtube.com/watch') ||
+      lower.includes('youtu.be/') ||
+      lower.includes('youtube.com/shorts/')
+    ) {
       let videoId: string | null = null;
       const watchMatch = url.match(/[?&]v=([^&]+)/);
       const shortMatch = url.match(/youtu\.be\/([^?]+)/);
+      const shortsMatch = url.match(/youtube\.com\/shorts\/([^?]+)/);
       if (watchMatch) videoId = watchMatch[1];
       else if (shortMatch) videoId = shortMatch[1];
+      else if (shortsMatch) videoId = shortsMatch[1];
       const thumbnail = videoId
-        ? `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`
+        ? `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`
         : null;
       return { sourceType: 'youtube', thumbnailUrl: thumbnail };
     }
@@ -46,6 +52,13 @@ function getSourceLabel(sourceType: string | null): string {
   }
 }
 
+interface EditState {
+  id: string;
+  title: string;
+  excerpt: string;
+  saving: boolean;
+}
+
 export default function AdminInfoPage() {
   const [articles, setArticles] = useState<InfoArticle[]>([]);
   const [loading, setLoading] = useState(true);
@@ -56,6 +69,8 @@ export default function AdminInfoPage() {
   const [excerptInput, setExcerptInput] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+
+  const [editState, setEditState] = useState<EditState | null>(null);
 
   const fetchArticles = useCallback(async () => {
     setLoading(true);
@@ -87,6 +102,7 @@ export default function AdminInfoPage() {
   const handleUrlPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
     const pasted = e.clipboardData.getData('text').trim();
     if (pasted.startsWith('http://') || pasted.startsWith('https://')) {
+      e.preventDefault();
       setUrlInput(pasted);
     }
   };
@@ -145,6 +161,54 @@ export default function AdminInfoPage() {
     } catch {
       // ignore
     }
+  };
+
+  const handleEditSave = async () => {
+    if (!editState) return;
+    const title = editState.title.trim();
+    if (!title) return;
+    setEditState((prev) => prev ? { ...prev, saving: true } : null);
+    try {
+      const supabase = createBrowserSupabaseClient();
+      const { error: err } = await supabase
+        .from('info_articles')
+        .update({
+          title,
+          excerpt: editState.excerpt.trim() || null,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', editState.id);
+      if (err) throw err;
+      setEditState(null);
+      fetchArticles();
+    } catch {
+      setEditState((prev) => prev ? { ...prev, saving: false } : null);
+    }
+  };
+
+  const getDisplayType = (article: InfoArticle): 'blog' | 'youtube' | 'shorts' => {
+    if (article.link_url.includes('youtube.com/shorts/')) return 'shorts';
+    if (article.source_type === 'youtube') return 'youtube';
+    return 'blog';
+  };
+
+  const handleMoveOrder = async (id: string, direction: 'up' | 'down') => {
+    const article = articles.find((a) => a.id === id);
+    if (!article) return;
+    const type = getDisplayType(article);
+    const sameType = [...articles]
+      .filter((a) => getDisplayType(a) === type)
+      .sort((a, b) => a.display_order - b.display_order);
+    const idx = sameType.findIndex((a) => a.id === id);
+    const targetIdx = direction === 'up' ? idx - 1 : idx + 1;
+    if (targetIdx < 0 || targetIdx >= sameType.length) return;
+    const target = sameType[targetIdx];
+    const supabase = createBrowserSupabaseClient();
+    await Promise.all([
+      supabase.from('info_articles').update({ display_order: target.display_order }).eq('id', id),
+      supabase.from('info_articles').update({ display_order: article.display_order }).eq('id', target.id),
+    ]);
+    fetchArticles();
   };
 
   const handleDelete = async (id: string) => {
@@ -237,63 +301,157 @@ export default function AdminInfoPage() {
             <p className="text-gray-400 text-sm mt-1">위 폼에서 URL을 등록해 주세요</p>
           </div>
         ) : (
-          <div className="space-y-3">
-            {articles.map((article) => (
-              <div
-                key={article.id}
-                className={`flex items-center gap-4 p-4 rounded-xl border bg-white ${
-                  article.is_active ? 'border-gray-200' : 'border-gray-200 bg-gray-50 opacity-75'
-                }`}
-              >
-                <div className="shrink-0 w-16 h-16 rounded-lg overflow-hidden bg-gray-200">
-                  {article.thumbnail_url ? (
-                    <img
-                      src={article.thumbnail_url}
-                      alt={article.title}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm">
-                      {article.source_type === 'youtube' ? '▶' : '📄'}
-                    </div>
-                  )}
+          <div className="space-y-6">
+            {(
+              [
+                { type: 'blog' as const, label: '블로그' },
+                { type: 'youtube' as const, label: '유튜브' },
+                { type: 'shorts' as const, label: '쇼츠' },
+              ] as const
+            ).map(({ type, label }) => {
+              const group = [...articles]
+                .filter((a) => getDisplayType(a) === type)
+                .sort((a, b) => a.display_order - b.display_order);
+              if (group.length === 0) return null;
+              return (
+                <div key={type}>
+                  <h3 className="text-sm font-bold text-gray-500 mb-2 uppercase tracking-wide">
+                    {label} ({group.length})
+                  </h3>
+                  <div className="space-y-2">
+                    {group.map((article, idx) => {
+                      const isEditing = editState?.id === article.id;
+                      return (
+                        <div
+                          key={article.id}
+                          className={`p-3 rounded-xl border bg-white ${
+                            article.is_active ? 'border-gray-200' : 'border-gray-200 bg-gray-50 opacity-75'
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            {/* 순서 변경 버튼 */}
+                            <div className="flex flex-col gap-0.5 shrink-0">
+                              <button
+                                type="button"
+                                onClick={() => handleMoveOrder(article.id, 'up')}
+                                disabled={idx === 0}
+                                className="w-6 h-6 flex items-center justify-center rounded text-gray-400 hover:bg-gray-100 disabled:opacity-20 text-xs"
+                              >
+                                ▲
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleMoveOrder(article.id, 'down')}
+                                disabled={idx === group.length - 1}
+                                className="w-6 h-6 flex items-center justify-center rounded text-gray-400 hover:bg-gray-100 disabled:opacity-20 text-xs"
+                              >
+                                ▼
+                              </button>
+                            </div>
+                            {/* 썸네일 */}
+                            <div className="shrink-0 w-14 h-14 rounded-lg overflow-hidden bg-gray-200">
+                              {article.thumbnail_url ? (
+                                <img
+                                  src={article.thumbnail_url}
+                                  alt={article.title}
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm">
+                                  {article.source_type === 'youtube' ? '▶' : '📄'}
+                                </div>
+                              )}
+                            </div>
+                            {/* 제목 / URL */}
+                            <div className="min-w-0 flex-1">
+                              <h3 className="font-semibold text-gray-900 text-sm truncate">{article.title}</h3>
+                              <a
+                                href={article.link_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-xs text-accent hover:underline truncate block"
+                              >
+                                {article.link_url}
+                              </a>
+                            </div>
+                            {/* 액션 버튼 */}
+                            <div className="flex items-center gap-1.5 shrink-0">
+                              <button
+                                type="button"
+                                onClick={() => handleToggleActive(article.id, article.is_active)}
+                                className={`px-2.5 py-1 rounded-lg text-xs font-medium ${
+                                  article.is_active
+                                    ? 'bg-success/20 text-success'
+                                    : 'bg-gray-200 text-gray-600'
+                                }`}
+                              >
+                                {article.is_active ? '노출' : '비노출'}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (isEditing) {
+                                    setEditState(null);
+                                  } else {
+                                    setEditState({
+                                      id: article.id,
+                                      title: article.title,
+                                      excerpt: article.excerpt ?? '',
+                                      saving: false,
+                                    });
+                                  }
+                                }}
+                                className="px-2.5 py-1 rounded-lg text-xs font-medium bg-gray-100 text-gray-700 hover:bg-gray-200"
+                              >
+                                {isEditing ? '취소' : '수정'}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleDelete(article.id)}
+                                className="px-2.5 py-1 rounded-lg text-xs font-medium bg-danger/20 text-danger hover:bg-danger/30"
+                              >
+                                삭제
+                              </button>
+                            </div>
+                          </div>
+                          {isEditing && editState && (
+                            <div className="mt-3 pt-3 border-t border-gray-100 space-y-3">
+                              <div>
+                                <label className="block text-xs font-semibold text-gray-600 mb-1">제목</label>
+                                <input
+                                  type="text"
+                                  value={editState.title}
+                                  onChange={(e) => setEditState({ ...editState, title: e.target.value })}
+                                  maxLength={200}
+                                  className="w-full py-2 px-3 border border-gray-300 rounded-lg text-sm outline-none focus:border-accent"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-xs font-semibold text-gray-600 mb-1">요약</label>
+                                <textarea
+                                  value={editState.excerpt}
+                                  onChange={(e) => setEditState({ ...editState, excerpt: e.target.value })}
+                                  rows={2}
+                                  className="w-full py-2 px-3 border border-gray-300 rounded-lg text-sm outline-none focus:border-accent resize-none"
+                                />
+                              </div>
+                              <button
+                                type="button"
+                                onClick={handleEditSave}
+                                disabled={editState.saving}
+                                className="px-5 py-2 rounded-lg text-sm font-bold bg-accent text-white hover:opacity-90 disabled:opacity-60"
+                              >
+                                {editState.saving ? '저장 중...' : '저장'}
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
-                <div className="min-w-0 flex-1">
-                  <span className="inline-block px-2 py-0.5 rounded text-xs font-medium bg-[#EBF5FB] text-accent mb-1">
-                    {getSourceLabel(article.source_type)}
-                  </span>
-                  <h3 className="font-semibold text-gray-900 truncate">{article.title}</h3>
-                  <a
-                    href={article.link_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-xs text-accent hover:underline truncate block"
-                  >
-                    {article.link_url}
-                  </a>
-                </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  <button
-                    type="button"
-                    onClick={() => handleToggleActive(article.id, article.is_active)}
-                    className={`px-3 py-1.5 rounded-lg text-sm font-medium ${
-                      article.is_active
-                        ? 'bg-success/20 text-success'
-                        : 'bg-gray-200 text-gray-600'
-                    }`}
-                  >
-                    {article.is_active ? '노출중' : '비노출'}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleDelete(article.id)}
-                    className="px-3 py-1.5 rounded-lg text-sm font-medium bg-danger/20 text-danger hover:bg-danger/30"
-                  >
-                    삭제
-                  </button>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

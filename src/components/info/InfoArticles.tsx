@@ -12,29 +12,18 @@ interface Article {
   publishedAt: string | null;
 }
 
-function formatDate(iso: string | null): string {
-  if (!iso) return '';
-  try {
-    const d = new Date(iso);
-    return d.toLocaleDateString('ko-KR', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  } catch {
-    return '';
+function getSourceLabel(sourceType: string): string {
+  switch (sourceType) {
+    case 'youtube': return '유튜브';
+    case 'blog': return '블로그';
+    default: return '정보';
   }
 }
 
-function getSourceLabel(sourceType: string): string {
-  switch (sourceType) {
-    case 'youtube':
-      return '유튜브';
-    case 'blog':
-      return '블로그';
-    default:
-      return '정보';
-  }
+function getDisplayType(article: Article): 'blog' | 'youtube' | 'shorts' {
+  if (article.linkUrl.includes('youtube.com/shorts/')) return 'shorts';
+  if (article.sourceType === 'youtube') return 'youtube';
+  return 'blog';
 }
 
 const MOCK_ARTICLES: Article[] = [
@@ -76,6 +65,52 @@ const MOCK_ARTICLES: Article[] = [
   },
 ];
 
+const GROUPS = [
+  { type: 'blog' as const, label: '블로그', isShorts: false },
+  { type: 'shorts' as const, label: '쇼츠', isShorts: true },
+  { type: 'youtube' as const, label: '유튜브', isShorts: false },
+];
+
+function ArticleCard({ article, isShorts }: { article: Article; isShorts: boolean }) {
+  return (
+    <a
+      href={article.linkUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={`shrink-0 flex flex-col rounded-xl bg-white border border-gray-200 hover:border-accent hover:shadow-md transition-all overflow-hidden group ${
+        isShorts ? 'w-[120px]' : 'w-[180px]'
+      }`}
+    >
+      <div className={`w-full overflow-hidden ${isShorts ? 'aspect-[9/16]' : 'aspect-video'}`}>
+        {article.thumbnailUrl ? (
+          <img
+            src={article.thumbnailUrl}
+            alt={article.title}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            onError={(e) => {
+              const el = e.currentTarget;
+              if (el.src.includes('maxresdefault')) {
+                el.src = el.src.replace('maxresdefault', 'hqdefault');
+              }
+            }}
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-primary to-accent flex items-center justify-center p-3">
+            <p className="text-white text-xs font-bold line-clamp-4 leading-snug text-center">
+              {article.title}
+            </p>
+          </div>
+        )}
+      </div>
+      <div className="p-2">
+        <h3 className="text-[11px] font-semibold text-gray-900 line-clamp-2 leading-snug">
+          {article.title}
+        </h3>
+      </div>
+    </a>
+  );
+}
+
 export function InfoArticles() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
@@ -92,71 +127,44 @@ export function InfoArticles() {
   }, []);
 
   return (
-    <section className="px-5 py-12 bg-gray-50">
-      <h2 className="text-xl font-bold text-primary mb-2 text-center">
+    <section className="py-8 flex-1">
+      <h2 className="text-xl font-bold text-primary mb-1 text-center px-5">
         장기렌터카 정보
       </h2>
-      <p className="text-sm text-gray-500 mb-8 text-center">
+      <p className="text-sm text-gray-500 mb-6 text-center px-5">
         블로그, 유튜브 등에서 유용한 정보를 모았습니다
       </p>
 
       {loading ? (
-        <div className="flex justify-center py-12">
+        <div className="flex justify-center py-20">
           <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
         </div>
       ) : articles.length === 0 ? (
-        <div className="py-12 text-center rounded-xl bg-white border border-gray-200">
+        <div className="mx-5 py-16 text-center rounded-xl bg-gray-50 border border-gray-200">
           <p className="text-gray-500">아직 등록된 정보가 없습니다</p>
-          <p className="text-gray-400 text-sm mt-1">
-            추후 블로그·유튜브 콘텐츠가 연결됩니다
-          </p>
+          <p className="text-gray-400 text-sm mt-1">추후 블로그·유튜브 콘텐츠가 연결됩니다</p>
         </div>
       ) : (
-        <div className="flex flex-col gap-6">
-          {articles.map((article) => (
-            <a
-              key={article.id}
-              href={article.linkUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex gap-4 p-4 rounded-xl bg-white border border-gray-200 hover:border-accent hover:shadow-md transition-all"
-            >
-              <div className="shrink-0 w-24 h-24 rounded-lg overflow-hidden bg-gray-200">
-                {article.thumbnailUrl ? (
-                  <img
-                    src={article.thumbnailUrl}
-                    alt={article.title}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">
-                    {article.sourceType === 'youtube' ? '▶' : '📄'}
+        <div className="space-y-8">
+          {GROUPS.map((group) => {
+            const items = articles.filter((a) => getDisplayType(a) === group.type);
+            if (items.length === 0) return null;
+            return (
+              <div key={group.type}>
+                <div className="flex items-center gap-2 px-5 mb-3">
+                  <h3 className="text-sm font-bold text-gray-700">{group.label}</h3>
+                  <span className="text-xs text-gray-400">{items.length}</span>
+                </div>
+                <div className="overflow-x-auto">
+                  <div className="flex gap-3 px-5 pb-2" style={{ width: 'max-content' }}>
+                    {items.map((a) => (
+                      <ArticleCard key={a.id} article={a} isShorts={group.isShorts} />
+                    ))}
                   </div>
-                )}
+                </div>
               </div>
-              <div className="min-w-0 flex-1">
-                <span className="inline-block px-2 py-0.5 rounded text-xs font-medium bg-[#EBF5FB] text-accent mb-1.5">
-                  {getSourceLabel(article.sourceType)}
-                </span>
-                <h3 className="font-semibold text-gray-900 line-clamp-2">
-                  {article.title}
-                </h3>
-                {article.excerpt && (
-                  <p className="text-sm text-gray-600 line-clamp-2 mt-1">
-                    {article.excerpt}
-                  </p>
-                )}
-                {article.publishedAt && (
-                  <p className="text-xs text-gray-400 mt-2">
-                    {formatDate(article.publishedAt)}
-                  </p>
-                )}
-              </div>
-              <span className="shrink-0 self-center text-accent text-sm font-medium">
-                보기 →
-              </span>
-            </a>
-          ))}
+            );
+          })}
         </div>
       )}
     </section>
