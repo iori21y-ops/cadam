@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { VEHICLE_LIST } from '@/constants/vehicles';
 import { useDragScroll } from '@/hooks/useDragScroll';
 
@@ -81,21 +81,8 @@ const CATEGORY_FILTERS = [
   { value: 'car', label: '자동차' },
 ];
 
-function DragScrollDiv({ className, children }: { className?: string; children: React.ReactNode }) {
-  const drag = useDragScroll();
-  return (
-    <div
-      ref={drag.ref}
-      onMouseDown={drag.onMouseDown}
-      onMouseLeave={drag.onMouseLeave}
-      onMouseUp={drag.onMouseUp}
-      onMouseMove={drag.onMouseMove}
-      className={className}
-    >
-      {children}
-    </div>
-  );
-}
+
+const PAGE_SIZE = 5;
 
 function ArticleCard({ article, isShorts }: { article: Article; isShorts: boolean }) {
   return (
@@ -104,7 +91,7 @@ function ArticleCard({ article, isShorts }: { article: Article; isShorts: boolea
       target="_blank"
       rel="noopener noreferrer"
       className={`shrink-0 flex flex-col rounded-xl bg-white border border-gray-200 hover:border-accent hover:shadow-md transition-all overflow-hidden group ${
-        isShorts ? 'w-[120px]' : 'w-[180px]'
+        isShorts ? 'w-[150px]' : 'w-[220px]'
       }`}
     >
       <div className={`w-full overflow-hidden ${isShorts ? 'aspect-[9/16]' : 'aspect-video'}`}>
@@ -122,19 +109,87 @@ function ArticleCard({ article, isShorts }: { article: Article; isShorts: boolea
             }}
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-primary to-accent flex items-center justify-center p-3">
+          <div className="w-full h-full bg-gradient-to-br from-primary to-accent flex items-center justify-center p-4">
             <p className="text-white text-xs font-bold line-clamp-4 leading-snug text-center">
               {article.title}
             </p>
           </div>
         )}
       </div>
-      <div className="p-2">
-        <h3 className="text-[11px] font-semibold text-gray-900 line-clamp-2 leading-snug">
+      <div className="p-3">
+        <h3 className="text-xs font-semibold text-gray-900 line-clamp-2 leading-snug">
           {article.title}
         </h3>
       </div>
     </a>
+  );
+}
+
+function GroupSection({
+  group,
+  items,
+}: {
+  group: { type: string; label: string; isShorts: boolean };
+  items: Article[];
+}) {
+  const [displayCount, setDisplayCount] = useState(PAGE_SIZE);
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  const drag = useDragScroll();
+
+  const displayItems = items.slice(0, displayCount);
+  const hasMore = displayCount < items.length;
+
+  useEffect(() => {
+    setDisplayCount(PAGE_SIZE);
+  }, [items]);
+
+  useEffect(() => {
+    if (!hasMore || !sentinelRef.current) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setDisplayCount((prev) => Math.min(prev + PAGE_SIZE, items.length));
+        }
+      },
+      { threshold: 0.5 }
+    );
+    observer.observe(sentinelRef.current);
+    return () => observer.disconnect();
+  }, [hasMore, items.length]);
+
+  return (
+    <div>
+      <div className="flex items-center gap-2 px-5 mb-3">
+        <h3 className="text-sm font-bold text-gray-700">{group.label}</h3>
+        <span className="text-xs text-gray-400">{items.length}</span>
+      </div>
+      <div
+        ref={drag.ref}
+        onMouseDown={drag.onMouseDown}
+        onMouseLeave={drag.onMouseLeave}
+        onMouseUp={drag.onMouseUp}
+        onMouseMove={drag.onMouseMove}
+        className="overflow-x-auto scrollbar-thin cursor-grab select-none"
+      >
+        <div className="flex gap-3 px-5 pb-2" style={{ width: 'max-content' }}>
+          {displayItems.map((a) => (
+            <ArticleCard key={a.id} article={a} isShorts={group.isShorts} />
+          ))}
+          {hasMore && (
+            <div
+              ref={sentinelRef}
+              className="shrink-0 flex items-center justify-center w-12 text-gray-300"
+            >
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                <circle cx="4" cy="10" r="2" />
+                <circle cx="10" cy="10" r="2" />
+                <circle cx="16" cy="10" r="2" />
+              </svg>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -325,21 +380,7 @@ export function InfoArticles({ initialArticles }: { initialArticles?: Article[] 
           {GROUPS.map((group) => {
             const items = filteredArticles.filter((a) => getDisplayType(a) === group.type);
             if (items.length === 0) return null;
-            return (
-              <div key={group.type}>
-                <div className="flex items-center gap-2 px-5 mb-3">
-                  <h3 className="text-sm font-bold text-gray-700">{group.label}</h3>
-                  <span className="text-xs text-gray-400">{items.length}</span>
-                </div>
-                <DragScrollDiv className="overflow-x-auto scrollbar-thin cursor-grab select-none">
-                  <div className="flex gap-3 px-5 pb-2" style={{ width: 'max-content' }}>
-                    {items.map((a) => (
-                      <ArticleCard key={a.id} article={a} isShorts={group.isShorts} />
-                    ))}
-                  </div>
-                </DragScrollDiv>
-              </div>
-            );
+            return <GroupSection key={group.type} group={group} items={items} />;
           })}
         </div>
       )}
