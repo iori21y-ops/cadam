@@ -127,10 +127,6 @@ export default async function CarPage({
       <div className="min-h-screen bg-white pb-8">
         <CarHero vehicle={vehicle} minPrice={minPrice} />
 
-        <div className="px-5 py-4">
-          <CarCtaSection vehicle={vehicle} />
-        </div>
-
         <section className="px-5 py-8">
           <h2 className="text-lg font-bold text-primary mb-4">
             계약 조건별 월 납부금
