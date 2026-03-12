@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { createBrowserSupabaseClient } from '@/lib/supabase';
 import { VEHICLE_LIST } from '@/constants/vehicles';
@@ -20,6 +20,27 @@ interface VehicleSummary {
 }
 
 const STATIC_BRANDS = ['현대', '기아', '제네시스'] as const;
+const CONTRACT_MONTHS = [36, 48, 60] as const;
+const ANNUAL_KM = [10000, 20000, 30000, 40000] as const;
+
+// CSV 파싱 (quoted fields 지원)
+function parseCsvRow(line: string): string[] {
+  const result: string[] = [];
+  let current = '';
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    if (line[i] === '"') {
+      if (inQuotes && line[i + 1] === '"') { current += '"'; i++; }
+      else { inQuotes = !inQuotes; }
+    } else if (line[i] === ',' && !inQuotes) {
+      result.push(current); current = '';
+    } else {
+      current += line[i];
+    }
+  }
+  result.push(current);
+  return result;
+}
 
 export default function AdminPricesPage() {
   const [summaries, setSummaries] = useState<VehicleSummary[]>([]);
@@ -31,6 +52,10 @@ export default function AdminPricesPage() {
   const [editorOpen, setEditorOpen] = useState(false);
   const [addForm, setAddForm] = useState<{ brand: string; model: string } | null>(null);
   const [addSaving, setAddSaving] = useState(false);
+  const [downloading, setDownloading] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [uploadResult, setUploadResult] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -51,7 +76,6 @@ export default function AdminPricesPage() {
         priceCountMap.set(key, (priceCountMap.get(key) ?? 0) + 1);
       }
 
-      // Brand-local index for default display_order
       const brandLocalIdx: Record<string, number> = {};
       const list: VehicleSummary[] = VEHICLE_LIST.map((v) => {
         const pos = brandLocalIdx[v.brand] ?? 0;
@@ -71,7 +95,6 @@ export default function AdminPricesPage() {
         };
       });
 
-      // Custom vehicles (in vehicle_settings but not in VEHICLE_LIST)
       const vehicleListSlugs = new Set(VEHICLE_LIST.map((v) => v.slug));
       for (const s of (settings ?? []) as Record<string, unknown>[]) {
         if (!vehicleListSlugs.has(s.vehicle_slug as string) && s.car_brand && s.car_model) {
@@ -186,18 +209,188 @@ export default function AdminPricesPage() {
     }
   };
 
+  // CSV 다운로드
+  const handleDownload = async () => {
+    setDownloading(true);
+    try {
+      const supabase = createBrowserSupabaseClient();
+      const [{ data: settings }, { data: prices }] = await Promise.all([
+        supabase.from('vehicle_settings').select('vehicle_slug, thumbnail_url, min_car_price, max_car_price'),
+        supabase.from('price_ranges').select('car_brand, car_model, contract_months, annual_km, min_monthly, max_monthly').eq('is_active', true),
+      ]);
+
+      const settingMap = new Map(
+        (settings ?? []).map((s: Record<string, unknown>) => [s.vehicle_slug as string, s])
+      );
+
+      const priceMap = new Map<string, { min: number; max: number }>();
+      for (const p of (prices ?? []) as { car_brand: string; car_model: string; contract_months: number; annual_km: number; min_monthly: number; max_monthly: number }[]) {
+        const key = `${p.car_brand}||${p.car_model}||${p.contract_months}||${p.annual_km}`;
+        priceMap.set(key, { min: p.min_monthly, max: p.max_monthly });
+      }
+
+      const priceColHeaders = CONTRACT_MONTHS.flatMap((m) =>
+        ANNUAL_KM.flatMap((k) => [`${m}m_${k / 10000}만km_최소(원)`, `${m}m_${k / 10000}만km_최대(원)`])
+      );
+      const headers = ['slug', '제조사', '차종명', '썸네일URL', '최소차량가격(만원)', '최대차량가격(만원)', '노출여부(TRUE/FALSE)', '노출순서', ...priceColHeaders];
+
+      const dataRows = summaries.map((v) => {
+        const s = settingMap.get(v.slug) as Record<string, unknown> | undefined;
+        const priceCols = CONTRACT_MONTHS.flatMap((m) =>
+          ANNUAL_KM.flatMap((k) => {
+            const p = priceMap.get(`${v.brand}||${v.model}||${m}||${k}`);
+            return [p?.min ?? '', p?.max ?? ''];
+          })
+        );
+        return [
+          v.slug,
+          v.brand,
+          v.model,
+          (s?.thumbnail_url as string) ?? '',
+          s?.min_car_price != null ? Math.round((s.min_car_price as number) / 10000) : '',
+          s?.max_car_price != null ? Math.round((s.max_car_price as number) / 10000) : '',
+          v.isVisible ? 'TRUE' : 'FALSE',
+          v.displayOrder,
+          ...priceCols,
+        ];
+      });
+
+      const csv = [headers, ...dataRows]
+        .map((row) => row.map((cell) => `"${String(cell ?? '').replace(/"/g, '""')}"`).join(','))
+        .join('\n');
+
+      const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `인기차종_${new Date().toISOString().slice(0, 10)}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } finally {
+      setDownloading(false);
+    }
+  };
+
+  // CSV 업로드
+  const handleUpload = async (file: File) => {
+    setUploading(true);
+    setUploadResult(null);
+    try {
+      const text = await file.text();
+      const lines = text.replace(/^\uFEFF/, '').split(/\r?\n/).filter((l) => l.trim());
+      if (lines.length < 2) throw new Error('데이터가 없습니다');
+
+      const rows = lines.slice(1).map(parseCsvRow).filter((r) => r[0]?.trim());
+
+      const supabase = createBrowserSupabaseClient();
+
+      // 1. vehicle_settings 일괄 upsert
+      const settingsToUpsert = rows
+        .map((row) => ({
+          vehicle_slug: row[0]?.trim(),
+          car_brand: row[1]?.trim(),
+          car_model: row[2]?.trim(),
+          thumbnail_url: row[3]?.trim() || null,
+          min_car_price: row[4]?.trim() ? Number(row[4].trim()) * 10000 : null,
+          max_car_price: row[5]?.trim() ? Number(row[5].trim()) * 10000 : null,
+          is_visible: row[6]?.trim().toUpperCase() !== 'FALSE',
+          display_order: parseInt(row[7]) || 0,
+          updated_at: new Date().toISOString(),
+        }))
+        .filter((s) => s.vehicle_slug && s.car_brand && s.car_model);
+
+      if (settingsToUpsert.length > 0) {
+        await supabase.from('vehicle_settings').upsert(settingsToUpsert, { onConflict: 'vehicle_slug' });
+      }
+
+      // 2. price_ranges: 차종별 삭제 후 재삽입
+      let priceUpdated = 0;
+      await Promise.all(
+        rows.map(async (row) => {
+          const brand = row[1]?.trim();
+          const model = row[2]?.trim();
+          if (!brand || !model) return;
+
+          const toInsert: Record<string, unknown>[] = [];
+          let colIdx = 8;
+          for (const months of CONTRACT_MONTHS) {
+            for (const km of ANNUAL_KM) {
+              const minVal = parseInt(row[colIdx]) || 0;
+              const maxVal = parseInt(row[colIdx + 1]) || 0;
+              colIdx += 2;
+              if (minVal || maxVal) {
+                toInsert.push({ car_brand: brand, car_model: model, contract_months: months, annual_km: km, min_monthly: minVal, max_monthly: maxVal, is_active: true });
+              }
+            }
+          }
+
+          if (toInsert.length > 0) {
+            await supabase.from('price_ranges').delete().eq('car_brand', brand).eq('car_model', model);
+            await supabase.from('price_ranges').insert(toInsert);
+            priceUpdated++;
+          }
+        })
+      );
+
+      try {
+        await fetch('/api/admin/revalidate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ slug: 'all' }) });
+      } catch { /* ignore */ }
+
+      setUploadResult(`완료: ${settingsToUpsert.length}개 차종 설정, ${priceUpdated}개 차종 가격 업데이트`);
+      await fetchData();
+    } catch (err) {
+      setUploadResult(`오류: ${err instanceof Error ? err.message : '업로드 실패'}`);
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
   return (
     <div className="max-w-[1200px] mx-auto p-5">
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-4 gap-2 flex-wrap">
         <h1 className="text-xl font-bold text-primary">인기차종 관리</h1>
-        <button
-          type="button"
-          onClick={() => setAddForm({ brand: '', model: '' })}
-          className="px-4 py-2 rounded-lg bg-accent text-white text-sm font-medium hover:opacity-90"
-        >
-          + 새 차종 추가
-        </button>
+        <div className="flex items-center gap-2 flex-wrap">
+          {/* CSV 다운로드 */}
+          <button
+            type="button"
+            onClick={handleDownload}
+            disabled={downloading || loading}
+            className="px-3 py-2 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 whitespace-nowrap"
+          >
+            {downloading ? '다운로드 중...' : '⬇ CSV 다운로드'}
+          </button>
+          {/* CSV 업로드 */}
+          <label className={`px-3 py-2 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 cursor-pointer whitespace-nowrap ${uploading ? 'opacity-50 pointer-events-none' : ''}`}>
+            {uploading ? '업로드 중...' : '⬆ CSV 업로드'}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".csv"
+              className="hidden"
+              onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUpload(f); }}
+            />
+          </label>
+          {/* 새 차종 추가 */}
+          <button
+            type="button"
+            onClick={() => setAddForm({ brand: '', model: '' })}
+            className="px-3 py-2 rounded-lg bg-accent text-white text-sm font-medium hover:opacity-90 whitespace-nowrap"
+          >
+            + 새 차종 추가
+          </button>
+        </div>
       </div>
+
+      {/* 업로드 결과 */}
+      {uploadResult && (
+        <div className={`mb-4 px-4 py-3 rounded-lg text-sm font-medium ${uploadResult.startsWith('오류') ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-green-50 text-success border border-green-200'}`}>
+          {uploadResult}
+          <button type="button" onClick={() => setUploadResult(null)} className="ml-3 text-gray-400 hover:text-gray-600">✕</button>
+        </div>
+      )}
 
       {/* 새 차종 추가 폼 */}
       {addForm && (
@@ -237,6 +430,11 @@ export default function AdminPricesPage() {
         </div>
       )}
 
+      {/* CSV 형식 안내 */}
+      <div className="mb-4 px-4 py-2.5 rounded-lg bg-gray-50 border border-gray-200 text-xs text-gray-500">
+        CSV 컬럼 순서: slug · 제조사 · 차종명 · 썸네일URL · 최소차량가격(만원) · 최대차량가격(만원) · 노출여부(TRUE/FALSE) · 노출순서 · [36m/48m/60m × 1/2/3/4만km 최소·최대(원) 각 2열씩 총 24열]
+      </div>
+
       {loading ? (
         <div className="flex justify-center py-16">
           <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
@@ -267,7 +465,6 @@ export default function AdminPricesPage() {
                   <div className="border-t border-gray-100 divide-y divide-gray-100">
                     {vehicles.map((v, idx) => (
                       <div key={v.slug} className="flex items-center gap-2 px-3 py-2 hover:bg-gray-50/50">
-                        {/* 클릭 가능 영역 (편집 열기) */}
                         <button
                           type="button"
                           onClick={() => handleOpen(v)}
@@ -292,26 +489,17 @@ export default function AdminPricesPage() {
                           </div>
                           <div className="shrink-0 mr-1">
                             {v.priceCount > 0 ? (
-                              <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-success/20 text-success">
-                                {v.priceCount}건
-                              </span>
+                              <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-success/20 text-success">{v.priceCount}건</span>
                             ) : (
-                              <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-gray-100 text-gray-400">
-                                미등록
-                              </span>
+                              <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-gray-100 text-gray-400">미등록</span>
                             )}
                           </div>
                         </button>
-                        {/* 컨트롤 버튼 */}
                         <div className="flex items-center gap-1 shrink-0">
                           <button
                             type="button"
                             onClick={() => toggleVisible(v)}
-                            className={`text-xs px-2 py-1 rounded-lg font-medium transition-colors ${
-                              v.isVisible
-                                ? 'bg-success/20 text-success hover:bg-success/30'
-                                : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
-                            }`}
+                            className={`text-xs px-2 py-1 rounded-lg font-medium transition-colors ${v.isVisible ? 'bg-success/20 text-success hover:bg-success/30' : 'bg-gray-100 text-gray-400 hover:bg-gray-200'}`}
                           >
                             {v.isVisible ? '노출' : '비노출'}
                           </button>
@@ -320,17 +508,13 @@ export default function AdminPricesPage() {
                             onClick={() => moveOrder(vehicles, idx, -1)}
                             disabled={idx === 0}
                             className="w-7 h-7 flex items-center justify-center rounded text-gray-400 hover:bg-gray-100 disabled:opacity-30 text-xs"
-                          >
-                            ▲
-                          </button>
+                          >▲</button>
                           <button
                             type="button"
                             onClick={() => moveOrder(vehicles, idx, 1)}
                             disabled={idx === vehicles.length - 1}
                             className="w-7 h-7 flex items-center justify-center rounded text-gray-400 hover:bg-gray-100 disabled:opacity-30 text-xs"
-                          >
-                            ▼
-                          </button>
+                          >▼</button>
                         </div>
                       </div>
                     ))}
