@@ -10,7 +10,7 @@ const NAV_ITEMS = [
   { href: '/admin/consultations', label: '상담 관리' },
   { href: '/admin/info', label: '정보관리' },
   { href: '/admin/promotions', label: '프로모션' },
-  { href: '/admin/prices', label: '가격표' },
+  { href: '/admin/prices', label: '인기차종' },
 ] as const;
 
 export default function AdminLayout({

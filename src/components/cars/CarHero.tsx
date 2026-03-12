@@ -7,13 +7,15 @@ import type { Vehicle } from '@/constants/vehicles';
 interface CarHeroProps {
   vehicle: Vehicle;
   minPrice: number | null;
+  minCarPrice?: number | null;
+  maxCarPrice?: number | null;
 }
 
 function formatPrice(manwon: number): string {
   return `${(manwon / 10000).toLocaleString()}만`;
 }
 
-export function CarHero({ vehicle, minPrice }: CarHeroProps) {
+export function CarHero({ vehicle, minPrice, minCarPrice, maxCarPrice }: CarHeroProps) {
   const [imageError, setImageError] = useState(false);
   const priceText = minPrice != null
     ? `월 ${formatPrice(minPrice)}원부터~`
@@ -46,6 +48,14 @@ export function CarHero({ vehicle, minPrice }: CarHeroProps) {
           {vehicle.fuel}
         </span>
       </div>
+      {minCarPrice != null && (
+        <p className="text-sm text-gray-500 mt-2">
+          차량가격 {Math.round(minCarPrice / 10000).toLocaleString()}만
+          {maxCarPrice != null && maxCarPrice !== minCarPrice
+            ? ` ~ ${Math.round(maxCarPrice / 10000).toLocaleString()}만원`
+            : '원'}
+        </p>
+      )}
       <p className="text-[22px] font-extrabold text-accent mt-3">{priceText}</p>
     </section>
   );

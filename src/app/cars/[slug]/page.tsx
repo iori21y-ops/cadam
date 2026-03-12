@@ -22,6 +22,11 @@ interface PriceRangeRow {
   max_monthly: number;
 }
 
+interface VehicleSettingRow {
+  min_car_price: number | null;
+  max_car_price: number | null;
+}
+
 interface ArticleRow {
   id: string;
   title: string;
@@ -68,7 +73,7 @@ export default async function CarPage({
 
   const supabase = await createServerSupabaseClient();
 
-  const [{ data: priceRanges, error }, { data: articleRows }] = await Promise.all([
+  const [{ data: priceRanges, error }, { data: articleRows }, { data: vehicleSetting }] = await Promise.all([
     supabase
       .from('price_ranges')
       .select('contract_months, annual_km, min_monthly, max_monthly')
@@ -81,6 +86,11 @@ export default async function CarPage({
       .eq('vehicle_slug', vehicle.slug)
       .eq('is_active', true)
       .order('display_order', { ascending: true }),
+    supabase
+      .from('vehicle_settings')
+      .select('min_car_price, max_car_price')
+      .eq('vehicle_slug', vehicle.slug)
+      .maybeSingle(),
   ]);
 
   const priceRows: PriceRangeRow[] = error ? [] : (priceRanges ?? []);
@@ -88,6 +98,10 @@ export default async function CarPage({
     priceRows.length > 0
       ? Math.min(...priceRows.map((r) => r.min_monthly))
       : null;
+
+  const vs = vehicleSetting as VehicleSettingRow | null;
+  const minCarPrice = vs?.min_car_price ?? null;
+  const maxCarPrice = vs?.max_car_price ?? null;
 
   const articles = ((articleRows ?? []) as ArticleRow[]).map((r) => ({
     id: r.id,
@@ -125,7 +139,7 @@ export default async function CarPage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <div className="min-h-screen bg-white pb-8">
-        <CarHero vehicle={vehicle} minPrice={minPrice} />
+        <CarHero vehicle={vehicle} minPrice={minPrice} minCarPrice={minCarPrice} maxCarPrice={maxCarPrice} />
 
         <section className="px-5 py-8">
           <h2 className="text-lg font-bold text-primary mb-4">

@@ -140,7 +140,7 @@ export default function AdminDashboardPage() {
             href="/admin/prices"
             className="block w-full py-3 px-4 rounded-xl bg-white border border-gray-200 text-left font-medium text-gray-900 hover:border-accent hover:bg-[#EBF5FB] transition-colors"
           >
-            💰 가격표 관리
+            🚗 인기차종 관리
           </Link>
         </div>
       </section>
