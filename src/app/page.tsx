@@ -18,6 +18,14 @@ const MAIN_CARDS = [
     cta: '견적 시작하기',
   },
   {
+    id: 'popular',
+    href: '/popular-estimates',
+    emoji: '🚗',
+    title: '인기차종 견적 미리보기',
+    description: '아반떼·투싼·K5 등 인기 차종의 월 납부금을 한눈에 비교해 보세요.',
+    cta: '견적 미리보기',
+  },
+  {
     id: 'info',
     href: '/info',
     emoji: '📚',
@@ -30,7 +38,7 @@ const MAIN_CARDS = [
     href: '/promotions',
     emoji: '🎁',
     title: '이달의 프로모션',
-    description: '카담에서 진행 중인 특별 혜택과 인기 차종 견적 미리보기.',
+    description: '카담에서 진행 중인 특별 혜택을 확인하세요.',
     cta: '혜택 확인하기',
   },
 ];

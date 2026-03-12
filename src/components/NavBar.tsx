@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 const NAV_ITEMS = [
   { href: '/', label: '홈' },
   { href: '/quote', label: '무료 견적' },
+  { href: '/popular-estimates', label: '인기차종' },
   { href: '/info', label: '정보' },
   { href: '/promotions', label: '프로모션' },
 ] as const;
