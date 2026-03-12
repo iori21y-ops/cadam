@@ -68,15 +68,15 @@ export default function AdminLayout({
 
   return (
     <div className="min-h-[100dvh] flex flex-col bg-gray-100">
-      <nav className="sticky top-0 z-50 bg-white border-b border-gray-200">
-        <div className="max-w-[1200px] mx-auto px-5 py-3 flex items-center justify-between gap-4">
+      <nav className="sticky top-0 z-50 bg-white border-b border-gray-200 overflow-hidden">
+        <div className="max-w-[1200px] mx-auto px-5 py-3 flex items-center gap-4 min-w-0">
           <Link
             href="/admin"
             className="text-base font-extrabold text-primary shrink-0"
           >
             카담 Admin
           </Link>
-          <div className="flex items-center gap-1 overflow-x-auto">
+          <div className="flex items-center gap-1 overflow-x-auto flex-1 min-w-0 scrollbar-hide">
             {NAV_ITEMS.map((item) => {
               const isActive =
                 item.href === '/admin'

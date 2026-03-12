@@ -286,19 +286,28 @@ export default function AdminPricesPage() {
 
       const supabase = createBrowserSupabaseClient();
 
+      // slug로 VEHICLE_LIST 조회 (인코딩 깨짐 방지: 한글 brand/model은 CSV 대신 VEHICLE_LIST 사용)
+      const getCanonical = (slug: string) => VEHICLE_LIST.find((v) => v.slug === slug) ?? null;
+
       // 1. vehicle_settings 일괄 upsert
       const settingsToUpsert = rows
-        .map((row) => ({
-          vehicle_slug: row[0]?.trim(),
-          car_brand: row[1]?.trim(),
-          car_model: row[2]?.trim(),
-          thumbnail_url: row[3]?.trim() || null,
-          min_car_price: row[4]?.trim() ? Number(row[4].trim().replace(/,/g, '')) * 10000 : null,
-          max_car_price: row[5]?.trim() ? Number(row[5].trim().replace(/,/g, '')) * 10000 : null,
-          is_visible: row[6]?.trim().toUpperCase() !== 'FALSE',
-          display_order: parseInt(row[7]) || 0,
-          updated_at: new Date().toISOString(),
-        }))
+        .map((row) => {
+          const slug = row[0]?.trim();
+          const canonical = slug ? getCanonical(slug) : null;
+          const brand = canonical?.brand ?? row[1]?.trim();
+          const model = canonical?.model ?? row[2]?.trim();
+          return {
+            vehicle_slug: slug,
+            car_brand: brand,
+            car_model: model,
+            thumbnail_url: row[3]?.trim() || null,
+            min_car_price: row[4]?.trim() ? Number(row[4].trim().replace(/,/g, '')) * 10000 : null,
+            max_car_price: row[5]?.trim() ? Number(row[5].trim().replace(/,/g, '')) * 10000 : null,
+            is_visible: row[6]?.trim().toUpperCase() !== 'FALSE',
+            display_order: parseInt(row[7]) || 0,
+            updated_at: new Date().toISOString(),
+          };
+        })
         .filter((s) => s.vehicle_slug && s.car_brand && s.car_model);
 
       if (settingsToUpsert.length > 0) {
@@ -313,8 +322,10 @@ export default function AdminPricesPage() {
       const priceErrors: string[] = [];
 
       for (const row of rows) {
-        const brand = row[1]?.trim();
-        const model = row[2]?.trim();
+        const slug = row[0]?.trim();
+        const canonical = slug ? getCanonical(slug) : null;
+        const brand = canonical?.brand ?? row[1]?.trim();
+        const model = canonical?.model ?? row[2]?.trim();
         if (!brand || !model) continue;
 
         const toInsert: Record<string, unknown>[] = [];
