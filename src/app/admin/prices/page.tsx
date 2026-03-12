@@ -293,8 +293,8 @@ export default function AdminPricesPage() {
           car_brand: row[1]?.trim(),
           car_model: row[2]?.trim(),
           thumbnail_url: row[3]?.trim() || null,
-          min_car_price: row[4]?.trim() ? Number(row[4].trim()) * 10000 : null,
-          max_car_price: row[5]?.trim() ? Number(row[5].trim()) * 10000 : null,
+          min_car_price: row[4]?.trim() ? Number(row[4].trim().replace(/,/g, '')) * 10000 : null,
+          max_car_price: row[5]?.trim() ? Number(row[5].trim().replace(/,/g, '')) * 10000 : null,
           is_visible: row[6]?.trim().toUpperCase() !== 'FALSE',
           display_order: parseInt(row[7]) || 0,
           updated_at: new Date().toISOString(),
@@ -321,8 +321,8 @@ export default function AdminPricesPage() {
         let colIdx = 8;
         for (const months of CONTRACT_MONTHS) {
           for (const km of ANNUAL_KM) {
-            const minVal = parseInt(row[colIdx]) || 0;
-            const maxVal = parseInt(row[colIdx + 1]) || 0;
+            const minVal = parseInt(row[colIdx]?.replace(/,/g, '') ?? '') || 0;
+            const maxVal = parseInt(row[colIdx + 1]?.replace(/,/g, '') ?? '') || 0;
             colIdx += 2;
             if (minVal || maxVal) {
               toInsert.push({ car_brand: brand, car_model: model, contract_months: months, annual_km: km, min_monthly: minVal, max_monthly: maxVal, is_active: true });
