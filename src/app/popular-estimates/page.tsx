@@ -51,12 +51,12 @@ export default async function PopularEstimatesPage() {
     // Use vehicle_settings ordering (only VEHICLE_LIST vehicles for now)
     orderedVehicles = (visibleSettings as VehicleSettingRow[])
       .map((s) => getVehicleBySlug(s.vehicle_slug))
-      .filter((v): v is NonNullable<typeof v> => v !== null);
+      .filter((v): v is NonNullable<typeof v> => v != null);
   } else {
     // Fallback to hardcoded list
     orderedVehicles = FALLBACK_SLUGS
       .map((slug) => getVehicleBySlug(slug))
-      .filter((v): v is NonNullable<typeof v> => v !== null);
+      .filter((v): v is NonNullable<typeof v> => v != null);
   }
 
   const { data: priceRanges } = await supabase
