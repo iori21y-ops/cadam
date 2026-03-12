@@ -39,25 +39,28 @@ interface VehicleSettingRow {
 export default async function PopularEstimatesPage() {
   const supabase = await createServerSupabaseClient();
 
-  const { data: visibleSettings } = await supabase
+  const { data: allSettings } = await supabase
     .from('vehicle_settings')
-    .select('vehicle_slug, is_visible, display_order')
-    .eq('is_visible', true)
-    .order('display_order', { ascending: true });
+    .select('vehicle_slug, is_visible, display_order');
 
-  // Determine which vehicles to show and in what order
-  let orderedVehicles;
-  if (visibleSettings && visibleSettings.length > 0) {
-    // Use vehicle_settings ordering (only VEHICLE_LIST vehicles for now)
-    orderedVehicles = (visibleSettings as VehicleSettingRow[])
-      .map((s) => getVehicleBySlug(s.vehicle_slug))
-      .filter((v): v is NonNullable<typeof v> => v != null);
-  } else {
-    // Fallback to hardcoded list
-    orderedVehicles = FALLBACK_SLUGS
-      .map((slug) => getVehicleBySlug(slug))
-      .filter((v): v is NonNullable<typeof v> => v != null);
-  }
+  // vehicle_settings를 map으로 변환 (없는 차량은 기본값 적용)
+  const settingMap = new Map(
+    (allSettings ?? []).map((s: VehicleSettingRow) => [s.vehicle_slug, s])
+  );
+
+  // FALLBACK_SLUGS 기준으로 표시, is_visible=false인 차량만 제외, display_order로 정렬
+  const orderedVehicles = FALLBACK_SLUGS
+    .map((slug) => getVehicleBySlug(slug))
+    .filter((v): v is NonNullable<typeof v> => v != null)
+    .filter((v) => {
+      const s = settingMap.get(v.slug);
+      return s == null || s.is_visible !== false;
+    })
+    .sort((a, b) => {
+      const aOrder = settingMap.get(a.slug)?.display_order ?? 999;
+      const bOrder = settingMap.get(b.slug)?.display_order ?? 999;
+      return aOrder - bOrder;
+    });
 
   const { data: priceRanges } = await supabase
     .from('price_ranges')
