@@ -2,38 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { getVehicleBySlug, type Vehicle } from '@/constants/vehicles';
 import { Footer } from '@/components/Footer';
-
-const POPULAR_SLUGS = [
-  'avante',
-  'tucson',
-  'k5',
-  'sportage',
-  'sorento',
-  'ioniq5',
-] as const;
-
-const POPULAR_PRICE_PLACEHOLDER: Record<string, string> = {
-  avante: '월 28만원~',
-  tucson: '월 35만원~',
-  k5: '월 30만원~',
-  sportage: '월 34만원~',
-  sorento: '월 40만원~',
-  ioniq5: '월 45만원~',
-};
-
-function getPopularVehicles(): (Vehicle & { priceLabel: string })[] {
-  return POPULAR_SLUGS.map((slug) => {
-    const v = getVehicleBySlug(slug);
-    if (!v) return null;
-    return {
-      ...v,
-      priceLabel: POPULAR_PRICE_PLACEHOLDER[slug] ?? '월 XX만원~',
-    };
-  }).filter((v): v is Vehicle & { priceLabel: string } => v !== null);
-}
 
 interface Promotion {
   id: string;
@@ -47,7 +16,6 @@ export default function PromotionsPage() {
   const router = useRouter();
   const [promotions, setPromotions] = useState<Promotion[]>([]);
   const [loading, setLoading] = useState(true);
-  const popularVehicles = getPopularVehicles();
 
   useEffect(() => {
     document.cookie = 'inflow_page=/promotions; path=/; max-age=86400';
@@ -139,30 +107,6 @@ export default function PromotionsPage() {
             })}
           </div>
         )}
-      </section>
-
-      {/* 인기 차종 견적 미리보기 */}
-      <section className="px-5 py-12 bg-gray-50">
-        <h2 className="text-xl font-bold text-primary mb-6 text-center">
-          인기 차종 견적 미리보기
-        </h2>
-        <div className="grid grid-cols-2 gap-4">
-          {popularVehicles.map((v) => (
-            <Link
-              key={v.id}
-              href={`/cars/${v.slug}`}
-              className="flex flex-col p-4 rounded-xl border-2 border-gray-200 bg-white hover:border-accent hover:bg-[#EBF5FB] transition-all"
-            >
-              <span className="font-semibold text-gray-900">{v.model}</span>
-              <span className="text-accent font-bold text-lg mt-1">
-                {v.priceLabel}
-              </span>
-              <span className="text-accent text-sm font-semibold mt-2 hover:underline">
-                견적 보기 →
-              </span>
-            </Link>
-          ))}
-        </div>
       </section>
 
       <Footer />

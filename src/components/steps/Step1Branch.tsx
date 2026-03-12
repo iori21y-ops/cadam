@@ -1,18 +1,19 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { useQuoteStore } from '@/store/quoteStore';
 import type { SelectionPath } from '@/store/quoteStore';
 import { gtag } from '@/lib/gtag';
 
-interface Option {
+interface StepOption {
   path: SelectionPath;
   emoji: string;
   label: string;
   sub: string;
 }
 
-const OPTIONS: Option[] = [
+const STEP_OPTIONS: StepOption[] = [
   {
     path: 'car',
     emoji: '🚗',
@@ -30,13 +31,15 @@ const OPTIONS: Option[] = [
 const TRANSITION_DELAY_MS = 300;
 
 export function Step1Branch() {
+  const router = useRouter();
   const [selectedPath, setSelectedPath] = useState<SelectionPath | null>(null);
+  const [popularClicked, setPopularClicked] = useState(false);
   const setSelectionPath = useQuoteStore((s) => s.setSelectionPath);
   const setCurrentStep = useQuoteStore((s) => s.setCurrentStep);
 
   const handleSelect = useCallback(
     (path: SelectionPath) => {
-      if (selectedPath) return;
+      if (selectedPath || popularClicked) return;
       setSelectedPath(path);
       setSelectionPath(path);
       gtag.stepComplete(1, path ?? '');
@@ -44,8 +47,18 @@ export function Step1Branch() {
         setCurrentStep(2);
       }, TRANSITION_DELAY_MS);
     },
-    [selectedPath, setSelectionPath, setCurrentStep]
+    [selectedPath, popularClicked, setSelectionPath, setCurrentStep]
   );
+
+  const handlePopular = useCallback(() => {
+    if (selectedPath || popularClicked) return;
+    setPopularClicked(true);
+    setTimeout(() => {
+      router.push('/popular-estimates');
+    }, TRANSITION_DELAY_MS);
+  }, [selectedPath, popularClicked, router]);
+
+  const isDisabled = selectedPath !== null || popularClicked;
 
   return (
     <>
@@ -57,12 +70,12 @@ export function Step1Branch() {
         </h2>
       </div>
       <div className="flex flex-col gap-2.5 px-5 py-3">
-        {OPTIONS.map((opt) => (
+        {STEP_OPTIONS.map((opt) => (
           <button
             key={opt.path}
             type="button"
             onClick={() => handleSelect(opt.path)}
-            disabled={selectedPath !== null}
+            disabled={isDisabled}
             className={`
               w-full p-4 pl-[18px] bg-white rounded-xl cursor-pointer text-left
               flex items-center gap-3 transition-all duration-150
@@ -88,6 +101,38 @@ export function Step1Branch() {
             </div>
           </button>
         ))}
+
+        {/* 인기차종 견적 미리보기 */}
+        <button
+          type="button"
+          onClick={handlePopular}
+          disabled={isDisabled}
+          className={`
+            w-full p-4 pl-[18px] bg-white rounded-xl cursor-pointer text-left
+            flex items-center gap-3 transition-all duration-150
+            border-2
+            ${
+              popularClicked
+                ? 'border-accent bg-[#EBF5FB]'
+                : 'border-gray-200 hover:border-accent hover:bg-[#EBF5FB]'
+            }
+            disabled:cursor-default
+          `}
+        >
+          <span className="text-2xl shrink-0">📊</span>
+          <div className="min-w-0">
+            <div
+              className={`text-base font-semibold ${
+                popularClicked ? 'text-accent' : 'text-gray-900'
+              }`}
+            >
+              인기차종 견적 미리 볼께요
+            </div>
+            <div className="text-[13px] text-gray-500 mt-0.5">
+              인기 차종 월 납부금 한눈에 비교
+            </div>
+          </div>
+        </button>
       </div>
     </>
   );
