@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { VEHICLE_LIST } from '@/constants/vehicles';
 import { useDragScroll } from '@/hooks/useDragScroll';
 
@@ -84,7 +84,7 @@ const CATEGORY_FILTERS = [
 
 const PAGE_SIZE = 5;
 
-function ArticleCard({ article, isShorts }: { article: Article; isShorts: boolean }) {
+const ArticleCard = memo(function ArticleCard({ article, isShorts }: { article: Article; isShorts: boolean }) {
   return (
     <a
       href={article.linkUrl}
@@ -123,9 +123,9 @@ function ArticleCard({ article, isShorts }: { article: Article; isShorts: boolea
       </div>
     </a>
   );
-}
+});
 
-function GroupSection({
+const GroupSection = memo(function GroupSection({
   group,
   items,
 }: {
@@ -191,7 +191,7 @@ function GroupSection({
       </div>
     </div>
   );
-}
+});
 
 export function InfoArticles({ initialArticles }: { initialArticles?: Article[] }) {
   const [articles, setArticles] = useState<Article[]>(initialArticles ?? []);

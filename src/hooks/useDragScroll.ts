@@ -1,10 +1,29 @@
-import { useRef, useCallback } from 'react';
+import { useRef, useCallback, useEffect } from 'react';
 
 export function useDragScroll() {
   const ref = useRef<HTMLDivElement>(null);
   const isDown = useRef(false);
   const startX = useRef(0);
   const scrollLeft = useRef(0);
+
+  // 브라우저에 스크롤 최적화 힌트 + passive touchstart로 터치 시작점 기록
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    el.style.willChange = 'scroll-position';
+
+    const onTouchStart = (e: TouchEvent) => {
+      startX.current = e.touches[0].pageX - el.offsetLeft;
+      scrollLeft.current = el.scrollLeft;
+    };
+
+    el.addEventListener('touchstart', onTouchStart, { passive: true });
+    return () => {
+      el.removeEventListener('touchstart', onTouchStart);
+      el.style.willChange = '';
+    };
+  }, []);
 
   const onMouseDown = useCallback((e: React.MouseEvent) => {
     isDown.current = true;

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { Footer } from '@/components/Footer';
 import { createServerSupabaseClient } from '@/lib/supabase-server';
 
@@ -93,16 +94,17 @@ export default async function PromotionsPage() {
             {promotions.map((p) => {
               const cardContent = (
                 <>
-                  <div className="aspect-[16/10] bg-gray-200 flex items-center justify-center">
+                  <div className="relative aspect-[16/10] bg-gray-200">
                     {p.imageUrl ? (
-                      <img
+                      <Image
                         src={p.imageUrl}
                         alt={p.title}
-                        loading="lazy"
-                        className="w-full h-full object-cover"
+                        fill
+                        sizes="(max-width: 640px) 100vw, 280px"
+                        className="object-cover"
                       />
                     ) : (
-                      <span className="text-gray-400 text-sm">배너 이미지</span>
+                      <span className="absolute inset-0 flex items-center justify-center text-gray-400 text-sm">배너 이미지</span>
                     )}
                   </div>
                   <div className="p-4">

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { memo, useState, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import type { Vehicle } from '@/constants/vehicles';
@@ -22,7 +22,7 @@ function formatPrice(won: number): string {
   return `월 ${Math.round(won / 10000)}만원~`;
 }
 
-function FilterChips({
+const FilterChips = memo(function FilterChips({
   items,
   selected,
   onSelect,
@@ -49,9 +49,9 @@ function FilterChips({
       ))}
     </div>
   );
-}
+});
 
-function CarImage({ imageKey, model, priority }: { imageKey: string; model: string; priority?: boolean }) {
+const CarImage = memo(function CarImage({ imageKey, model, priority }: { imageKey: string; model: string; priority?: boolean }) {
   const [error, setError] = useState(false);
   return (
     <div className="w-full aspect-[5/3] bg-gray-100 overflow-hidden relative">
@@ -72,7 +72,7 @@ function CarImage({ imageKey, model, priority }: { imageKey: string; model: stri
       )}
     </div>
   );
-}
+});
 
 export function PopularEstimatesClient({ vehicles }: { vehicles: VehicleWithPrice[] }) {
   const [selectedBrand, setSelectedBrand] = useState('전체');

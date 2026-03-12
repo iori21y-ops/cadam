@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { VEHICLE_LIST, getVehicleBySlug } from '@/constants/vehicles';
@@ -62,12 +63,18 @@ export async function generateMetadata({
   };
 }
 
-export default async function CarPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
-  const { slug } = await params;
+function PriceSkeleton() {
+  return (
+    <div className="animate-pulse space-y-3 px-5 py-8">
+      <div className="h-5 bg-gray-200 rounded w-1/3 mb-4" />
+      <div className="h-10 bg-gray-200 rounded" />
+      <div className="h-10 bg-gray-200 rounded" />
+      <div className="h-10 bg-gray-200 rounded" />
+    </div>
+  );
+}
+
+async function CarPageContent({ slug }: { slug: string }) {
   const vehicle = getVehicleBySlug(slug);
   if (!vehicle) notFound();
 
@@ -111,6 +118,43 @@ export default async function CarPage({
     sourceType: r.source_type ?? 'blog',
   }));
 
+  return (
+    <>
+      <CarHero vehicle={vehicle} minPrice={minPrice} minCarPrice={minCarPrice} maxCarPrice={maxCarPrice} />
+
+      <section className="px-5 py-8">
+        <h2 className="text-lg font-bold text-primary mb-4">
+          계약 조건별 월 납부금
+        </h2>
+        {priceRows.length > 0 ? (
+          <PriceCompareTable priceRanges={priceRows} />
+        ) : (
+          <div className="py-8 text-center text-gray-500 rounded-lg border border-gray-200 bg-gray-50">
+            상담 문의
+          </div>
+        )}
+      </section>
+
+      <CarArticles articles={articles} />
+
+      <div className="px-5 pb-4">
+        <CarCtaSection vehicle={vehicle} />
+      </div>
+
+      <RelatedCars currentVehicle={vehicle} />
+    </>
+  );
+}
+
+export default async function CarPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  const vehicle = getVehicleBySlug(slug);
+  if (!vehicle) notFound();
+
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://cadam.co.kr';
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -122,13 +166,6 @@ export default async function CarPage({
       '@type': 'Brand',
       name: vehicle.brand,
     },
-    ...(minPrice != null && {
-      offers: {
-        '@type': 'Offer',
-        price: minPrice,
-        priceCurrency: 'KRW',
-      },
-    }),
   };
 
   return (
@@ -139,28 +176,9 @@ export default async function CarPage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <div className="min-h-screen bg-white pb-8">
-        <CarHero vehicle={vehicle} minPrice={minPrice} minCarPrice={minCarPrice} maxCarPrice={maxCarPrice} />
-
-        <section className="px-5 py-8">
-          <h2 className="text-lg font-bold text-primary mb-4">
-            계약 조건별 월 납부금
-          </h2>
-          {priceRows.length > 0 ? (
-            <PriceCompareTable priceRanges={priceRows} />
-          ) : (
-            <div className="py-8 text-center text-gray-500 rounded-lg border border-gray-200 bg-gray-50">
-              상담 문의
-            </div>
-          )}
-        </section>
-
-        <CarArticles articles={articles} />
-
-        <div className="px-5 pb-4">
-          <CarCtaSection vehicle={vehicle} />
-        </div>
-
-        <RelatedCars currentVehicle={vehicle} />
+        <Suspense fallback={<PriceSkeleton />}>
+          <CarPageContent slug={slug} />
+        </Suspense>
       </div>
     </>
   );

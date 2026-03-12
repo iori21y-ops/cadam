@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import Link from 'next/link';
 import { getVehicleBySlug, VEHICLE_LIST } from '@/constants/vehicles';
 import { createServerSupabaseClient } from '@/lib/supabase-server';
@@ -36,19 +37,34 @@ interface VehicleSettingRow {
   display_order: number | null;
 }
 
-export default async function PopularEstimatesPage() {
+function VehiclesSkeleton() {
+  return (
+    <div className="grid grid-cols-2 gap-3">
+      {Array.from({ length: 6 }).map((_, i) => (
+        <div key={i} className="rounded-xl border-2 border-gray-200 bg-white overflow-hidden animate-pulse">
+          <div className="w-full aspect-[5/3] bg-gray-200" />
+          <div className="p-3 space-y-2">
+            <div className="h-2.5 bg-gray-200 rounded w-1/3" />
+            <div className="h-4 bg-gray-200 rounded w-2/3" />
+            <div className="h-4 bg-gray-200 rounded w-1/2" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+async function VehicleListSection() {
   const supabase = await createServerSupabaseClient();
 
   const { data: allSettings } = await supabase
     .from('vehicle_settings')
     .select('vehicle_slug, is_visible, display_order');
 
-  // vehicle_settings를 map으로 변환 (없는 차량은 기본값 적용)
   const settingMap = new Map(
     (allSettings ?? []).map((s: VehicleSettingRow) => [s.vehicle_slug, s])
   );
 
-  // FALLBACK_SLUGS 기준으로 표시, is_visible=false인 차량만 제외, display_order로 정렬
   const orderedVehicles = FALLBACK_SLUGS
     .map((slug) => getVehicleBySlug(slug))
     .filter((v): v is NonNullable<typeof v> => v != null)
@@ -84,9 +100,13 @@ export default async function PopularEstimatesPage() {
     return { ...v, price };
   });
 
+  return <PopularEstimatesClient vehicles={vehicles} />;
+}
+
+export default function PopularEstimatesPage() {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-      {/* 헤더 */}
+      {/* 헤더 - 즉시 렌더링 */}
       <section className="bg-gradient-to-br from-primary to-accent text-white px-5 py-12 text-center">
         <h1 className="text-2xl font-bold mb-2">인기차종 견적 미리보기</h1>
         <p className="text-white/85 text-sm">
@@ -94,9 +114,11 @@ export default async function PopularEstimatesPage() {
         </p>
       </section>
 
-      {/* 차종 목록 */}
+      {/* 차종 목록 - DB 응답 전까지 스켈레톤 표시 */}
       <section className="px-5 py-8 flex-1">
-        <PopularEstimatesClient vehicles={vehicles} />
+        <Suspense fallback={<VehiclesSkeleton />}>
+          <VehicleListSection />
+        </Suspense>
       </section>
 
       {/* 하단 CTA */}
