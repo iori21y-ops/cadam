@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { gtag } from '@/lib/gtag';
+import { Button } from '@/components/ui/Button';
 
 interface LeaveModalProps {
   isOpen: boolean;
@@ -51,20 +52,12 @@ export function LeaveModal({ isOpen, onClose, currentStep }: LeaveModalProps) {
               <br />
               견적을 완성하고 최저가를 확인해 보세요.
             </p>
-            <button
-              type="button"
-              onClick={handleStay}
-              className="w-full py-4 rounded-lg font-bold text-base bg-accent text-white hover:opacity-90 transition-opacity"
-            >
+            <Button type="button" variant="primary" size="lg" fullWidth onClick={handleStay}>
               이어서 견적 받기
-            </button>
-            <button
-              type="button"
-              onClick={handleExit}
-              className="mt-2 bg-transparent border-none text-gray-400 text-[13px] cursor-pointer underline hover:text-gray-500 transition-colors"
-            >
+            </Button>
+            <Button type="button" variant="ghost" onClick={handleExit} className="mt-2">
               나중에 할게요
-            </button>
+            </Button>
           </motion.div>
         </motion.div>
       )}

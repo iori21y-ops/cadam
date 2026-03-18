@@ -90,7 +90,7 @@ const ArticleCard = memo(function ArticleCard({ article, isShorts }: { article: 
       href={article.linkUrl}
       target="_blank"
       rel="noopener noreferrer"
-      className={`shrink-0 flex flex-col rounded-xl bg-white border border-gray-200 hover:border-accent hover:shadow-md transition-all overflow-hidden group ${
+      className={`shrink-0 flex flex-col rounded-2xl bg-white border border-[#E5E5EA] hover:border-[#0A84FF] hover:shadow-md transition-all overflow-hidden group ${
         isShorts ? 'w-[150px]' : 'w-[220px]'
       }`}
     >
@@ -109,7 +109,7 @@ const ArticleCard = memo(function ArticleCard({ article, isShorts }: { article: 
             }}
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-primary to-accent flex items-center justify-center p-4">
+          <div className="w-full h-full bg-[#0A84FF] flex items-center justify-center p-4">
             <p className="text-white text-xs font-bold line-clamp-4 leading-snug text-center">
               {article.title}
             </p>
@@ -117,7 +117,7 @@ const ArticleCard = memo(function ArticleCard({ article, isShorts }: { article: 
         )}
       </div>
       <div className="p-3">
-        <h3 className="text-xs font-semibold text-gray-900 line-clamp-2 leading-snug">
+        <h3 className="text-xs font-semibold text-[#1D1D1F] line-clamp-2 leading-snug">
           {article.title}
         </h3>
       </div>
@@ -275,10 +275,10 @@ export function InfoArticles({ initialArticles }: { initialArticles?: Article[] 
 
   return (
     <section className="py-8 flex-1">
-      <h2 className="text-xl font-bold text-primary mb-1 text-center px-5">
+      <h2 className="text-xl font-bold text-text mb-1 text-center px-5">
         장기렌터카 정보
       </h2>
-      <p className="text-sm text-gray-500 mb-5 text-center px-5">
+      <p className="text-sm text-[#86868B] mb-5 text-center px-5">
         블로그, 유튜브 등에서 유용한 정보를 모았습니다
       </p>
 
@@ -291,8 +291,8 @@ export function InfoArticles({ initialArticles }: { initialArticles?: Article[] 
             onClick={() => handleCategoryChange(f.value as 'all' | 'rental' | 'car')}
             className={`px-4 py-1.5 rounded-full text-sm font-semibold border transition-all ${
               selectedCategory === f.value
-                ? 'bg-accent text-white border-accent'
-                : 'bg-white text-gray-600 border-gray-300 hover:border-accent'
+                ? 'bg-[#0A84FF] text-white border-[#0A84FF]'
+                : 'bg-white text-[#86868B] border-[#E5E5EA] hover:border-[#0A84FF] hover:text-[#0A84FF]'
             }`}
           >
             {f.label}
@@ -311,8 +311,8 @@ export function InfoArticles({ initialArticles }: { initialArticles?: Article[] 
                 onClick={() => handleBrandChange(b === '전체' ? 'all' : b)}
                 className={`px-3 py-1 rounded-full text-xs font-semibold border transition-all whitespace-nowrap ${
                   (b === '전체' ? selectedBrand === 'all' : selectedBrand === b)
-                    ? 'bg-accent text-white border-accent'
-                    : 'bg-white text-gray-600 border-gray-300 hover:border-accent'
+                    ? 'bg-[#0A84FF] text-white border-[#0A84FF]'
+                    : 'bg-white text-[#86868B] border-[#E5E5EA] hover:border-[#0A84FF] hover:text-[#0A84FF]'
                 }`}
               >
                 {b}
@@ -338,8 +338,8 @@ export function InfoArticles({ initialArticles }: { initialArticles?: Article[] 
               onClick={() => setSelectedVehicle('all')}
               className={`px-3 py-1 rounded-full text-xs font-semibold border transition-all whitespace-nowrap ${
                 selectedVehicle === 'all'
-                  ? 'bg-gray-800 text-white border-gray-800'
-                  : 'bg-white text-gray-600 border-gray-300 hover:border-gray-600'
+                  ? 'bg-[#0A84FF] text-white border-[#0A84FF]'
+                  : 'bg-white text-[#86868B] border-[#E5E5EA] hover:border-[#0A84FF] hover:text-[#0A84FF]'
               }`}
             >
               전체
@@ -351,8 +351,8 @@ export function InfoArticles({ initialArticles }: { initialArticles?: Article[] 
                 onClick={() => setSelectedVehicle(v.slug)}
                 className={`px-3 py-1 rounded-full text-xs font-semibold border transition-all whitespace-nowrap ${
                   selectedVehicle === v.slug
-                    ? 'bg-gray-800 text-white border-gray-800'
-                    : 'bg-white text-gray-600 border-gray-300 hover:border-gray-600'
+                    ? 'bg-[#0A84FF] text-white border-[#0A84FF]'
+                    : 'bg-white text-[#86868B] border-[#E5E5EA] hover:border-[#0A84FF] hover:text-[#0A84FF]'
                 }`}
               >
                 {v.model}
@@ -368,12 +368,12 @@ export function InfoArticles({ initialArticles }: { initialArticles?: Article[] 
 
       {loading ? (
         <div className="flex justify-center py-20">
-          <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-2 border-[#0A84FF] border-t-transparent rounded-full animate-spin" />
         </div>
       ) : filteredArticles.length === 0 ? (
-        <div className="mx-5 py-16 text-center rounded-xl bg-gray-50 border border-gray-200">
-          <p className="text-gray-500">아직 등록된 정보가 없습니다</p>
-          <p className="text-gray-400 text-sm mt-1">추후 블로그·유튜브 콘텐츠가 연결됩니다</p>
+        <div className="mx-5 py-16 text-center rounded-2xl bg-white border border-[#E5E5EA]">
+          <p className="text-[#86868B]">아직 등록된 정보가 없습니다</p>
+          <p className="text-[#AEAEB2] text-sm mt-1">추후 블로그·유튜브 콘텐츠가 연결됩니다</p>
         </div>
       ) : (
         <div className="space-y-8">

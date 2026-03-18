@@ -12,33 +12,29 @@ export function ProgressBar({
   totalSteps = 6,
 }: ProgressBarProps) {
   const resetAll = useQuoteStore((s) => s.resetAll);
-  // 첫 화면(Step 1) 0%, Step 6에서 100%
-  const pct =
-    currentStep <= 1
-      ? 0
-      : Math.min(100, ((currentStep - 1) / (totalSteps - 1)) * 100);
-  const pctDisplay = Math.round(pct);
+  // Quiz 스타일: Step 1은 answered=0, Step 6은 answered=(totalSteps-1)
+  const totalQuestions = Math.max(1, totalSteps - 1);
+  const answeredCount = currentStep <= 1 ? 0 : Math.min(totalQuestions, currentStep - 1);
+  const progressPct = Math.round((answeredCount / totalQuestions) * 100);
   return (
-    <div className="px-5 pt-3">
-      <div className="flex justify-between items-center mb-1.5">
-        <span className="text-xs text-gray-500">
-          Step {currentStep} / {totalSteps}
+    <div className="w-full px-5 pt-4 pb-2 max-w-[500px] mx-auto">
+      <div
+        className="flex justify-between mb-2"
+        style={{ fontSize: 12, color: '#AEAEB2' }}
+      >
+        <span>Q{answeredCount + 1}</span>
+        <span>
+          {answeredCount}/~{totalQuestions}
         </span>
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={resetAll}
-            className="text-xs text-gray-400 hover:text-accent transition-colors"
-          >
-            처음부터
-          </button>
-          <span className="text-xs font-semibold text-accent">{pctDisplay}%</span>
-        </div>
       </div>
-      <div className="h-1 bg-gray-200 rounded">
+      <div className="w-full h-1 rounded-full overflow-hidden" style={{ background: '#E5E5EA' }}>
         <div
-          className="h-full bg-accent rounded transition-all duration-300"
-          style={{ width: `${pct}%` }}
+          className="h-full rounded-full"
+          style={{
+            width: `${progressPct}%`,
+            background: '#007AFF',
+            transition: 'width 0.5s ease',
+          }}
         />
       </div>
     </div>

@@ -4,6 +4,7 @@ import { useState, useCallback } from 'react';
 import { useQuoteStore } from '@/store/quoteStore';
 import type { ContractMonths } from '@/store/quoteStore';
 import { gtag } from '@/lib/gtag';
+import { SelectCard } from '@/components/ui/SelectCard';
 
 interface PeriodOption {
   value: ContractMonths;
@@ -42,31 +43,21 @@ export function Step3Period() {
   return (
     <>
       <div className="pt-7 px-5 pb-2 text-center">
-        <h2 className="text-[22px] font-bold text-gray-900 leading-snug">
+        <h2 className="text-[22px] font-bold text-[#1D1D1F] leading-snug">
           계약 기간을 선택해 주세요
         </h2>
-        <p className="text-sm text-gray-500 mt-2">
+        <p className="text-sm text-[#86868B] mt-2">
           기간이 길수록 월 납부금이 낮아집니다
         </p>
       </div>
       <div className="flex flex-col gap-2.5 px-5 py-3">
         {OPTIONS.map((opt) => (
-          <button
+          <SelectCard
             key={opt.value}
-            type="button"
-            onClick={() => handleSelect(opt.value)}
+            selected={selectedValue === opt.value}
+            dimmed={selectedValue !== null && selectedValue !== opt.value}
             disabled={selectedValue !== null}
-            className={`
-              relative w-full p-4 pl-[18px] bg-white rounded-xl cursor-pointer text-left
-              flex items-center gap-3 transition-all duration-150
-              border-2
-              ${
-                selectedValue === opt.value
-                  ? 'border-accent bg-[#EBF5FB]'
-                  : 'border-gray-200 hover:border-accent hover:bg-[#EBF5FB]'
-              }
-              disabled:cursor-default
-            `}
+            onClick={() => handleSelect(opt.value)}
           >
             {opt.isPopular && (
               <span className="absolute -top-2 right-3 bg-warning text-white text-[11px] font-bold py-0.5 px-2 rounded-[10px]">
@@ -74,17 +65,15 @@ export function Step3Period() {
               </span>
             )}
             <span className="text-2xl shrink-0">📅</span>
-            <div className="min-w-0">
-              <div
-                className={`text-base font-semibold ${
-                  selectedValue === opt.value ? 'text-accent' : 'text-gray-900'
-                }`}
-              >
+            <div className="min-w-0 flex-1">
+              <div className={`text-base font-semibold ${selectedValue === opt.value ? 'text-white' : 'text-[#1D1D1F]'}`}>
                 {opt.label}
               </div>
-              <div className="text-[13px] text-gray-500 mt-0.5">{opt.sub}</div>
+              <div className={`text-[13px] mt-0.5 ${selectedValue === opt.value ? 'text-white/70' : 'text-[#86868B]'}`}>
+                {opt.sub}
+              </div>
             </div>
-          </button>
+          </SelectCard>
         ))}
       </div>
     </>

@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useQuoteStore } from '@/store/quoteStore';
 import { gtag } from '@/lib/gtag';
 import type { Vehicle } from '@/constants/vehicles';
+import { Button, ButtonLink } from '@/components/ui/Button';
 
 interface CarCtaSectionProps {
   vehicle: Vehicle;
@@ -33,30 +34,30 @@ export function CarCtaSection({ vehicle }: CarCtaSectionProps) {
   const telHref = `tel:${PHONE.replace(/-/g, '')}`;
 
   return (
-    <div className="px-5 py-6 flex flex-col gap-3">
-      <button
-        type="button"
-        onClick={handleQuoteClick}
-        className="w-full py-4 rounded-lg font-bold text-base bg-accent text-white hover:opacity-90 transition-opacity"
-      >
+    <div className="p-5 flex flex-col gap-3 bg-white rounded-2xl border border-[#E5E5EA]">
+      <Button type="button" variant="primary" size="lg" fullWidth onClick={handleQuoteClick}>
         이 차량으로 무료 견적 받기
-      </button>
-      <a
+      </Button>
+      <ButtonLink
+        variant="kakao"
+        size="lg"
+        fullWidth
         href={KAKAO_URL}
         target="_blank"
         rel="noopener noreferrer"
         onClick={() => gtag.seoCtaClick(vehicle.slug, 'kakao')}
-        className="w-full py-4 rounded-lg font-bold text-base text-center bg-kakao text-[#3C1E1E] hover:opacity-90 transition-opacity"
       >
         💬 카카오톡 상담
-      </a>
-      <a
+      </ButtonLink>
+      <ButtonLink
+        variant="outline"
+        size="lg"
+        fullWidth
         href={telHref}
         onClick={() => gtag.seoCtaClick(vehicle.slug, 'call')}
-        className="w-full py-4 rounded-lg font-bold text-base text-center border-2 border-accent text-accent hover:bg-accent/5 transition-colors"
       >
         📞 전화 상담
-      </a>
+      </ButtonLink>
     </div>
   );
 }

@@ -130,12 +130,12 @@ export function SelectionSummary({ currentStep }: { currentStep: number }) {
   if (items.length === 0) return null;
 
   return (
-    <div className="px-5 py-1.5">
-      <div className="rounded-lg border border-gray-200 bg-gray-50/80 overflow-hidden">
+    <div className="px-5 pt-2">
+      <div className="rounded-2xl bg-white border border-[#E5E5EA] overflow-hidden">
         {!isExpanded ? (
           <div
             ref={containerRef}
-            className="relative px-3 py-1.5 min-h-[26px] overflow-hidden"
+            className="relative px-3 py-2 min-h-[30px] overflow-hidden"
           >
             <div
               ref={measureRef}
@@ -145,7 +145,7 @@ export function SelectionSummary({ currentStep }: { currentStep: number }) {
               {items.map((item) => (
                 <span
                   key={item.step}
-                  className="shrink-0 px-2 py-0.5 rounded-md bg-gray-200/70 text-xs text-gray-700"
+                  className="shrink-0 px-2 py-1 rounded-[10px] bg-[#F5F5F7] text-[11px] text-[#1D1D1F]"
                 >
                   {item.value}
                 </span>
@@ -162,7 +162,7 @@ export function SelectionSummary({ currentStep }: { currentStep: number }) {
               {(needsSliding ? [...items, ...items] : items).map((item, idx) => (
                 <span
                   key={`${item.step}-${idx}`}
-                  className="shrink-0 px-2 py-0.5 rounded-md bg-gray-200/70 text-xs text-gray-700"
+                  className="shrink-0 px-2 py-1 rounded-[10px] bg-[#F5F5F7] text-[11px] text-[#1D1D1F]"
                 >
                   {item.value}
                 </span>
@@ -170,19 +170,19 @@ export function SelectionSummary({ currentStep }: { currentStep: number }) {
             </div>
           </div>
         ) : (
-          <ul className="flex flex-col gap-2 px-4 pb-4 pt-2">
+          <ul className="flex flex-col gap-2 px-4 pb-4 pt-3">
             {items.map((item) => (
               <li key={item.step} className="flex items-center gap-2 text-sm">
                 <button
                   type="button"
                   onClick={() => setCurrentStep(item.step)}
-                  className="flex items-center gap-2 min-w-0 group text-left hover:text-accent transition-colors"
+                  className="flex items-center gap-2 min-w-0 group text-left hover:text-[#007AFF] transition-colors"
                 >
-                  <span className="shrink-0 w-5 h-5 rounded-full bg-accent/15 text-accent text-xs font-bold flex items-center justify-center">
+                  <span className="shrink-0 w-5 h-5 rounded-full bg-[#007AFF1A] text-[#007AFF] text-[11px] font-bold flex items-center justify-center">
                     {item.step}
                   </span>
-                  <span className="text-gray-500 shrink-0">{item.label}</span>
-                  <span className="text-gray-900 font-medium truncate group-hover:text-accent">
+                  <span className="text-[#86868B] shrink-0">{item.label}</span>
+                  <span className="text-[#1D1D1F] font-medium truncate group-hover:text-[#007AFF]">
                     {item.value}
                   </span>
                 </button>

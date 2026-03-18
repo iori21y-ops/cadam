@@ -1,6 +1,14 @@
+ 'use client';
+
 import Link from 'next/link';
+import { motion } from 'framer-motion';
+import { usePathname } from 'next/navigation';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { SelectCard } from '@/components/ui/SelectCard';
 import { Footer } from '@/components/Footer';
 import { getVehicleBySlug } from '@/constants/vehicles';
+import { usePageTransitionStore } from '@/store/pageTransitionStore';
 
 const POPULAR_SLUGS = ['avante', 'tucson', 'k5', 'sportage', 'sorento', 'ioniq5'] as const;
 
@@ -12,6 +20,16 @@ const MAIN_CARDS = [
     title: '무료 견적 받기',
     description: '차종·예산·기간을 선택하면 맞춤 월 납부금을 바로 확인할 수 있어요.',
     cta: '견적 시작하기',
+    color: 'bg-[#0A84FF1A]',
+  },
+  {
+    id: 'diagnosis',
+    href: '/diagnosis',
+    emoji: '🎯',
+    title: '내게 맞는 상품 진단',
+    description: '금융상품·차종·옵션을 1분 진단으로 추천받으세요.',
+    cta: '진단 시작하기',
+    color: 'bg-vehicle/8',
   },
   {
     id: 'popular',
@@ -20,6 +38,7 @@ const MAIN_CARDS = [
     title: '인기차종 견적 미리보기',
     description: '아반떼·투싼·K5 등 인기 차종의 월 납부금을 한눈에 비교해 보세요.',
     cta: '견적 미리보기',
+    color: 'bg-success/8',
   },
   {
     id: 'info',
@@ -28,6 +47,7 @@ const MAIN_CARDS = [
     title: '장기렌터카 정보',
     description: '장기렌트 vs 구매 비교, 세금 처리, 인기 차종 정보를 한눈에.',
     cta: '정보 보기',
+    color: 'bg-warning/8',
   },
   {
     id: 'promotions',
@@ -36,73 +56,98 @@ const MAIN_CARDS = [
     title: '이달의 프로모션',
     description: '카담에서 진행 중인 특별 혜택을 확인하세요.',
     cta: '혜택 확인하기',
+    color: 'bg-danger/8',
   },
 ];
 
 export default function HomePage() {
-  return (
-    <div className="min-h-screen flex flex-col">
-      {/* Hero */}
-      <section className="flex flex-col items-center justify-center px-5 py-16 min-h-[50vh] bg-gradient-to-br from-primary to-accent text-white text-center">
-        <h1 className="text-2xl sm:text-3xl font-bold leading-tight mb-3">
-          장기렌터카, 카담에서 가장 쉽게
-        </h1>
-        <p className="text-base sm:text-lg text-white/90 mb-8">
-          현대·기아·제네시스 45종 최저가 견적을 비교해 보세요
-        </p>
-        <Link
-          href="/quote"
-          className="px-8 py-3.5 rounded-lg font-bold text-accent bg-white hover:opacity-90 transition-opacity shadow-lg"
-        >
-          무료 견적 받기
-        </Link>
-      </section>
+  const pathname = usePathname();
+  const router = useRouter();
+  const [clickedHref, setClickedHref] = useState<string | null>(null);
+  const NAV_DELAY_MS = 300;
 
+  const triggerPageTransition = usePageTransitionStore((s) => s.trigger);
+
+  const handleCardClick = (href: string) => {
+    if (clickedHref) return;
+    triggerPageTransition();
+    setClickedHref(href);
+    window.setTimeout(() => {
+      router.push(href);
+    }, NAV_DELAY_MS);
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col bg-surface-secondary">
       {/* 메인 카드 목록 */}
-      <section className="px-5 py-12 flex-1">
-        <h2 className="text-xl font-bold text-primary mb-6 text-center">
+      <section className="px-5 pt-10 pb-10 flex-1">
+        <h2 className="text-xl font-bold text-text mb-6 text-center">
           카담과 함께하기
         </h2>
-        <div className="flex flex-col gap-6 max-w-lg mx-auto">
-          {MAIN_CARDS.map((card) => (
-            <Link
-              key={card.id}
-              href={card.href}
-              className="w-full text-left p-6 rounded-2xl border-2 border-gray-200 bg-white hover:border-accent hover:shadow-lg transition-all group"
-            >
-              <div className="flex items-start gap-4">
-                <span className="text-4xl shrink-0">{card.emoji}</span>
-                <div className="min-w-0 flex-1">
-                  <h3 className="text-lg font-bold text-gray-900 mb-1 group-hover:text-accent transition-colors">
-                    {card.title}
-                  </h3>
-                  <p className="text-sm text-gray-600 leading-relaxed">
-                    {card.description}
-                  </p>
-                  <span className="inline-block mt-3 text-accent font-semibold text-sm">
-                    {card.cta} →
+        <div className="flex flex-col gap-4 max-w-lg mx-auto">
+          {MAIN_CARDS.map((card, idx) => {
+            const isSel = pathname?.startsWith(card.href);
+            const isActive = isSel || clickedHref === card.href;
+            const isDimmed = clickedHref !== null && !isActive;
+            return (
+              <motion.div
+                key={card.id}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.08, duration: 0.3 }}
+              >
+                <SelectCard
+                  selected={isActive}
+                  dimmed={isDimmed}
+                  disabled={!!clickedHref && !isActive}
+                  color="#007AFF"
+                  onClick={() => handleCardClick(card.href)}
+                >
+                  <span className={`text-3xl shrink-0 w-14 h-14 flex items-center justify-center rounded-2xl ${card.color}`}>
+                    {card.emoji}
                   </span>
-                </div>
-              </div>
-            </Link>
-          ))}
+                  <div className="min-w-0 flex-1">
+                    <h3
+                      className={`text-[16px] font-medium mb-0.5 ${
+                        isActive ? 'text-white' : 'text-[#1D1D1F]'
+                      }`}
+                    >
+                      {card.title}
+                    </h3>
+                    <p
+                      className={`text-sm leading-relaxed ${
+                        isActive ? 'text-white/70' : 'text-text-sub'
+                      }`}
+                    >
+                      {card.description}
+                    </p>
+                  </div>
+                </SelectCard>
+              </motion.div>
+            );
+          })}
         </div>
       </section>
 
       {/* 인기 차종 바로가기 */}
-      <section className="px-5 py-12 bg-gray-50">
-        <h2 className="text-xl font-bold text-primary mb-6 text-center">
+      <section className="px-5 py-10">
+        <h2 className="text-xl font-bold text-text mb-6 text-center">
           인기 차종
         </h2>
         <div className="flex flex-wrap gap-3 justify-center max-w-lg mx-auto">
           {POPULAR_SLUGS.map((slug) => {
             const vehicle = getVehicleBySlug(slug);
             if (!vehicle) return null;
+            const isSel = pathname?.startsWith(`/cars/${slug}`);
             return (
               <Link
                 key={slug}
                 href={`/cars/${slug}`}
-                className="px-4 py-2.5 rounded-xl border-2 border-gray-200 bg-white font-semibold text-gray-700 hover:border-accent hover:text-accent transition-all"
+                className={`px-4 py-2.5 rounded-[20px] border-2 shadow-[0_2px_16px_rgba(0,0,0,0.05)] font-semibold transition-all duration-300 focus:outline-none focus-visible:outline-none ${
+                  isSel
+                    ? 'bg-[#007AFF] border-[#007AFF] text-white shadow-[0_4px_24px_rgba(0,122,255,0.25)] pointer-events-none cursor-default'
+                    : 'bg-white border-transparent text-text-sub hover:border-[#007AFF] hover:scale-[1.015]'
+                }`}
               >
                 {vehicle.model}
               </Link>
@@ -114,12 +159,12 @@ export default function HomePage() {
       <Footer />
 
       {/* 관리자 버튼 */}
-      <div className="flex justify-center py-4 bg-gray-50 border-t border-gray-100">
+      <div className="flex justify-center py-4 border-t border-border">
         <a
           href="/admin"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
+          className="text-xs text-text-muted hover:text-text-sub transition-colors"
         >
           관리자
         </a>

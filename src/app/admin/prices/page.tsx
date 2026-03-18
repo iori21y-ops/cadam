@@ -387,19 +387,19 @@ export default function AdminPricesPage() {
   return (
     <div className="max-w-[1200px] mx-auto p-5">
       <div className="flex items-center justify-between mb-4 gap-2 flex-wrap">
-        <h1 className="text-xl font-bold text-primary">인기차종 관리</h1>
+        <h1 className="text-xl font-bold text-[#1D1D1F] tracking-tight">인기차종 관리</h1>
         <div className="flex items-center gap-2 flex-wrap">
           {/* CSV 다운로드 */}
           <button
             type="button"
             onClick={handleDownload}
             disabled={downloading || loading}
-            className="px-3 py-2 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 whitespace-nowrap"
+            className="px-3 py-2 rounded-[10px] border border-[#E5E5EA] bg-white text-sm font-semibold text-[#1D1D1F] hover:bg-[#F5F5F7] disabled:opacity-50 whitespace-nowrap"
           >
             {downloading ? '다운로드 중...' : '⬇ CSV 다운로드'}
           </button>
           {/* CSV 업로드 */}
-          <label className={`px-3 py-2 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 cursor-pointer whitespace-nowrap ${uploading ? 'opacity-50 pointer-events-none' : ''}`}>
+          <label className={`px-3 py-2 rounded-[10px] border border-[#E5E5EA] bg-white text-sm font-semibold text-[#1D1D1F] hover:bg-[#F5F5F7] cursor-pointer whitespace-nowrap ${uploading ? 'opacity-50 pointer-events-none' : ''}`}>
             {uploading ? '업로드 중...' : '⬆ CSV 업로드'}
             <input
               ref={fileInputRef}
@@ -413,7 +413,7 @@ export default function AdminPricesPage() {
           <button
             type="button"
             onClick={() => setAddForm({ brand: '', model: '' })}
-            className="px-3 py-2 rounded-lg bg-accent text-white text-sm font-medium hover:opacity-90 whitespace-nowrap"
+            className="px-3 py-2 rounded-[10px] bg-[#007AFF] text-white text-sm font-semibold hover:opacity-90 whitespace-nowrap"
           >
             + 새 차종 추가
           </button>
@@ -422,43 +422,43 @@ export default function AdminPricesPage() {
 
       {/* 업로드 결과 */}
       {uploadResult && (
-        <div className={`mb-4 px-4 py-3 rounded-lg text-sm font-medium ${uploadResult.startsWith('오류') ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-green-50 text-success border border-green-200'}`}>
+        <div className={`mb-4 px-4 py-3 rounded-2xl text-sm font-medium border ${uploadResult.startsWith('오류') ? 'bg-white text-[#FF3B30] border-[#FF3B3033]' : 'bg-white text-[#34C759] border-[#34C75933]'}`}>
           {uploadResult}
-          <button type="button" onClick={() => setUploadResult(null)} className="ml-3 text-gray-400 hover:text-gray-600">✕</button>
+          <button type="button" onClick={() => setUploadResult(null)} className="ml-3 text-[#AEAEB2] hover:text-[#86868B]">✕</button>
         </div>
       )}
 
       {/* 새 차종 추가 폼 */}
       {addForm && (
-        <div className="mb-4 p-4 rounded-xl border border-accent bg-[#EBF5FB]">
-          <p className="text-sm font-bold text-gray-700 mb-3">새 차종 추가</p>
+        <div className="mb-4 p-5 rounded-2xl border border-[#E5E5EA] bg-white">
+          <p className="text-sm font-bold text-[#1D1D1F] mb-3">새 차종 추가</p>
           <div className="flex gap-2">
             <input
               type="text"
               placeholder="제조사 (예: BMW)"
               value={addForm.brand}
               onChange={(e) => setAddForm((f) => f ? { ...f, brand: e.target.value } : f)}
-              className="flex-1 py-2 px-3 border border-gray-300 rounded-lg text-sm outline-none focus:border-accent"
+              className="flex-1 bg-[#F5F5F7] border border-[#E5E5EA] rounded-[10px] text-sm px-[14px] py-[10px] outline-none focus:border-[#007AFF]"
             />
             <input
               type="text"
               placeholder="차종명 (예: 5시리즈)"
               value={addForm.model}
               onChange={(e) => setAddForm((f) => f ? { ...f, model: e.target.value } : f)}
-              className="flex-1 py-2 px-3 border border-gray-300 rounded-lg text-sm outline-none focus:border-accent"
+              className="flex-1 bg-[#F5F5F7] border border-[#E5E5EA] rounded-[10px] text-sm px-[14px] py-[10px] outline-none focus:border-[#007AFF]"
             />
             <button
               type="button"
               onClick={handleAddVehicle}
               disabled={addSaving}
-              className="px-4 py-2 rounded-lg bg-accent text-white text-sm font-medium hover:opacity-90 disabled:opacity-60 whitespace-nowrap"
+              className="px-4 py-2 rounded-[10px] bg-[#007AFF] text-white text-sm font-semibold hover:opacity-90 disabled:opacity-60 whitespace-nowrap"
             >
               {addSaving ? '추가 중...' : '추가'}
             </button>
             <button
               type="button"
               onClick={() => setAddForm(null)}
-              className="px-3 py-2 rounded-lg text-sm text-gray-500 hover:bg-gray-200"
+              className="px-3 py-2 rounded-[10px] text-sm font-semibold text-[#86868B] hover:bg-[#F5F5F7]"
             >
               취소
             </button>
@@ -467,13 +467,13 @@ export default function AdminPricesPage() {
       )}
 
       {/* CSV 형식 안내 */}
-      <div className="mb-4 px-4 py-2.5 rounded-lg bg-gray-50 border border-gray-200 text-xs text-gray-500">
+      <div className="mb-4 px-4 py-3 rounded-2xl bg-white border border-[#E5E5EA] text-xs text-[#86868B]">
         CSV 컬럼 순서: slug · 제조사 · 차종명 · 썸네일URL · 최소차량가격(만원) · 최대차량가격(만원) · 노출여부(TRUE/FALSE) · 노출순서 · [36m/48m/60m × 1/2/3/4만km 최소·최대(원) 각 2열씩 총 24열]
       </div>
 
       {loading ? (
         <div className="flex justify-center py-16">
-          <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-2 border-[#007AFF] border-t-transparent rounded-full animate-spin" />
         </div>
       ) : (
         <div className="space-y-2">
@@ -485,49 +485,49 @@ export default function AdminPricesPage() {
             const isExpanded = expandedBrands.has(brand);
             const registeredCount = vehicles.filter((v) => v.priceCount > 0).length;
             return (
-              <div key={brand} className="rounded-xl border border-gray-200 bg-white overflow-hidden">
+              <div key={brand} className="rounded-2xl border border-[#E5E5EA] bg-white overflow-hidden">
                 <button
                   type="button"
                   onClick={() => toggleBrand(brand)}
-                  className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-gray-50 transition-colors"
+                  className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-[#F5F5F7] transition-colors"
                 >
-                  <span className="font-bold text-gray-900">{brand}</span>
+                  <span className="font-bold text-[#1D1D1F]">{brand}</span>
                   <div className="flex items-center gap-3">
-                    <span className="text-sm text-gray-400">{registeredCount}/{vehicles.length} 등록</span>
-                    <span className="text-gray-400 text-sm">{isExpanded ? '▼' : '▶'}</span>
+                    <span className="text-sm text-[#86868B]">{registeredCount}/{vehicles.length} 등록</span>
+                    <span className="text-[#86868B] text-sm">{isExpanded ? '▼' : '▶'}</span>
                   </div>
                 </button>
                 {isExpanded && (
-                  <div className="border-t border-gray-100 divide-y divide-gray-100">
+                  <div className="border-t border-[#E5E5EA] divide-y divide-[#E5E5EA]">
                     {vehicles.map((v, idx) => (
-                      <div key={v.slug} className="flex items-center gap-2 px-3 py-2 hover:bg-gray-50/50">
+                      <div key={v.slug} className="flex items-center gap-2 px-3 py-2 hover:bg-[#F5F5F7]">
                         <button
                           type="button"
                           onClick={() => handleOpen(v)}
                           className="flex items-center gap-3 flex-1 min-w-0 text-left"
                         >
-                          <div className="shrink-0 w-14 h-9 rounded-lg bg-gray-100 overflow-hidden flex items-center justify-center">
+                          <div className="shrink-0 w-14 h-9 rounded-[10px] bg-[#F5F5F7] overflow-hidden flex items-center justify-center border border-[#E5E5EA]">
                             {v.thumbnailUrl ? (
                               <img src={v.thumbnailUrl} alt={v.model} className="w-full h-full object-contain" />
                             ) : (
-                              <span className="text-gray-300 text-base">🚗</span>
+                              <span className="text-[#D1D1D6] text-base">🚗</span>
                             )}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="font-semibold text-gray-900 text-sm truncate">{v.model}</p>
+                            <p className="font-semibold text-[#1D1D1F] text-sm truncate">{v.model}</p>
                             {v.minCarPrice ? (
-                              <p className="text-xs text-gray-500">
+                              <p className="text-xs text-[#86868B]">
                                 {Math.round(v.minCarPrice / 10000).toLocaleString()}~{Math.round((v.maxCarPrice ?? 0) / 10000).toLocaleString()}만원
                               </p>
                             ) : (
-                              <p className="text-xs text-gray-400">차량가격 미등록</p>
+                              <p className="text-xs text-[#AEAEB2]">차량가격 미등록</p>
                             )}
                           </div>
                           <div className="shrink-0 mr-1">
                             {v.priceCount > 0 ? (
-                              <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-success/20 text-success">{v.priceCount}건</span>
+                              <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-[#34C7591A] text-[#34C759]">{v.priceCount}건</span>
                             ) : (
-                              <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-gray-100 text-gray-400">미등록</span>
+                              <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-[#F5F5F7] text-[#AEAEB2]">미등록</span>
                             )}
                           </div>
                         </button>
@@ -535,7 +535,7 @@ export default function AdminPricesPage() {
                           <button
                             type="button"
                             onClick={() => toggleVisible(v)}
-                            className={`text-xs px-2 py-1 rounded-lg font-medium transition-colors ${v.isVisible ? 'bg-success/20 text-success hover:bg-success/30' : 'bg-gray-100 text-gray-400 hover:bg-gray-200'}`}
+                            className={`text-xs px-2 py-1 rounded-[10px] font-semibold transition-colors ${v.isVisible ? 'bg-[#34C7591A] text-[#34C759] hover:bg-[#34C75926]' : 'bg-[#F5F5F7] text-[#AEAEB2] hover:bg-[#E5E5EA]'}`}
                           >
                             {v.isVisible ? '노출' : '비노출'}
                           </button>
@@ -543,13 +543,13 @@ export default function AdminPricesPage() {
                             type="button"
                             onClick={() => moveOrder(vehicles, idx, -1)}
                             disabled={idx === 0}
-                            className="w-7 h-7 flex items-center justify-center rounded text-gray-400 hover:bg-gray-100 disabled:opacity-30 text-xs"
+                            className="w-7 h-7 flex items-center justify-center rounded-[10px] text-[#86868B] hover:bg-[#F5F5F7] disabled:opacity-30 text-xs"
                           >▲</button>
                           <button
                             type="button"
                             onClick={() => moveOrder(vehicles, idx, 1)}
                             disabled={idx === vehicles.length - 1}
-                            className="w-7 h-7 flex items-center justify-center rounded text-gray-400 hover:bg-gray-100 disabled:opacity-30 text-xs"
+                            className="w-7 h-7 flex items-center justify-center rounded-[10px] text-[#86868B] hover:bg-[#F5F5F7] disabled:opacity-30 text-xs"
                           >▼</button>
                         </div>
                       </div>

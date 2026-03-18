@@ -55,7 +55,7 @@ export default function AdminDashboardPage() {
   if (loading) {
     return (
       <div className="max-w-[1200px] mx-auto p-5 flex items-center justify-center min-h-[40vh]">
-        <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-2 border-[#007AFF] border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -70,36 +70,36 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="max-w-[1200px] mx-auto p-5">
-      <h1 className="text-xl font-bold text-primary mb-6">대시보드</h1>
+      <h1 className="text-xl font-bold text-[#1D1D1F] mb-6 tracking-tight">대시보드</h1>
 
       {/* 요약 카드 */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
-        <div className="rounded-xl bg-white border border-gray-200 p-4 shadow-sm">
-          <div className="text-sm text-gray-500 mb-1">오늘 신청</div>
-          <div className="text-2xl font-bold text-accent">
+        <div className="rounded-2xl bg-white border border-[#E5E5EA] p-4 shadow-sm">
+          <div className="text-[11px] font-semibold text-[#86868B] mb-1">오늘 신청</div>
+          <div className="text-2xl font-bold text-[#007AFF]">
             {stats?.todayCount ?? 0}건
           </div>
         </div>
-        <div className="rounded-xl bg-white border border-gray-200 p-4 shadow-sm">
-          <div className="text-sm text-gray-500 mb-1">미처리</div>
+        <div className="rounded-2xl bg-white border border-[#E5E5EA] p-4 shadow-sm">
+          <div className="text-[11px] font-semibold text-[#86868B] mb-1">미처리</div>
           <div className="text-2xl font-bold text-danger">
             {stats?.pendingCount ?? 0}건
           </div>
         </div>
-        <div className="rounded-xl bg-white border border-gray-200 border-l-4 border-l-danger p-4 shadow-sm">
-          <div className="text-sm text-gray-500 mb-1">🔥 HOT 리드</div>
+        <div className="rounded-2xl bg-white border border-[#E5E5EA] p-4 shadow-sm">
+          <div className="text-[11px] font-semibold text-[#86868B] mb-1">🔥 HOT 리드</div>
           <div className="text-2xl font-bold text-danger">
             {stats?.hotLeadCount ?? 0}건
           </div>
         </div>
-        <div className="rounded-xl bg-white border border-gray-200 p-4 shadow-sm">
-          <div className="text-sm text-gray-500 mb-1">이번 주 신청</div>
+        <div className="rounded-2xl bg-white border border-[#E5E5EA] p-4 shadow-sm">
+          <div className="text-[11px] font-semibold text-[#86868B] mb-1">이번 주 신청</div>
           <div className="text-2xl font-bold text-success">
             {stats?.weekCount ?? 0}건
           </div>
         </div>
-        <div className="rounded-xl bg-white border border-gray-200 p-4 shadow-sm md:col-span-2 lg:col-span-1">
-          <div className="text-sm text-gray-500 mb-1">전환율</div>
+        <div className="rounded-2xl bg-white border border-[#E5E5EA] p-4 shadow-sm md:col-span-2 lg:col-span-1">
+          <div className="text-[11px] font-semibold text-[#86868B] mb-1">전환율</div>
           <div className="text-2xl font-bold text-warning">
             {stats?.conversionRate ?? '0'}%
           </div>
@@ -108,7 +108,7 @@ export default function AdminDashboardPage() {
 
       {/* 오늘의 콜백 리스트 */}
       <section className="mb-8">
-        <h2 className="text-base font-bold text-gray-900 mb-3">
+        <h2 className="text-base font-bold text-[#1D1D1F] mb-3">
           📞 오늘의 콜백
         </h2>
         <CallbackList items={callbacks} />
@@ -116,31 +116,37 @@ export default function AdminDashboardPage() {
 
       {/* 하단 빠른 메뉴 */}
       <section>
-        <h2 className="text-base font-bold text-gray-900 mb-3">빠른 메뉴</h2>
+        <h2 className="text-base font-bold text-[#1D1D1F] mb-3">빠른 메뉴</h2>
         <div className="flex flex-col gap-2">
           <Link
             href="/admin/consultations"
-            className="block w-full py-3 px-4 rounded-xl bg-white border border-gray-200 text-left font-medium text-gray-900 hover:border-accent hover:bg-[#EBF5FB] transition-colors"
+            className="block w-full py-3 px-4 rounded-2xl bg-white border border-[#E5E5EA] text-left font-semibold text-[#1D1D1F] hover:border-[#007AFF] hover:bg-[#007AFF0D] transition-colors"
           >
             📋 상담 관리
           </Link>
           <Link
             href="/admin/info"
-            className="block w-full py-3 px-4 rounded-xl bg-white border border-gray-200 text-left font-medium text-gray-900 hover:border-accent hover:bg-[#EBF5FB] transition-colors"
+            className="block w-full py-3 px-4 rounded-2xl bg-white border border-[#E5E5EA] text-left font-semibold text-[#1D1D1F] hover:border-[#007AFF] hover:bg-[#007AFF0D] transition-colors"
           >
             📰 정보관리
           </Link>
           <Link
             href="/admin/promotions"
-            className="block w-full py-3 px-4 rounded-xl bg-white border border-gray-200 text-left font-medium text-gray-900 hover:border-accent hover:bg-[#EBF5FB] transition-colors"
+            className="block w-full py-3 px-4 rounded-2xl bg-white border border-[#E5E5EA] text-left font-semibold text-[#1D1D1F] hover:border-[#007AFF] hover:bg-[#007AFF0D] transition-colors"
           >
             🎫 프로모션 관리
           </Link>
           <Link
             href="/admin/prices"
-            className="block w-full py-3 px-4 rounded-xl bg-white border border-gray-200 text-left font-medium text-gray-900 hover:border-accent hover:bg-[#EBF5FB] transition-colors"
+            className="block w-full py-3 px-4 rounded-2xl bg-white border border-[#E5E5EA] text-left font-semibold text-[#1D1D1F] hover:border-[#007AFF] hover:bg-[#007AFF0D] transition-colors"
           >
             🚗 인기차종 관리
+          </Link>
+          <Link
+            href="/admin/diagnosis"
+            className="block w-full py-3 px-4 rounded-2xl bg-white border border-[#E5E5EA] text-left font-semibold text-[#1D1D1F] hover:border-[#007AFF] hover:bg-[#007AFF0D] transition-colors"
+          >
+            📊 진단 관리
           </Link>
         </div>
       </section>

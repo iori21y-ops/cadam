@@ -186,7 +186,7 @@ export function PromotionForm({
               onChange={(e) => setTitle(e.target.value)}
               maxLength={100}
               placeholder="프로모션 제목"
-              className="w-full py-2.5 px-3 border border-gray-300 rounded-lg outline-none focus:border-accent"
+              className="w-full py-2.5 px-3 border border-gray-300 rounded-lg outline-none focus:border-primary"
             />
           </div>
 
@@ -197,7 +197,7 @@ export function PromotionForm({
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
               placeholder="설명 (선택)"
-              className="w-full py-2.5 px-3 border border-gray-300 rounded-lg outline-none focus:border-accent resize-none"
+              className="w-full py-2.5 px-3 border border-gray-300 rounded-lg outline-none focus:border-primary resize-none"
             />
           </div>
 
@@ -210,7 +210,7 @@ export function PromotionForm({
               value={imageUrl}
               onChange={(e) => setImageUrl(e.target.value)}
               placeholder="https://..."
-              className="w-full py-2.5 px-3 border border-gray-300 rounded-lg outline-none focus:border-accent"
+              className="w-full py-2.5 px-3 border border-gray-300 rounded-lg outline-none focus:border-primary"
             />
           </div>
 
@@ -223,7 +223,7 @@ export function PromotionForm({
               value={linkUrl}
               onChange={(e) => setLinkUrl(e.target.value)}
               placeholder="https://..."
-              className="w-full py-2.5 px-3 border border-gray-300 rounded-lg outline-none focus:border-accent"
+              className="w-full py-2.5 px-3 border border-gray-300 rounded-lg outline-none focus:border-primary"
             />
           </div>
 
@@ -235,7 +235,7 @@ export function PromotionForm({
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="w-full py-2.5 px-3 border border-gray-300 rounded-lg outline-none focus:border-accent"
+              className="w-full py-2.5 px-3 border border-gray-300 rounded-lg outline-none focus:border-primary"
             />
           </div>
 
@@ -247,7 +247,7 @@ export function PromotionForm({
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="w-full py-2.5 px-3 border border-gray-300 rounded-lg outline-none focus:border-accent"
+              className="w-full py-2.5 px-3 border border-gray-300 rounded-lg outline-none focus:border-primary"
             />
           </div>
 
@@ -260,7 +260,7 @@ export function PromotionForm({
               value={displayOrder}
               onChange={(e) => setDisplayOrder(Number(e.target.value) || 0)}
               min={0}
-              className="w-full py-2.5 px-3 border border-gray-300 rounded-lg outline-none focus:border-accent"
+              className="w-full py-2.5 px-3 border border-gray-300 rounded-lg outline-none focus:border-primary"
             />
           </div>
 
@@ -274,7 +274,7 @@ export function PromotionForm({
               aria-checked={isActive}
               onClick={() => setIsActive(!isActive)}
               className={`relative w-12 h-7 rounded-full transition-colors ${
-                isActive ? 'bg-accent' : 'bg-gray-300'
+                isActive ? 'bg-primary' : 'bg-gray-300'
               }`}
             >
               <span
@@ -293,7 +293,7 @@ export function PromotionForm({
             <button
               type="submit"
               disabled={saving}
-              className="flex-1 py-2.5 rounded-lg font-bold bg-accent text-white hover:opacity-90 disabled:opacity-60"
+              className="flex-1 py-2.5 rounded-lg font-bold bg-primary text-white hover:opacity-90 disabled:opacity-60"
             >
               {saving ? '저장 중...' : isEdit ? '수정' : '등록'}
             </button>

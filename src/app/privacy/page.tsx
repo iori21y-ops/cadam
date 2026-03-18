@@ -10,7 +10,7 @@ export default function PrivacyPage() {
   return (
     <div className="min-h-[100dvh] bg-white">
       <main className="px-5 py-8 pb-16 max-w-[720px] mx-auto">
-        <h1 className="text-2xl font-bold text-primary mb-8">
+        <h1 className="text-2xl font-bold text-text mb-8">
           개인정보 처리방침
         </h1>
 

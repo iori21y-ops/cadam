@@ -244,18 +244,18 @@ export default function AdminInfoPage() {
 
   return (
     <div className="max-w-[1200px] mx-auto p-5">
-      <h1 className="text-xl font-bold text-primary mb-6">정보관리</h1>
+      <h1 className="text-xl font-bold text-[#1D1D1F] mb-6 tracking-tight">정보관리</h1>
 
       {/* 등록 폼 */}
-      <div className="mb-8 rounded-xl bg-white border border-gray-200 p-5 shadow-sm">
-        <h2 className="text-base font-bold text-gray-900 mb-4">URL 등록</h2>
-        <p className="text-sm text-gray-500 mb-4">
+      <div className="mb-8 rounded-2xl bg-white border border-[#E5E5EA] p-5 shadow-sm">
+        <h2 className="text-base font-bold text-[#1D1D1F] mb-2">URL 등록</h2>
+        <p className="text-sm text-[#86868B] mb-4">
           블로그나 유튜브 등 외부 URL을 붙여넣으면 정보 페이지에 노출됩니다.
         </p>
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* 카테고리 */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+            <label className="block text-[11px] font-semibold text-[#86868B] mb-1">
               카테고리 <span className="text-danger">*</span>
             </label>
             <div className="flex gap-2">
@@ -264,10 +264,10 @@ export default function AdminInfoPage() {
                   key={opt.value}
                   type="button"
                   onClick={() => { setCategoryInput(opt.value); setVehicleSlugInput(''); setBrandFilter(''); }}
-                  className={`px-4 py-2 rounded-lg text-sm font-semibold border transition-all ${
+                  className={`px-4 py-2 rounded-[10px] text-sm font-semibold border transition-all ${
                     categoryInput === opt.value
-                      ? 'bg-accent text-white border-accent'
-                      : 'bg-white text-gray-600 border-gray-300 hover:border-accent'
+                      ? 'bg-[#007AFF] text-white border-[#007AFF]'
+                      : 'bg-white text-[#86868B] border-[#E5E5EA] hover:border-[#007AFF]'
                   }`}
                 >
                   {opt.label}
@@ -279,7 +279,7 @@ export default function AdminInfoPage() {
           {/* 차종 선택 (자동차 카테고리일 때만) */}
           {categoryInput === 'car' && (
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+              <label className="block text-[11px] font-semibold text-[#86868B] mb-1">
                 차종 선택 (선택)
               </label>
               {/* 제조사 필터 */}
@@ -291,8 +291,8 @@ export default function AdminInfoPage() {
                     onClick={() => { setBrandFilter(b === '전체' ? '' : b); setVehicleSlugInput(''); }}
                     className={`px-3 py-1 rounded-full text-xs font-semibold border whitespace-nowrap transition-all ${
                       (b === '전체' ? brandFilter === '' : brandFilter === b)
-                        ? 'bg-accent text-white border-accent'
-                        : 'bg-white text-gray-600 border-gray-300 hover:border-accent'
+                        ? 'bg-[#007AFF] text-white border-[#007AFF]'
+                        : 'bg-white text-[#86868B] border-[#E5E5EA] hover:border-[#007AFF]'
                     }`}
                   >
                     {b}
@@ -302,7 +302,7 @@ export default function AdminInfoPage() {
               <select
                 value={vehicleSlugInput}
                 onChange={(e) => setVehicleSlugInput(e.target.value)}
-                className="w-full py-3 px-4 border border-gray-300 rounded-lg outline-none focus:border-accent bg-white text-sm"
+                className="w-full bg-[#F5F5F7] border border-[#E5E5EA] rounded-[10px] px-[14px] py-[10px] outline-none focus:border-[#007AFF] text-sm"
               >
                 <option value="">전체 / 미지정</option>
                 {(brandFilter ? BRANDS.filter((b) => b === brandFilter) : BRANDS).map((brand) => (
@@ -320,7 +320,7 @@ export default function AdminInfoPage() {
 
           {/* URL */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+            <label className="block text-[11px] font-semibold text-[#86868B] mb-1">
               URL <span className="text-danger">*</span>
             </label>
             <input
@@ -329,13 +329,13 @@ export default function AdminInfoPage() {
               onChange={(e) => setUrlInput(e.target.value)}
               onPaste={handleUrlPaste}
               placeholder="https://blog.naver.com/... 또는 https://www.youtube.com/watch?v=..."
-              className="w-full py-3 px-4 border border-gray-300 rounded-lg outline-none focus:border-accent"
+              className="w-full bg-[#F5F5F7] border border-[#E5E5EA] rounded-[10px] px-[14px] py-[10px] outline-none focus:border-[#007AFF]"
             />
           </div>
 
           {/* 제목 */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+            <label className="block text-[11px] font-semibold text-[#86868B] mb-1">
               제목 <span className="text-danger">*</span>
             </label>
             <input
@@ -344,13 +344,13 @@ export default function AdminInfoPage() {
               onChange={(e) => setTitleInput(e.target.value)}
               placeholder="예: 장기렌터카 vs 리스, 뭐가 다를까?"
               maxLength={200}
-              className="w-full py-3 px-4 border border-gray-300 rounded-lg outline-none focus:border-accent"
+              className="w-full bg-[#F5F5F7] border border-[#E5E5EA] rounded-[10px] px-[14px] py-[10px] outline-none focus:border-[#007AFF]"
             />
           </div>
 
           {/* 요약 */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+            <label className="block text-[11px] font-semibold text-[#86868B] mb-1">
               요약 (선택)
             </label>
             <textarea
@@ -358,7 +358,7 @@ export default function AdminInfoPage() {
               onChange={(e) => setExcerptInput(e.target.value)}
               placeholder="간단한 설명을 입력하세요"
               rows={2}
-              className="w-full py-3 px-4 border border-gray-300 rounded-lg outline-none focus:border-accent resize-none"
+              className="w-full bg-[#F5F5F7] border border-[#E5E5EA] rounded-[10px] px-[14px] py-[10px] outline-none focus:border-[#007AFF] resize-none"
             />
           </div>
 
@@ -368,7 +368,7 @@ export default function AdminInfoPage() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="px-6 py-2.5 rounded-lg font-bold bg-accent text-white hover:opacity-90 disabled:opacity-60 transition-opacity"
+            className="px-6 py-2.5 rounded-[10px] font-semibold bg-[#007AFF] text-white hover:opacity-90 disabled:opacity-60 transition-opacity"
           >
             {isSubmitting ? '등록 중...' : '등록'}
           </button>
@@ -377,19 +377,19 @@ export default function AdminInfoPage() {
 
       {/* 목록 */}
       <div>
-        <h2 className="text-base font-bold text-gray-900 mb-4">등록된 정보</h2>
+        <h2 className="text-base font-bold text-[#1D1D1F] mb-4">등록된 정보</h2>
         {loading ? (
           <div className="flex justify-center py-12">
-            <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+            <div className="w-8 h-8 border-2 border-[#007AFF] border-t-transparent rounded-full animate-spin" />
           </div>
         ) : error ? (
-          <div className="rounded-xl bg-red-50 border border-red-200 p-4">
+          <div className="rounded-2xl bg-white border border-[#FF3B3033] p-4">
             <p className="text-danger font-medium">{error}</p>
           </div>
         ) : articles.length === 0 ? (
-          <div className="rounded-xl bg-white border border-gray-200 p-8 text-center">
-            <p className="text-gray-500">등록된 정보가 없습니다</p>
-            <p className="text-gray-400 text-sm mt-1">위 폼에서 URL을 등록해 주세요</p>
+          <div className="rounded-2xl bg-white border border-[#E5E5EA] p-8 text-center">
+            <p className="text-[#86868B]">등록된 정보가 없습니다</p>
+            <p className="text-[#AEAEB2] text-sm mt-1">위 폼에서 URL을 등록해 주세요</p>
           </div>
         ) : (
           <div className="space-y-6">
@@ -406,7 +406,7 @@ export default function AdminInfoPage() {
               if (group.length === 0) return null;
               return (
                 <div key={type}>
-                  <h3 className="text-sm font-bold text-gray-500 mb-2 uppercase tracking-wide">
+                  <h3 className="text-sm font-bold text-[#86868B] mb-2 uppercase tracking-wide">
                     {label} ({group.length})
                   </h3>
                   <div className="space-y-2">
@@ -415,8 +415,8 @@ export default function AdminInfoPage() {
                       return (
                         <div
                           key={article.id}
-                          className={`p-3 rounded-xl border bg-white ${
-                            article.is_active ? 'border-gray-200' : 'border-gray-200 bg-gray-50 opacity-75'
+                          className={`p-3 rounded-2xl border bg-white ${
+                            article.is_active ? 'border-[#E5E5EA]' : 'border-[#E5E5EA] bg-[#F5F5F7] opacity-75'
                           }`}
                         >
                           <div className="flex items-center gap-3">
@@ -426,7 +426,7 @@ export default function AdminInfoPage() {
                                 type="button"
                                 onClick={() => handleMoveOrder(article.id, 'up')}
                                 disabled={idx === 0}
-                                className="w-6 h-6 flex items-center justify-center rounded text-gray-400 hover:bg-gray-100 disabled:opacity-20 text-xs"
+                                className="w-6 h-6 flex items-center justify-center rounded-[10px] text-[#86868B] hover:bg-[#F5F5F7] disabled:opacity-20 text-xs"
                               >
                                 ▲
                               </button>
@@ -434,13 +434,13 @@ export default function AdminInfoPage() {
                                 type="button"
                                 onClick={() => handleMoveOrder(article.id, 'down')}
                                 disabled={idx === group.length - 1}
-                                className="w-6 h-6 flex items-center justify-center rounded text-gray-400 hover:bg-gray-100 disabled:opacity-20 text-xs"
+                                className="w-6 h-6 flex items-center justify-center rounded-[10px] text-[#86868B] hover:bg-[#F5F5F7] disabled:opacity-20 text-xs"
                               >
                                 ▼
                               </button>
                             </div>
                             {/* 썸네일 */}
-                            <div className="shrink-0 w-14 h-14 rounded-lg overflow-hidden bg-gray-200">
+                            <div className="shrink-0 w-14 h-14 rounded-[10px] overflow-hidden bg-[#F5F5F7] border border-[#E5E5EA]">
                               {article.thumbnail_url ? (
                                 <img
                                   src={article.thumbnail_url}

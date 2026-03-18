@@ -38,16 +38,16 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="min-h-[100dvh] flex items-center justify-center bg-gray-100 px-5">
-      <div className="w-full max-w-[400px] bg-white rounded-xl border border-gray-200 p-8 shadow-sm">
-        <h1 className="text-xl font-bold text-primary mb-6 text-center">
+    <div className="min-h-[100dvh] flex items-center justify-center bg-surface-secondary px-5">
+      <div className="w-full max-w-[400px] bg-white rounded-2xl border border-[#E5E5EA] p-8 shadow-sm">
+        <h1 className="text-xl font-bold text-[#1D1D1F] mb-6 text-center tracking-tight">
           카담 관리자 로그인
         </h1>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div>
             <label
               htmlFor="admin-email"
-              className="block text-sm font-semibold text-gray-700 mb-1.5"
+              className="block text-[11px] font-semibold text-[#86868B] mb-1"
             >
               이메일
             </label>
@@ -57,14 +57,14 @@ export default function AdminLoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full py-3 px-4 border border-gray-300 rounded-lg outline-none focus:border-accent"
+              className="w-full bg-[#F5F5F7] border border-[#E5E5EA] rounded-[10px] px-[14px] py-[10px] outline-none focus:border-[#007AFF]"
               placeholder="admin@example.com"
             />
           </div>
           <div>
             <label
               htmlFor="admin-password"
-              className="block text-sm font-semibold text-gray-700 mb-1.5"
+              className="block text-[11px] font-semibold text-[#86868B] mb-1"
             >
               비밀번호
             </label>
@@ -74,7 +74,7 @@ export default function AdminLoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full py-3 px-4 border border-gray-300 rounded-lg outline-none focus:border-accent"
+              className="w-full bg-[#F5F5F7] border border-[#E5E5EA] rounded-[10px] px-[14px] py-[10px] outline-none focus:border-[#007AFF]"
             />
           </div>
           {error && (
@@ -83,7 +83,7 @@ export default function AdminLoginPage() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full py-3 rounded-lg font-bold bg-accent text-white hover:opacity-90 disabled:opacity-60 transition-opacity flex items-center justify-center gap-2"
+            className="w-full py-3 rounded-[10px] font-semibold bg-[#007AFF] text-white hover:opacity-90 disabled:opacity-60 transition-opacity flex items-center justify-center gap-2"
           >
             {isSubmitting ? (
               <>

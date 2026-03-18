@@ -1,0 +1,162 @@
+'use client';
+
+import { useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
+import { QuizModule } from '@/components/diagnosis/QuizModule';
+import { ParkAI } from '@/components/diagnosis/ParkAI';
+import { DEFAULT_VEHICLE_BASIC, DEFAULT_VEHICLE_DETAIL } from '@/data/diagnosis-vehicle';
+import { VEHICLES } from '@/data/diagnosis-vehicles';
+import { DEFAULT_PRODUCTS, PRODUCT_KEYS } from '@/data/diagnosis-products';
+import { scoreByTags } from '@/lib/flow-engine';
+import { VEHICLE_LIST } from '@/constants/vehicles';
+import type { DiagnosisAnswer, VehicleOption } from '@/types/diagnosis';
+import { Button } from '@/components/ui/Button';
+
+const COLOR = '#007AFF';
+
+function VehResult({ answers, mode, restart, toDetail, onHome }: {
+  answers: Record<string, DiagnosisAnswer>;
+  mode: 'basic' | 'detail';
+  restart: () => void;
+  toDetail: () => void;
+  onHome: () => void;
+}) {
+  const router = useRouter();
+
+  const answerTags = Object.values(answers).flatMap((a) =>
+    'tags' in a ? (a as VehicleOption).tags : []
+  );
+
+  const scored = scoreByTags(VEHICLES, answerTags, 4);
+  const best = scored[0];
+  const answerCount = Object.keys(answers).length;
+
+  // vehicles.ts에서 slug 찾기
+  const matchSlug = (name: string) => {
+    const found = VEHICLE_LIST.find((v) =>
+      v.model.includes(name) || name.includes(v.model.split(' ')[0])
+    );
+    return found?.slug ?? null;
+  };
+
+  const handleShare = () => {
+    navigator.clipboard.writeText(window.location.href).then(() => alert('링크가 복사되었습니다.'));
+  };
+
+  return (
+    <div className="min-h-screen bg-surface-secondary pb-16">
+      <div className="px-5 pt-10 max-w-lg mx-auto">
+        {/* 모드 배지 */}
+        <div className="flex items-center gap-2 mb-5">
+          <span className="text-xs px-3 py-1 rounded-full bg-vehicle/8 text-vehicle font-semibold">
+            {mode === 'basic' ? '간편 진단' : '상세 진단'} · {answerCount}개 응답
+          </span>
+        </div>
+
+        {/* 헤드라인 */}
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
+          <p className="text-sm text-text-sub mb-1">차종 추천 결과</p>
+          <h1 className="text-2xl font-bold text-text tracking-tight mb-4">
+            <span style={{ color: COLOR }}>{best.name}</span>을(를)<br />추천합니다
+          </h1>
+        </motion.div>
+
+        {/* ParkAI */}
+        <ParkAI ctx={`차종추천결과: TOP3 - ${scored.slice(0, 3).map(v => v.name).join(', ')}. 응답수: ${answerCount}개. 모드: ${mode}`} />
+
+        {/* TOP 4 카드 */}
+        <div className="flex flex-col gap-3 mb-4">
+          {scored.map((v, i) => {
+            const slug = matchSlug(v.name);
+            return (
+              <motion.div
+                key={v.name}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.08 }}
+                className="p-4 rounded-2xl bg-surface shadow-sm"
+              >
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="text-2xl">{v.img}</span>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <p className="font-bold text-text text-sm">{v.brand} {v.name}</p>
+                      {i === 0 && (
+                        <span className="text-xs px-2 py-0.5 rounded-full text-white font-semibold" style={{ backgroundColor: COLOR }}>
+                          BEST
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-text-muted">{v.class} · {v.price}만원~</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-4 gap-1.5 mb-2">
+                  {PRODUCT_KEYS.map((key) => (
+                    <div key={key} className="text-center py-1.5 rounded-xl" style={{ backgroundColor: DEFAULT_PRODUCTS[key].lightBg }}>
+                      <p className="text-[10px] text-text-muted">{DEFAULT_PRODUCTS[key].name}</p>
+                      <p className="text-xs font-bold" style={{ color: DEFAULT_PRODUCTS[key].color }}>
+                        {key === 'cash' ? '일시불' : `${v.monthly[key]}만`}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+                {i === 0 && slug && (
+                  <button
+                    onClick={() => router.push(`/cars/${slug}`)}
+                    className="w-full py-2 rounded-xl text-xs font-semibold text-vehicle border border-vehicle/20 hover:bg-vehicle/5 transition-colors"
+                  >
+                    {v.name} 상세 정보 보기 →
+                  </button>
+                )}
+              </motion.div>
+            );
+          })}
+        </div>
+
+        {/* 옵션 추천 CTA */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.35 }}
+          className="p-6 rounded-2xl mb-4 text-center"
+          style={{ background: 'linear-gradient(135deg, #007AFF, #0A84FF)' }}
+        >
+          <p className="text-[17px] font-bold text-white mb-1.5">{best.name}의 최적 옵션은?</p>
+          <p className="text-[13px] mb-4" style={{ color: 'rgba(255,255,255,0.7)' }}>5개 질문으로 딱 맞는 트림과 옵션을 추천해드립니다</p>
+          <button
+            onClick={() => router.push(`/diagnosis/vehicle/option?car=${encodeURIComponent(best.name)}`)}
+            className="py-3.5 px-8 rounded-2xl text-sm font-semibold"
+            style={{ background: '#FFF', color: COLOR }}
+          >
+            🎯 옵션 추천받기
+          </button>
+        </motion.div>
+
+        {/* 공유 + 하단 버튼 */}
+        <div className="flex flex-col gap-3">
+          <Button variant="surface" fullWidth onClick={handleShare}>결과 공유하기</Button>
+          <div className="flex gap-2">
+            <Button variant="surface" className="flex-1" onClick={restart}>다시 진단</Button>
+            {mode === 'basic' && (
+              <Button variant="surface" className="flex-1 text-vehicle font-semibold" onClick={toDetail}>상세 테스트 →</Button>
+            )}
+            <Button variant="surface" className="flex-1" onClick={onHome}>홈으로</Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function VehiclePage() {
+  const router = useRouter();
+  return (
+    <QuizModule
+      basicQs={DEFAULT_VEHICLE_BASIC}
+      detailQs={DEFAULT_VEHICLE_DETAIL}
+      color={COLOR}
+      onHome={() => router.push('/diagnosis')}
+      renderResult={(props) => <VehResult {...props} />}
+    />
+  );
+}

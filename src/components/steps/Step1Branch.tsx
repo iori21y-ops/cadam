@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import { useQuoteStore } from '@/store/quoteStore';
 import type { SelectionPath } from '@/store/quoteStore';
 import { gtag } from '@/lib/gtag';
+import { motion } from 'framer-motion';
+import { SelectCard } from '@/components/ui/SelectCard';
 
 interface StepOption {
   path: SelectionPath;
@@ -29,6 +31,7 @@ const STEP_OPTIONS: StepOption[] = [
 ];
 
 const TRANSITION_DELAY_MS = 300;
+const COLOR = '#007AFF';
 
 export function Step1Branch() {
   const router = useRouter();
@@ -63,76 +66,75 @@ export function Step1Branch() {
   return (
     <>
       <div className="pt-7 px-5 pb-2 text-center">
-        <h2 className="text-[22px] font-bold text-gray-900 leading-snug">
+        <h2 className="text-[22px] font-bold text-[#1D1D1F] leading-snug">
           당신에게 더 중요한 선택은
           <br />
           무엇인가요?
         </h2>
       </div>
       <div className="flex flex-col gap-2.5 px-5 py-3">
-        {STEP_OPTIONS.map((opt) => (
-          <button
+        {STEP_OPTIONS.map((opt, idx) => (
+          <motion.div
             key={opt.path}
-            type="button"
-            onClick={() => handleSelect(opt.path)}
-            disabled={isDisabled}
-            className={`
-              w-full p-4 pl-[18px] bg-white rounded-xl cursor-pointer text-left
-              flex items-center gap-3 transition-all duration-150
-              border-2
-              ${
-                selectedPath === opt.path
-                  ? 'border-accent bg-[#EBF5FB]'
-                  : 'border-gray-200 hover:border-accent hover:bg-[#EBF5FB]'
-              }
-              disabled:cursor-default
-            `}
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: idx * 0.08, duration: 0.3 }}
           >
-            <span className="text-2xl shrink-0">{opt.emoji}</span>
-            <div className="min-w-0">
-              <div
-                className={`text-base font-semibold ${
-                  selectedPath === opt.path ? 'text-accent' : 'text-gray-900'
-                }`}
-              >
-                {opt.label}
+            <SelectCard
+              selected={selectedPath === opt.path}
+              dimmed={isDisabled && selectedPath !== opt.path}
+              color={COLOR}
+              disabled={isDisabled}
+              onClick={() => handleSelect(opt.path)}
+            >
+              <span className="text-2xl shrink-0">{opt.emoji}</span>
+              <div className="min-w-0 flex-1">
+                <div
+                  className={`text-[16px] font-medium leading-tight ${
+                    selectedPath === opt.path ? 'text-white' : 'text-[#1D1D1F]'
+                  }`}
+                >
+                  {opt.label}
+                </div>
+                <div
+                  className={`text-[15px] mt-0.5 ${
+                    selectedPath === opt.path ? 'text-white/70' : 'text-[#86868B]'
+                  }`}
+                >
+                  {opt.sub}
+                </div>
               </div>
-              <div className="text-[13px] text-gray-500 mt-0.5">{opt.sub}</div>
-            </div>
-          </button>
+            </SelectCard>
+          </motion.div>
         ))}
 
         {/* 인기차종 견적 미리보기 */}
-        <button
-          type="button"
-          onClick={handlePopular}
-          disabled={isDisabled}
-          className={`
-            w-full p-4 pl-[18px] bg-white rounded-xl cursor-pointer text-left
-            flex items-center gap-3 transition-all duration-150
-            border-2
-            ${
-              popularClicked
-                ? 'border-accent bg-[#EBF5FB]'
-                : 'border-gray-200 hover:border-accent hover:bg-[#EBF5FB]'
-            }
-            disabled:cursor-default
-          `}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{
+            delay: STEP_OPTIONS.length * 0.08,
+            duration: 0.3,
+          }}
         >
-          <span className="text-2xl shrink-0">📊</span>
-          <div className="min-w-0">
-            <div
-              className={`text-base font-semibold ${
-                popularClicked ? 'text-accent' : 'text-gray-900'
-              }`}
-            >
-              인기차종 견적 미리 볼께요
+          <SelectCard
+            selected={popularClicked}
+            dimmed={isDisabled && !popularClicked}
+            color={COLOR}
+            disabled={isDisabled}
+            onClick={handlePopular}
+          >
+            <span className="text-2xl shrink-0">📊</span>
+            <div className="min-w-0 flex-1">
+              <div className={`text-[16px] font-medium ${popularClicked ? 'text-white' : 'text-[#1D1D1F]'}`}>
+                인기차종 견적 미리 볼께요
+              </div>
+              <div className={`text-[15px] mt-0.5 ${popularClicked ? 'text-white/70' : 'text-[#86868B]'}`}>
+                인기 차종 월 납부금 한눈에 비교
+              </div>
             </div>
-            <div className="text-[13px] text-gray-500 mt-0.5">
-              인기 차종 월 납부금 한눈에 비교
-            </div>
-          </div>
-        </button>
+          </SelectCard>
+        </motion.div>
       </div>
     </>
   );

@@ -11,6 +11,7 @@ import {
 import { useQuoteStore } from '@/store/quoteStore';
 import { useToast } from '@/hooks/useToast';
 import { gtag } from '@/lib/gtag';
+import { Button } from '@/components/ui/Button';
 
 export function Step6Contact() {
   const router = useRouter();
@@ -131,7 +132,7 @@ export function Step6Contact() {
       <div className="mb-4">
         <label
           htmlFor="step6-name"
-          className="block text-[13px] font-semibold text-gray-700 mb-1.5"
+          className="block text-[11px] font-semibold text-[#86868B] mb-1"
         >
           이름
         </label>
@@ -141,8 +142,8 @@ export function Step6Contact() {
           placeholder="홍길동"
           value={name}
           onChange={handleNameChange}
-          className={`w-full py-3.5 px-4 border rounded-lg text-base outline-none focus:border-accent font-sans ${
-            nameError ? 'border-danger' : 'border-gray-300'
+          className={`w-full bg-[#F5F5F7] border rounded-[10px] px-[14px] py-[12px] text-sm text-[#1D1D1F] outline-none focus:border-[#007AFF] ${
+            nameError ? 'border-[#FF3B30]' : 'border-[#E5E5EA]'
           }`}
         />
         {nameError && (
@@ -154,7 +155,7 @@ export function Step6Contact() {
       <div className="mb-4">
         <label
           htmlFor="step6-phone"
-          className="block text-[13px] font-semibold text-gray-700 mb-1.5"
+          className="block text-[11px] font-semibold text-[#86868B] mb-1"
         >
           연락처
         </label>
@@ -164,8 +165,8 @@ export function Step6Contact() {
           placeholder="010-0000-0000"
           value={phone}
           onChange={handlePhoneChange}
-          className={`w-full py-3.5 px-4 border rounded-lg text-base outline-none focus:border-accent font-sans ${
-            phoneError ? 'border-danger' : 'border-gray-300'
+          className={`w-full bg-[#F5F5F7] border rounded-[10px] px-[14px] py-[12px] text-sm text-[#1D1D1F] outline-none focus:border-[#007AFF] ${
+            phoneError ? 'border-[#FF3B30]' : 'border-[#E5E5EA]'
           }`}
         />
         {phoneError && (
@@ -181,15 +182,15 @@ export function Step6Contact() {
           type="checkbox"
           checked={privacyAgreed}
           onChange={(e) => setPrivacyAgreed(e.target.checked)}
-          className="w-5 h-5 mt-0.5 shrink-0 accent-accent"
+          className="w-5 h-5 mt-0.5 shrink-0 accent-primary"
         />
-        <span className="text-sm text-gray-700 leading-relaxed">
+        <span className="text-sm text-[#1D1D1F] leading-relaxed">
           개인정보 수집 및 이용에 동의합니다{' '}
           <Link
             href="/privacy"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-accent text-xs"
+            className="text-[#007AFF] text-xs font-semibold"
           >
             [전문보기]
           </Link>
@@ -197,20 +198,14 @@ export function Step6Contact() {
       </label>
 
       {/* 제출 버튼 */}
-      <button
+      <Button
         type="button"
-        onClick={handleSubmit}
+        variant="primary"
+        size="lg"
+        fullWidth
         disabled={isButtonDisabled}
-        className={`
-          w-full min-h-12 mt-6 rounded-lg font-bold text-base
-          flex items-center justify-center gap-2
-          transition-all duration-150
-          ${
-            isButtonDisabled
-              ? 'bg-gray-300 text-gray-500 cursor-default'
-              : 'bg-accent text-white hover:opacity-90'
-          }
-        `}
+        onClick={handleSubmit}
+        className="min-h-12 mt-6 gap-2"
       >
         {isSubmitting ? (
           <>
@@ -223,7 +218,7 @@ export function Step6Contact() {
         ) : (
           '무료 견적 받기'
         )}
-      </button>
+      </Button>
     </div>
   );
 }

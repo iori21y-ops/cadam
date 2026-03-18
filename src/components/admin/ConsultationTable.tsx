@@ -197,7 +197,7 @@ export function ConsultationTable({ selectedId, onSelectRow, refreshTrigger = 0 
   if (loading) {
     return (
       <div className="flex items-center justify-center py-16">
-        <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -219,7 +219,7 @@ export function ConsultationTable({ selectedId, onSelectRow, refreshTrigger = 0 
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
-            className="border border-gray-300 rounded-lg px-2 py-1.5 text-sm outline-none focus:border-accent"
+            className="border border-gray-300 rounded-lg px-2 py-1.5 text-sm outline-none focus:border-primary"
           >
             <option value="all">전체</option>
             <option value="pending">미처리</option>
@@ -232,7 +232,7 @@ export function ConsultationTable({ selectedId, onSelectRow, refreshTrigger = 0 
           <select
             value={leadFilter}
             onChange={(e) => setLeadFilter(e.target.value as LeadFilter)}
-            className="border border-gray-300 rounded-lg px-2 py-1.5 text-sm outline-none focus:border-accent"
+            className="border border-gray-300 rounded-lg px-2 py-1.5 text-sm outline-none focus:border-primary"
           >
             <option value="all">전체</option>
             <option value="hot">HOT</option>
@@ -247,7 +247,7 @@ export function ConsultationTable({ selectedId, onSelectRow, refreshTrigger = 0 
             type="date"
             value={dateFrom}
             onChange={(e) => setDateFrom(e.target.value)}
-            className="border border-gray-300 rounded-lg px-2 py-1.5 text-sm outline-none focus:border-accent"
+            className="border border-gray-300 rounded-lg px-2 py-1.5 text-sm outline-none focus:border-primary"
           />
         </div>
         <div>
@@ -256,7 +256,7 @@ export function ConsultationTable({ selectedId, onSelectRow, refreshTrigger = 0 
             type="date"
             value={dateTo}
             onChange={(e) => setDateTo(e.target.value)}
-            className="border border-gray-300 rounded-lg px-2 py-1.5 text-sm outline-none focus:border-accent"
+            className="border border-gray-300 rounded-lg px-2 py-1.5 text-sm outline-none focus:border-primary"
           />
         </div>
         <div>
@@ -264,7 +264,7 @@ export function ConsultationTable({ selectedId, onSelectRow, refreshTrigger = 0 
           <select
             value={carFilter}
             onChange={(e) => setCarFilter(e.target.value)}
-            className="border border-gray-300 rounded-lg px-2 py-1.5 text-sm outline-none focus:border-accent min-w-[120px]"
+            className="border border-gray-300 rounded-lg px-2 py-1.5 text-sm outline-none focus:border-primary min-w-[120px]"
           >
             <option value="">전체</option>
             {distinctCars.map((c) => (
@@ -279,7 +279,7 @@ export function ConsultationTable({ selectedId, onSelectRow, refreshTrigger = 0 
           <select
             value={resultFilter}
             onChange={(e) => setResultFilter(e.target.value)}
-            className="border border-gray-300 rounded-lg px-2 py-1.5 text-sm outline-none focus:border-accent"
+            className="border border-gray-300 rounded-lg px-2 py-1.5 text-sm outline-none focus:border-primary"
           >
             <option value="">전체</option>
             {RESULT_OPTIONS.filter((o) => o.value).map((o) => (
@@ -294,7 +294,7 @@ export function ConsultationTable({ selectedId, onSelectRow, refreshTrigger = 0 
           <select
             value={assignedFilter}
             onChange={(e) => setAssignedFilter(e.target.value)}
-            className="border border-gray-300 rounded-lg px-2 py-1.5 text-sm outline-none focus:border-accent min-w-[100px]"
+            className="border border-gray-300 rounded-lg px-2 py-1.5 text-sm outline-none focus:border-primary min-w-[100px]"
           >
             <option value="">전체</option>
             {distinctAssigned.map((a) => (
@@ -321,7 +321,7 @@ export function ConsultationTable({ selectedId, onSelectRow, refreshTrigger = 0 
             onClick={() => setQuickFilter(quickFilter === 'callback' ? 'none' : 'callback')}
             className={`px-3 py-1.5 rounded-lg text-sm font-semibold ${
               quickFilter === 'callback'
-                ? 'bg-accent text-white'
+                ? 'bg-primary text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
@@ -333,7 +333,7 @@ export function ConsultationTable({ selectedId, onSelectRow, refreshTrigger = 0 
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as SortOption)}
-            className="border border-gray-300 rounded-lg px-2 py-1.5 text-sm outline-none focus:border-accent"
+            className="border border-gray-300 rounded-lg px-2 py-1.5 text-sm outline-none focus:border-primary"
           >
             <option value="lead_score">리드 점수순</option>
             <option value="created_at">최신순</option>
@@ -395,7 +395,7 @@ export function ConsultationTable({ selectedId, onSelectRow, refreshTrigger = 0 
                     <a
                       href={`tel:${row.phone.replace(/\D/g, '')}`}
                       onClick={(e) => e.stopPropagation()}
-                      className="text-accent hover:underline"
+                      className="text-primary hover:underline"
                     >
                       {row.phone}
                     </a>
@@ -422,7 +422,7 @@ export function ConsultationTable({ selectedId, onSelectRow, refreshTrigger = 0 
                       onChange={(e) =>
                         updateField(row.id, 'consult_result', e.target.value || null)
                       }
-                      className="border border-gray-300 rounded px-2 py-1 text-xs outline-none focus:border-accent"
+                      className="border border-gray-300 rounded px-2 py-1 text-xs outline-none focus:border-primary"
                     >
                       {RESULT_OPTIONS.map((o) => (
                         <option key={o.value || 'empty'} value={o.value}>
@@ -437,7 +437,7 @@ export function ConsultationTable({ selectedId, onSelectRow, refreshTrigger = 0 
                       onChange={(e) =>
                         updateField(row.id, 'assigned_to', e.target.value || null)
                       }
-                      className="border border-gray-300 rounded px-2 py-1 text-xs outline-none focus:border-accent min-w-[80px]"
+                      className="border border-gray-300 rounded px-2 py-1 text-xs outline-none focus:border-primary min-w-[80px]"
                     >
                       <option value="">—</option>
                       {distinctAssigned.map((a) => (

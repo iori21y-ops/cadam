@@ -16,7 +16,7 @@ export function RelatedCars({ currentVehicle }: RelatedCarsProps) {
 
   return (
     <section className="px-5 py-8">
-      <h2 className="text-lg font-bold text-primary mb-4">
+      <h2 className="text-lg font-bold text-[#1D1D1F] mb-4">
         비슷한 차종도 확인해 보세요
       </h2>
       <div className="flex gap-2.5 overflow-x-auto pb-2 -mx-5 px-5">
@@ -24,10 +24,10 @@ export function RelatedCars({ currentVehicle }: RelatedCarsProps) {
           <Link
             key={v.id}
             href={`/cars/${v.slug}`}
-            className="flex-shrink-0 min-w-[120px] p-3 rounded-xl border border-gray-200 bg-white text-center hover:border-accent hover:bg-[#EBF5FB] transition-colors"
+            className="flex-shrink-0 min-w-[120px] p-3 rounded-2xl border border-[#E5E5EA] bg-white text-center hover:border-[#007AFF] hover:bg-[#007AFF0D] transition-colors"
           >
-            <span className="text-sm font-bold text-gray-900">{v.model}</span>
-            <span className="block text-xs text-accent mt-1">견적 보기 →</span>
+            <span className="text-sm font-bold text-[#1D1D1F]">{v.model}</span>
+            <span className="block text-xs text-[#007AFF] font-semibold mt-1">견적 보기 →</span>
           </Link>
         ))}
       </div>

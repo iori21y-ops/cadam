@@ -61,7 +61,7 @@ export function CallbackList({ items }: CallbackListProps) {
           <div className="flex items-center gap-2">
             <a
               href={`tel:${item.phone.replace(/\D/g, '')}`}
-              className="text-sm font-medium text-accent hover:underline"
+              className="text-sm font-medium text-primary hover:underline"
             >
               {item.phone}
             </a>

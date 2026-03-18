@@ -3,6 +3,7 @@
 import { useState, useCallback } from 'react';
 import { useQuoteStore } from '@/store/quoteStore';
 import { gtag } from '@/lib/gtag';
+import { SelectCard } from '@/components/ui/SelectCard';
 
 interface BudgetOption {
   label: string;
@@ -41,40 +42,26 @@ export function Step2Budget() {
   return (
     <>
       <div className="pt-7 px-5 pb-2 text-center">
-        <h2 className="text-[22px] font-bold text-gray-900 leading-snug">
+        <h2 className="text-[22px] font-bold text-[#1D1D1F] leading-snug">
           월 예산은 어느 정도 생각하고 계세요?
         </h2>
       </div>
       <div className="flex flex-col gap-2.5 px-5 py-3">
         {OPTIONS.map((opt) => (
-          <button
+          <SelectCard
             key={opt.value}
-            type="button"
-            onClick={() => handleSelect(opt.value)}
+            selected={selectedValue === opt.value}
+            dimmed={selectedValue !== null && selectedValue !== opt.value}
             disabled={selectedValue !== null}
-            className={`
-              w-full p-4 pl-[18px] bg-white rounded-xl cursor-pointer text-left
-              flex items-center gap-3 transition-all duration-150
-              border-2
-              ${
-                selectedValue === opt.value
-                  ? 'border-accent bg-[#EBF5FB]'
-                  : 'border-gray-200 hover:border-accent hover:bg-[#EBF5FB]'
-              }
-              disabled:cursor-default
-            `}
+            onClick={() => handleSelect(opt.value)}
           >
             <span className="text-2xl shrink-0">💰</span>
-            <div className="min-w-0">
-              <div
-                className={`text-base font-semibold ${
-                  selectedValue === opt.value ? 'text-accent' : 'text-gray-900'
-                }`}
-              >
+            <div className="min-w-0 flex-1">
+              <div className={`text-base font-semibold ${selectedValue === opt.value ? 'text-white' : 'text-[#1D1D1F]'}`}>
                 {opt.label}
               </div>
             </div>
-          </button>
+          </SelectCard>
         ))}
       </div>
     </>

@@ -22,10 +22,10 @@ export function CarHero({ vehicle, minPrice, minCarPrice, maxCarPrice }: CarHero
     : '상담 문의';
 
   return (
-    <section className="bg-gray-100 py-6 px-5 text-center">
-      <div className="relative w-full max-w-[280px] aspect-[5/3] mx-auto mb-4 rounded-xl overflow-hidden bg-gray-200">
+    <section className="py-8 px-5 text-center bg-surface-secondary">
+      <div className="relative w-full max-w-[280px] aspect-[5/3] mx-auto mb-4 rounded-2xl overflow-hidden bg-white border border-[#E5E5EA]">
         {imageError ? (
-          <div className="absolute inset-0 flex items-center justify-center text-gray-400 text-sm">
+          <div className="absolute inset-0 flex items-center justify-center text-[#86868B] text-sm">
             차량 이미지
           </div>
         ) : (
@@ -39,24 +39,24 @@ export function CarHero({ vehicle, minPrice, minCarPrice, maxCarPrice }: CarHero
           />
         )}
       </div>
-      <h1 className="text-2xl font-extrabold text-gray-900">{vehicle.model}</h1>
+      <h1 className="text-2xl font-extrabold text-[#1D1D1F] tracking-tight">{vehicle.model}</h1>
       <div className="flex gap-1.5 justify-center mt-2">
-        <span className="px-2.5 py-1 rounded-xl text-[11px] font-semibold bg-[#EBF5FB] text-accent">
+        <span className="px-2.5 py-1 rounded-[10px] text-[11px] font-semibold bg-[#007AFF1A] text-[#007AFF]">
           {vehicle.segment}
         </span>
-        <span className="px-2.5 py-1 rounded-xl text-[11px] font-semibold bg-[#E8F8F0] text-success">
+        <span className="px-2.5 py-1 rounded-[10px] text-[11px] font-semibold bg-[#34C7591A] text-[#34C759]">
           {vehicle.fuel}
         </span>
       </div>
       {minCarPrice != null && (
-        <p className="text-sm text-gray-500 mt-2">
+        <p className="text-sm text-[#86868B] mt-2">
           차량가격 {Math.round(minCarPrice / 10000).toLocaleString()}만
           {maxCarPrice != null && maxCarPrice !== minCarPrice
             ? ` ~ ${Math.round(maxCarPrice / 10000).toLocaleString()}만원`
             : '원'}
         </p>
       )}
-      <p className="text-[22px] font-extrabold text-accent mt-3">{priceText}</p>
+      <p className="text-[22px] font-extrabold text-[#007AFF] mt-3">{priceText}</p>
     </section>
   );
 }

@@ -5,6 +5,7 @@ import './globals.css';
 import { NavBar } from '@/components/NavBar';
 import { GAPageView } from '@/components/GAPageView';
 import { DynamicToast } from '@/components/DynamicToast';
+import { PageTransition } from '@/components/PageTransition';
 
 const pretendard = localFont({
   src: './fonts/PretendardVariable.woff2',
@@ -27,11 +28,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko" className={pretendard.variable}>
-      <body className={`${pretendard.className} antialiased bg-white`}>
-        <div className="min-w-[360px] max-w-[1024px] mx-auto w-full">
+      <body className={`${pretendard.className} antialiased bg-surface-secondary`}>
+        <div className="max-w-[1024px] mx-auto w-full min-w-0">
           <GAPageView />
           <NavBar />
-          {children}
+          <PageTransition>{children}</PageTransition>
         </div>
         <DynamicToast />
         {GA_ID && (

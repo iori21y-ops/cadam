@@ -1,19 +1,29 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #F5F5F7;
+  --foreground: #1D1D1F;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --color-primary: #1B3A5C;
-  --color-accent: #2E86C1;
-  --color-success: #27AE60;
-  --color-warning: #F39C12;
-  --color-danger: #E74C3C;
+  --color-primary: #007AFF;
+  --color-success: #34C759;
+  --color-warning: #FF9500;
+  --color-danger: #FF3B30;
   --color-kakao: #FEE500;
+  --color-text: #1D1D1F;
+  --color-text-sub: #86868B;
+  --color-text-muted: #AEAEB2;
+  --color-surface: #FFFFFF;
+  --color-surface-secondary: #F5F5F7;
+  --color-border: rgba(0, 0, 0, 0.06);
+  --color-finance: #007AFF;
+  --color-vehicle: #5856D6;
+  --color-option: #E04DBF;
+  --color-calculator: #FF9500;
+  --color-rent: #34C759;
   --font-sans: var(--font-pretendard), -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: ui-monospace, monospace;
 }
@@ -29,7 +39,8 @@ body {
   scrollbar-width: none;
 }
 .scrollbar-hide::-webkit-scrollbar {
-  display: none;
+  width: 0;
+  height: 0;
 }
 
 .scrollbar-thin {
@@ -58,4 +69,10 @@ body {
 
 .animate-slide {
   animation: slide linear infinite;
+}
+
+.glass {
+  background: rgba(245, 245, 247, 0.72);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
 }

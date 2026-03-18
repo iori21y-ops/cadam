@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useQuoteStore } from '@/store/quoteStore';
 import type { Deposit, PrepaymentPct } from '@/store/quoteStore';
 import { gtag } from '@/lib/gtag';
+import { SelectCard } from '@/components/ui/SelectCard';
 
 interface Step5PaymentProps {
   onCompleteChange?: (isComplete: boolean) => void;
@@ -61,80 +62,65 @@ export function Step5Payment({ onCompleteChange }: Step5PaymentProps) {
   };
 
   return (
-    <div className="overflow-y-auto">
+    <div className="overflow-y-auto scrollbar-hide">
       {/* 1단계: 보증금 vs 선납금 선택 */}
       <div className="px-5">
-        <h3 className="text-sm font-bold text-gray-700 mt-3 mb-2">
+        <h3 className="text-sm font-bold text-[#1D1D1F] mt-3 mb-2">
           보증금과 선납금 중 하나를 선택해 주세요
         </h3>
-        <p className="text-sm text-gray-500 mb-3">
+        <p className="text-sm text-[#86868B] mb-3">
           비율에 따라 월 납부금이 달라집니다
         </p>
         <div className="flex gap-2.5">
-          <button
-            type="button"
+          <SelectCard
+            className="flex-1"
+            selected={selectedType === 'deposit'}
             onClick={() => handleTypeSelect('deposit')}
-            className={`
-              flex-1 py-4 px-4 border-2 rounded-xl bg-white cursor-pointer
-              text-center text-sm font-semibold transition-all duration-150
-              ${
-                selectedType === 'deposit'
-                  ? 'border-accent bg-[#EBF5FB] text-accent'
-                  : 'border-gray-200 text-gray-700 hover:border-accent hover:bg-[#EBF5FB]'
-              }
-            `}
           >
-            보증금
-          </button>
-          <button
-            type="button"
+            <span className={`text-sm font-semibold flex-1 ${selectedType === 'deposit' ? 'text-white' : 'text-[#1D1D1F]'}`}>
+              보증금
+            </span>
+          </SelectCard>
+          <SelectCard
+            className="flex-1"
+            selected={selectedType === 'prepayment'}
             onClick={() => handleTypeSelect('prepayment')}
-            className={`
-              flex-1 py-4 px-4 border-2 rounded-xl bg-white cursor-pointer
-              text-center text-sm font-semibold transition-all duration-150
-              ${
-                selectedType === 'prepayment'
-                  ? 'border-accent bg-[#EBF5FB] text-accent'
-                  : 'border-gray-200 text-gray-700 hover:border-accent hover:bg-[#EBF5FB]'
-              }
-            `}
           >
-            선납금
-          </button>
+            <span className={`text-sm font-semibold flex-1 ${selectedType === 'prepayment' ? 'text-white' : 'text-[#1D1D1F]'}`}>
+              선납금
+            </span>
+          </SelectCard>
         </div>
       </div>
 
       {/* 2단계: 비율 선택 */}
       {selectedType && (
         <div className="px-5 mt-6">
-          <h3 className="text-sm font-bold text-gray-700 mb-2">
+          <h3 className="text-sm font-bold text-[#1D1D1F] mb-2">
             {selectedType === 'deposit' ? '보증금' : '선납금'} 비율을 선택해 주세요
           </h3>
-          <p className="text-sm text-gray-500 mb-3">
+          <p className="text-sm text-[#86868B] mb-3">
             {selectedType === 'deposit'
               ? '보증금 비율이 높을수록 월 납부금이 낮아집니다'
               : '차량가의 일부를 선납하면 월 납부금이 낮아집니다'}
           </p>
           <div className="grid grid-cols-2 gap-2.5">
-            {RATIO_OPTIONS.map((opt) => (
-              <button
-                key={opt.value}
-                type="button"
-                onClick={() => handleRatioSelect(opt.value)}
-                className={`
-                  py-3 px-4 border-2 rounded-xl bg-white cursor-pointer
-                  text-center text-sm font-semibold transition-all duration-150
-                  ${
-                    (selectedType === 'deposit' && deposit === RATIO_TO_DEPOSIT[opt.value]) ||
-                    (selectedType === 'prepayment' && prepaymentPct === opt.value)
-                      ? 'border-accent bg-[#EBF5FB] text-accent'
-                      : 'border-gray-200 text-gray-700 hover:border-accent hover:bg-[#EBF5FB]'
-                  }
-                `}
-              >
-                {opt.label}
-              </button>
-            ))}
+            {RATIO_OPTIONS.map((opt) => {
+              const isSel =
+                (selectedType === 'deposit' && deposit === RATIO_TO_DEPOSIT[opt.value]) ||
+                (selectedType === 'prepayment' && prepaymentPct === opt.value);
+              return (
+                <SelectCard
+                  key={opt.value}
+                  selected={isSel}
+                  onClick={() => handleRatioSelect(opt.value)}
+                >
+                  <span className={`text-sm font-semibold flex-1 ${isSel ? 'text-white' : 'text-[#1D1D1F]'}`}>
+                    {opt.label}
+                  </span>
+                </SelectCard>
+              );
+            })}
           </div>
         </div>
       )}

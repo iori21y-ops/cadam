@@ -354,7 +354,7 @@ export function PriceEditor({
                 onChange={(e) => setCsvText(e.target.value)}
                 placeholder="현대,캐스퍼,36,10000,250000,350000"
                 rows={8}
-                className="w-full py-2.5 px-3 border border-gray-300 rounded-lg outline-none focus:border-accent font-mono text-sm resize-none"
+                className="w-full py-2.5 px-3 border border-gray-300 rounded-lg outline-none focus:border-primary font-mono text-sm resize-none"
               />
               <button
                 type="button"
@@ -396,7 +396,7 @@ export function PriceEditor({
                     type="button"
                     onClick={handleCsvUpload}
                     disabled={saving}
-                    className="w-full py-2.5 rounded-lg font-bold bg-accent text-white hover:opacity-90 disabled:opacity-60"
+                    className="w-full py-2.5 rounded-lg font-bold bg-primary text-white hover:opacity-90 disabled:opacity-60"
                   >
                     {saving ? '업로드 중...' : '업로드'}
                   </button>
@@ -412,7 +412,7 @@ export function PriceEditor({
                 <select
                   value={brand}
                   onChange={(e) => setBrand(e.target.value as Brand)}
-                  className="w-full py-2.5 px-3 border border-gray-300 rounded-lg outline-none focus:border-accent"
+                  className="w-full py-2.5 px-3 border border-gray-300 rounded-lg outline-none focus:border-primary"
                 >
                   {BRANDS.map((b) => (
                     <option key={b} value={b}>
@@ -429,7 +429,7 @@ export function PriceEditor({
                 <select
                   value={carModel}
                   onChange={(e) => setCarModel(e.target.value)}
-                  className="w-full py-2.5 px-3 border border-gray-300 rounded-lg outline-none focus:border-accent"
+                  className="w-full py-2.5 px-3 border border-gray-300 rounded-lg outline-none focus:border-primary"
                 >
                   <option value="">선택</option>
                   {vehicleOptions.map((o) => (
@@ -447,7 +447,7 @@ export function PriceEditor({
                 <select
                   value={contractMonths}
                   onChange={(e) => setContractMonths(Number(e.target.value))}
-                  className="w-full py-2.5 px-3 border border-gray-300 rounded-lg outline-none focus:border-accent"
+                  className="w-full py-2.5 px-3 border border-gray-300 rounded-lg outline-none focus:border-primary"
                 >
                   {CONTRACT_MONTHS.map((m) => (
                     <option key={m} value={m}>
@@ -464,7 +464,7 @@ export function PriceEditor({
                 <select
                   value={annualKm}
                   onChange={(e) => setAnnualKm(Number(e.target.value))}
-                  className="w-full py-2.5 px-3 border border-gray-300 rounded-lg outline-none focus:border-accent"
+                  className="w-full py-2.5 px-3 border border-gray-300 rounded-lg outline-none focus:border-primary"
                 >
                   {ANNUAL_KM.map((k) => (
                     <option key={k} value={k}>
@@ -483,7 +483,7 @@ export function PriceEditor({
                   value={minMonthly || ''}
                   onChange={(e) => setMinMonthly(Number(e.target.value) || 0)}
                   min={0}
-                  className="w-full py-2.5 px-3 border border-gray-300 rounded-lg outline-none focus:border-accent"
+                  className="w-full py-2.5 px-3 border border-gray-300 rounded-lg outline-none focus:border-primary"
                 />
               </div>
 
@@ -496,7 +496,7 @@ export function PriceEditor({
                   value={maxMonthly || ''}
                   onChange={(e) => setMaxMonthly(Number(e.target.value) || 0)}
                   min={0}
-                  className="w-full py-2.5 px-3 border border-gray-300 rounded-lg outline-none focus:border-accent"
+                  className="w-full py-2.5 px-3 border border-gray-300 rounded-lg outline-none focus:border-primary"
                 />
               </div>
 
@@ -509,7 +509,7 @@ export function PriceEditor({
                   onChange={(e) => setConditionsJson(e.target.value)}
                   placeholder='{"deposit_0": 250000, "deposit_100": 200000}'
                   rows={4}
-                  className="w-full py-2.5 px-3 border border-gray-300 rounded-lg outline-none focus:border-accent font-mono text-sm resize-none"
+                  className="w-full py-2.5 px-3 border border-gray-300 rounded-lg outline-none focus:border-primary font-mono text-sm resize-none"
                 />
                 <p className="text-xs text-gray-500 mt-1">
                   JSON 파싱만 허용. 수학적 계산은 서버에서 처리됩니다.
@@ -521,7 +521,7 @@ export function PriceEditor({
               <button
                 type="submit"
                 disabled={saving}
-                className="w-full py-2.5 rounded-lg font-bold bg-accent text-white hover:opacity-90 disabled:opacity-60"
+                className="w-full py-2.5 rounded-lg font-bold bg-primary text-white hover:opacity-90 disabled:opacity-60"
               >
                 {saving ? '저장 중...' : isEdit ? '수정' : '등록'}
               </button>

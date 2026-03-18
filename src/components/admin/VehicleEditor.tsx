@@ -223,7 +223,7 @@ export function VehicleEditor({ vehicleSlug, isOpen, onClose, onSuccess, customB
 
         {loading ? (
           <div className="flex-1 flex items-center justify-center">
-            <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+            <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
           </div>
         ) : (
           <div className="flex-1 overflow-y-auto p-4 space-y-6">
@@ -239,7 +239,7 @@ export function VehicleEditor({ vehicleSlug, isOpen, onClose, onSuccess, customB
                       value={editBrand}
                       onChange={(e) => setEditBrand(e.target.value)}
                       placeholder="예: BMW"
-                      className="w-full py-2 px-3 border border-gray-300 rounded-lg text-sm outline-none focus:border-accent"
+                      className="w-full py-2 px-3 border border-gray-300 rounded-lg text-sm outline-none focus:border-primary"
                     />
                   </div>
                   <div>
@@ -249,7 +249,7 @@ export function VehicleEditor({ vehicleSlug, isOpen, onClose, onSuccess, customB
                       value={editModel}
                       onChange={(e) => setEditModel(e.target.value)}
                       placeholder="예: 5시리즈"
-                      className="w-full py-2 px-3 border border-gray-300 rounded-lg text-sm outline-none focus:border-accent"
+                      className="w-full py-2 px-3 border border-gray-300 rounded-lg text-sm outline-none focus:border-primary"
                     />
                   </div>
                 </div>
@@ -266,7 +266,7 @@ export function VehicleEditor({ vehicleSlug, isOpen, onClose, onSuccess, customB
                   value={setting.thumbnailUrl}
                   onChange={(e) => setSetting((p) => ({ ...p, thumbnailUrl: e.target.value }))}
                   placeholder="https://..."
-                  className="w-full py-2 px-3 border border-gray-300 rounded-lg text-sm outline-none focus:border-accent"
+                  className="w-full py-2 px-3 border border-gray-300 rounded-lg text-sm outline-none focus:border-primary"
                 />
                 {setting.thumbnailUrl && (
                   <img src={setting.thumbnailUrl} alt="미리보기" className="mt-2 h-24 rounded-lg object-contain bg-gray-100 w-full" />
@@ -280,7 +280,7 @@ export function VehicleEditor({ vehicleSlug, isOpen, onClose, onSuccess, customB
                     value={setting.minCarPrice}
                     onChange={(e) => setSetting((p) => ({ ...p, minCarPrice: e.target.value }))}
                     placeholder="예: 2500"
-                    className="w-full py-2 px-3 border border-gray-300 rounded-lg text-sm outline-none focus:border-accent"
+                    className="w-full py-2 px-3 border border-gray-300 rounded-lg text-sm outline-none focus:border-primary"
                   />
                 </div>
                 <div>
@@ -290,7 +290,7 @@ export function VehicleEditor({ vehicleSlug, isOpen, onClose, onSuccess, customB
                     value={setting.maxCarPrice}
                     onChange={(e) => setSetting((p) => ({ ...p, maxCarPrice: e.target.value }))}
                     placeholder="예: 3200"
-                    className="w-full py-2 px-3 border border-gray-300 rounded-lg text-sm outline-none focus:border-accent"
+                    className="w-full py-2 px-3 border border-gray-300 rounded-lg text-sm outline-none focus:border-primary"
                   />
                 </div>
               </div>
@@ -330,17 +330,17 @@ export function VehicleEditor({ vehicleSlug, isOpen, onClose, onSuccess, customB
                                 value={cell?.min || ''}
                                 onChange={(e) => updateCell(key, 'min', e.target.value)}
                                 placeholder="최소"
-                                className="w-full py-1 px-1.5 border border-gray-200 rounded text-xs outline-none focus:border-accent mb-0.5"
+                                className="w-full py-1 px-1.5 border border-gray-200 rounded text-xs outline-none focus:border-primary mb-0.5"
                               />
                               <input
                                 type="number"
                                 value={cell?.max || ''}
                                 onChange={(e) => updateCell(key, 'max', e.target.value)}
                                 placeholder="최대"
-                                className="w-full py-1 px-1.5 border border-gray-200 rounded text-xs outline-none focus:border-accent"
+                                className="w-full py-1 px-1.5 border border-gray-200 rounded text-xs outline-none focus:border-primary"
                               />
                               {cell?.min > 0 && (
-                                <p className="text-[10px] text-accent text-center mt-0.5">{formatWon(cell.min)}~{formatWon(cell.max)}만</p>
+                                <p className="text-[10px] text-primary text-center mt-0.5">{formatWon(cell.min)}~{formatWon(cell.max)}만</p>
                               )}
                             </td>
                           );
@@ -358,7 +358,7 @@ export function VehicleEditor({ vehicleSlug, isOpen, onClose, onSuccess, customB
               type="button"
               onClick={handleSave}
               disabled={saving}
-              className="w-full py-3 rounded-lg font-bold bg-accent text-white hover:opacity-90 disabled:opacity-60"
+              className="w-full py-3 rounded-lg font-bold bg-primary text-white hover:opacity-90 disabled:opacity-60"
             >
               {saving ? '저장 중...' : '저장'}
             </button>

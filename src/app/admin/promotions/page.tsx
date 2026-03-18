@@ -76,11 +76,11 @@ export default function AdminPromotionsPage() {
   return (
     <div className="max-w-[1200px] mx-auto p-5">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-xl font-bold text-primary">프로모션 관리</h1>
+        <h1 className="text-xl font-bold text-[#1D1D1F] tracking-tight">프로모션 관리</h1>
         <button
           type="button"
           onClick={handleAddNew}
-          className="px-4 py-2 rounded-lg font-bold bg-accent text-white hover:opacity-90 transition-opacity"
+          className="px-4 py-2 rounded-[10px] font-semibold bg-[#007AFF] text-white hover:opacity-90 transition-opacity"
         >
           새 프로모션 추가
         </button>
@@ -88,20 +88,20 @@ export default function AdminPromotionsPage() {
 
       {loading ? (
         <div className="flex justify-center py-16">
-          <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-2 border-[#007AFF] border-t-transparent rounded-full animate-spin" />
         </div>
       ) : error ? (
-        <div className="rounded-xl bg-red-50 border border-red-200 p-4">
+        <div className="rounded-2xl bg-white border border-[#FF3B3033] p-4">
           <p className="text-danger font-medium">{error}</p>
         </div>
       ) : promotions.length === 0 ? (
-        <div className="rounded-xl bg-white border border-gray-200 p-12 text-center">
-          <p className="text-gray-500 mb-2">등록된 프로모션이 없습니다</p>
-          <p className="text-gray-400 text-sm mb-4">새 프로모션을 추가해 주세요</p>
+        <div className="rounded-2xl bg-white border border-[#E5E5EA] p-12 text-center">
+          <p className="text-[#86868B] mb-2">등록된 프로모션이 없습니다</p>
+          <p className="text-[#AEAEB2] text-sm mb-4">새 프로모션을 추가해 주세요</p>
           <button
             type="button"
             onClick={handleAddNew}
-            className="px-4 py-2 rounded-lg font-semibold bg-accent text-white hover:opacity-90"
+            className="px-4 py-2 rounded-[10px] font-semibold bg-[#007AFF] text-white hover:opacity-90"
           >
             새 프로모션 추가
           </button>
@@ -112,9 +112,9 @@ export default function AdminPromotionsPage() {
             <div
               key={promo.id}
               onClick={() => handleEdit(promo)}
-              className="rounded-xl border border-gray-200 bg-white overflow-hidden hover:border-accent hover:shadow-md transition-all cursor-pointer"
+              className="rounded-2xl border border-[#E5E5EA] bg-white overflow-hidden hover:border-[#007AFF] hover:shadow-md transition-all cursor-pointer"
             >
-              <div className="aspect-video bg-gray-100 flex items-center justify-center">
+              <div className="aspect-video bg-[#F5F5F7] flex items-center justify-center">
                 {promo.image_url ? (
                   <img
                     src={promo.image_url}
@@ -122,12 +122,12 @@ export default function AdminPromotionsPage() {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <span className="text-gray-400 text-4xl">📷</span>
+                  <span className="text-[#AEAEB2] text-4xl">📷</span>
                 )}
               </div>
               <div className="p-4">
-                <h3 className="font-bold text-gray-900 truncate mb-2">{promo.title}</h3>
-                <p className="text-xs text-gray-500 mb-3">
+                <h3 className="font-bold text-[#1D1D1F] truncate mb-2">{promo.title}</h3>
+                <p className="text-xs text-[#86868B] mb-3">
                   {formatDateRange(promo.start_date, promo.end_date)}
                 </p>
                 <div
@@ -136,7 +136,7 @@ export default function AdminPromotionsPage() {
                 >
                   <span
                     className={`text-xs font-semibold px-2 py-1 rounded ${
-                      promo.is_active ? 'bg-success/20 text-success' : 'bg-gray-200 text-gray-600'
+                      promo.is_active ? 'bg-[#34C7591A] text-[#34C759]' : 'bg-[#F5F5F7] text-[#86868B]'
                     }`}
                   >
                     {promo.is_active ? '노출중' : '비노출'}
@@ -148,7 +148,7 @@ export default function AdminPromotionsPage() {
                       handleToggleActive(promo);
                     }}
                     className={`relative w-10 h-6 rounded-full transition-colors ${
-                      promo.is_active ? 'bg-accent' : 'bg-gray-300'
+                      promo.is_active ? 'bg-[#007AFF]' : 'bg-[#D1D1D6]'
                     }`}
                   >
                     <span

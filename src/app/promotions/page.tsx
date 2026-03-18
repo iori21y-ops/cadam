@@ -61,18 +61,18 @@ export default async function PromotionsPage() {
   const promotions = await getPromotions();
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-surface-secondary">
       {/* Hero */}
-      <section className="flex flex-col items-center justify-center px-5 py-16 min-h-[40vh] bg-gradient-to-br from-primary to-accent text-white text-center">
-        <h1 className="text-2xl sm:text-3xl font-bold leading-tight mb-3">
+      <section className="flex flex-col items-center justify-center px-5 pt-14 pb-10 text-center">
+        <h1 className="text-2xl sm:text-3xl font-bold leading-tight mb-3 text-[#1D1D1F] tracking-tight">
           이달의 프로모션
         </h1>
-        <p className="text-base sm:text-lg text-white/90 mb-6">
+        <p className="text-base sm:text-lg text-[#86868B] mb-6">
           카담에서 진행 중인 특별 혜택을 확인하세요
         </p>
         <Link
           href="/quote"
-          className="px-8 py-3.5 rounded-lg font-bold text-accent bg-white hover:opacity-90 transition-opacity"
+          className="px-8 py-3.5 rounded-[10px] font-semibold bg-[#007AFF] text-white hover:opacity-90 transition-opacity"
         >
           무료 견적 받기
         </Link>
@@ -82,10 +82,10 @@ export default async function PromotionsPage() {
       <section className="px-5 py-12 flex-1">
         {promotions.length === 0 ? (
           <div className="py-16 text-center">
-            <p className="text-gray-500 text-lg mb-2">
+            <p className="text-[#86868B] text-lg mb-2">
               현재 진행 중인 프로모션이 없습니다
             </p>
-            <p className="text-gray-400 text-sm">
+            <p className="text-[#AEAEB2] text-sm">
               새로운 혜택을 준비 중입니다. 곧 만나보세요!
             </p>
           </div>
@@ -94,7 +94,7 @@ export default async function PromotionsPage() {
             {promotions.map((p) => {
               const cardContent = (
                 <>
-                  <div className="relative aspect-[16/10] bg-gray-200">
+                  <div className="relative aspect-[16/10] bg-[#F5F5F7]">
                     {p.imageUrl ? (
                       <Image
                         src={p.imageUrl}
@@ -104,21 +104,21 @@ export default async function PromotionsPage() {
                         className="object-cover"
                       />
                     ) : (
-                      <span className="absolute inset-0 flex items-center justify-center text-gray-400 text-sm">배너 이미지</span>
+                      <span className="absolute inset-0 flex items-center justify-center text-[#AEAEB2] text-sm">배너 이미지</span>
                     )}
                   </div>
                   <div className="p-4">
-                    <h3 className="font-semibold text-gray-900 mb-1 text-lg">
+                    <h3 className="font-semibold text-[#1D1D1F] mb-1 text-lg">
                       {p.title}
                     </h3>
-                    <p className="text-sm text-gray-600 line-clamp-2">
+                    <p className="text-sm text-[#86868B] line-clamp-2">
                       {p.description ?? '-'}
                     </p>
                   </div>
                 </>
               );
               const className =
-                'flex flex-col flex-shrink-0 w-full sm:w-[280px] rounded-xl overflow-hidden bg-white border border-gray-200 shadow-sm hover:shadow-md transition-shadow';
+                'flex flex-col flex-shrink-0 w-full sm:w-[280px] rounded-2xl overflow-hidden bg-white border border-[#E5E5EA] shadow-sm hover:shadow-md transition-shadow';
               return p.linkUrl ? (
                 <a key={p.id} href={p.linkUrl} className={className}>
                   {cardContent}

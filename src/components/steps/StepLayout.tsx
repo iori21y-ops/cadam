@@ -1,10 +1,12 @@
 'use client';
 
-import { ReactNode, useEffect, useMemo } from 'react';
+import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { ProgressBar } from './ProgressBar';
 import { SelectionSummary } from './SelectionSummary';
 import { useQuoteStore } from '@/store/quoteStore';
 import { gtag } from '@/lib/gtag';
+import { Button } from '@/components/ui/Button';
 
 const STEP_NAMES: Record<number, string> = {
   1: '브랜치 선택',
@@ -30,10 +32,25 @@ export function StepLayout({
 }: StepLayoutProps) {
   const setCurrentStep = useQuoteStore((s) => s.setCurrentStep);
   const stepName = useMemo(() => STEP_NAMES[currentStep] ?? `Step ${currentStep}`, [currentStep]);
+  const prevStepRef = useRef(currentStep);
+  const [dir, setDir] = useState<1 | -1>(1);
+  const isFirstMountRef = useRef(true);
+
+  useEffect(() => {
+    isFirstMountRef.current = false;
+  }, []);
 
   useEffect(() => {
     gtag.stepView(currentStep, stepName);
   }, [currentStep, stepName]);
+
+  useEffect(() => {
+    const prev = prevStepRef.current;
+    if (prev !== currentStep) {
+      setDir(currentStep > prev ? 1 : -1);
+      prevStepRef.current = currentStep;
+    }
+  }, [currentStep]);
 
   const handlePrev = () => {
     if (currentStep > 1) {
@@ -49,39 +66,43 @@ export function StepLayout({
 
   const showPrev = currentStep > 1;
   const showNext = currentStep < 6;
+  const scrollWrapperClass =
+    currentStep === 2 ? 'overflow-y-hidden' : 'overflow-y-auto';
 
   return (
-    <div className="flex flex-col min-h-[100dvh] bg-white">
+    <div className="flex flex-col h-[100dvh] overflow-hidden bg-surface-secondary">
       <ProgressBar currentStep={currentStep} />
-      <div className="flex-1 overflow-y-auto pb-32">
-        {children}
-      </div>
-      <div className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 min-w-[360px] max-w-[1024px] mx-auto">
-        <SelectionSummary currentStep={currentStep} />
-        <div className="flex gap-3 p-5 pt-4">
-        {showPrev && (
-          <button
-            type="button"
-            onClick={handlePrev}
-            className="flex-1 py-4 rounded-lg border-2 border-gray-200 font-semibold text-gray-700 hover:border-accent hover:text-accent transition-colors"
+      <div className={`flex-1 pb-32 scrollbar-hide ${scrollWrapperClass}`}>
+        <AnimatePresence mode="wait" initial={true}>
+          <motion.div
+            key={currentStep}
+            initial={isFirstMountRef.current ? { opacity: 1, x: 0 } : { opacity: 0, x: dir * 40 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -dir * 40 }}
+            transition={{ duration: 0.35, ease: 'easeOut' }}
+            className="w-full max-w-lg mx-auto"
           >
+            {children}
+          </motion.div>
+        </AnimatePresence>
+      </div>
+      <div className="fixed bottom-0 left-0 right-0 z-40 bg-surface-secondary min-w-[360px] max-w-[1024px] mx-auto">
+        <SelectionSummary currentStep={currentStep} />
+        <div className="px-5 pb-5 pt-3">
+          <div className="bg-white rounded-2xl p-4 shadow-[0_6px_18px_rgba(0,0,0,0.06)]">
+            <div className="flex gap-3">
+        {showPrev && (
+          <Button type="button" variant="secondary" size="lg" className="flex-1" onClick={handlePrev}>
             이전
-          </button>
+          </Button>
         )}
         {showNext && (
-          <button
-            type="button"
-            onClick={handleNext}
-            disabled={isNextDisabled}
-            className={`flex-1 py-4 rounded-lg font-semibold transition-colors ${
-              isNextDisabled
-                ? 'bg-gray-300 text-gray-500 cursor-default'
-                : 'bg-accent text-white hover:opacity-90'
-            }`}
-          >
+          <Button type="button" variant="primary" size="lg" disabled={isNextDisabled} className="flex-1" onClick={handleNext}>
             다음
-          </button>
+          </Button>
         )}
+            </div>
+          </div>
         </div>
       </div>
     </div>

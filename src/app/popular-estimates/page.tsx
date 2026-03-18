@@ -41,12 +41,12 @@ function VehiclesSkeleton() {
   return (
     <div className="grid grid-cols-2 gap-3">
       {Array.from({ length: 6 }).map((_, i) => (
-        <div key={i} className="rounded-xl border-2 border-gray-200 bg-white overflow-hidden animate-pulse">
-          <div className="w-full aspect-[5/3] bg-gray-200" />
+        <div key={i} className="rounded-2xl border border-[#E5E5EA] bg-white overflow-hidden animate-pulse">
+          <div className="w-full aspect-[5/3] bg-[#F5F5F7]" />
           <div className="p-3 space-y-2">
-            <div className="h-2.5 bg-gray-200 rounded w-1/3" />
-            <div className="h-4 bg-gray-200 rounded w-2/3" />
-            <div className="h-4 bg-gray-200 rounded w-1/2" />
+            <div className="h-2.5 bg-[#F5F5F7] rounded w-1/3" />
+            <div className="h-4 bg-[#F5F5F7] rounded w-2/3" />
+            <div className="h-4 bg-[#F5F5F7] rounded w-1/2" />
           </div>
         </div>
       ))}
@@ -105,11 +105,11 @@ async function VehicleListSection() {
 
 export default function PopularEstimatesPage() {
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-surface-secondary">
       {/* 헤더 - 즉시 렌더링 */}
-      <section className="bg-gradient-to-br from-primary to-accent text-white px-5 py-12 text-center">
-        <h1 className="text-2xl font-bold mb-2">인기차종 견적 미리보기</h1>
-        <p className="text-white/85 text-sm">
+      <section className="px-5 pt-12 pb-8 text-center">
+        <h1 className="text-2xl font-bold mb-2 text-[#1D1D1F] tracking-tight">인기차종 견적 미리보기</h1>
+        <p className="text-[#86868B] text-sm">
           36개월 · 연 2만km 기준 월 납부금 (보증금 0원)
         </p>
       </section>
@@ -122,16 +122,18 @@ export default function PopularEstimatesPage() {
       </section>
 
       {/* 하단 CTA */}
-      <section className="px-5 py-8 text-center bg-white border-t border-gray-200">
-        <p className="text-gray-600 text-sm mb-4">
+      <section className="px-5 pb-10 text-center">
+        <div className="bg-white rounded-2xl p-5 border border-[#E5E5EA]">
+        <p className="text-[#86868B] text-sm mb-4">
           내 조건에 맞는 정확한 견적을 받아보세요
         </p>
         <Link
           href="/quote"
-          className="inline-block px-8 py-3.5 rounded-lg font-bold bg-accent text-white hover:opacity-90 transition-opacity"
+          className="inline-block px-8 py-3.5 rounded-[10px] font-semibold bg-[#007AFF] text-white hover:opacity-90 transition-opacity"
         >
           무료 견적 받기
         </Link>
+        </div>
       </section>
 
       <Footer />

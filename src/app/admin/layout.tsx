@@ -12,6 +12,7 @@ const NAV_ITEMS = [
   { href: '/admin/info', label: '정보관리' },
   { href: '/admin/promotions', label: '프로모션 관리' },
   { href: '/admin/prices', label: '인기차종 관리' },
+  { href: '/admin/diagnosis', label: '진단 관리' },
 ] as const;
 
 export default function AdminLayout({
@@ -54,8 +55,8 @@ export default function AdminLayout({
 
   if (isChecking) {
     return (
-      <div className="min-h-[100dvh] flex items-center justify-center bg-gray-100">
-        <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-[100dvh] flex items-center justify-center bg-surface-secondary">
+        <div className="w-8 h-8 border-2 border-[#007AFF] border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -69,12 +70,12 @@ export default function AdminLayout({
   }
 
   return (
-    <div className="min-h-[100dvh] flex flex-col bg-gray-100">
-      <nav className="sticky top-0 z-50 bg-white border-b border-gray-200 overflow-hidden">
+    <div className="min-h-[100dvh] flex flex-col bg-surface-secondary">
+      <nav className="sticky top-0 z-50 glass border-b border-[#E5E5EA] overflow-hidden">
         <div className="max-w-[1200px] mx-auto px-5 py-3 flex items-center gap-4 min-w-0">
           <Link
             href="/admin"
-            className="text-base font-extrabold text-primary shrink-0"
+            className="text-base font-extrabold text-[#1D1D1F] shrink-0"
           >
             카담 Admin
           </Link>
@@ -95,10 +96,10 @@ export default function AdminLayout({
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
+                  className={`px-3 py-2 rounded-full text-[13px] font-semibold whitespace-nowrap transition-colors ${
                     isActive
-                      ? 'bg-accent text-white'
-                      : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                      ? 'bg-[#007AFF] text-white'
+                      : 'text-[#86868B] hover:bg-[#007AFF0D] hover:text-[#007AFF]'
                   }`}
                 >
                   {item.label}
@@ -109,7 +110,7 @@ export default function AdminLayout({
           <button
             type="button"
             onClick={handleLogout}
-            className="shrink-0 px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors"
+            className="shrink-0 px-4 py-2 rounded-full text-[13px] font-semibold text-[#86868B] hover:bg-[#007AFF0D] hover:text-[#007AFF] transition-colors"
           >
             로그아웃
           </button>

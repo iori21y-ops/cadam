@@ -40,8 +40,8 @@ const FilterChips = memo(function FilterChips({
           onClick={() => onSelect(item)}
           className={`px-4 py-1.5 rounded-full text-sm font-semibold border whitespace-nowrap transition-all ${
             selected === item
-              ? 'bg-accent text-white border-accent'
-              : 'bg-white text-gray-600 border-gray-300 hover:border-accent'
+              ? 'bg-[#007AFF] text-white border-[#007AFF]'
+              : 'bg-white text-[#86868B] border-[#E5E5EA] hover:border-[#007AFF]'
           }`}
         >
           {item}
@@ -54,9 +54,9 @@ const FilterChips = memo(function FilterChips({
 const CarImage = memo(function CarImage({ imageKey, model, priority }: { imageKey: string; model: string; priority?: boolean }) {
   const [error, setError] = useState(false);
   return (
-    <div className="w-full aspect-[5/3] bg-gray-100 overflow-hidden relative">
+    <div className="w-full aspect-[5/3] bg-[#F5F5F7] overflow-hidden relative">
       {error ? (
-        <div className="w-full h-full flex items-center justify-center text-gray-300 text-xs">
+        <div className="w-full h-full flex items-center justify-center text-[#D1D1D6] text-xs">
           🚗
         </div>
       ) : (
@@ -118,14 +118,14 @@ export function PopularEstimatesClient({ vehicles }: { vehicles: VehicleWithPric
     <>
       {/* 제조사 필터 */}
       <div className="mb-3">
-        <p className="text-xs font-semibold text-gray-400 mb-2">제조사</p>
+        <p className="text-[11px] font-semibold text-[#86868B] mb-2">제조사</p>
         <FilterChips items={brands} selected={selectedBrand} onSelect={handleBrandSelect} />
       </div>
 
       {/* 차종명 필터 (제조사 선택 시 표시) */}
       {selectedBrand !== '전체' && (
         <div className="mb-6">
-          <p className="text-xs font-semibold text-gray-400 mb-2">차종명</p>
+          <p className="text-[11px] font-semibold text-[#86868B] mb-2">차종명</p>
           <div
             ref={dragScroll.ref}
             onMouseDown={dragScroll.onMouseDown}
@@ -142,8 +142,8 @@ export function PopularEstimatesClient({ vehicles }: { vehicles: VehicleWithPric
                   onClick={() => setSelectedModel(item)}
                   className={`px-4 py-1.5 rounded-full text-sm font-semibold border whitespace-nowrap transition-all ${
                     selectedModel === item
-                      ? 'bg-accent text-white border-accent'
-                      : 'bg-white text-gray-600 border-gray-300 hover:border-accent'
+                      ? 'bg-[#007AFF] text-white border-[#007AFF]'
+                      : 'bg-white text-[#86868B] border-[#E5E5EA] hover:border-[#007AFF]'
                   }`}
                 >
                   {item}
@@ -161,27 +161,27 @@ export function PopularEstimatesClient({ vehicles }: { vehicles: VehicleWithPric
           <Link
             key={v.id}
             href={`/cars/${v.slug}`}
-            className="flex flex-col rounded-xl border-2 border-gray-200 bg-white hover:border-accent hover:shadow-md transition-all overflow-hidden group"
+            className="flex flex-col rounded-2xl border border-[#E5E5EA] bg-white hover:border-[#007AFF] hover:shadow-md transition-all overflow-hidden group"
           >
             <CarImage imageKey={v.imageKey} model={v.model} priority={i < 4} />
             <div className="p-3">
               <div className="flex items-center justify-between mb-1">
-                <span className="text-[10px] font-semibold text-gray-400">{v.brand}</span>
-                <span className="text-[10px] text-gray-400">
+                <span className="text-[10px] font-semibold text-[#AEAEB2]">{v.brand}</span>
+                <span className="text-[10px] text-[#AEAEB2]">
                   {CATEGORY_MAP[v.category] ?? v.category}
                 </span>
               </div>
-              <p className="font-bold text-gray-900 text-sm leading-snug mb-1.5 group-hover:text-accent transition-colors">
+              <p className="font-bold text-[#1D1D1F] text-sm leading-snug mb-1.5 group-hover:text-[#007AFF] transition-colors">
                 {v.model}
               </p>
               {v.price ? (
-                <p className="text-accent font-bold text-base">
+                <p className="text-[#007AFF] font-bold text-base">
                   {formatPrice(v.price.min)}
                 </p>
               ) : (
-                <p className="text-gray-400 text-sm">견적 문의</p>
+                <p className="text-[#86868B] text-sm">견적 문의</p>
               )}
-              <p className="text-xs text-accent font-semibold mt-1.5">
+              <p className="text-xs text-[#007AFF] font-semibold mt-1.5">
                 자세히 보기 →
               </p>
             </div>
@@ -190,7 +190,7 @@ export function PopularEstimatesClient({ vehicles }: { vehicles: VehicleWithPric
       </div>
 
       {filtered.length === 0 && (
-        <div className="py-16 text-center text-gray-400">
+        <div className="py-16 text-center text-[#86868B]">
           해당 조건의 차종이 없습니다
         </div>
       )}
