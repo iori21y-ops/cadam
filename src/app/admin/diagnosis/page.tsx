@@ -1073,7 +1073,7 @@ export default function DiagnosisAdminPage() {
       ),
       '차종결과': (
         <VehiclesEditor
-          vehicles={data.vehicles}
+          vehicles={data.vehicles ?? []}
           setVehicles={(next) => setData((p) => ({ ...p, vehicles: next }))}
         />
       ),
