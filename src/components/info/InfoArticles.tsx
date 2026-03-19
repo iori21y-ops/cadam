@@ -1,8 +1,6 @@
 'use client';
 
-import { memo, useEffect, useMemo, useRef, useState } from 'react';
-import { VEHICLE_LIST } from '@/constants/vehicles';
-import { useDragScroll } from '@/hooks/useDragScroll';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 interface Article {
   id: string;
@@ -37,8 +35,8 @@ const MOCK_ARTICLES: Article[] = [
   {
     id: 'mock-2',
     title: '2025년 장기렌터카 인기 차종 TOP 5',
-    excerpt: '올해 가장 인기 있는 장기렌터카 차종과 월 납부금 대략을 알아봅니다.',
-    linkUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    excerpt: '올해 가장 인기 있는 장기렌터카 차종과 월 납부금을 알아봅니다.',
+    linkUrl: 'https://www.youtube.com/shorts/abc123',
     thumbnailUrl: 'https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg',
     sourceType: 'youtube',
     publishedAt: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000).toISOString(),
@@ -59,7 +57,7 @@ const MOCK_ARTICLES: Article[] = [
   {
     id: 'mock-4',
     title: '2025 신차 TOP 10 완전 정복',
-    excerpt: '올해 주목해야 할 신차 라인업을 소개합니다.',
+    excerpt: '올해 주목해야 할 신차 라인업과 장단점을 소개합니다.',
     linkUrl: 'https://blog.naver.com',
     thumbnailUrl: null,
     sourceType: 'blog',
@@ -69,38 +67,48 @@ const MOCK_ARTICLES: Article[] = [
   },
 ];
 
-const GROUPS = [
-  { type: 'blog' as const, label: '블로그', isShorts: false },
-  { type: 'shorts' as const, label: '쇼츠', isShorts: true },
-  { type: 'youtube' as const, label: '유튜브', isShorts: false },
-];
-
-const CATEGORY_FILTERS = [
+const TYPE_FILTERS = [
   { value: 'all', label: '전체' },
-  { value: 'rental', label: '장기렌터카' },
-  { value: 'car', label: '자동차' },
-];
+  { value: 'blog', label: '블로그' },
+  { value: 'shorts', label: '쇼츠' },
+  { value: 'youtube', label: '영상' },
+] as const;
 
+type ContentType = typeof TYPE_FILTERS[number]['value'];
 
-const PAGE_SIZE = 5;
+const TYPE_META: Record<'blog' | 'youtube' | 'shorts', { label: string; color: string }> = {
+  blog: { label: '블로그', color: '#007AFF' },
+  youtube: { label: '영상', color: '#FF3B30' },
+  shorts: { label: '쇼츠', color: '#FF2D55' },
+};
 
-const ArticleCard = memo(function ArticleCard({ article, isShorts }: { article: Article; isShorts: boolean }) {
+const ArticleSlide = memo(function ArticleSlide({
+  article,
+  index,
+  total,
+}: {
+  article: Article;
+  index: number;
+  total: number;
+}) {
+  const type = getDisplayType(article);
+  const meta = TYPE_META[type];
+
   return (
-    <a
-      href={article.linkUrl}
-      target="_blank"
-      rel="noopener noreferrer"
-      className={`shrink-0 flex flex-col rounded-2xl bg-white border border-[#E5E5EA] hover:border-[#0A84FF] hover:shadow-md transition-all overflow-hidden group ${
-        isShorts ? 'w-[150px]' : 'w-[220px]'
-      }`}
-    >
-      <div className={`w-full overflow-hidden ${isShorts ? 'aspect-[9/16]' : 'aspect-video'}`}>
+    <div className="h-full flex flex-col py-3">
+      <a
+        href={article.linkUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex-1 relative rounded-3xl overflow-hidden block min-h-0 group bg-[#1C1C1E]"
+      >
+        {/* 배경 이미지 또는 그라디언트 */}
         {article.thumbnailUrl ? (
           <img
             src={article.thumbnailUrl}
             alt={article.title}
             loading="lazy"
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            className={`absolute inset-0 w-full h-full ${type === 'shorts' ? 'object-cover' : 'object-contain'}`}
             onError={(e) => {
               const el = e.currentTarget;
               if (el.src.includes('maxresdefault')) {
@@ -109,281 +117,199 @@ const ArticleCard = memo(function ArticleCard({ article, isShorts }: { article: 
             }}
           />
         ) : (
-          <div className="w-full h-full bg-[#0A84FF] flex items-center justify-center p-4">
-            <p className="text-white text-xs font-bold line-clamp-4 leading-snug text-center">
-              {article.title}
-            </p>
-          </div>
+          <div
+            className="absolute inset-0"
+            style={{
+              background: type === 'blog'
+                ? 'linear-gradient(135deg, #007AFF 0%, #5856D6 100%)'
+                : 'linear-gradient(135deg, #FF3B30 0%, #FF9500 100%)',
+            }}
+          />
         )}
-      </div>
-      <div className="p-3">
-        <h3 className="text-xs font-semibold text-[#1D1D1F] line-clamp-2 leading-snug">
-          {article.title}
-        </h3>
-      </div>
-    </a>
-  );
-});
 
-const GroupSection = memo(function GroupSection({
-  group,
-  items,
-}: {
-  group: { type: string; label: string; isShorts: boolean };
-  items: Article[];
-}) {
-  const [displayCount, setDisplayCount] = useState(PAGE_SIZE);
-  const sentinelRef = useRef<HTMLDivElement>(null);
-  const drag = useDragScroll();
+        {/* 어두운 오버레이 */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-black/30" />
 
-  const displayItems = items.slice(0, displayCount);
-  const hasMore = displayCount < items.length;
+        {/* 타입 배지 + 카운터 */}
+        <div className="absolute top-4 left-4 right-4 flex items-center justify-between">
+          <span
+            className="px-2.5 py-1 rounded-full text-[11px] font-bold text-white"
+            style={{ backgroundColor: meta.color }}
+          >
+            {meta.label}
+          </span>
+          <span className="text-xs text-white/60 font-medium tabular-nums">
+            {index + 1} / {total}
+          </span>
+        </div>
 
-  useEffect(() => {
-    setDisplayCount(PAGE_SIZE);
-  }, [items]);
-
-  useEffect(() => {
-    if (!hasMore || !sentinelRef.current) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setDisplayCount((prev) => Math.min(prev + PAGE_SIZE, items.length));
-        }
-      },
-      { threshold: 0.5 }
-    );
-    observer.observe(sentinelRef.current);
-    return () => observer.disconnect();
-  }, [hasMore, items.length]);
-
-  return (
-    <div>
-      <div className="flex items-center gap-2 px-5 mb-3">
-        <h3 className="text-sm font-bold text-gray-700">{group.label}</h3>
-        <span className="text-xs text-gray-400">{items.length}</span>
-      </div>
-      <div
-        ref={drag.ref}
-        onMouseDown={drag.onMouseDown}
-        onMouseLeave={drag.onMouseLeave}
-        onMouseUp={drag.onMouseUp}
-        onMouseMove={drag.onMouseMove}
-        className="overflow-x-auto scrollbar-thin cursor-grab select-none"
-      >
-        <div className="flex gap-3 px-5 pb-2" style={{ width: 'max-content' }}>
-          {displayItems.map((a) => (
-            <ArticleCard key={a.id} article={a} isShorts={group.isShorts} />
-          ))}
-          {hasMore && (
-            <div
-              ref={sentinelRef}
-              className="shrink-0 flex items-center justify-center w-12 text-gray-300"
-            >
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                <circle cx="4" cy="10" r="2" />
-                <circle cx="10" cy="10" r="2" />
-                <circle cx="16" cy="10" r="2" />
+        {/* 영상 재생 버튼 */}
+        {type !== 'blog' && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-16 h-16 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center group-hover:bg-black/60 transition-colors">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
+                <path d="M8 5v14l11-7z" />
               </svg>
             </div>
+          </div>
+        )}
+
+        {/* 하단 텍스트 */}
+        <div className="absolute bottom-0 left-0 right-0 p-5">
+          <h3 className="text-white font-bold text-base leading-snug mb-1.5 line-clamp-2 drop-shadow">
+            {article.title}
+          </h3>
+          {article.excerpt && (
+            <p className="text-white/65 text-sm line-clamp-2 leading-relaxed">
+              {article.excerpt}
+            </p>
           )}
         </div>
-      </div>
+      </a>
+
+      {/* 다음 컨텐츠 인디케이터 */}
+      {index < total - 1 && (
+        <div className="shrink-0 flex justify-center items-center gap-1 py-2 text-[#AEAEB2]">
+          <span className="text-[11px]">다음</span>
+          <svg width="12" height="8" viewBox="0 0 12 8" fill="none">
+            <path d="M1 1.5l5 5 5-5" stroke="#AEAEB2" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </div>
+      )}
     </div>
   );
 });
 
-export function InfoArticles({ initialArticles }: { initialArticles?: Article[] }) {
+export function InfoArticles({
+  initialArticles,
+  categories = [],
+}: {
+  initialArticles?: Article[];
+  categories?: { value: string; label: string }[];
+}) {
   const [articles, setArticles] = useState<Article[]>(initialArticles ?? []);
   const [loading, setLoading] = useState(!initialArticles);
-  const [selectedCategory, setSelectedCategory] = useState<'all' | 'rental' | 'car'>('all');
-  const [selectedBrand, setSelectedBrand] = useState<string>('all');
-  const [selectedVehicle, setSelectedVehicle] = useState<string>('all');
-  const dragScroll = useDragScroll();
+  const [selectedKeyword, setSelectedKeyword] = useState('all');
+  const [selectedType, setSelectedType] = useState<ContentType>('all');
+  const feedRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (initialArticles) return;
     fetch('/api/info-articles')
-      .then((res) => res.json())
-      .then((data: { articles?: Article[] }) => {
-        const fetched = data.articles ?? [];
+      .then((r) => r.json())
+      .then((d: { articles?: Article[] }) => {
+        const fetched = d.articles ?? [];
         setArticles(fetched.length > 0 ? fetched : MOCK_ARTICLES);
       })
       .catch(() => setArticles(MOCK_ARTICLES))
       .finally(() => setLoading(false));
   }, [initialArticles]);
 
-  // 자동차 카테고리에서 실제 등록된 차종 목록 추출
-  const availableVehicles = useMemo(() => {
-    const carArticles = articles.filter((a) => a.category === 'car');
-    const slugs = [...new Set(carArticles.map((a) => a.vehicleSlug).filter(Boolean))] as string[];
-    return slugs
-      .map((slug) => VEHICLE_LIST.find((v) => v.slug === slug))
-      .filter(Boolean) as typeof VEHICLE_LIST;
-  }, [articles]);
-
-  // 등록된 차종의 제조사 목록 (순서 유지)
-  const availableBrands = useMemo(() => {
-    const seen = new Set<string>();
-    const list: string[] = [];
-    for (const v of availableVehicles) {
-      if (!seen.has(v.brand)) {
-        seen.add(v.brand);
-        list.push(v.brand);
-      }
-    }
-    return list;
-  }, [availableVehicles]);
-
-  // 선택된 제조사의 차종 목록
-  const filteredVehicles = useMemo(() => {
-    if (selectedBrand === 'all') return availableVehicles;
-    return availableVehicles.filter((v) => v.brand === selectedBrand);
-  }, [availableVehicles, selectedBrand]);
-
-  // 카테고리 변경 시 필터 초기화
-  const handleCategoryChange = (cat: 'all' | 'rental' | 'car') => {
-    setSelectedCategory(cat);
-    setSelectedBrand('all');
-    setSelectedVehicle('all');
-  };
-
-  // 제조사 변경 시 차종 초기화
-  const handleBrandChange = (brand: string) => {
-    setSelectedBrand(brand);
-    setSelectedVehicle('all');
-  };
+  const categoryFilters = useMemo(() => [
+    { value: 'all', label: '전체' },
+    ...categories,
+  ], [categories]);
 
   const filteredArticles = useMemo(() => {
     let result = articles;
-    if (selectedCategory !== 'all') {
-      result = result.filter((a) => a.category === selectedCategory);
-    }
-    if (selectedCategory === 'car') {
-      if (selectedVehicle !== 'all') {
-        result = result.filter((a) =>
-          selectedVehicle === '_none' ? !a.vehicleSlug : a.vehicleSlug === selectedVehicle
-        );
-      } else if (selectedBrand !== 'all') {
-        // 제조사만 선택된 경우: 해당 브랜드 차종 or 미지정 글
-        const brandSlugs = new Set(filteredVehicles.map((v) => v.slug));
-        result = result.filter((a) => !a.vehicleSlug || brandSlugs.has(a.vehicleSlug));
-      }
-    }
+    if (selectedKeyword !== 'all') result = result.filter((a) => a.category === selectedKeyword);
+    if (selectedType !== 'all') result = result.filter((a) => getDisplayType(a) === selectedType);
     return result;
-  }, [articles, selectedCategory, selectedBrand, selectedVehicle, filteredVehicles]);
+  }, [articles, selectedKeyword, selectedType]);
+
+  // 필터 변경 시 피드 맨 위로
+  const resetFeed = useCallback(() => {
+    if (feedRef.current) feedRef.current.scrollTo({ top: 0 });
+  }, []);
+
+  const handleKeyword = (v: string) => {
+    setSelectedKeyword(v);
+    resetFeed();
+  };
+
+  const handleType = (v: ContentType) => {
+    setSelectedType(v);
+    resetFeed();
+  };
 
   return (
-    <section className="py-8 flex-1">
-      <h2 className="text-xl font-bold text-text mb-1 text-center px-5">
-        장기렌터카 정보
-      </h2>
-      <p className="text-sm text-[#86868B] mb-5 text-center px-5">
-        블로그, 유튜브 등에서 유용한 정보를 모았습니다
-      </p>
-
-      {/* 카테고리 필터 */}
-      <div className="flex gap-2 px-5 mb-3">
-        {CATEGORY_FILTERS.map((f) => (
-          <button
-            key={f.value}
-            type="button"
-            onClick={() => handleCategoryChange(f.value as 'all' | 'rental' | 'car')}
-            className={`px-4 py-1.5 rounded-full text-sm font-semibold border transition-all ${
-              selectedCategory === f.value
-                ? 'bg-[#0A84FF] text-white border-[#0A84FF]'
-                : 'bg-white text-[#86868B] border-[#E5E5EA] hover:border-[#0A84FF] hover:text-[#0A84FF]'
-            }`}
-          >
-            {f.label}
-          </button>
-        ))}
-      </div>
-
-      {/* 제조사 필터 (자동차 선택 시, 등록된 차종이 2개 브랜드 이상일 때) */}
-      {selectedCategory === 'car' && availableBrands.length > 1 && (
-        <div className="overflow-x-auto mb-2">
-          <div className="flex gap-2 px-5 pb-1 scrollbar-hide" style={{ width: 'max-content' }}>
-            {['전체', ...availableBrands].map((b) => (
+    <div className="h-[100dvh] flex flex-col bg-surface-secondary pb-16">
+      {/* 필터 */}
+      <div className="shrink-0 w-full max-w-lg mx-auto px-5 pt-4 pb-3">
+        {/* 카테고리 필터 (동적, 오른쪽 fade) */}
+        <div className="relative mb-2">
+          <div className="flex gap-2 overflow-x-auto scrollbar-hide pr-6">
+            {categoryFilters.map((f) => (
               <button
-                key={b}
+                key={f.value}
                 type="button"
-                onClick={() => handleBrandChange(b === '전체' ? 'all' : b)}
-                className={`px-3 py-1 rounded-full text-xs font-semibold border transition-all whitespace-nowrap ${
-                  (b === '전체' ? selectedBrand === 'all' : selectedBrand === b)
-                    ? 'bg-[#0A84FF] text-white border-[#0A84FF]'
-                    : 'bg-white text-[#86868B] border-[#E5E5EA] hover:border-[#0A84FF] hover:text-[#0A84FF]'
+                onClick={() => handleKeyword(f.value)}
+                className={`shrink-0 px-3.5 py-1.5 rounded-full text-sm font-semibold border transition-all ${
+                  selectedKeyword === f.value
+                    ? 'bg-[#1D1D1F] text-white border-[#1D1D1F]'
+                    : 'bg-white text-[#86868B] border-[#E5E5EA] hover:border-[#1D1D1F] hover:text-[#1D1D1F]'
                 }`}
               >
-                {b}
+                {f.label}
               </button>
             ))}
           </div>
+          <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-surface-secondary to-transparent pointer-events-none" />
         </div>
-      )}
 
-      {/* 차종 필터 (자동차 선택 시, 등록된 차종이 있을 때) */}
-      {selectedCategory === 'car' && filteredVehicles.length > 0 && (
-        <div
-          ref={dragScroll.ref}
-          onMouseDown={dragScroll.onMouseDown}
-          onMouseLeave={dragScroll.onMouseLeave}
-          onMouseUp={dragScroll.onMouseUp}
-          onMouseMove={dragScroll.onMouseMove}
-          className="overflow-x-auto px-5 mb-5 pb-2 scrollbar-thin cursor-grab select-none"
-        >
-          <div className="flex gap-2 pb-1" style={{ width: 'max-content' }}>
+        {/* 컨텐츠 타입 필터 */}
+        <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+          {TYPE_FILTERS.map((f) => (
             <button
+              key={f.value}
               type="button"
-              onClick={() => setSelectedVehicle('all')}
-              className={`px-3 py-1 rounded-full text-xs font-semibold border transition-all whitespace-nowrap ${
-                selectedVehicle === 'all'
-                  ? 'bg-[#0A84FF] text-white border-[#0A84FF]'
-                  : 'bg-white text-[#86868B] border-[#E5E5EA] hover:border-[#0A84FF] hover:text-[#0A84FF]'
+              onClick={() => handleType(f.value)}
+              className={`shrink-0 px-3.5 py-1.5 rounded-full text-sm font-semibold border transition-all ${
+                selectedType === f.value
+                  ? 'bg-[#007AFF] text-white border-[#007AFF]'
+                  : 'bg-white text-[#86868B] border-[#E5E5EA] hover:border-[#007AFF] hover:text-[#007AFF]'
               }`}
             >
-              전체
+              {f.label}
             </button>
-            {filteredVehicles.map((v) => (
-              <button
-                key={v.slug}
-                type="button"
-                onClick={() => setSelectedVehicle(v.slug)}
-                className={`px-3 py-1 rounded-full text-xs font-semibold border transition-all whitespace-nowrap ${
-                  selectedVehicle === v.slug
-                    ? 'bg-[#0A84FF] text-white border-[#0A84FF]'
-                    : 'bg-white text-[#86868B] border-[#E5E5EA] hover:border-[#0A84FF] hover:text-[#0A84FF]'
-                }`}
-              >
-                {v.model}
-              </button>
-            ))}
-          </div>
+          ))}
         </div>
-      )}
+      </div>
 
-      {!loading && selectedCategory === 'car' && availableVehicles.length === 0 && (
-        <div className="mb-5" />
-      )}
-
+      {/* 피드 영역 */}
       {loading ? (
-        <div className="flex justify-center py-20">
-          <div className="w-8 h-8 border-2 border-[#0A84FF] border-t-transparent rounded-full animate-spin" />
+        <div className="flex-1 flex items-center justify-center">
+          <div className="w-8 h-8 border-2 border-[#007AFF] border-t-transparent rounded-full animate-spin" />
         </div>
       ) : filteredArticles.length === 0 ? (
-        <div className="mx-5 py-16 text-center rounded-2xl bg-white border border-[#E5E5EA]">
-          <p className="text-[#86868B]">아직 등록된 정보가 없습니다</p>
-          <p className="text-[#AEAEB2] text-sm mt-1">추후 블로그·유튜브 콘텐츠가 연결됩니다</p>
+        <div className="flex-1 flex items-center justify-center px-5">
+          <div className="w-full max-w-lg text-center py-16 rounded-2xl bg-white border border-[#E5E5EA]">
+            <p className="text-[#86868B]">해당 콘텐츠가 없습니다</p>
+            <p className="text-[#AEAEB2] text-sm mt-1">다른 필터를 선택해보세요</p>
+          </div>
         </div>
       ) : (
-        <div className="space-y-8">
-          {GROUPS.map((group) => {
-            const items = filteredArticles.filter((a) => getDisplayType(a) === group.type);
-            if (items.length === 0) return null;
-            return <GroupSection key={group.type} group={group} items={items} />;
-          })}
+        <div
+          ref={feedRef}
+          className="flex-1 min-h-0 overflow-y-scroll snap-y snap-mandatory"
+          style={{ WebkitOverflowScrolling: 'touch' } as React.CSSProperties}
+        >
+          {filteredArticles.map((article, idx) => (
+            <div
+              key={article.id}
+              className="h-full snap-start flex items-stretch"
+            >
+              <div className="max-w-lg mx-auto w-full px-4">
+                <ArticleSlide
+                  article={article}
+                  index={idx}
+                  total={filteredArticles.length}
+                />
+              </div>
+            </div>
+          ))}
         </div>
       )}
-    </section>
+    </div>
   );
 }

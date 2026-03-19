@@ -1,15 +1,15 @@
-'use client';
+﻿'use client';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useDragScroll } from '@/hooks/useDragScroll';
 
 const NAV_ITEMS = [
-  { href: '/quote', label: '무료 견적' },
   { href: '/diagnosis', label: '자동차 진단' },
   { href: '/popular-estimates', label: '인기차종' },
   { href: '/info', label: '정보' },
   { href: '/promotions', label: '프로모션' },
+  { href: '/diagnosis/calculator', label: '월비용계산기' },
 ] as const;
 
 export function NavBar() {
@@ -36,8 +36,8 @@ export function NavBar() {
         >
           {NAV_ITEMS.map((item) => {
             const isActive =
-              item.href === '/quote'
-                ? pathname?.startsWith('/quote')
+              item.href === '/diagnosis'
+                ? pathname === '/diagnosis' || pathname?.startsWith('/quote') || (pathname?.startsWith('/diagnosis/') && !pathname?.startsWith('/diagnosis/calculator'))
                 : pathname?.startsWith(item.href);
             return (
               <Link

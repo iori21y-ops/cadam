@@ -54,7 +54,7 @@ function VehResult({ answers, mode, restart, toDetail, onHome }: {
         </div>
 
         {/* 헤드라인 */}
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
+        <motion.div initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.35, ease: 'easeOut' }}>
           <p className="text-sm text-text-sub mb-1">차종 추천 결과</p>
           <h1 className="text-2xl font-bold text-text tracking-tight mb-4">
             <span style={{ color: COLOR }}>{best.name}</span>을(를)<br />추천합니다
@@ -71,9 +71,9 @@ function VehResult({ answers, mode, restart, toDetail, onHome }: {
             return (
               <motion.div
                 key={v.name}
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.08 }}
+                initial={{ opacity: 0, x: 40 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: i * 0.08, duration: 0.35, ease: 'easeOut' }}
                 className="p-4 rounded-2xl bg-surface shadow-sm"
               >
                 <div className="flex items-center gap-3 mb-2">
@@ -115,9 +115,9 @@ function VehResult({ answers, mode, restart, toDetail, onHome }: {
 
         {/* 옵션 추천 CTA */}
         <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.35 }}
+          initial={{ opacity: 0, x: 40 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.35, duration: 0.35, ease: 'easeOut' }}
           className="p-6 rounded-2xl mb-4 text-center"
           style={{ background: 'linear-gradient(135deg, #007AFF, #0A84FF)' }}
         >

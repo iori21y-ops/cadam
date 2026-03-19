@@ -119,7 +119,7 @@ async function CarPageContent({ slug }: { slug: string }) {
   }));
 
   return (
-    <>
+    <div className="max-w-lg mx-auto">
       <CarHero vehicle={vehicle} minPrice={minPrice} minCarPrice={minCarPrice} maxCarPrice={maxCarPrice} />
 
       <section className="px-5 py-8">
@@ -142,7 +142,7 @@ async function CarPageContent({ slug }: { slug: string }) {
       </div>
 
       <RelatedCars currentVehicle={vehicle} />
-    </>
+    </div>
   );
 }
 

@@ -2,6 +2,7 @@ import { create } from 'zustand';
 
 interface PageTransitionState {
   pending: boolean;
+  transitionId: number;
 }
 
 interface PageTransitionActions {
@@ -12,7 +13,8 @@ interface PageTransitionActions {
 export const usePageTransitionStore = create<PageTransitionState & PageTransitionActions>(
   (set) => ({
     pending: false,
-    trigger: () => set({ pending: true }),
+    transitionId: 0,
+    trigger: () => set((prev) => ({ pending: true, transitionId: prev.transitionId + 1 })),
     consume: () => set({ pending: false }),
   })
 );

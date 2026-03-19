@@ -1,8 +1,8 @@
-'use client';
+﻿'use client';
 
 import { motion } from 'framer-motion';
 import { usePathname, useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { SelectCard } from '@/components/ui/SelectCard';
 import { usePageTransitionStore } from '@/store/pageTransitionStore';
 
@@ -26,22 +26,13 @@ const SERVICES = [
     bg: 'bg-vehicle/8',
   },
   {
-    href: '/diagnosis/calculator',
-    accent: '#0A84FF',
-    emoji: '🧮',
-    title: '월 비용 계산기',
-    description: '차종·기간·선수금 조건에 따른 월 납입금을 바로 계산해 보세요.',
-    color: 'text-calculator',
-    bg: 'bg-calculator/8',
-  },
-  {
-    href: '/consult',
+    href: '/quote',
     accent: '#34C759',
-    emoji: '💬',
-    title: '무료 상담',
-    description: '전문 상담사가 직접 맞춤 조건을 안내해 드립니다.',
-    color: 'text-success',
-    bg: 'bg-success/8',
+    emoji: '📋',
+    title: '무료 견적',
+    description: '원하는 차종과 조건을 선택하면 전문가가 무료로 견적을 드립니다.',
+    color: 'text-[#34C759]',
+    bg: 'bg-[#34C759]/8',
   },
 ];
 
@@ -56,15 +47,17 @@ export default function DiagnosisPage() {
   const ACCENT = '#007AFF';
   const router = useRouter();
   const [clickedHref, setClickedHref] = useState<string | null>(null);
+  const clickedRef = useRef<string | null>(null);
   const NAV_DELAY_MS = 300;
 
   const triggerPageTransition = usePageTransitionStore((s) => s.trigger);
 
   const handleCardClick = (href: string) => {
-    if (clickedHref) return;
-    triggerPageTransition();
+    if (clickedRef.current) return;
+    clickedRef.current = href;
     setClickedHref(href);
     window.setTimeout(() => {
+      triggerPageTransition();
       router.push(href);
     }, NAV_DELAY_MS);
   };
@@ -83,13 +76,17 @@ export default function DiagnosisPage() {
       </section>
 
       {/* 서비스 카드 */}
-      <section className="px-5 max-w-lg mx-auto flex flex-col gap-4">
+      <motion.section
+        className="px-5 max-w-lg mx-auto flex flex-col gap-4"
+        animate={clickedHref ? { opacity: 0, x: -40 } : { opacity: 1, x: 0 }}
+        transition={{ duration: 0.35, ease: 'easeOut' }}
+      >
         {SERVICES.map((service, i) => (
           <motion.div
             key={service.href}
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.08, duration: 0.3 }}
+            initial={{ opacity: 0, x: 40 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: i * 0.08, duration: 0.35, ease: 'easeOut' }}
           >
               {(() => {
                 const isSel = pathname?.startsWith(service.href);
@@ -128,7 +125,7 @@ export default function DiagnosisPage() {
               })()}
           </motion.div>
         ))}
-      </section>
+      </motion.section>
 
       {/* 신뢰 배지 */}
       <section className="px-5 mt-8 max-w-lg mx-auto">

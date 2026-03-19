@@ -64,22 +64,25 @@ export default async function PromotionsPage() {
     <div className="min-h-screen flex flex-col bg-surface-secondary">
       {/* Hero */}
       <section className="flex flex-col items-center justify-center px-5 pt-14 pb-10 text-center">
-        <h1 className="text-2xl sm:text-3xl font-bold leading-tight mb-3 text-[#1D1D1F] tracking-tight">
-          이달의 프로모션
-        </h1>
-        <p className="text-base sm:text-lg text-[#86868B] mb-6">
-          카담에서 진행 중인 특별 혜택을 확인하세요
-        </p>
-        <Link
-          href="/quote"
-          className="px-8 py-3.5 rounded-[10px] font-semibold bg-[#007AFF] text-white hover:opacity-90 transition-opacity"
-        >
-          무료 견적 받기
-        </Link>
+        <div className="max-w-lg mx-auto w-full">
+          <h1 className="text-2xl sm:text-3xl font-bold leading-tight mb-3 text-[#1D1D1F] tracking-tight">
+            이달의 프로모션
+          </h1>
+          <p className="text-base sm:text-lg text-[#86868B] mb-6">
+            카담에서 진행 중인 특별 혜택을 확인하세요
+          </p>
+          <Link
+            href="/quote"
+            className="px-8 py-3.5 rounded-[10px] font-semibold bg-[#007AFF] text-white hover:opacity-90 transition-opacity"
+          >
+            무료 견적 받기
+          </Link>
+        </div>
       </section>
 
       {/* 프로모션 목록 */}
       <section className="px-5 py-12 flex-1">
+        <div className="max-w-lg mx-auto">
         {promotions.length === 0 ? (
           <div className="py-16 text-center">
             <p className="text-[#86868B] text-lg mb-2">
@@ -131,6 +134,7 @@ export default async function PromotionsPage() {
             })}
           </div>
         )}
+        </div>
       </section>
 
       <Footer />

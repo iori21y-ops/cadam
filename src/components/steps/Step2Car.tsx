@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -177,6 +177,7 @@ export function Step2Car() {
                   return (
                     <>
                 <SelectCard
+                  compact
                   selected={isVehicleSelected}
                   dimmed={dimmed}
                   disabled={disabled}
@@ -184,14 +185,14 @@ export function Step2Car() {
                 >
                   <div className="flex-1 text-center">
                     <div
-                      className={`text-[16px] font-medium ${
+                      className={`text-[13px] font-medium ${
                         isVehicleSelected ? 'text-white' : 'text-[#1D1D1F]'
                       }`}
                     >
                       {vehicle.model}
                     </div>
                     <div
-                      className={`text-[11px] mt-1 ${
+                      className={`text-[10px] mt-0.5 ${
                         isVehicleSelected ? 'text-white/60' : 'text-[#AEAEB2]'
                       }`}
                     >

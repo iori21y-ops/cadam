@@ -1,10 +1,11 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 
 interface SelectCardProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   selected?: boolean;
   dimmed?: boolean;
+  compact?: boolean;
   /** 선택 시 색상 (기본값: #007AFF) */
   color?: string;
 }
@@ -12,6 +13,7 @@ interface SelectCardProps extends React.ButtonHTMLAttributes<HTMLButtonElement> 
 export function SelectCard({
   selected = false,
   dimmed = false,
+  compact = false,
   color = '#007AFF',
   className = '',
   children,
@@ -35,7 +37,7 @@ export function SelectCard({
       className={[
         'relative w-full rounded-[20px] text-left flex items-center gap-3',
         'border-2 transition-all duration-300',
-        'p-7',
+        compact ? 'p-3' : 'p-7',
         !selected
           ? 'bg-white border-transparent shadow-[0_2px_16px_rgba(0,0,0,0.05)]'
           : '',

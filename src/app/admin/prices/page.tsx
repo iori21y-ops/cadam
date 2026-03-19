@@ -22,6 +22,10 @@ interface VehicleSummary {
 const STATIC_BRANDS = ['현대', '기아', '제네시스'] as const;
 const CONTRACT_MONTHS = [36, 48, 60] as const;
 const ANNUAL_KM = [10000, 20000, 30000, 40000] as const;
+const FALLBACK_SLUGS = [
+  'avante', 'tucson', 'k5', 'sportage', 'sorento',
+  'ioniq5', 'grandeur', 'santafe', 'k8', 'palisade', 'ioniq6', 'carnival',
+];
 
 // CSV 파싱 (quoted fields 지원)
 function parseCsvRow(line: string): string[] {
@@ -56,6 +60,10 @@ export default function AdminPricesPage() {
   const [uploading, setUploading] = useState(false);
   const [uploadResult, setUploadResult] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [popularItems, setPopularItems] = useState<VehicleSummary[]>([]);
+  const [popularOpen, setPopularOpen] = useState(false);
+  const [popularSaving, setPopularSaving] = useState(false);
+  const [popularSavedMsg, setPopularSavedMsg] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -122,6 +130,52 @@ export default function AdminPricesPage() {
   }, []);
 
   useEffect(() => { fetchData(); }, [fetchData]);
+
+  useEffect(() => {
+    const ordered = FALLBACK_SLUGS
+      .map((slug) => summaries.find((s) => s.slug === slug))
+      .filter((s): s is VehicleSummary => s != null)
+      .sort((a, b) => a.displayOrder - b.displayOrder);
+    setPopularItems(ordered);
+  }, [summaries]);
+
+  const movePopular = (idx: number, dir: -1 | 1) => {
+    const target = idx + dir;
+    if (target < 0 || target >= popularItems.length) return;
+    setPopularItems((prev) => {
+      const next = [...prev];
+      [next[idx], next[target]] = [next[target], next[idx]];
+      return next;
+    });
+  };
+
+  const savePopular = async () => {
+    setPopularSaving(true);
+    setPopularSavedMsg(null);
+    try {
+      const supabase = createBrowserSupabaseClient();
+      await supabase.from('vehicle_settings').upsert(
+        popularItems.map((v, i) => ({
+          vehicle_slug: v.slug,
+          car_brand: v.brand,
+          car_model: v.model,
+          is_visible: v.isVisible,
+          display_order: i + 1,
+          updated_at: new Date().toISOString(),
+        })),
+        { onConflict: 'vehicle_slug' }
+      );
+      try {
+        await fetch('/api/admin/revalidate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ slug: 'all' }) });
+      } catch { /* ignore */ }
+      setPopularSavedMsg('저장되었습니다');
+      await fetchData();
+    } catch (err) {
+      setPopularSavedMsg(`오류: ${err instanceof Error ? err.message : '저장 실패'}`);
+    } finally {
+      setPopularSaving(false);
+    }
+  };
 
   const allBrands = [
     ...STATIC_BRANDS,
@@ -469,6 +523,55 @@ export default function AdminPricesPage() {
       {/* CSV 형식 안내 */}
       <div className="mb-4 px-4 py-3 rounded-2xl bg-white border border-[#E5E5EA] text-xs text-[#86868B]">
         CSV 컬럼 순서: slug · 제조사 · 차종명 · 썸네일URL · 최소차량가격(만원) · 최대차량가격(만원) · 노출여부(TRUE/FALSE) · 노출순서 · [36m/48m/60m × 1/2/3/4만km 최소·최대(원) 각 2열씩 총 24열]
+      </div>
+
+      {/* 인기차종 순위 관리 */}
+      <div className="mb-4 rounded-2xl border border-[#E5E5EA] bg-white overflow-hidden">
+        <button
+          type="button"
+          onClick={() => setPopularOpen((v) => !v)}
+          className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-[#F5F5F7] transition-colors"
+        >
+          <span className="font-bold text-[#1D1D1F]">인기차종 순위</span>
+          <span className="text-[#86868B] text-sm">{popularOpen ? '▼' : '▶'}</span>
+        </button>
+        {popularOpen && (
+          <div className="border-t border-[#E5E5EA]">
+            {popularSavedMsg && (
+              <div className={`mx-4 mt-3 px-4 py-2 rounded-xl text-sm font-medium border ${popularSavedMsg.startsWith('오류') ? 'text-[#FF3B30] border-[#FF3B3033]' : 'text-[#34C759] border-[#34C75933]'}`}>
+                {popularSavedMsg}
+                <button type="button" onClick={() => setPopularSavedMsg(null)} className="ml-3 text-[#AEAEB2] hover:text-[#86868B]">✕</button>
+              </div>
+            )}
+            <div className="divide-y divide-[#E5E5EA]">
+              {popularItems.map((item, idx) => {
+                const rank = idx + 1;
+                const rankColor = rank === 1 ? '#FFB800' : rank === 2 ? '#8E8E93' : rank === 3 ? '#CD7F32' : '#AEAEB2';
+                return (
+                  <div key={item.slug} className="flex items-center gap-3 px-4 py-2.5 hover:bg-[#F5F5F7]">
+                    <div className="w-6 text-center font-bold text-sm shrink-0" style={{ color: rankColor }}>{rank}</div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-[#1D1D1F] text-sm">{item.model}</p>
+                      <p className="text-xs text-[#86868B]">{item.brand}</p>
+                    </div>
+                    <div className="flex gap-1 shrink-0">
+                      <button type="button" onClick={() => movePopular(idx, -1)} disabled={idx === 0}
+                        className="w-7 h-7 flex items-center justify-center rounded-[10px] text-[#86868B] hover:bg-[#E5E5EA] disabled:opacity-30 text-xs">▲</button>
+                      <button type="button" onClick={() => movePopular(idx, 1)} disabled={idx === popularItems.length - 1}
+                        className="w-7 h-7 flex items-center justify-center rounded-[10px] text-[#86868B] hover:bg-[#E5E5EA] disabled:opacity-30 text-xs">▼</button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            <div className="px-4 py-3 border-t border-[#E5E5EA]">
+              <button type="button" onClick={savePopular} disabled={popularSaving}
+                className="px-4 py-2 rounded-[10px] bg-[#007AFF] text-white text-sm font-semibold hover:opacity-90 disabled:opacity-50">
+                {popularSaving ? '저장 중...' : '순위 저장'}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {loading ? (

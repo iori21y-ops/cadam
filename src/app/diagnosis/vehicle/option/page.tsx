@@ -71,7 +71,7 @@ function OptionPageInner() {
             </span>
           </div>
 
-          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
+          <motion.div initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.35, ease: 'easeOut' }}>
             <h1 className="text-2xl font-bold text-text tracking-tight mb-6">
               {carName}은<br />
               <span style={{ color: COLOR }}>{best?.name ?? '기본'} 트림</span>을 추천합니다
@@ -81,9 +81,9 @@ function OptionPageInner() {
           {/* 추천 트림 카드 */}
           {best && (
             <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
+              initial={{ opacity: 0, x: 40 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.1, duration: 0.35, ease: 'easeOut' }}
               className="p-5 rounded-2xl bg-surface shadow-sm mb-4"
             >
               <div className="flex items-center justify-between mb-3">
@@ -117,9 +117,9 @@ function OptionPageInner() {
           {/* 전체 트림 비교 */}
           {trims.length > 0 && (
             <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.15 }}
+              initial={{ opacity: 0, x: 40 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.15, duration: 0.35, ease: 'easeOut' }}
               className="p-5 rounded-2xl bg-surface shadow-sm mb-4"
             >
               <p className="text-sm font-bold text-text mb-3">전체 트림 비교</p>

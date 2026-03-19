@@ -1,12 +1,10 @@
-import { Suspense } from 'react';
+﻿import { Suspense } from 'react';
 import Link from 'next/link';
 import { getVehicleBySlug, VEHICLE_LIST } from '@/constants/vehicles';
 import { createServerSupabaseClient } from '@/lib/supabase-server';
 import { Footer } from '@/components/Footer';
 import { PopularEstimatesClient } from './PopularEstimatesClient';
-
 export const revalidate = 3600;
-
 const FALLBACK_SLUGS = [
   'avante',
   'tucson',
@@ -21,7 +19,6 @@ const FALLBACK_SLUGS = [
   'ioniq6',
   'carnival',
 ] as const;
-
 interface PriceRangeRow {
   car_brand: string;
   car_model: string;
@@ -30,41 +27,36 @@ interface PriceRangeRow {
   min_monthly: number;
   max_monthly: number;
 }
-
 interface VehicleSettingRow {
   vehicle_slug: string;
   is_visible: boolean | null;
   display_order: number | null;
 }
-
 function VehiclesSkeleton() {
   return (
-    <div className="grid grid-cols-2 gap-3">
+    <div className="flex flex-col gap-2">
       {Array.from({ length: 6 }).map((_, i) => (
-        <div key={i} className="rounded-2xl border border-[#E5E5EA] bg-white overflow-hidden animate-pulse">
-          <div className="w-full aspect-[5/3] bg-[#F5F5F7]" />
-          <div className="p-3 space-y-2">
-            <div className="h-2.5 bg-[#F5F5F7] rounded w-1/3" />
-            <div className="h-4 bg-[#F5F5F7] rounded w-2/3" />
-            <div className="h-4 bg-[#F5F5F7] rounded w-1/2" />
+        <div key={i} className="flex items-center gap-3 bg-white rounded-2xl border border-[#E5E5EA] p-3 animate-pulse">
+          <div className="w-8 h-5 bg-[#F5F5F7] rounded" />
+          <div className="w-20 h-12 bg-[#F5F5F7] rounded-xl" />
+          <div className="flex-1 space-y-1.5">
+            <div className="h-3.5 bg-[#F5F5F7] rounded w-2/3" />
+            <div className="h-3 bg-[#F5F5F7] rounded w-1/2" />
+            <div className="h-3.5 bg-[#F5F5F7] rounded w-1/3" />
           </div>
         </div>
       ))}
     </div>
   );
 }
-
 async function VehicleListSection() {
   const supabase = await createServerSupabaseClient();
-
   const { data: allSettings } = await supabase
     .from('vehicle_settings')
     .select('vehicle_slug, is_visible, display_order');
-
   const settingMap = new Map(
     (allSettings ?? []).map((s: VehicleSettingRow) => [s.vehicle_slug, s])
   );
-
   const orderedVehicles = FALLBACK_SLUGS
     .map((slug) => getVehicleBySlug(slug))
     .filter((v): v is NonNullable<typeof v> => v != null)
@@ -77,7 +69,6 @@ async function VehicleListSection() {
       const bOrder = settingMap.get(b.slug)?.display_order ?? 999;
       return aOrder - bOrder;
     });
-
   const { data: priceRanges } = await supabase
     .from('price_ranges')
     .select('car_brand, car_model, contract_months, annual_km, min_monthly, max_monthly')
@@ -85,7 +76,6 @@ async function VehicleListSection() {
     .eq('is_active', true)
     .eq('contract_months', 36)
     .eq('annual_km', 20000);
-
   const priceMap: Record<string, { min: number; max: number }> = {};
   for (const row of (priceRanges ?? []) as PriceRangeRow[]) {
     const key = `${row.car_brand}-${row.car_model}`;
@@ -94,48 +84,36 @@ async function VehicleListSection() {
       priceMap[key] = { min: row.min_monthly, max: row.max_monthly };
     }
   }
-
   const vehicles = orderedVehicles.map((v) => {
     const price = priceMap[`${v.brand}-${v.model}`] ?? null;
     return { ...v, price };
   });
-
   return <PopularEstimatesClient vehicles={vehicles} />;
 }
-
 export default function PopularEstimatesPage() {
   return (
-    <div className="min-h-screen flex flex-col bg-surface-secondary">
-      {/* 헤더 - 즉시 렌더링 */}
-      <section className="px-5 pt-12 pb-8 text-center">
-        <h1 className="text-2xl font-bold mb-2 text-[#1D1D1F] tracking-tight">인기차종 견적 미리보기</h1>
-        <p className="text-[#86868B] text-sm">
-          36개월 · 연 2만km 기준 월 납부금 (보증금 0원)
-        </p>
-      </section>
-
-      {/* 차종 목록 - DB 응답 전까지 스켈레톤 표시 */}
-      <section className="px-5 py-8 flex-1">
+    <div className="min-h-screen bg-surface-secondary pb-16">
+      <div className="px-5 pt-10 max-w-lg mx-auto">
+        
+        <div className="mb-6">
+          <p className="text-sm text-[#86868B] mb-1">36개월 기준 · 보증금 0원</p>
+          <h1 className="text-2xl font-bold text-[#1D1D1F] tracking-tight">인기차종 순위</h1>
+        </div>
+        
         <Suspense fallback={<VehiclesSkeleton />}>
           <VehicleListSection />
         </Suspense>
-      </section>
-
-      {/* 하단 CTA */}
-      <section className="px-5 pb-10 text-center">
-        <div className="bg-white rounded-2xl p-5 border border-[#E5E5EA]">
-        <p className="text-[#86868B] text-sm mb-4">
-          내 조건에 맞는 정확한 견적을 받아보세요
-        </p>
-        <Link
-          href="/quote"
-          className="inline-block px-8 py-3.5 rounded-[10px] font-semibold bg-[#007AFF] text-white hover:opacity-90 transition-opacity"
-        >
-          무료 견적 받기
-        </Link>
+        
+        <div className="mt-6 p-5 rounded-2xl bg-[#0A84FF1A]">
+          <p className="text-[#86868B] text-sm mb-4">내 조건에 맞는 정확한 견적을 받아보세요</p>
+          <Link
+            href="/quote"
+            className="block text-center px-8 py-3.5 rounded-[10px] font-semibold bg-[#007AFF] text-white hover:opacity-90 transition-opacity"
+          >
+            무료 견적 받기
+          </Link>
         </div>
-      </section>
-
+      </div>
       <Footer />
     </div>
   );

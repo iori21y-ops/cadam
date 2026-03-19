@@ -4,6 +4,13 @@ import { useState, useEffect, useCallback } from 'react';
 import { createBrowserSupabaseClient } from '@/lib/supabase';
 import { VEHICLE_LIST } from '@/constants/vehicles';
 
+interface InfoCategory {
+  id: string;
+  value: string;
+  label: string;
+  display_order: number;
+}
+
 interface InfoArticle {
   id: string;
   title: string;
@@ -44,10 +51,6 @@ function parseUrl(url: string): { sourceType: string; thumbnailUrl: string | nul
   }
 }
 
-const CATEGORY_OPTIONS = [
-  { value: 'rental', label: '장기렌터카' },
-  { value: 'car', label: '자동차' },
-];
 
 const BRANDS = ['현대', '기아', '제네시스'] as const;
 
@@ -71,6 +74,12 @@ export default function AdminInfoPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const [categories, setCategories] = useState<InfoCategory[]>([]);
+  const [newCatValue, setNewCatValue] = useState('');
+  const [newCatLabel, setNewCatLabel] = useState('');
+  const [catSaving, setCatSaving] = useState(false);
+  const [catError, setCatError] = useState<string | null>(null);
+
   const [urlInput, setUrlInput] = useState('');
   const [titleInput, setTitleInput] = useState('');
   const [excerptInput, setExcerptInput] = useState('');
@@ -82,6 +91,47 @@ export default function AdminInfoPage() {
 
   const [editState, setEditState] = useState<EditState | null>(null);
   const [editBrandFilter, setEditBrandFilter] = useState<string>('');
+
+  const fetchCategories = useCallback(async () => {
+    const supabase = createBrowserSupabaseClient();
+    const { data } = await supabase
+      .from('info_categories')
+      .select('*')
+      .order('display_order', { ascending: true });
+    setCategories((data as InfoCategory[]) ?? []);
+  }, []);
+
+  const handleAddCategory = async () => {
+    const val = newCatValue.trim().toLowerCase().replace(/\s+/g, '-');
+    const lbl = newCatLabel.trim();
+    if (!val || !lbl) { setCatError('슬러그와 표시명을 모두 입력해 주세요'); return; }
+    if (!/^[a-z0-9-]+$/.test(val)) { setCatError('슬러그는 영문 소문자, 숫자, 하이픈만 사용 가능합니다'); return; }
+    setCatSaving(true);
+    setCatError(null);
+    try {
+      const supabase = createBrowserSupabaseClient();
+      const { error: err } = await supabase.from('info_categories').insert({
+        value: val,
+        label: lbl,
+        display_order: categories.length + 1,
+      });
+      if (err) throw err;
+      setNewCatValue('');
+      setNewCatLabel('');
+      fetchCategories();
+    } catch (err) {
+      setCatError(err instanceof Error ? err.message : '추가 실패');
+    } finally {
+      setCatSaving(false);
+    }
+  };
+
+  const handleDeleteCategory = async (id: string) => {
+    if (!confirm('카테고리를 삭제하시겠습니까?')) return;
+    const supabase = createBrowserSupabaseClient();
+    await supabase.from('info_categories').delete().eq('id', id);
+    fetchCategories();
+  };
 
   const fetchArticles = useCallback(async () => {
     setLoading(true);
@@ -107,8 +157,9 @@ export default function AdminInfoPage() {
   }, []);
 
   useEffect(() => {
+    fetchCategories();
     fetchArticles();
-  }, [fetchArticles]);
+  }, [fetchCategories, fetchArticles]);
 
   const handleUrlPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
     const pasted = e.clipboardData.getData('text').trim();
@@ -240,11 +291,62 @@ export default function AdminInfoPage() {
   };
 
   const getCategoryLabel = (category: string) =>
-    CATEGORY_OPTIONS.find((o) => o.value === category)?.label ?? category;
+    categories.find((o) => o.value === category)?.label ?? category;
 
   return (
     <div className="max-w-[1200px] mx-auto p-5">
       <h1 className="text-xl font-bold text-[#1D1D1F] mb-6 tracking-tight">정보관리</h1>
+
+      {/* 카테고리 관리 */}
+      <div className="mb-6 rounded-2xl bg-white border border-[#E5E5EA] p-5 shadow-sm">
+        <h2 className="text-base font-bold text-[#1D1D1F] mb-3">카테고리 관리</h2>
+        <div className="flex flex-wrap gap-2 mb-3">
+          {categories.map((cat) => (
+            <span
+              key={cat.id}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold bg-[#F5F5F7] text-[#1D1D1F] border border-[#E5E5EA]"
+            >
+              {cat.label}
+              <button
+                type="button"
+                onClick={() => handleDeleteCategory(cat.id)}
+                className="text-[#AEAEB2] hover:text-danger transition-colors text-xs leading-none"
+                title="삭제"
+              >
+                ✕
+              </button>
+            </span>
+          ))}
+          {categories.length === 0 && (
+            <span className="text-sm text-[#AEAEB2]">카테고리 없음</span>
+          )}
+        </div>
+        <div className="flex gap-2 items-start flex-wrap">
+          <input
+            type="text"
+            value={newCatValue}
+            onChange={(e) => setNewCatValue(e.target.value)}
+            placeholder="슬러그 (예: carnival)"
+            className="bg-[#F5F5F7] border border-[#E5E5EA] rounded-[10px] px-3 py-2 text-sm outline-none focus:border-[#007AFF] w-36"
+          />
+          <input
+            type="text"
+            value={newCatLabel}
+            onChange={(e) => setNewCatLabel(e.target.value)}
+            placeholder="표시명 (예: 카니발)"
+            className="bg-[#F5F5F7] border border-[#E5E5EA] rounded-[10px] px-3 py-2 text-sm outline-none focus:border-[#007AFF] w-36"
+          />
+          <button
+            type="button"
+            onClick={handleAddCategory}
+            disabled={catSaving}
+            className="px-4 py-2 rounded-[10px] text-sm font-semibold bg-[#007AFF] text-white hover:opacity-90 disabled:opacity-60 transition-opacity"
+          >
+            {catSaving ? '추가 중...' : '추가'}
+          </button>
+        </div>
+        {catError && <p className="text-sm text-danger mt-2">{catError}</p>}
+      </div>
 
       {/* 등록 폼 */}
       <div className="mb-8 rounded-2xl bg-white border border-[#E5E5EA] p-5 shadow-sm">
@@ -259,7 +361,7 @@ export default function AdminInfoPage() {
               카테고리 <span className="text-danger">*</span>
             </label>
             <div className="flex gap-2">
-              {CATEGORY_OPTIONS.map((opt) => (
+              {categories.map((opt) => (
                 <button
                   key={opt.value}
                   type="button"
@@ -531,7 +633,7 @@ export default function AdminInfoPage() {
                               <div>
                                 <label className="block text-xs font-semibold text-gray-600 mb-1">카테고리</label>
                                 <div className="flex gap-2">
-                                  {CATEGORY_OPTIONS.map((opt) => (
+                                  {categories.map((opt) => (
                                     <button
                                       key={opt.value}
                                       type="button"

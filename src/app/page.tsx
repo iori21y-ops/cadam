@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { usePathname } from 'next/navigation';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { SelectCard } from '@/components/ui/SelectCard';
 import { Footer } from '@/components/Footer';
 import { getVehicleBySlug } from '@/constants/vehicles';
@@ -64,15 +64,18 @@ export default function HomePage() {
   const pathname = usePathname();
   const router = useRouter();
   const [clickedHref, setClickedHref] = useState<string | null>(null);
+  const clickedRef = useRef<string | null>(null);
   const NAV_DELAY_MS = 300;
 
   const triggerPageTransition = usePageTransitionStore((s) => s.trigger);
 
   const handleCardClick = (href: string) => {
-    if (clickedHref) return;
-    triggerPageTransition();
+    // state 반영 전 더블 탭/이벤트 중복을 ref로 선차단
+    if (clickedRef.current) return;
+    clickedRef.current = href;
     setClickedHref(href);
     window.setTimeout(() => {
+      triggerPageTransition();
       router.push(href);
     }, NAV_DELAY_MS);
   };
@@ -84,7 +87,11 @@ export default function HomePage() {
         <h2 className="text-xl font-bold text-text mb-6 text-center">
           카담과 함께하기
         </h2>
-        <div className="flex flex-col gap-4 max-w-lg mx-auto">
+        <motion.div
+          className="flex flex-col gap-4 max-w-lg mx-auto"
+          animate={clickedHref ? { opacity: 0, x: -40 } : { opacity: 1, x: 0 }}
+          transition={{ duration: 0.35, ease: 'easeOut' }}
+        >
           {MAIN_CARDS.map((card, idx) => {
             const isSel = pathname?.startsWith(card.href);
             const isActive = isSel || clickedHref === card.href;
@@ -92,9 +99,9 @@ export default function HomePage() {
             return (
               <motion.div
                 key={card.id}
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.08, duration: 0.3 }}
+                initial={{ opacity: 0, x: 40 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: idx * 0.08, duration: 0.35, ease: 'easeOut' }}
               >
                 <SelectCard
                   selected={isActive}
@@ -126,7 +133,7 @@ export default function HomePage() {
               </motion.div>
             );
           })}
-        </div>
+        </motion.div>
       </section>
 
       {/* 인기 차종 바로가기 */}

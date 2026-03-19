@@ -93,6 +93,7 @@ export default function ResultPage() {
   return (
     <div className="min-h-[100dvh] flex flex-col bg-surface-secondary">
       <div className="flex-1 overflow-y-auto pb-32">
+        <div className="max-w-lg mx-auto">
         {/* [budget 경로] */}
         {selectionPath === 'budget' && (
           <div className="px-5 pt-8 pb-6 text-center">
@@ -228,10 +229,11 @@ export default function ResultPage() {
               </div>
             </>
           )}
+        </div>
       </div>
 
       {/* CTA 버튼 (하단 고정) */}
-      <div className="fixed bottom-0 left-0 right-0 max-w-[1024px] mx-auto px-5 py-4 bg-surface-secondary flex flex-col gap-3">
+      <div className="fixed bottom-0 left-0 right-0 max-w-lg mx-auto px-5 py-4 bg-surface-secondary flex flex-col gap-3">
         <div className="bg-white rounded-2xl p-4 border border-[#E5E5EA] shadow-[0_6px_18px_rgba(0,0,0,0.06)] flex flex-col gap-3">
           <ButtonLink
             variant="kakao"

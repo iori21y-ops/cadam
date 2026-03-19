@@ -1,8 +1,20 @@
-import { Footer } from '@/components/Footer';
 import { InfoArticles } from '@/components/info/InfoArticles';
 import { createServerSupabaseClient } from '@/lib/supabase-server';
 
 export const revalidate = 3600;
+
+async function getCategories(): Promise<{ value: string; label: string }[]> {
+  try {
+    const supabase = await createServerSupabaseClient();
+    const { data } = await supabase
+      .from('info_categories')
+      .select('value, label')
+      .order('display_order', { ascending: true });
+    return (data ?? []) as { value: string; label: string }[];
+  } catch {
+    return [];
+  }
+}
 
 async function getArticles() {
   try {
@@ -43,12 +55,6 @@ async function getArticles() {
 }
 
 export default async function InfoPage() {
-  const articles = await getArticles();
-
-  return (
-    <div className="min-h-screen flex flex-col">
-      <InfoArticles initialArticles={articles} />
-      <Footer />
-    </div>
-  );
+  const [articles, categories] = await Promise.all([getArticles(), getCategories()]);
+  return <InfoArticles initialArticles={articles} categories={categories} />;
 }

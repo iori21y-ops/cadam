@@ -61,7 +61,7 @@ function FinResult({ answers, mode, restart, toDetail, onHome }: {
         </div>
 
         {/* 헤드라인 */}
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
+        <motion.div initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.35, ease: 'easeOut' }}>
           <p className="text-sm text-text-sub mb-1">금융상품 진단 결과</p>
           <h1 className="text-2xl font-bold text-text tracking-tight mb-4">
             고객님께는<br />
@@ -74,9 +74,9 @@ function FinResult({ answers, mode, restart, toDetail, onHome }: {
 
         {/* 추천 상품 카드 */}
         <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
+          initial={{ opacity: 0, x: 40 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.1, duration: 0.35, ease: 'easeOut' }}
           className="p-5 rounded-2xl bg-surface shadow-sm mb-4"
         >
           <div className="flex items-center gap-3 mb-3">
@@ -108,9 +108,9 @@ function FinResult({ answers, mode, restart, toDetail, onHome }: {
 
         {/* ScoreRing 비교 */}
         <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
+          initial={{ opacity: 0, x: 40 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.15, duration: 0.35, ease: 'easeOut' }}
           className="p-5 rounded-2xl bg-surface shadow-sm mb-4"
         >
           <p className="text-sm font-bold text-text mb-4">4개 상품 적합도 비교</p>
@@ -130,9 +130,9 @@ function FinResult({ answers, mode, restart, toDetail, onHome }: {
 
         {/* CTA */}
         <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
+          initial={{ opacity: 0, x: 40 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.2, duration: 0.35, ease: 'easeOut' }}
           className="flex flex-col gap-3 mb-4"
         >
           <Button variant="primary" size="lg" fullWidth className="shadow-lg shadow-primary/20 font-bold" onClick={() => router.push('/quote')}>
