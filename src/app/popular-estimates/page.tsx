@@ -51,9 +51,20 @@ function VehiclesSkeleton() {
 }
 async function VehicleListSection() {
   const supabase = await createServerSupabaseClient();
-  const { data: allSettings } = await supabase
-    .from('vehicle_settings')
-    .select('vehicle_slug, is_visible, display_order');
+  const allModels = FALLBACK_SLUGS
+    .map((slug) => getVehicleBySlug(slug))
+    .filter((v): v is NonNullable<ReturnType<typeof getVehicleBySlug>> => v != null)
+    .map((v) => v.model);
+  const [{ data: allSettings }, { data: priceRanges }] = await Promise.all([
+    supabase.from('vehicle_settings').select('vehicle_slug, is_visible, display_order'),
+    supabase
+      .from('price_ranges')
+      .select('car_brand, car_model, contract_months, annual_km, min_monthly, max_monthly')
+      .in('car_model', allModels)
+      .eq('is_active', true)
+      .eq('contract_months', 36)
+      .eq('annual_km', 20000),
+  ]);
   const settingMap = new Map(
     (allSettings ?? []).map((s: VehicleSettingRow) => [s.vehicle_slug, s])
   );
@@ -69,13 +80,6 @@ async function VehicleListSection() {
       const bOrder = settingMap.get(b.slug)?.display_order ?? 999;
       return aOrder - bOrder;
     });
-  const { data: priceRanges } = await supabase
-    .from('price_ranges')
-    .select('car_brand, car_model, contract_months, annual_km, min_monthly, max_monthly')
-    .in('car_model', orderedVehicles.map((v) => v.model))
-    .eq('is_active', true)
-    .eq('contract_months', 36)
-    .eq('annual_km', 20000);
   const priceMap: Record<string, { min: number; max: number }> = {};
   for (const row of (priceRanges ?? []) as PriceRangeRow[]) {
     const key = `${row.car_brand}-${row.car_model}`;
