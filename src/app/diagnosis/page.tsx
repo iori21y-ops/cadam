@@ -1,10 +1,15 @@
-﻿'use client';
+'use client';
 
 import { motion } from 'framer-motion';
 import { usePathname, useRouter } from 'next/navigation';
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { SelectCard } from '@/components/ui/SelectCard';
 import { usePageTransitionStore } from '@/store/pageTransitionStore';
+import { createBrowserSupabaseClient } from '@/lib/supabase';
+import { DEFAULT_AI_CONFIG } from '@/data/diagnosis-ai';
+import type { AIConfig } from '@/types/diagnosis';
+
+const CONFIG_ID = 'diagnosis_data_v1';
 
 const SERVICES = [
   {
@@ -49,8 +54,23 @@ export default function DiagnosisPage() {
   const [clickedHref, setClickedHref] = useState<string | null>(null);
   const clickedRef = useRef<string | null>(null);
   const NAV_DELAY_MS = 300;
+  const [aiConfig, setAiConfig] = useState<AIConfig>(DEFAULT_AI_CONFIG);
 
   const triggerPageTransition = usePageTransitionStore((s) => s.trigger);
+
+  useEffect(() => {
+    const supabase = createBrowserSupabaseClient();
+    supabase
+      .from('diagnosis_config')
+      .select('data')
+      .eq('id', CONFIG_ID)
+      .single()
+      .then(({ data }) => {
+        if (data?.data?.aiConfig) {
+          setAiConfig({ ...DEFAULT_AI_CONFIG, ...data.data.aiConfig });
+        }
+      });
+  }, []);
 
   const handleCardClick = (href: string) => {
     if (clickedRef.current) return;
@@ -64,15 +84,15 @@ export default function DiagnosisPage() {
 
   return (
     <div className="min-h-screen bg-surface-secondary pb-10">
-      {/* 히어로 */}
-      <section className="px-5 pt-12 pb-8 text-center">
-        <span className="text-5xl mb-4 block">🚘</span>
-        <h1 className="text-2xl font-bold text-text tracking-tight mb-2">
-          자동차, 뭘 어떻게 이용해야 할까?
-        </h1>
-        <p className="text-sm text-text-sub">
-          진단 서비스로 나에게 맞는 방법을 찾아보세요
-        </p>
+      {/* 박대표AI 코멘트 */}
+      <section className="px-5 pt-6 pb-4 max-w-lg mx-auto">
+        <div className="flex gap-3 items-start p-4 rounded-2xl bg-[#007AFF0D] border border-[#007AFF20]">
+          <span className="text-3xl shrink-0">{aiConfig.charEmoji}</span>
+          <div className="min-w-0">
+            <p className="text-xs font-bold text-[#007AFF] mb-1">{aiConfig.charTitle}</p>
+            <p className="text-sm text-[#1D1D1F] leading-relaxed">{aiConfig.introComment}</p>
+          </div>
+        </div>
       </section>
 
       {/* 서비스 카드 */}

@@ -127,6 +127,7 @@ export interface AIConfig {
   promptTemplate: string;
   tonePresets: TonePreset[];
   fallbacks: string[];
+  introComment: string;
 }
 
 // ─── 관리 / 저장 ───

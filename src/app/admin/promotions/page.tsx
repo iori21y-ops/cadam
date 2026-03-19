@@ -107,14 +107,14 @@ export default function AdminPromotionsPage() {
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="space-y-2">
           {promotions.map((promo) => (
             <div
               key={promo.id}
-              onClick={() => handleEdit(promo)}
-              className="rounded-2xl border border-[#E5E5EA] bg-white overflow-hidden hover:border-[#007AFF] hover:shadow-md transition-all cursor-pointer"
+              className="flex items-center gap-3 p-3 rounded-2xl border border-[#E5E5EA] bg-white hover:border-[#007AFF] transition-all"
             >
-              <div className="aspect-video bg-[#F5F5F7] flex items-center justify-center">
+              {/* 썸네일 */}
+              <div className="shrink-0 w-14 h-14 rounded-[10px] overflow-hidden bg-[#F5F5F7] border border-[#E5E5EA] flex items-center justify-center">
                 {promo.image_url ? (
                   <img
                     src={promo.image_url}
@@ -122,42 +122,45 @@ export default function AdminPromotionsPage() {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <span className="text-[#AEAEB2] text-4xl">📷</span>
+                  <span className="text-[#AEAEB2] text-2xl">📷</span>
                 )}
               </div>
-              <div className="p-4">
-                <h3 className="font-bold text-[#1D1D1F] truncate mb-2">{promo.title}</h3>
-                <p className="text-xs text-[#86868B] mb-3">
+              {/* 제목 + 날짜 */}
+              <div className="flex-1 min-w-0">
+                <h3 className="font-semibold text-sm text-[#1D1D1F] truncate">{promo.title}</h3>
+                <p className="text-xs text-[#86868B] mt-0.5">
                   {formatDateRange(promo.start_date, promo.end_date)}
                 </p>
-                <div
-                  className="flex items-center justify-between"
-                  onClick={(e) => e.stopPropagation()}
+              </div>
+              {/* 상태 + 토글 + 수정 */}
+              <div className="flex items-center gap-2 shrink-0">
+                <span
+                  className={`text-xs font-semibold px-2 py-1 rounded ${
+                    promo.is_active ? 'bg-[#34C7591A] text-[#34C759]' : 'bg-[#F5F5F7] text-[#86868B]'
+                  }`}
+                >
+                  {promo.is_active ? '노출중' : '비노출'}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => handleToggleActive(promo)}
+                  className={`relative w-10 h-6 rounded-full transition-colors ${
+                    promo.is_active ? 'bg-[#007AFF]' : 'bg-[#D1D1D6]'
+                  }`}
                 >
                   <span
-                    className={`text-xs font-semibold px-2 py-1 rounded ${
-                      promo.is_active ? 'bg-[#34C7591A] text-[#34C759]' : 'bg-[#F5F5F7] text-[#86868B]'
+                    className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${
+                      promo.is_active ? 'left-5' : 'left-0.5'
                     }`}
-                  >
-                    {promo.is_active ? '노출중' : '비노출'}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleToggleActive(promo);
-                    }}
-                    className={`relative w-10 h-6 rounded-full transition-colors ${
-                      promo.is_active ? 'bg-[#007AFF]' : 'bg-[#D1D1D6]'
-                    }`}
-                  >
-                    <span
-                      className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${
-                        promo.is_active ? 'left-5' : 'left-0.5'
-                      }`}
-                    />
-                  </button>
-                </div>
+                  />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleEdit(promo)}
+                  className="px-2.5 py-1 rounded-lg text-xs font-medium bg-[#F5F5F7] text-[#1D1D1F] hover:bg-[#E5E5EA] transition-colors"
+                >
+                  수정
+                </button>
               </div>
             </div>
           ))}

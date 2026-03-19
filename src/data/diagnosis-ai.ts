@@ -26,6 +26,7 @@ export const DEFAULT_AI_CONFIG: AIConfig = {
     "사장님, 딱 맞는 결과예요! 💪 실제 견적은 상담으로 확인해보세요!",
     "대표님, 좋은 선택이에요! 😊 상담으로 더 좋은 조건 받아보세요!",
   ],
+  introComment: "사장님, 차량 이용방법 고민되시죠? 제가 1분 만에 딱 맞는 방법 찾아드릴게요! 🚗",
 };
 
 /** Available AI models with pricing info */
