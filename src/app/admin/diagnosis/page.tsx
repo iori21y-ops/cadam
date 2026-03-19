@@ -7,7 +7,7 @@ import { useToastStore } from '@/store/toastStore';
 import { FINANCE_BASIC, FINANCE_DETAIL } from '@/data/diagnosis-finance';
 import { ALL_VEHICLE_TAGS, DEFAULT_VEHICLE_BASIC, DEFAULT_VEHICLE_DETAIL } from '@/data/diagnosis-vehicle';
 import { DEFAULT_PRODUCTS, PRODUCT_KEYS, PRODUCT_LABELS } from '@/data/diagnosis-products';
-import { DEFAULT_AI_CONFIG, AI_MODELS } from '@/data/diagnosis-ai';
+import { DEFAULT_AI_CONFIG } from '@/data/diagnosis-ai';
 import type {
   AIConfig,
   DiagnosisData,
@@ -22,7 +22,7 @@ import type {
 
 const CONFIG_ID = 'diagnosis_data_v1';
 
-const TABS = ['금융 간편', '금융 상세', '차종 간편', '차종 상세', '상품', 'AI'] as const;
+const TABS = ['금융 간편', '금융 상세', '차종 간편', '차종 상세', '상품'] as const;
 type Tab = (typeof TABS)[number];
 
 function deepClone<T>(v: T): T {
@@ -203,7 +203,6 @@ function AdminTabBar({
     { key: '차종 간편', label: '차종간편' },
     { key: '차종 상세', label: '차종상세' },
     { key: '상품', label: '상품' },
-    { key: 'AI', label: 'AI' },
   ];
   return (
     <div className="flex gap-[3px] bg-[#E5E5EA] rounded-xl p-[3px] flex-wrap">
@@ -790,246 +789,6 @@ function ProductsEditor({
   );
 }
 
-function AITab({
-  cfg,
-  setCfg,
-}: {
-  cfg: AIConfig;
-  setCfg: (next: AIConfig) => void;
-}) {
-  const [testResult, setTestResult] = useState<string | null>(null);
-  const [testing, setTesting] = useState(false);
-
-  const handleTest = async () => {
-    setTesting(true);
-    setTestResult(null);
-    try {
-      const res = await fetch('/api/ai-comment', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ context: '테스트: 할부 추천, 개인사업자, 36개월', config: cfg }),
-      });
-      const data = await res.json();
-      setTestResult(data.comment);
-    } catch {
-      setTestResult('API 호출 실패');
-    } finally {
-      setTesting(false);
-    }
-  };
-
-  const applyTone = (preset: { prompt: string }) => {
-    setCfg({ ...cfg, promptTemplate: cfg.promptTemplate.replace(/^.*조언.*$/m, preset.prompt) });
-  };
-
-  return (
-    <div className="flex flex-col gap-3">
-      {/* Preview */}
-      <div className="rounded-2xl p-5 text-white bg-[linear-gradient(135deg,#1D1D1F,#2C2C2E)]">
-        <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-full flex items-center justify-center text-xl bg-[#007AFF]">
-            {cfg.charEmoji}
-          </div>
-          <div>
-            <p className="text-sm font-bold">{cfg.charTitle}</p>
-            <p className="text-xs text-white/60">{cfg.charSubtitle}</p>
-          </div>
-        </div>
-        {testResult && <p className="mt-3 text-sm text-white/85">{testResult}</p>}
-      </div>
-
-      <div className="bg-white rounded-2xl p-5">
-        <div className="text-sm font-bold text-[#1D1D1F] mb-4">캐릭터 기본 정보</div>
-        <div className="grid grid-cols-2 gap-3 mb-3">
-          {[
-            { label: '캐릭터 이름', key: 'charName' as const },
-            { label: '이모지', key: 'charEmoji' as const },
-            { label: '표시 제목', key: 'charTitle' as const },
-            { label: '부제', key: 'charSubtitle' as const },
-          ].map(({ label, key }) => (
-            <div key={key}>
-              <label className="block text-[11px] font-semibold text-[#86868B] mb-1">{label}</label>
-              <input
-                className="w-full bg-[#F5F5F7] border border-[#E5E5EA] rounded-[10px] px-[14px] py-[10px] text-sm text-[#1D1D1F] outline-none"
-                value={cfg[key]}
-                onChange={(e) => setCfg({ ...cfg, [key]: e.target.value })}
-              />
-            </div>
-          ))}
-        </div>
-
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="block text-[11px] font-semibold text-[#86868B] mb-1">아이콘 배경색</label>
-            <div className="flex items-center gap-2">
-              <input
-                type="color"
-                value={cfg.bgColor}
-                onChange={(e) => setCfg({ ...cfg, bgColor: e.target.value })}
-                className="w-10 h-9 rounded-lg cursor-pointer border border-[#E5E5EA]"
-              />
-              <input
-                className="flex-1 bg-[#F5F5F7] border border-[#E5E5EA] rounded-[10px] px-[14px] py-[10px] text-sm text-[#1D1D1F] outline-none"
-                value={cfg.bgColor}
-                onChange={(e) => setCfg({ ...cfg, bgColor: e.target.value })}
-              />
-            </div>
-          </div>
-          <div>
-            <label className="block text-[11px] font-semibold text-[#86868B] mb-1">세션당 최대 호출</label>
-            <input
-              type="number"
-              min={1}
-              max={50}
-              value={cfg.maxCalls}
-              onChange={(e) => setCfg({ ...cfg, maxCalls: Math.max(1, Number(e.target.value) || 1) })}
-              className="w-full bg-[#F5F5F7] border border-[#E5E5EA] rounded-[10px] px-[14px] py-[10px] text-sm text-[#1D1D1F] outline-none"
-            />
-          </div>
-        </div>
-      </div>
-
-      <div className="bg-white rounded-2xl p-5">
-        <div className="text-sm font-bold text-[#1D1D1F] mb-3">AI 모델 선택</div>
-        <div className="flex flex-col gap-2">
-          {AI_MODELS.map((m) => {
-            const active = cfg.model === m.id;
-            return (
-              <button
-                key={m.id}
-                type="button"
-                onClick={() => setCfg({ ...cfg, model: m.id })}
-                className={`flex items-center gap-3 p-4 rounded-xl text-left ${active ? 'bg-[#007AFF] text-white' : 'bg-[#F5F5F7] text-[#1D1D1F]'}`}
-              >
-                <div className={`w-[18px] h-[18px] rounded-full flex items-center justify-center ${active ? 'bg-white' : 'border-2 border-[#D1D1D6]'}`}>
-                  {active && <div className="w-2 h-2 rounded-full bg-[#007AFF]" />}
-                </div>
-                <div className="flex-1">
-                  <div className={`text-sm font-semibold ${active ? 'text-white' : 'text-[#1D1D1F]'}`}>
-                    {m.name}
-                    {m.badge && (
-                      <span className={`ml-2 text-[10px] font-bold px-1.5 py-0.5 rounded ${active ? 'bg-white/20 text-white' : 'bg-[#007AFF1A] text-[#007AFF]'}`}>
-                        {m.badge}
-                      </span>
-                    )}
-                  </div>
-                  <div className={`text-[11px] mt-0.5 ${active ? 'text-white/70' : 'text-[#86868B]'}`}>{m.desc}</div>
-                </div>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      <div className="bg-white rounded-2xl p-5">
-        <div className="text-sm font-bold text-[#1D1D1F] mb-2">톤 프리셋</div>
-        <div className="text-xs text-[#86868B] mb-3">클릭하면 프롬프트의 조언 스타일 라인이 변경됩니다</div>
-        <div className="grid grid-cols-2 gap-2">
-          {(cfg.tonePresets ?? []).map((tp, i) => (
-            <button
-              key={i}
-              type="button"
-              onClick={() => applyTone(tp)}
-              className="p-3 bg-[#F5F5F7] rounded-xl text-left"
-            >
-              <div className="text-[13px] font-semibold text-[#1D1D1F]">{tp.name}</div>
-              <div className="text-[11px] text-[#86868B] mt-0.5">{tp.desc}</div>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="bg-white rounded-2xl p-5">
-        <div className="flex items-center justify-between mb-2">
-          <div className="text-sm font-bold text-[#1D1D1F]">프롬프트 템플릿</div>
-          <button
-            type="button"
-            onClick={() => setCfg({ ...cfg, promptTemplate: DEFAULT_AI_CONFIG.promptTemplate })}
-            className="bg-[#F5F5F7] text-[#86868B] rounded-[10px] px-2.5 py-1.5 text-xs font-semibold"
-          >
-            기본값
-          </button>
-        </div>
-        <div className="text-[11px] text-[#86868B] mb-2 leading-relaxed">
-          사용 변수: <span className="font-mono bg-[#F0F0F5] px-1.5 py-0.5 rounded">{'{charName}'}</span>,{' '}
-          <span className="font-mono bg-[#F0F0F5] px-1.5 py-0.5 rounded">{'{context}'}</span>
-        </div>
-        <textarea
-          value={cfg.promptTemplate}
-          onChange={(e) => setCfg({ ...cfg, promptTemplate: e.target.value })}
-          className="w-full bg-[#F5F5F7] border border-[#E5E5EA] rounded-[10px] px-[14px] py-[10px] text-[13px] text-[#1D1D1F] outline-none font-mono leading-relaxed resize-y"
-          rows={8}
-        />
-      </div>
-
-      <div className="bg-white rounded-2xl p-5">
-        <div className="flex items-center justify-between mb-3">
-          <div>
-            <div className="text-sm font-bold text-[#1D1D1F]">폴백 메시지</div>
-            <div className="text-[11px] text-[#86868B] mt-0.5">API 실패 또는 세션 한도 초과 시 표시됩니다</div>
-          </div>
-          <button
-            type="button"
-            onClick={() => setCfg({ ...cfg, fallbacks: [...cfg.fallbacks, ''] })}
-            className="bg-[#F5F5F7] text-[#007AFF] rounded-[10px] px-2.5 py-1.5 text-xs font-semibold"
-          >
-            + 추가
-          </button>
-        </div>
-        {cfg.fallbacks.map((fb, i) => (
-          <div key={i} className="flex gap-2 items-start mb-2">
-            <span className="text-xs text-[#AEAEB2] mt-2 min-w-5">{i + 1}</span>
-            <textarea
-              value={fb}
-              onChange={(e) => {
-                const next = [...cfg.fallbacks];
-                next[i] = e.target.value;
-                setCfg({ ...cfg, fallbacks: next });
-              }}
-              className="flex-1 bg-[#F5F5F7] border border-[#E5E5EA] rounded-[10px] px-[14px] py-[10px] text-[13px] text-[#1D1D1F] outline-none resize-y"
-              rows={2}
-            />
-            {cfg.fallbacks.length > 1 && (
-              <button
-                type="button"
-                onClick={() => setCfg({ ...cfg, fallbacks: cfg.fallbacks.filter((_, j) => j !== i) })}
-                className="text-[#FF3B30] text-sm font-semibold px-2 mt-2"
-              >
-                ✕
-              </button>
-            )}
-          </div>
-        ))}
-      </div>
-
-      <div className="bg-white rounded-2xl p-5">
-        <div className="flex items-center justify-between mb-2">
-          <div className="text-sm font-bold text-[#1D1D1F]">테스트 실행</div>
-          <button
-            type="button"
-            onClick={handleTest}
-            disabled={testing}
-            className={`px-4 py-2 rounded-[10px] text-xs font-semibold ${
-              testing ? 'bg-[#D1D1D6] text-white' : 'bg-[#007AFF] text-white'
-            }`}
-          >
-            {testing ? '생성 중...' : '테스트 호출'}
-          </button>
-        </div>
-        <div className="text-[11px] text-[#86868B] mb-2">샘플 데이터로 실제 API를 호출합니다</div>
-        {testResult && (
-          <div className="rounded-xl p-4 bg-[linear-gradient(135deg,#1D1D1F,#2C2C2E)]">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-base">{cfg.charEmoji}</span>
-              <span className="text-sm font-semibold text-white">{cfg.charName}</span>
-            </div>
-            <div className="text-sm text-white/85 leading-relaxed">{testResult}</div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
 
 export default function DiagnosisAdminPage() {
   const [tab, setTab] = useState<Tab>('금융 간편');
@@ -1127,9 +886,8 @@ export default function DiagnosisAdminPage() {
           setProducts={(next) => setData((p) => ({ ...p, products: next }))}
         />
       ),
-      AI: <AITab cfg={data.aiConfig} setCfg={(next) => setData((p) => ({ ...p, aiConfig: next }))} />,
     }),
-    [AI_MODELS, allFinanceQuestions, allVehicleQuestions, data]
+    [allFinanceQuestions, allVehicleQuestions, data]
   );
 
   const save = async () => {
