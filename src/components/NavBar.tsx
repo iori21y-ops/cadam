@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useDragScroll } from '@/hooks/useDragScroll';
 
 const NAV_ITEMS = [
-  { href: '/diagnosis', label: '자동차 진단' },
+  { href: '/diagnosis', label: 'AI 진단' },
   { href: '/popular-estimates', label: '인기차종' },
   { href: '/info', label: '정보' },
   { href: '/promotions', label: '프로모션' },
@@ -54,6 +54,12 @@ export function NavBar() {
             );
           })}
         </div>
+        <Link
+          href="/admin"
+          className="shrink-0 px-3 py-1.5 rounded-full text-[12px] font-semibold text-[#AEAEB2] hover:text-[#0A84FF] hover:bg-[#0A84FF0D] transition-colors"
+        >
+          관리자
+        </Link>
       </div>
     </nav>
   );
