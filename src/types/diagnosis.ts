@@ -96,6 +96,18 @@ export interface DiagnosisVehicleMeta {
   img: string;                  // 이모지 or 이미지 경로
 }
 
+// ─── 차종 진단 결과용 차량 데이터 ───
+
+export interface DiagnosisVehicle {
+  name: string;
+  brand: string;
+  class: string;
+  price: number;
+  monthly: FinanceScores;
+  tags: string[];
+  img: string;
+}
+
 // ─── 트림 ───
 
 export interface Trim {
@@ -139,6 +151,7 @@ export interface DiagnosisData {
   vehDetail: VehicleQuestion[];
   products: Products;
   aiConfig: AIConfig;
+  vehicles: DiagnosisVehicle[];
 }
 
 // ─── API ───

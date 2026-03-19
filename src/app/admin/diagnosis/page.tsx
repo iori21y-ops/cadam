@@ -8,9 +8,11 @@ import { FINANCE_BASIC, FINANCE_DETAIL } from '@/data/diagnosis-finance';
 import { ALL_VEHICLE_TAGS, DEFAULT_VEHICLE_BASIC, DEFAULT_VEHICLE_DETAIL } from '@/data/diagnosis-vehicle';
 import { DEFAULT_PRODUCTS, PRODUCT_KEYS, PRODUCT_LABELS } from '@/data/diagnosis-products';
 import { DEFAULT_AI_CONFIG } from '@/data/diagnosis-ai';
+import { VEHICLES } from '@/data/diagnosis-vehicles';
 import type {
   AIConfig,
   DiagnosisData,
+  DiagnosisVehicle,
   FinanceOption,
   FinanceQuestion,
   Product,
@@ -22,7 +24,7 @@ import type {
 
 const CONFIG_ID = 'diagnosis_data_v1';
 
-const TABS = ['금융 간편', '금융 상세', '차종 간편', '차종 상세', '상품'] as const;
+const TABS = ['금융 간편', '금융 상세', '차종 간편', '차종 상세', '상품결과', '차종결과'] as const;
 type Tab = (typeof TABS)[number];
 
 function deepClone<T>(v: T): T {
@@ -38,6 +40,7 @@ function buildDefaultData(): DiagnosisData {
     vehDetail: DEFAULT_VEHICLE_DETAIL,
     products: DEFAULT_PRODUCTS,
     aiConfig: DEFAULT_AI_CONFIG,
+    vehicles: VEHICLES,
   };
 }
 
@@ -72,6 +75,10 @@ function normalizeDiagnosisData(input: unknown): DiagnosisData {
     aiConfig: isRecord(input.aiConfig)
       ? ({ ...base.aiConfig, ...(input.aiConfig as Partial<AIConfig>) } as AIConfig)
       : base.aiConfig,
+    vehicles:
+      Array.isArray(input.vehicles) && (input.vehicles as unknown[]).length > 0
+        ? (input.vehicles as DiagnosisVehicle[])
+        : base.vehicles,
   };
 
   // Ensure product keys exist
@@ -202,7 +209,8 @@ function AdminTabBar({
     { key: '금융 상세', label: '금융상세' },
     { key: '차종 간편', label: '차종간편' },
     { key: '차종 상세', label: '차종상세' },
-    { key: '상품', label: '상품' },
+    { key: '상품결과', label: '상품결과' },
+    { key: '차종결과', label: '차종결과' },
   ];
   return (
     <div className="flex gap-[3px] bg-[#E5E5EA] rounded-xl p-[3px] flex-wrap">
@@ -661,6 +669,183 @@ function ProductsTab() {
   return null;
 }
 
+function VehiclesEditor({
+  vehicles,
+  setVehicles,
+}: {
+  vehicles: DiagnosisVehicle[];
+  setVehicles: (next: DiagnosisVehicle[]) => void;
+}) {
+  const [openIdx, setOpenIdx] = useState<number | null>(null);
+
+  const ainp = 'bg-[#F5F5F7] border border-[#E5E5EA] rounded-[10px] outline-none w-full box-border px-[14px] py-[10px] text-sm text-[#1D1D1F]';
+
+  const addVehicle = () => {
+    const next: DiagnosisVehicle[] = [
+      ...vehicles,
+      { name: '새 차종', brand: '브랜드', class: '차급', price: 0, monthly: { installment: 0, lease: 0, rent: 0, cash: 0 }, tags: [], img: '🚗' },
+    ];
+    setVehicles(next);
+    setOpenIdx(next.length - 1);
+  };
+
+  const deleteVehicle = (idx: number) => {
+    const next = [...vehicles];
+    next.splice(idx, 1);
+    setVehicles(next);
+    setOpenIdx((cur) => (cur === idx ? null : cur != null && cur > idx ? cur - 1 : cur));
+  };
+
+  const moveVehicle = (idx: number, delta: -1 | 1) => {
+    const n = idx + delta;
+    if (n < 0 || n >= vehicles.length) return;
+    const next = [...vehicles];
+    [next[idx], next[n]] = [next[n], next[idx]];
+    setVehicles(next);
+    setOpenIdx((cur) => (cur === idx ? n : cur === n ? idx : cur));
+  };
+
+  const updateField = <K extends keyof DiagnosisVehicle>(idx: number, key: K, value: DiagnosisVehicle[K]) => {
+    const next = deepClone(vehicles);
+    next[idx][key] = value;
+    setVehicles(next);
+  };
+
+  const updateMonthly = (idx: number, key: keyof DiagnosisVehicle['monthly'], value: number) => {
+    const next = deepClone(vehicles);
+    next[idx].monthly[key] = Math.max(0, Number.isFinite(value) ? value : 0);
+    setVehicles(next);
+  };
+
+  const toggleTag = (idx: number, tag: string) => {
+    const next = deepClone(vehicles);
+    const tags = next[idx].tags;
+    const i = tags.indexOf(tag);
+    if (i >= 0) tags.splice(i, 1);
+    else tags.push(tag);
+    setVehicles(next);
+  };
+
+  const MONTHLY_LABELS: Record<keyof DiagnosisVehicle['monthly'], string> = {
+    installment: '할부',
+    lease: '리스',
+    rent: '렌트',
+    cash: '현금',
+  };
+
+  return (
+    <div>
+      <div className="flex justify-between items-center mb-4">
+        <span className="text-[18px] font-bold text-[#1D1D1F]">차종 목록 ({vehicles.length}개)</span>
+        <button
+          type="button"
+          onClick={addVehicle}
+          className="bg-[#007AFF] text-white rounded-[10px] px-4 py-2 text-sm font-semibold shadow-[0_4px_16px_rgba(0,122,255,0.25)]"
+        >
+          + 추가
+        </button>
+      </div>
+
+      {vehicles.map((v, vi) => {
+        const isOpen = openIdx === vi;
+        return (
+          <div
+            key={`${v.name}-${vi}`}
+            className={`bg-white rounded-2xl overflow-hidden mb-[10px] border-2 ${isOpen ? 'border-[#007AFF]' : 'border-transparent'}`}
+          >
+            <div
+              className="px-5 py-[14px] flex items-center gap-3 cursor-pointer"
+              role="button"
+              tabIndex={0}
+              onClick={() => setOpenIdx(isOpen ? null : vi)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setOpenIdx(isOpen ? null : vi); }
+              }}
+            >
+              <span className="text-xl shrink-0">{v.img}</span>
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-semibold text-[#1D1D1F]">{v.brand} {v.name}</div>
+                <div className="text-[10px] text-[#AEAEB2] mt-0.5">{v.class} · {v.price}만원~ · 렌트 {v.monthly.rent}만</div>
+              </div>
+              <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
+                <button type="button" onClick={() => moveVehicle(vi, -1)} className="bg-[#F5F5F7] rounded-lg w-[30px] h-[30px] text-[13px]">↑</button>
+                <button type="button" onClick={() => moveVehicle(vi, 1)} className="bg-[#F5F5F7] rounded-lg w-[30px] h-[30px] text-[13px]">↓</button>
+                <button type="button" onClick={() => deleteVehicle(vi)} className="bg-[#FFF5F5] text-[#FF3B30] rounded-lg w-[30px] h-[30px] text-[13px]">✕</button>
+              </div>
+            </div>
+
+            {isOpen && (
+              <div className="px-5 pb-5 border-t border-[#F5F5F7]">
+                <div className="pt-4 flex flex-col gap-3">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-[11px] font-semibold text-[#86868B] mb-1">이모지</label>
+                      <input className={ainp} value={v.img} onChange={(e) => updateField(vi, 'img', e.target.value)} />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-semibold text-[#86868B] mb-1">차종명</label>
+                      <input className={ainp} value={v.name} onChange={(e) => updateField(vi, 'name', e.target.value)} />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-semibold text-[#86868B] mb-1">브랜드</label>
+                      <input className={ainp} value={v.brand} onChange={(e) => updateField(vi, 'brand', e.target.value)} />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-semibold text-[#86868B] mb-1">차급</label>
+                      <input className={ainp} value={v.class} onChange={(e) => updateField(vi, 'class', e.target.value)} />
+                    </div>
+                    <div className="col-span-2">
+                      <label className="block text-[11px] font-semibold text-[#86868B] mb-1">기본가격 (만원)</label>
+                      <input type="number" min={0} className={ainp} value={v.price} onChange={(e) => updateField(vi, 'price', Number(e.target.value))} />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold text-[#86868B] mb-2">월 예상금 (만원)</label>
+                    <div className="grid grid-cols-4 gap-1.5">
+                      {(Object.keys(MONTHLY_LABELS) as (keyof DiagnosisVehicle['monthly'])[]).map((key) => (
+                        <div key={key} className="text-center">
+                          <div className="text-[9px] font-semibold text-[#AEAEB2] mb-1">{MONTHLY_LABELS[key]}</div>
+                          <input
+                            type="number"
+                            min={0}
+                            value={v.monthly[key]}
+                            onChange={(e) => updateMonthly(vi, key, Number(e.target.value))}
+                            className="bg-[#F5F5F7] border border-[#E5E5EA] rounded-[10px] outline-none w-full px-1 py-1.5 text-sm font-bold text-center"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold text-[#86868B] mb-2">매칭 태그</label>
+                    <div className="flex flex-wrap gap-1">
+                      {ALL_VEHICLE_TAGS.map((tag) => {
+                        const active = v.tags.includes(tag);
+                        return (
+                          <button
+                            key={tag}
+                            type="button"
+                            onClick={() => toggleTag(vi, tag)}
+                            className={`text-[10px] px-2 py-0.5 rounded-md font-semibold ${active ? 'bg-[#5856D6] text-white' : 'bg-[#F0F0F0] text-[#86868B]'}`}
+                          >
+                            {tag}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 function ProductsEditor({
   products,
   setProducts,
@@ -880,10 +1065,16 @@ export default function DiagnosisAdminPage() {
           allQuestionsForSkipRef={allVehicleQuestions}
         />
       ),
-      상품: (
+      '상품결과': (
         <ProductsEditor
           products={data.products}
           setProducts={(next) => setData((p) => ({ ...p, products: next }))}
+        />
+      ),
+      '차종결과': (
+        <VehiclesEditor
+          vehicles={data.vehicles}
+          setVehicles={(next) => setData((p) => ({ ...p, vehicles: next }))}
         />
       ),
     }),

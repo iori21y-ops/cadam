@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { QuizModule } from '@/components/diagnosis/QuizModule';
@@ -9,17 +10,21 @@ import { VEHICLES } from '@/data/diagnosis-vehicles';
 import { DEFAULT_PRODUCTS, PRODUCT_KEYS } from '@/data/diagnosis-products';
 import { scoreByTags } from '@/lib/flow-engine';
 import { VEHICLE_LIST } from '@/constants/vehicles';
-import type { DiagnosisAnswer, VehicleOption } from '@/types/diagnosis';
+import { createBrowserSupabaseClient } from '@/lib/supabase';
+import type { DiagnosisAnswer, DiagnosisVehicle, VehicleOption } from '@/types/diagnosis';
 import { Button } from '@/components/ui/Button';
+
+const CONFIG_ID = 'diagnosis_data_v1';
 
 const COLOR = '#007AFF';
 
-function VehResult({ answers, mode, restart, toDetail, onHome }: {
+function VehResult({ answers, mode, restart, toDetail, onHome, vehicles }: {
   answers: Record<string, DiagnosisAnswer>;
   mode: 'basic' | 'detail';
   restart: () => void;
   toDetail: () => void;
   onHome: () => void;
+  vehicles: DiagnosisVehicle[];
 }) {
   const router = useRouter();
 
@@ -27,7 +32,7 @@ function VehResult({ answers, mode, restart, toDetail, onHome }: {
     'tags' in a ? (a as VehicleOption).tags : []
   );
 
-  const scored = scoreByTags(VEHICLES, answerTags, 4);
+  const scored = scoreByTags(vehicles, answerTags, 4);
   const best = scored[0];
   const answerCount = Object.keys(answers).length;
 
@@ -150,13 +155,26 @@ function VehResult({ answers, mode, restart, toDetail, onHome }: {
 
 export default function VehiclePage() {
   const router = useRouter();
+  const [vehicles, setVehicles] = useState<DiagnosisVehicle[]>(VEHICLES);
+
+  useEffect(() => {
+    const supabase = createBrowserSupabaseClient();
+    supabase.from('diagnosis_config').select('data').eq('id', CONFIG_ID).single()
+      .then(({ data }) => {
+        const v = (data as { data?: { vehicles?: unknown } } | null)?.data?.vehicles;
+        if (Array.isArray(v) && v.length > 0) {
+          setVehicles(v as DiagnosisVehicle[]);
+        }
+      });
+  }, []);
+
   return (
     <QuizModule
       basicQs={DEFAULT_VEHICLE_BASIC}
       detailQs={DEFAULT_VEHICLE_DETAIL}
       color={COLOR}
       onHome={() => router.push('/diagnosis')}
-      renderResult={(props) => <VehResult {...props} />}
+      renderResult={(props) => <VehResult {...props} vehicles={vehicles} />}
     />
   );
 }
