@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CADAM AI 대시보드</title>
+<script>
+(function() {
+  const KEY = 'cadam_auth';
+  if (sessionStorage.getItem(KEY) !== 'ok') {
+    const pw = prompt('🔐 비밀번호');
+    if (!pw || pw !== '07231201') {
+      document.write('<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#0a0a0f;color:#ff6b6b;font-family:monospace;font-size:18px;">⛔ 접근 불가</div>');
+      document.close();
+      throw new Error('auth');
+    }
+    sessionStorage.setItem(KEY, 'ok');
+  }
+})();
+</script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap');
+:root {
+  --bg: #f5f5f7;
+  --bg2: #ffffff;
+  --bg3: #f0f0f2;
+  --border: rgba(0,0,0,0.08);
+  --accent: #0071e3;
+  --accent2: #34c759;
+  --accent3: #ff3b30;
+  --accent4: #ff9f0a;
+  --accent5: #5856d6;
+  --text: #1d1d1f;
+  --text2: #6e6e73;
+  --text3: #aeaeb2;
+  --shadow: 0 2px 12px rgba(0,0,0,0.08);
+  --shadow-hover: 0 4px 20px rgba(0,0,0,0.12);
+  --radius: 14px;
+  --radius-sm: 8px;
+}
+* { margin:0; padding:0; box-sizing:border-box; -webkit-font-smoothing:antialiased; }
+body {
+  font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  padding: 32px 20px;
+  min-height: 100vh;
+}
+.container { max-width: 980px; margin: 0 auto; }
+
+/* 헤더 */
+.header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 32px;
+}
+.logo { display: flex; align-items: center; gap: 14px; }
+.logo-icon {
+  width: 44px; height: 44px;
+  background: linear-gradient(145deg, #1d1d1f, #3a3a3c);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+.logo h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.5px; color: var(--text); }
+.logo p { font-size: 12px; color: var(--text3); font-weight: 400; margin-top: 1px; }
+.refresh-btn {
+  background: var(--bg2);
+  border: none;
+  color: var(--accent);
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  box-shadow: var(--shadow);
+  transition: all 0.2s ease;
+}
+.refresh-btn:hover {
+  background: var(--accent);
+  color: white;
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-1px);
+}
+
+/* 상태 카드 */
+.status-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 12px; margin-bottom: 24px; }
+.status-card {
+  background: var(--bg2);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  display: flex; align-items: center; gap: 14px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  transition: box-shadow 0.2s ease;
+}
+.status-card:hover { box-shadow: var(--shadow-hover); }
+.status-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.status-dot.on { background: var(--accent2); box-shadow: 0 0 0 3px rgba(52,199,89,0.2); animation: pulse 2s infinite; }
+.status-dot.off { background: var(--accent3); box-shadow: 0 0 0 3px rgba(255,59,48,0.2); }
+.status-dot.loading { background: var(--accent4); box-shadow: 0 0 0 3px rgba(255,159,10,0.2); animation: pulse 1s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+.status-name { font-size: 14px; font-weight: 600; color: var(--text); }
+.status-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
+.status-port { font-size: 12px; color: var(--text3); margin-left: auto; font-weight: 400; }
+
+/* 정보 카드 */
+.info-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 24px; }
+.info-card {
+  background: var(--bg2);
+  border-radius: var(--radius);
+  padding: 18px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  transition: box-shadow 0.2s ease;
+}
+.info-card:hover { box-shadow: var(--shadow-hover); }
+.info-label { font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; }
+.info-value { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; }
+.info-value.green { color: var(--accent2); }
+.info-value.purple { color: var(--accent5); }
+.info-value.yellow { color: var(--accent4); }
+
+/* 섹션 */
+.section { margin-bottom: 24px; }
+.section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; padding: 0 2px; }
+.section-icon {
+  width: 28px; height: 28px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+}
+.section-title { font-size: 15px; font-weight: 600; letter-spacing: -0.2px; color: var(--text); }
+.section-count { font-size: 12px; color: var(--text3); margin-left: auto; }
+
+/* 테이블 */
+.table {
+  background: var(--bg2);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+}
+.row {
+  display: grid;
+  grid-template-columns: 120px 1fr 70px;
+  align-items: center;
+  padding: 12px 18px;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  gap: 12px;
+  transition: background 0.15s ease;
+}
+.row:not(.header):hover { background: rgba(0,0,0,0.02); }
+.row:last-child { border-bottom: none; }
+.row.header {
+  background: rgba(0,0,0,0.025);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  padding: 10px 18px;
+}
+.time { font-size: 12px; font-weight: 500; color: var(--accent); letter-spacing: -0.2px; }
+.name { font-size: 13px; font-weight: 500; color: var(--text); }
+.desc { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+/* 배지 */
+.badge {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 3px 9px;
+  border-radius: 20px;
+  text-align: center;
+  display: inline-block;
+}
+.badge.active { background: rgba(52,199,89,0.12); color: #248a3d; }
+.badge.sched { background: rgba(88,86,214,0.1); color: var(--accent5); }
+
+/* 하단 */
+.last-update { font-size: 11px; color: var(--text3); text-align: right; margin-top: 8px; }
+.cmd-form {
+  background: var(--bg2);
+  border-radius: var(--radius);
+  padding: 18px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+  margin-bottom: 16px;
+}
+.cmd-form input {
+  flex: 1;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 9px 13px;
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s;
+}
+.cmd-form input:focus { border-color: var(--accent); }
+.cmd-form input::placeholder { color: var(--text3); }
+.cmd-form label { font-size: 11px; color: var(--text3); margin-bottom: 5px; display: block; font-weight: 500; }
+.cmd-form-field { display: flex; flex-direction: column; flex: 1; }
+.cmd-submit {
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 9px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.cmd-submit:hover { opacity: 0.85; transform: translateY(-1px); }
+.cmd-msg { font-size: 12px; margin-top: 8px; padding: 8px 12px; border-radius: 8px; display: none; }
+.cmd-msg.ok { background: rgba(52,199,89,0.1); color: #248a3d; display: block; }
+.cmd-msg.err { background: rgba(255,59,48,0.1); color: var(--accent3); display: block; }
+.badge.custom { background: rgba(255,159,10,0.12); color: var(--accent4); }
+.del-btn { background: none; border: none; color: var(--text3); cursor: pointer; font-size: 14px; padding: 2px 6px; border-radius: 4px; transition: all 0.15s; }
+.del-btn:hover { color: var(--accent3); background: rgba(255,59,48,0.08); }
+
+.stat-bar-wrap { background: var(--bg3); border-radius: 6px; height: 8px; overflow: hidden; flex: 1; }
+.stat-bar { height: 100%; border-radius: 6px; transition: width 0.6s ease; }
+.stat-bar.ok { background: var(--accent2); }
+.stat-bar.fail { background: var(--accent3); }
+.stat-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.stat-label { font-size: 12px; color: var(--text2); width: 40px; font-weight: 500; }
+.stat-num { font-size: 12px; font-family: monospace; color: var(--text3); width: 40px; text-align: right; }
+
+.hb-timeline { display: flex; gap: 6px; flex-wrap: wrap; padding: 16px 18px; }
+.hb-dot { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; cursor: default; }
+.hb-dot.ok { background: rgba(52,199,89,0.12); color: #248a3d; }
+.hb-dot.alert { background: rgba(255,59,48,0.1); color: var(--accent3); }
+
+.perf-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 20px; }
+.perf-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); }
+.perf-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; font-weight: 500; }
+.perf-value { font-size: 22px; font-weight: 700; color: var(--accent5); letter-spacing: -0.3px; }
+
+.model-switch-grid { display: flex; gap: 8px; flex-wrap: wrap; padding: 14px 18px; }
+.model-switch-btn { padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border); background: var(--bg3); color: var(--text2); font-size: 12px; font-weight: 500; font-family: monospace; cursor: pointer; transition: all 0.2s; }
+.model-switch-btn:hover { border-color: var(--accent); color: var(--accent); }
+.model-switch-btn.active { background: rgba(0,113,227,0.08); border-color: var(--accent); color: var(--accent); font-weight: 700; }
+
+.dday-card { text-align: center; padding: 24px 18px; }
+.dday-num { font-size: 48px; font-weight: 800; letter-spacing: -2px; line-height: 1; }
+.dday-num.good { color: var(--accent2); }
+.dday-num.warn { color: var(--accent4); }
+.dday-num.expired { color: var(--accent3); }
+.dday-sub { font-size: 12px; color: var(--text3); margin-top: 6px; }
+
+.footer {
+  margin-top: 32px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text3);
+}
+
+/* 네비게이션 */
+.nav-wrap {
+  position: relative;
+  margin-bottom: 28px;
+}
+.nav-wrap::before, .nav-wrap::after {
+  content: '';
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 24px;
+  z-index: 2;
+  pointer-events: none;
+}
+.nav-wrap::before { left: 0; background: linear-gradient(to right, var(--bg), transparent); }
+.nav-wrap::after  { right: 0; background: linear-gradient(to left, var(--bg), transparent); }
+.nav {
+  display: flex;
+  gap: 4px;
+  background: rgba(0,0,0,0.04);
+  border-radius: 12px;
+  padding: 4px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.nav::-webkit-scrollbar { display: none; }
+.nav-btn {
+  flex-shrink: 0;
+  padding: 8px 14px;
+  border: none;
+  background: transparent;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  color: var(--text3);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  scroll-snap-align: start;
+}
+.nav-btn:hover { color: var(--text); background: rgba(0,0,0,0.04); }
+.nav-btn.active {
+  background: var(--bg2);
+  color: var(--text);
+  box-shadow: 0 1px 6px rgba(0,0,0,0.1);
+}
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header">
+  <div class="logo">
+    <div class="logo-icon">🦞</div>
+    <div>
+      <h1>CADAM AI 대시보드</h1>
+      <p>Mac Mini M4 · 32GB · 실시간 모니터링</p>
+    </div>
+  </div>
+  <button class="refresh-btn" onclick="loadStatus(); this.textContent='↺ 갱신 중...'; setTimeout(()=>this.textContent='↺ 새로고침',2000)">↺ 새로고침</button>
+</div>
+
+<div class="nav-wrap"><nav class="nav">
+  <button class="nav-btn active" onclick="switchTab('overview', this)">📊 개요</button>
+  <button class="nav-btn" onclick="switchTab('heartbeat', this)">💓 하트비트</button>
+  <button class="nav-btn" onclick="switchTab('automation', this)">⚙️ 자동화</button>
+  <button class="nav-btn" onclick="switchTab('system', this)">🖥️ 시스템</button>
+  <button class="nav-btn" onclick="switchTab('bot', this)">✈️ 봇</button>
+</nav></div>
+
+<!-- 탭 1: 개요 -->
+<div class="tab-panel active" id="tab-overview">
+<div class="status-grid">
+  <div class="status-card">
+    <div class="status-dot loading" id="dot-ollama"></div>
+    <div>
+      <div class="status-name">Ollama</div>
+      <div class="status-sub" id="sub-ollama">확인 중...</div>
+    </div>
+    <div class="status-port">:11434</div>
+  </div>
+  <div class="status-card">
+    <div class="status-dot loading" id="dot-n8n"></div>
+    <div>
+      <div class="status-name">n8n</div>
+      <div class="status-sub" id="sub-n8n">확인 중...</div>
+    </div>
+    <div class="status-port">:5678</div>
+  </div>
+  <div class="status-card">
+    <div class="status-dot loading" id="dot-naver"></div>
+    <div>
+      <div class="status-name">cadam-naver</div>
+      <div class="status-sub" id="sub-naver">확인 중...</div>
+    </div>
+    <div class="status-port">:3100</div>
+  </div>
+  <div class="status-card">
+    <div class="status-dot on"></div>
+    <div>
+      <div class="status-name">CADAM 웹사이트</div>
+      <div class="status-sub">접속 중 (현재 페이지)</div>
+    </div>
+    <div class="status-port">:3000</div>
+  </div>
+</div>
+
+<div class="info-grid">
+  <div class="info-card">
+    <div class="info-label">누적 블로그 발행</div>
+    <div class="info-value green" id="blog-count">-</div>
+  </div>
+  <div class="info-card">
+    <div class="info-label">디스크 사용률</div>
+    <div class="info-value yellow" id="disk-usage">-</div>
+  </div>
+  <div class="info-card">
+    <div class="info-label">서비스 상태</div>
+    <div class="info-value purple" id="service-status">-</div>
+  </div>
+  <div class="info-card">
+    <div class="info-label">RAM 여유</div>
+    <div class="info-value green" id="ram-free">-</div>
+  </div>
+  <div class="info-card">
+    <div class="info-label">RAM 사용</div>
+    <div class="info-value yellow" id="ram-used">-</div>
+  </div>
+  <div class="info-card">
+    <div class="info-label">마지막 블로그 발행</div>
+    <div style="font-size:13px;font-weight:700;color:var(--accent2);font-family:'JetBrains Mono',monospace;margin-top:4px" id="last-blog">-</div>
+  </div>
+  <div class="info-card">
+    <div class="info-label">마지막 백업</div>
+    <div style="font-size:13px;font-weight:700;color:var(--accent);font-family:'JetBrains Mono',monospace;margin-top:4px" id="last-backup">-</div>
+  </div>
+  <div class="info-card">
+    <div class="info-label">네이버 쿠키 상태</div>
+    <div style="font-size:13px;font-weight:700;font-family:'JetBrains Mono',monospace;margin-top:4px" id="cookie-status">-</div>
+  </div>
+  <div class="info-card">
+    <div class="info-label">CPU 사용률</div>
+    <div class="info-value yellow" id="cpu-usage">-</div>
+  </div>
+
+  <div class="info-card">
+    <div class="info-label">네트워크 IN</div>
+    <div class="info-value green" id="network-in">-</div>
+  </div>
+  <div class="info-card">
+    <div class="info-label">네트워크 OUT</div>
+    <div class="info-value purple" id="network-out">-</div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-header">
+    <div class="section-icon" style="background:rgba(255,217,61,0.15);">🧠</div>
+    <div class="section-title">현재 로드된 AI 모델</div>
+    <div class="section-count" id="model-status">확인 중...</div>
+  </div>
+  <div class="table" id="model-table">
+    <div class="row header" style="grid-template-columns:1fr 80px 80px 80px"><div>모델명</div><div>크기</div><div>양자화</div><div>상태</div></div>
+    <div class="row" style="grid-template-columns:1fr 80px 80px 80px" id="model-row">
+      <div class="name" style="color:var(--text3)">로드된 모델 없음</div>
+      <div>-</div><div>-</div><div class="badge sched">대기중</div>
+    </div>
+  </div>
+</div>
+</div> <!-- /tab-overview -->
+
+<!-- 블로그 탭 -->
+<div class="tab-panel" id="tab-blog">
+<div class="info-grid" style="grid-template-columns:repeat(2,1fr);margin-bottom:20px">
+  <div class="info-card dday-card">
+    <div class="info-label">쿠키 만료까지</div>
+    <div class="dday-num good" id="cookie-dday">-</div>
+    <div class="dday-sub" id="cookie-dday-sub">-</div>
+  </div>
+  <div class="info-card">
+    <div class="info-label">다음 발행 예정</div>
+    <div style="font-size:20px;font-weight:700;color:var(--accent);margin-top:8px;letter-spacing:-0.3px" id="next-publish">-</div>
+    <div style="font-size:11px;color:var(--text3);margin-top:6px">crontab 기준</div>
+  </div>
+</div>
+<div class="section">
+  <div class="section-header">
+    <div class="section-icon" style="background:rgba(52,199,89,0.15);">📊</div>
+    <div class="section-title">발행 통계</div>
+    <div class="section-count" id="blog-stats-total">-</div>
+  </div>
+  <div class="table" style="padding:18px">
+    <div class="stat-row">
+      <div class="stat-label">성공</div>
+      <div class="stat-bar-wrap"><div class="stat-bar ok" id="blog-bar-ok" style="width:0%"></div></div>
+      <div class="stat-num" id="blog-stat-ok">0</div>
+    </div>
+    <div class="stat-row" style="margin-bottom:0">
+      <div class="stat-label">실패</div>
+      <div class="stat-bar-wrap"><div class="stat-bar fail" id="blog-bar-fail" style="width:0%"></div></div>
+      <div class="stat-num" id="blog-stat-fail">0</div>
+    </div>
+  </div>
+</div>
+<div class="section">
+  <div class="section-header">
+    <div class="section-icon" style="background:rgba(52,199,89,0.15);">📝</div>
+    <div class="section-title">최근 발행 글</div>
+    <div class="section-count" id="recent-post-count">-</div>
+  </div>
+  <div class="table" id="recent-post-table">
+    <div class="row header" style="grid-template-columns:1fr 140px"><div>제목</div><div>발행시간</div></div>
+  </div>
+</div>
+</div> <!-- /tab-blog -->
+
+<!-- 탭 2: AI · 모델 -->
+<!-- 탭 3: 자동화 -->
+<div class="tab-panel" id="tab-automation">
+<div class="section">
+  <div class="section-header">
+    <div class="section-icon" style="background:rgba(0,212,170,0.15);">⚡</div>
+    <div class="section-title">n8n 워크플로우</div>
+    <div class="section-count" id="workflow-count">-</div>
+  </div>
+  <div class="table" id="workflow-table">
+    <div class="row header" style="grid-template-columns:1fr 70px"><div>워크플로우명</div><div>상태</div></div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-header">
+    <div class="section-icon" style="background:rgba(0,212,170,0.15);">📈</div>
+    <div class="section-title">워크플로우 실행 통계</div>
+    <div class="section-count" id="wf-stats-count">-</div>
+  </div>
+  <div class="table" id="wf-stats-table">
+    <div class="row header" style="grid-template-columns:1fr 120px 60px 60px"><div>워크플로우</div><div>설명</div><div>성공</div><div>실패</div></div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-header">
+    <div class="section-icon" style="background:rgba(108,99,255,0.15);">⏰</div>
+    <div class="section-title">크론 스케줄</div>
+    <div class="section-count" id="cron-count">-</div>
+  </div>
+  <div class="table" id="cron-table">
+    <div class="row header"><div>작업명</div><div>스케줄</div><div>상태</div></div>
+  </div>
+</div>
+
+
+
+<div class="section">
+  <div class="section-header">
+    <div class="section-icon" style="background:rgba(0,212,170,0.15);">🔧</div>
+    <div class="section-title">시스템 자동화 (crontab)</div>
+    <div class="section-count" id="sys-cron-count">-</div>
+  </div>
+  <div class="table" id="sys-cron-table">
+    <div class="row header" style="grid-template-columns:120px 1fr 1.5fr"><div>스케줄</div><div>스크립트</div><div>설명</div></div>
+  </div>
+</div>
+
+<div class="last-update">마지막 업데이트: <span id="last-time">-</span></div>
+
+
+
+</div> <!-- /tab-automation -->
+
+<!-- 탭 4: 시스템 -->
+<div class="tab-panel" id="tab-system">
+<div class="section">
+  <div class="section-header">
+    <div class="section-icon" style="background:rgba(0,212,170,0.15);">🖥️</div>
+    <div class="section-title">자동 시작 서비스</div>
+    <div class="section-count" id="service-count">-</div>
+  </div>
+  <div class="table" id="service-table">
+    <div class="row header" style="grid-template-columns:1fr 70px 60px"><div>서비스</div><div>포트</div><div>상태</div></div>
+
+  </div>
+</div>
+
+
+
+
+<div class="section">
+  <div class="section-header">
+    <div class="section-icon" style="background:rgba(0,212,170,0.15);">🔒</div>
+    <div class="section-title">보안 설정</div>
+  </div>
+  <div class="table">
+    <div class="row header" style="grid-template-columns:1fr 1fr"><div>서비스</div><div>설정</div></div>
+    <div class="row" style="grid-template-columns:1fr 1fr"><div class="name">Ollama</div><div class="time">로컬 전용 (127.0.0.1)</div></div>
+    <div class="row" style="grid-template-columns:1fr 1fr"><div class="name">n8n</div><div class="time">로컬 전용 (127.0.0.1)</div></div>
+    <div class="row" style="grid-template-columns:1fr 1fr"><div class="name">cadam-naver</div><div class="time">로컬 전용 (127.0.0.1)</div></div>
+    <div class="row" style="grid-template-columns:1fr 1fr"><div class="name">봇 토큰</div><div class="time">재발급 완료 ✅</div></div>
+  </div>
+</div>
+</div> <!-- /tab-system -->
+
+<!-- 탭 5: 봇 -->
+<div class="tab-panel" id="tab-bot">
+<div class="section">
+  <div class="section-header">
+    <div class="section-icon" style="background:rgba(108,99,255,0.15);">✈️</div>
+    <div class="section-title">텔레그램 봇 명령어</div>
+    <div class="section-count" id="tg-cmd-count">@ior21y_bot</div>
+  </div>
+
+  <div class="cmd-form">
+    <div class="cmd-form-field">
+      <label>명령어</label>
+      <input id="cmd-key" type="text" placeholder="/status" />
+    </div>
+    <div class="cmd-form-field" style="flex:2">
+      <label>설명</label>
+      <input id="cmd-desc" type="text" placeholder="서버 상태 확인" />
+    </div>
+    <button class="cmd-submit" onclick="addCmd()">+ 추가</button>
+  </div>
+  <div class="cmd-msg" id="cmd-msg"></div>
+
+  <div class="table" id="tg-cmd-table">
+    <div class="row header" style="grid-template-columns:100px 1fr 50px"><div>명령어</div><div>설명</div><div></div></div>
+  </div>
+</div>
+</div> <!-- /tab-bot -->
+
+<!-- 탭 6: 하트비트 -->
+<div class="tab-panel" id="tab-heartbeat">
+<div class="section">
+  <div class="section-header">
+    <div class="section-icon" style="background:rgba(255,59,48,0.12);">💓</div>
+    <div class="section-title">하트비트 상태</div>
+    <div class="section-count" id="hb-count">-</div>
+  </div>
+  <div class="table">
+    <div class="row header" style="grid-template-columns:1fr 1fr 1fr 80px"><div>간격</div><div>활성시간</div><div>마지막 실행</div><div>결과</div></div>
+    <div class="row" style="grid-template-columns:1fr 1fr 1fr 80px">
+      <div class="time" id="hb-every">-</div>
+      <div class="time" id="hb-hours">-</div>
+      <div class="desc" id="hb-last">-</div>
+      <div id="hb-result">-</div>
+    </div>
+    <div class="row" style="grid-template-columns:1fr">
+      <div class="desc">담당 모델: <span id="hb-model" style="color:var(--accent);font-family:monospace">-</span></div>
+    </div>
+  </div>
+</div>
+<div class="section">
+  <div class="section-header">
+    <div class="section-icon" style="background:rgba(255,59,48,0.12);">📋</div>
+    <div class="section-title">하트비트 체크 항목</div>
+    <div class="section-count" id="hb-check-count">-</div>
+  </div>
+  <div class="table" id="hb-check-table">
+    <div class="row header" style="grid-template-columns:1fr 70px"><div>체크 항목</div><div>유형</div></div>
+  </div>
+</div>
+<div class="section">
+  <div class="section-header">
+    <div class="section-icon" style="background:rgba(255,59,48,0.12);">📈</div>
+    <div class="section-title">최근 실행 히스토리</div>
+    <div class="section-count" id="hb-history-count">-</div>
+  </div>
+  <div class="table">
+    <div class="hb-timeline" id="hb-timeline"></div>
+  </div>
+</div>
+</div> <!-- /tab-heartbeat -->
+
+<div class="footer">
+  <div>CADAM · Mac Mini M4 32GB · OpenClaw 2026.3.13</div>
+  <div>30초마다 자동 갱신</div>
+</div>
+</div>
+
+<script>
+async function addCmd() {
+  const key = document.getElementById('cmd-key').value.trim()
+  const desc = document.getElementById('cmd-desc').value.trim()
+  const msg = document.getElementById('cmd-msg')
+  if (!key || !desc) { msg.textContent = '명령어와 설명을 모두 입력하세요'; msg.className = 'cmd-msg err'; return }
+  try {
+    const res = await fetch('/api/commands', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({key, desc}) })
+    const data = await res.json()
+    if (data.ok) {
+      msg.textContent = '✅ 추가되었습니다'
+      msg.className = 'cmd-msg ok'
+      document.getElementById('cmd-key').value = ''
+      document.getElementById('cmd-desc').value = ''
+      loadStatus()
+    } else {
+      msg.textContent = '❌ ' + data.error
+      msg.className = 'cmd-msg err'
+    }
+  } catch { msg.textContent = '❌ 서버 오류'; msg.className = 'cmd-msg err' }
+  setTimeout(() => msg.className = 'cmd-msg', 3000)
+}
+
+async function delCmd(key) {
+  if (!confirm(key + ' 명령어를 삭제할까요?')) return
+  await fetch('/api/commands', { method:'DELETE', headers:{'Content-Type':'application/json'}, body: JSON.stringify({key}) })
+  loadStatus()
+}
+
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+  btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+}
+
+function friendlyCron(s) {
+  const map = {
+    '*/20 * * * *': '20분마다',
+    '0 5 * * *':   '매일 05:00',
+    '0 4 * * 0':   '매주 일 04:00',
+    '0 8 * * *':   '매일 08:00',
+  };
+  return map[s] || s;
+}
+
+async function loadStatus() {
+  try {
+    const res = await fetch('/api/status')
+    const d = await res.json()
+
+    const setStatus = (id, ok) => {
+      const dot = document.getElementById('dot-' + id)
+      const sub = document.getElementById('sub-' + id)
+      dot.className = 'status-dot ' + (ok ? 'on' : 'off')
+      sub.textContent = ok ? '정상 작동 중' : '응답 없음'
+    }
+
+    setStatus('ollama', d.ollama)
+    setStatus('n8n', d.n8n)
+    setStatus('naver', d.naver)
+
+    document.getElementById('blog-count').textContent = d.blogCount + '개'
+    document.getElementById('disk-usage').textContent = d.disk
+    
+    const ok = [d.ollama, d.n8n, d.naver].filter(Boolean).length
+    document.getElementById('service-status').textContent = ok + '/3 ✓'
+
+    // RAM 업데이트
+    if (d.ramInfo) {
+      document.getElementById('ram-free').textContent = d.ramInfo.free + 'GB'
+      document.getElementById('ram-used').textContent = d.ramInfo.used + 'GB'
+    }
+
+    // 하트비트
+    if (d.heartbeat) {
+      const hb = d.heartbeat
+      document.getElementById('hb-every').textContent = hb.every
+      document.getElementById('hb-hours').textContent = hb.activeHours
+      document.getElementById('hb-model').textContent = hb.model.replace('ollama/', '')
+      
+      if (hb.lastTime) {
+        const t = new Date(hb.lastTime)
+        const diff = Math.floor((Date.now() - t) / 1000 / 60)
+        const ago = diff < 60 ? diff + '분 전' : Math.floor(diff/60) + '시간 전'
+        document.getElementById('hb-last').textContent = ago
+      }
+      
+      const resultEl = document.getElementById('hb-result')
+      if (hb.lastResult === 'ok') {
+        resultEl.innerHTML = '<div class="badge active">정상</div>'
+      } else if (hb.lastResult === 'alert') {
+        resultEl.innerHTML = '<div class="badge" style="color:var(--accent3);border:1px solid rgba(255,107,107,0.2);background:rgba(255,107,107,0.1)">알림</div>'
+      } else {
+        resultEl.innerHTML = '<div class="badge sched">확인중</div>'
+      }
+    }
+
+    // 크론 스케줄
+    if (d.cronJobs && d.cronJobs.length > 0) {
+      document.getElementById('cron-count').textContent = d.cronJobs.length + '개'
+      let rows = d.cronJobs.map(j => {
+        const statusClass = j.status === 'ok' ? 'active' : j.status === 'error' ? '' : 'sched'
+        const statusColor = j.status === 'error' ? 'color:var(--accent3);border:1px solid rgba(255,107,107,0.2);background:rgba(255,107,107,0.1)' : ''
+        const lastRun = j.lastRun ? new Date(j.lastRun).toLocaleString('ko-KR', {timeZone:'Asia/Seoul', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit'}) : '-'
+        return `
+          <div class="row" style="grid-template-columns:1fr 1fr 70px">
+            <div><div class="name">${j.name}</div><div class="desc">${lastRun}</div></div>
+            <div class="time" style="font-size:10px">${j.schedule}</div>
+            <div class="badge ${statusClass}" style="${statusColor}">${j.status === 'ok' ? '성공' : j.status === 'error' ? '오류' : j.status === 'running' ? '실행중' : '대기'}</div>
+          </div>
+        `
+      }).join('')
+      document.getElementById('cron-table').innerHTML = `
+        <div class="row header" style="grid-template-columns:1fr 1fr 70px"><div>작업명 / 마지막 실행</div><div>스케줄</div><div>상태</div></div>
+        ${rows}
+      `
+    }
+
+    // 하트비트 체크 항목
+    if (d.heartbeatChecks && d.heartbeatChecks.length > 0) {
+      const hbCC = document.getElementById('hb-check-count'); if(hbCC) hbCC.textContent = d.heartbeatChecks.length + '개'
+      let rows = d.heartbeatChecks.map(c => `
+        <div class="row" style="grid-template-columns:1fr 70px">
+          <div class="name">${c.name}</div>
+          <div class="badge ${c.type === '항상' ? 'active' : 'sched'}">${c.type}</div>
+        </div>
+      `).join('')
+      const hbCT = document.getElementById('hb-check-table'); if(hbCT) hbCT.innerHTML = `
+        <div class="row header" style="grid-template-columns:1fr 70px"><div>체크 항목</div><div>유형</div></div>
+        ${rows}
+      `
+    }
+
+    // AI 모델 구성
+    if (d.ollamaModels && d.ollamaModels.length > 0) {
+      const mcEl = document.getElementById('model-count'); if(mcEl) mcEl.textContent = d.ollamaModels.length + '개'
+      let rows = d.ollamaModels.map(m => `
+        <div class="row" style="grid-template-columns:1fr 80px 1fr">
+          <div class="name" style="font-family:monospace;color:var(--accent)">${m.name}</div>
+          <div class="time">${m.size}</div>
+          <div class="desc">${m.role}</div>
+        </div>
+      `).join('')
+      const mltEl = document.getElementById('model-list-table'); if(mltEl) mltEl.innerHTML = `
+        <div class="row header" style="grid-template-columns:1fr 80px 1fr"><div>모델명</div><div>크기</div><div>역할</div></div>
+        ${rows}
+      `
+    }
+
+    // 시스템 crontab
+    if (d.sysCrontab && d.sysCrontab.length > 0) {
+      const sysCount = document.getElementById('sys-cron-count')
+      const sysTable = document.getElementById('sys-cron-table')
+      if (sysCount) sysCount.textContent = d.sysCrontab.length + '개'
+      if (sysTable) {
+        let rows = d.sysCrontab.map(c => `
+          <div class="row" style="grid-template-columns:120px 1fr 1.5fr">
+            <div class="time" style="font-size:10px">${friendlyCron(c.schedule)}</div>
+            <div class="name">${c.script}</div>
+            <div class="desc">${c.desc || ''}</div>
+          </div>
+        `).join('')
+        sysTable.innerHTML = `
+          <div class="row header" style="grid-template-columns:120px 1fr 1.5fr"><div>스케줄</div><div>스크립트</div><div>설명</div></div>
+          ${rows}
+        `
+      }
+    }
+
+    // 텔레그램 명령어
+    if (d.telegramCmds && d.telegramCmds.length > 0) {
+      const tgCC = document.getElementById('tg-cmd-count'); if(tgCC) tgCC.textContent = '@ior21y_bot · ' + d.telegramCmds.length + '개'
+      let rows = d.telegramCmds.map(c => `
+        <div class="row" style="grid-template-columns:100px 1fr 50px">
+          <div class="time">${c.key}</div>
+          <div><div class="desc">${c.desc}</div>${c.custom ? '<span class="badge custom" style="margin-top:3px;display:inline-block">커스텀</span>' : ''}</div>
+          <div>${c.custom ? `<button class="del-btn" onclick="delCmd('${c.key}')">🗑</button>` : ''}</div>
+        </div>
+      `).join('')
+      const tgCT = document.getElementById('tg-cmd-table'); if(tgCT) tgCT.innerHTML = `
+        <div class="row header" style="grid-template-columns:100px 1fr 50px"><div>명령어</div><div>설명</div><div></div></div>
+        ${rows}
+      `
+    }
+
+    // 자동시작 서비스
+    if (d.services && d.services.length > 0) {
+      const ok = d.services.filter(s => s.active).length
+      document.getElementById('service-count').textContent = ok + '/' + d.services.length + ' 실행중'
+      let rows = d.services.map(s => `
+        <div class="row" style="grid-template-columns:1fr 70px 60px">
+          <div class="name">${s.name}</div>
+          <div class="time">:${s.port}</div>
+          <div class="badge ${s.active ? 'active' : ''}" style="${!s.active ? 'color:var(--accent3);border:1px solid rgba(255,107,107,0.2);background:rgba(255,107,107,0.1)' : ''}">${s.active ? '실행중' : '중지'}</div>
+        </div>
+      `).join('')
+      document.getElementById('service-table').innerHTML = `
+        <div class="row header" style="grid-template-columns:1fr 70px 60px"><div>서비스</div><div>포트</div><div>상태</div></div>
+        ${rows}
+      `
+    }
+
+    // n8n 워크플로우
+    if (d.workflows && d.workflows.length > 0) {
+      document.getElementById('workflow-count').textContent = d.workflows.length + '개'
+      let rows = d.workflows.map(w => `
+        <div class="row" style="grid-template-columns:1fr 70px">
+          <div class="name">${w.name}</div>
+          <div class="badge ${w.active ? 'active' : 'sched'}">${w.active ? '활성' : '비활성'}</div>
+        </div>
+      `).join('')
+      document.getElementById('workflow-table').innerHTML = `
+        <div class="row header" style="grid-template-columns:1fr 70px"><div>워크플로우명</div><div>상태</div></div>
+        ${rows}
+      `
+    }
+
+    // 마지막 발행/백업
+    if (d.lastBlog) {
+      const t = new Date(d.lastBlog)
+      const diff = Math.floor((Date.now() - t) / 1000 / 60)
+      const ago = diff < 60 ? diff + '분 전' : Math.floor(diff/60) + '시간 전'
+      document.getElementById('last-blog').textContent = ago
+    }
+    if (d.lastBackup) {
+      document.getElementById('last-backup').textContent = d.lastBackup.slice(0,16)
+    }
+
+    // 쿠키 상태
+    if (d.cookieStatus) {
+      const el = document.getElementById('cookie-status')
+      const c = d.cookieStatus
+      if (c.status === 'good') {
+        el.textContent = '정상 (' + c.daysSince + '일 경과)'
+        el.style.color = 'var(--accent2)'
+      } else if (c.status === 'warn') {
+        el.textContent = '⚠️ 곧 만료 (' + c.daysSince + '일 경과)'
+        el.style.color = 'var(--accent4)'
+      } else {
+        el.textContent = '❌ 만료됨 (' + c.daysSince + '일 경과)'
+        el.style.color = 'var(--accent3)'
+      }
+    }
+
+    // AI 모델 업데이트
+    if (d.ollamaModel) {
+      document.getElementById('model-status').textContent = '로드됨'
+      document.getElementById('model-status').style.color = 'var(--accent2)'
+      document.getElementById('model-row').innerHTML = `
+        <div><div class="name" style="font-family:monospace;color:var(--accent)">${d.ollamaModel.name}</div></div>
+        <div class="time">${d.ollamaModel.size}</div>
+        <div class="time">${d.ollamaModel.processor}</div>
+        <div class="badge active">실행중</div>
+      `
+    } else {
+      document.getElementById('model-status').textContent = '대기중'
+      document.getElementById('model-status').style.color = 'var(--text3)'
+      document.getElementById('model-row').innerHTML = `
+        <div class="name" style="color:var(--text3)">로드된 모델 없음</div>
+        <div>-</div><div>-</div><div class="badge sched">대기중</div>
+      `
+    }
+
+
+    // CPU + 네트워크
+    if (d.cpuUsage) { const e = document.getElementById('cpu-usage'); if(e) e.textContent = d.cpuUsage }
+    if (d.cpuTemp && d.cpuTemp !== 'N/A') { const e = document.getElementById('cpu-temp'); if(e) e.textContent = d.cpuTemp }
+    if (d.networkIn) { const e = document.getElementById('network-in'); if(e) e.textContent = d.networkIn }
+    if (d.networkOut) { const e = document.getElementById('network-out'); if(e) e.textContent = d.networkOut }
+
+    // AI 성능
+    if (d.tokensPerSec && d.tokensPerSec !== 'N/A') { const e = document.getElementById('ai-tps'); if(e) e.textContent = d.tokensPerSec }
+    if (d.ollamaMemory && d.ollamaMemory !== 'N/A') { const e = document.getElementById('ollama-memory'); if(e) e.textContent = d.ollamaMemory }
+    if (d.contextUsage) {
+      const total = (d.contextUsage.prompt || 0) + (d.contextUsage.completion || 0)
+      const e = document.getElementById('ai-ctx-total'); if(e) e.textContent = total.toLocaleString()
+    }
+
+    // 선호 모델 버튼
+    if (d.ollamaModels && d.ollamaModels.length > 0) {
+      const grid = document.getElementById('model-switch-grid')
+      if (grid) {
+        const cur = d.ollamaModel?.name || ''
+        grid.innerHTML = d.ollamaModels.map(m =>
+          `<button class="model-switch-btn ${m.name === cur ? 'active' : ''}" onclick="switchModel('${m.name}',this)">${m.name}</button>`
+        ).join('')
+      }
+    }
+
+    // 블로그 통계
+    if (d.blogStats) {
+      const total = d.blogStats.success + d.blogStats.fail
+      const bsT = document.getElementById('blog-stats-total'); if(bsT) bsT.textContent = '총 ' + total + '회'
+      const okPct = total > 0 ? (d.blogStats.success / total * 100).toFixed(0) : 0
+      const failPct = total > 0 ? (d.blogStats.fail / total * 100).toFixed(0) : 0
+      const bOk = document.getElementById('blog-bar-ok'); if(bOk) bOk.style.width = okPct + '%'
+      const bFail = document.getElementById('blog-bar-fail'); if(bFail) bFail.style.width = failPct + '%'
+      const sOk = document.getElementById('blog-stat-ok'); if(sOk) sOk.textContent = d.blogStats.success
+      const sFail = document.getElementById('blog-stat-fail'); if(sFail) sFail.textContent = d.blogStats.fail
+    }
+    if (d.recentPosts && d.recentPosts.length > 0) {
+      const rpC = document.getElementById('recent-post-count'); if(rpC) rpC.textContent = d.recentPosts.length + '개'
+      let rows = d.recentPosts.map(p => `
+        <div class="row" style="grid-template-columns:1fr 140px">
+          <div class="name">${p.title}</div>
+          <div class="time" style="font-size:10px">${p.time.slice(0,16)}</div>
+        </div>`).join('')
+      const rpT = document.getElementById('recent-post-table')
+      if (rpT) rpT.innerHTML = '<div class="row header" style="grid-template-columns:1fr 140px"><div>제목</div><div>발행시간</div></div>' + rows
+    }
+    if (d.nextPublish) { const e = document.getElementById('next-publish'); if(e) e.textContent = d.nextPublish }
+
+    // 쿠키 D-day
+    if (d.cookieStatus) {
+      const remain = 21 - d.cookieStatus.daysSince
+      const ddE = document.getElementById('cookie-dday')
+      const ddS = document.getElementById('cookie-dday-sub')
+      if (ddE) { ddE.textContent = remain >= 0 ? 'D-' + remain : 'D+' + Math.abs(remain); ddE.className = 'dday-num ' + d.cookieStatus.status }
+      if (ddS) ddS.textContent = '갱신 후 ' + d.cookieStatus.daysSince + '일 경과'
+    }
+
+    // 워크플로우 실행 통계
+    if (d.workflowStats && d.workflowStats.length > 0) {
+      const wsC = document.getElementById('wf-stats-count'); if(wsC) wsC.textContent = d.workflowStats.length + '개'
+      const wfDescMap = {
+        '텔레그램 명령어 처리': '봇 명령 자동 응답',
+        '네이버 블로그 자동발행': 'AI 블로그 글 발행',
+      }
+      let rows = d.workflowStats.map(w => `
+        <div class="row" style="grid-template-columns:1fr 120px 60px 60px">
+          <div class="name">${w.name}</div>
+          <div class="desc">${wfDescMap[w.name] || '-'}</div>
+          <div class="badge active" style="text-align:center">${w.success}</div>
+          <div class="badge" style="text-align:center;${w.fail > 0 ? 'color:var(--accent3);background:rgba(255,59,48,0.1)' : ''}">${w.fail}</div>
+        </div>`).join('')
+      const wsT = document.getElementById('wf-stats-table')
+      if (wsT) wsT.innerHTML = '<div class="row header" style="grid-template-columns:1fr 120px 60px 60px"><div>워크플로우</div><div>설명</div><div>성공</div><div>실패</div></div>' + rows
+    }
+
+    // 하트비트 히스토리
+    if (d.hbHistory && d.hbHistory.length > 0) {
+      const hbHC = document.getElementById('hb-history-count'); if(hbHC) hbHC.textContent = d.hbHistory.length + '회'
+      const dots = d.hbHistory.map(h => {
+        const ts = new Date(h.time).toLocaleString('ko-KR', {timeZone:'Asia/Seoul', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit'})
+        return `<div class="hb-dot ${h.result}" title="${ts}">${h.result === 'ok' ? '✓' : '!'}</div>`
+      }).join('')
+      const tlEl = document.getElementById('hb-timeline'); if(tlEl) tlEl.innerHTML = dots
+    }
+
+    const t = new Date(d.time)
+    document.getElementById('last-time').textContent = 
+      t.toLocaleTimeString('ko-KR', {timeZone:'Asia/Seoul'})
+  } catch(e) {
+    console.error(e)
+  }
+}
+
+loadStatus()
+setInterval(loadStatus, 30000)
+</script>
+</body>
+</html>

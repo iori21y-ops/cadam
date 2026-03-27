@@ -99,3 +99,7 @@ Apple 디자인 스타일의 미니멀한 UI로 한국 30~40대 자영업자/직
 - 견적 스토어: @src/store/quoteStore.ts
 - 진단 타입: @src/types/diagnosis.ts
 - 진단 엔진: @src/lib/flow-engine.ts
+
+## 배포 규칙
+코드 수정 완료 후 반드시 아래 안내 출력:
+"✅ 수정 완료! 터미널에서 cadam-prod 실행하세요."

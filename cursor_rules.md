@@ -69,3 +69,7 @@
 - 스토어: @src/store/quoteStore.ts
 
 **주의:** 와이어프레임 파일 내부에 하드코딩된 차량 데이터(26종)는 UI 미리보기용이므로 무시할 것. 차량 데이터는 반드시 `src/constants/vehicles.ts`의 VEHICLE_LIST(45종)만 사용한다.
+
+## 배포 규칙
+코드 수정 완료 후 반드시 아래 안내 출력:
+"✅ 수정 완료! 터미널에서 cadam-prod 실행하세요."
