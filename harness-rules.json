@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "name": "cadam-harness-rules",
+  "version": "1.0.0",
+  "updated": "2026-03-27",
+  "description": "CADAM 프로젝트 자동 검증 규칙 — Claude Code 및 Git Hook에서 사용",
+
+  "forbidden_paths": {
+    "description": "절대 수정/이동/삭제 금지 경로",
+    "paths": [
+      "~/.openclaw/",
+      "~/.ollama/",
+      "~/.ssh/",
+      "~/.docker/"
+    ]
+  },
+
+  "forbidden_commits": {
+    "description": "커밋에 포함되면 안 되는 패턴",
+    "patterns": [
+      "\\.env\\.local$",
+      "\\.env$",
+      "node_modules/",
+      "\\.next/",
+      "n8n_data/",
+      "\\.DS_Store"
+    ],
+    "secrets": [
+      "SUPABASE_SERVICE_ROLE_KEY",
+      "N8N_API_KEY",
+      "sk-[a-zA-Z0-9]{20,}",
+      "eyJ[a-zA-Z0-9._-]{50,}"
+    ]
+  },
+
+  "required_files": {
+    "description": "반드시 존재해야 하는 파일",
+    "cadam-web": [
+      "CLAUDE.md",
+      "harness-rules.json",
+      ".env.local",
+      ".gitignore"
+    ]
+  },
+
+  "n8n_validation": {
+    "description": "n8n 워크플로우 검증 규칙",
+    "min_workflow_count": 11,
+    "required_workflows": [
+      "텔레그램 명령어 처리",
+      "네이버 블로그 자동발행",
+      "FAQ 자동분류"
+    ],
+    "health_endpoint": "http://localhost:5678/healthz",
+    "api_endpoint": "http://localhost:5678/api/v1"
+  },
+
+  "supabase_validation": {
+    "description": "Supabase 테이블 검증",
+    "required_tables": [
+      "vehicle_settings",
+      "price_ranges",
+      "info_articles",
+      "info_categories",
+      "consultations",
+      "diagnosis_config",
+      "notification_log",
+      "promotions"
+    ]
+  },
+
+  "openclaw_validation": {
+    "description": "OpenClaw 에이전트 검증",
+    "required_agents": [
+      "main", "writer", "scenario", "creator",
+      "crawler", "controller", "customer-bot", "coder"
+    ],
+    "config_path": "~/.openclaw/openclaw.json"
+  },
+
+  "backup_policy": {
+    "description": "백업 정책",
+    "backup_dir": "~/cadam-backups/",
+    "before_major_changes": true,
+    "n8n_backup_script": "~/cadam-backups/backup-n8n.sh",
+    "openclaw_backup_script": "~/cadam-backups/backup-openclaw.sh"
+  }
+}
