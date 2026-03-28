@@ -2,8 +2,8 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "name": "cadam-harness-rules",
   "version": "1.0.0",
-  "updated": "2026-03-27",
-  "description": "CADAM 프로젝트 자동 검증 규칙 — Claude Code 및 Git Hook에서 사용",
+  "updated": "2026-03-29",
+  "description": "CADAM 프로젝트 자동 검증 규칙 — vehicles 통합 후",
 
   "forbidden_paths": {
     "description": "절대 수정/이동/삭제 금지 경로",
@@ -58,8 +58,12 @@
   "supabase_validation": {
     "description": "Supabase 테이블 검증",
     "required_tables": [
-      "vehicle_settings",
-      "price_ranges",
+      "vehicles",
+      "pricing",
+      "faqs",
+      "methods",
+      "comparisons",
+      "content_schedule",
       "info_articles",
       "info_categories",
       "consultations",

@@ -27,9 +27,9 @@ interface PriceRangeRow {
   min_monthly: number;
   max_monthly: number;
 }
-interface VehicleSettingRow {
-  vehicle_slug: string;
-  is_visible: boolean | null;
+interface VehicleRow {
+  slug: string;
+  is_active: boolean | null;
   display_order: number | null;
 }
 function VehiclesSkeleton() {
@@ -55,8 +55,8 @@ async function VehicleListSection() {
     .map((slug) => getVehicleBySlug(slug))
     .filter((v): v is NonNullable<ReturnType<typeof getVehicleBySlug>> => v != null)
     .map((v) => v.model);
-  const [{ data: allSettings }, { data: priceRanges }] = await Promise.all([
-    supabase.from('vehicle_settings').select('vehicle_slug, is_visible, display_order'),
+  const [{ data: allVehicles }, { data: priceRanges }] = await Promise.all([
+    supabase.from('vehicles').select('slug, is_active, display_order'),
     supabase
       .from('price_ranges')
       .select('car_brand, car_model, contract_months, annual_km, min_monthly, max_monthly')
@@ -66,14 +66,14 @@ async function VehicleListSection() {
       .eq('annual_km', 20000),
   ]);
   const settingMap = new Map(
-    (allSettings ?? []).map((s: VehicleSettingRow) => [s.vehicle_slug, s])
+    (allVehicles ?? []).filter((s: VehicleRow) => s.slug != null).map((s: VehicleRow) => [s.slug, s])
   );
   const orderedVehicles = FALLBACK_SLUGS
     .map((slug) => getVehicleBySlug(slug))
     .filter((v): v is NonNullable<typeof v> => v != null)
     .filter((v) => {
       const s = settingMap.get(v.slug);
-      return s == null || s.is_visible !== false;
+      return s == null || s.is_active !== false;
     })
     .sort((a, b) => {
       const aOrder = settingMap.get(a.slug)?.display_order ?? 999;

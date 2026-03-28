@@ -69,13 +69,13 @@ export default function AdminPricesPage() {
     setLoading(true);
     try {
       const supabase = createBrowserSupabaseClient();
-      const [{ data: settings }, { data: prices }] = await Promise.all([
-        supabase.from('vehicle_settings').select('vehicle_slug, thumbnail_url, min_car_price, max_car_price, is_visible, display_order, car_brand, car_model'),
+      const [{ data: dbVehicles }, { data: prices }] = await Promise.all([
+        supabase.from('vehicles').select('slug, image_url, min_price, max_price, is_active, display_order, manufacturer, name'),
         supabase.from('price_ranges').select('car_brand, car_model').eq('is_active', true),
       ]);
 
       const settingMap = new Map(
-        (settings ?? []).map((s: Record<string, unknown>) => [s.vehicle_slug as string, s])
+        (dbVehicles ?? []).filter((s: Record<string, unknown>) => s.slug != null).map((s: Record<string, unknown>) => [s.slug as string, s])
       );
 
       const priceCountMap = new Map<string, number>();
@@ -93,29 +93,29 @@ export default function AdminPricesPage() {
           slug: v.slug,
           brand: v.brand,
           model: v.model,
-          thumbnailUrl: (s?.thumbnail_url as string) ?? null,
-          minCarPrice: (s?.min_car_price as number) ?? null,
-          maxCarPrice: (s?.max_car_price as number) ?? null,
+          thumbnailUrl: (s?.image_url as string) ?? null,
+          minCarPrice: s?.min_price != null ? (s.min_price as number) * 10000 : null,
+          maxCarPrice: s?.max_price != null ? (s.max_price as number) * 10000 : null,
           priceCount: priceCountMap.get(`${v.brand}||${v.model}`) ?? 0,
           isCustom: false,
-          isVisible: (s?.is_visible as boolean) ?? true,
+          isVisible: (s?.is_active as boolean) ?? true,
           displayOrder: (s?.display_order as number) ?? pos * 1000,
         };
       });
 
       const vehicleListSlugs = new Set(VEHICLE_LIST.map((v) => v.slug));
-      for (const s of (settings ?? []) as Record<string, unknown>[]) {
-        if (!vehicleListSlugs.has(s.vehicle_slug as string) && s.car_brand && s.car_model) {
+      for (const s of (dbVehicles ?? []) as Record<string, unknown>[]) {
+        if (!vehicleListSlugs.has(s.slug as string) && s.manufacturer && s.name) {
           list.push({
-            slug: s.vehicle_slug as string,
-            brand: s.car_brand as string,
-            model: s.car_model as string,
-            thumbnailUrl: (s.thumbnail_url as string) ?? null,
-            minCarPrice: (s.min_car_price as number) ?? null,
-            maxCarPrice: (s.max_car_price as number) ?? null,
-            priceCount: priceCountMap.get(`${s.car_brand}||${s.car_model}`) ?? 0,
+            slug: s.slug as string,
+            brand: s.manufacturer as string,
+            model: s.name as string,
+            thumbnailUrl: (s.image_url as string) ?? null,
+            minCarPrice: s.min_price != null ? (s.min_price as number) * 10000 : null,
+            maxCarPrice: s.max_price != null ? (s.max_price as number) * 10000 : null,
+            priceCount: priceCountMap.get(`${s.manufacturer}||${s.name}`) ?? 0,
             isCustom: true,
-            isVisible: (s.is_visible as boolean) ?? true,
+            isVisible: (s.is_active as boolean) ?? true,
             displayOrder: (s.display_order as number) ?? 999,
           });
         }
@@ -154,16 +154,16 @@ export default function AdminPricesPage() {
     setPopularSavedMsg(null);
     try {
       const supabase = createBrowserSupabaseClient();
-      await supabase.from('vehicle_settings').upsert(
+      await supabase.from('vehicles').upsert(
         popularItems.map((v, i) => ({
-          vehicle_slug: v.slug,
-          car_brand: v.brand,
-          car_model: v.model,
-          is_visible: v.isVisible,
+          slug: v.slug,
+          manufacturer: v.brand,
+          name: v.model,
+          is_active: v.isVisible,
           display_order: i + 1,
           updated_at: new Date().toISOString(),
         })),
-        { onConflict: 'vehicle_slug' }
+        { onConflict: 'slug' }
       );
       try {
         await fetch('/api/admin/revalidate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ slug: 'all' }) });
@@ -199,14 +199,14 @@ export default function AdminPricesPage() {
 
   const toggleVisible = async (v: VehicleSummary) => {
     const supabase = createBrowserSupabaseClient();
-    await supabase.from('vehicle_settings').upsert({
-      vehicle_slug: v.slug,
-      car_brand: v.brand,
-      car_model: v.model,
-      is_visible: !v.isVisible,
+    await supabase.from('vehicles').upsert({
+      slug: v.slug,
+      manufacturer: v.brand,
+      name: v.model,
+      is_active: !v.isVisible,
       display_order: v.displayOrder,
       updated_at: new Date().toISOString(),
-    }, { onConflict: 'vehicle_slug' });
+    }, { onConflict: 'slug' });
     await fetchData();
   };
 
@@ -220,14 +220,14 @@ export default function AdminPricesPage() {
     const supabase = createBrowserSupabaseClient();
     await Promise.all(
       newOrder.map((v, i) =>
-        supabase.from('vehicle_settings').upsert({
-          vehicle_slug: v.slug,
-          car_brand: v.brand,
-          car_model: v.model,
-          is_visible: v.isVisible,
+        supabase.from('vehicles').upsert({
+          slug: v.slug,
+          manufacturer: v.brand,
+          name: v.model,
+          is_active: v.isVisible,
           display_order: i,
           updated_at: new Date().toISOString(),
-        }, { onConflict: 'vehicle_slug' })
+        }, { onConflict: 'slug' })
       )
     );
     await fetchData();
@@ -239,14 +239,14 @@ export default function AdminPricesPage() {
     try {
       const supabase = createBrowserSupabaseClient();
       const slug = `custom-${addForm.brand.trim()}-${addForm.model.trim()}`.replace(/\s+/g, '-');
-      await supabase.from('vehicle_settings').upsert({
-        vehicle_slug: slug,
-        car_brand: addForm.brand.trim(),
-        car_model: addForm.model.trim(),
-        is_visible: true,
+      await supabase.from('vehicles').upsert({
+        slug: slug,
+        manufacturer: addForm.brand.trim(),
+        name: addForm.model.trim(),
+        is_active: true,
         display_order: 999,
         updated_at: new Date().toISOString(),
-      }, { onConflict: 'vehicle_slug' });
+      }, { onConflict: 'slug' });
       const newBrand = addForm.brand.trim();
       const newModel = addForm.model.trim();
       setAddForm(null);
@@ -268,13 +268,13 @@ export default function AdminPricesPage() {
     setDownloading(true);
     try {
       const supabase = createBrowserSupabaseClient();
-      const [{ data: settings }, { data: prices }] = await Promise.all([
-        supabase.from('vehicle_settings').select('vehicle_slug, thumbnail_url, min_car_price, max_car_price'),
+      const [{ data: dbVehiclesDown }, { data: prices }] = await Promise.all([
+        supabase.from('vehicles').select('slug, image_url, min_price, max_price'),
         supabase.from('price_ranges').select('car_brand, car_model, contract_months, annual_km, min_monthly, max_monthly').eq('is_active', true),
       ]);
 
       const settingMap = new Map(
-        (settings ?? []).map((s: Record<string, unknown>) => [s.vehicle_slug as string, s])
+        (dbVehiclesDown ?? []).filter((s: Record<string, unknown>) => s.slug != null).map((s: Record<string, unknown>) => [s.slug as string, s])
       );
 
       const priceMap = new Map<string, { min: number; max: number }>();
@@ -300,9 +300,9 @@ export default function AdminPricesPage() {
           v.slug,
           v.brand,
           v.model,
-          (s?.thumbnail_url as string) ?? '',
-          s?.min_car_price != null ? Math.round((s.min_car_price as number) / 10000) : '',
-          s?.max_car_price != null ? Math.round((s.max_car_price as number) / 10000) : '',
+          (s?.image_url as string) ?? '',
+          s?.min_price != null ? (s.min_price as number) : '',
+          s?.max_price != null ? (s.max_price as number) : '',
           v.isVisible ? 'TRUE' : 'FALSE',
           v.displayOrder,
           ...priceCols,
@@ -343,7 +343,7 @@ export default function AdminPricesPage() {
       // slug로 VEHICLE_LIST 조회 (인코딩 깨짐 방지: 한글 brand/model은 CSV 대신 VEHICLE_LIST 사용)
       const getCanonical = (slug: string) => VEHICLE_LIST.find((v) => v.slug === slug) ?? null;
 
-      // 1. vehicle_settings 일괄 upsert
+      // 1. vehicles 일괄 upsert
       const settingsToUpsert = rows
         .map((row) => {
           const slug = row[0]?.trim();
@@ -351,23 +351,23 @@ export default function AdminPricesPage() {
           const brand = canonical?.brand ?? row[1]?.trim();
           const model = canonical?.model ?? row[2]?.trim();
           return {
-            vehicle_slug: slug,
-            car_brand: brand,
-            car_model: model,
-            thumbnail_url: row[3]?.trim() || null,
-            min_car_price: row[4]?.trim() ? Number(row[4].trim().replace(/,/g, '')) * 10000 : null,
-            max_car_price: row[5]?.trim() ? Number(row[5].trim().replace(/,/g, '')) * 10000 : null,
-            is_visible: row[6]?.trim().toUpperCase() !== 'FALSE',
+            slug: slug,
+            manufacturer: brand,
+            name: model,
+            image_url: row[3]?.trim() || null,
+            min_price: row[4]?.trim() ? Number(row[4].trim().replace(/,/g, '')) : null,
+            max_price: row[5]?.trim() ? Number(row[5].trim().replace(/,/g, '')) : null,
+            is_active: row[6]?.trim().toUpperCase() !== 'FALSE',
             display_order: parseInt(row[7]) || 0,
             updated_at: new Date().toISOString(),
           };
         })
-        .filter((s) => s.vehicle_slug && s.car_brand && s.car_model);
+        .filter((s) => s.slug && s.manufacturer && s.name);
 
       if (settingsToUpsert.length > 0) {
         const { error: settingsError } = await supabase
-          .from('vehicle_settings')
-          .upsert(settingsToUpsert, { onConflict: 'vehicle_slug' });
+          .from('vehicles')
+          .upsert(settingsToUpsert, { onConflict: 'slug' });
         if (settingsError) throw new Error(`설정 저장 실패: ${settingsError.message}`);
       }
 

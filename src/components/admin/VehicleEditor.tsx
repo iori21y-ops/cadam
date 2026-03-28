@@ -75,9 +75,9 @@ export function VehicleEditor({ vehicleSlug, isOpen, onClose, onSuccess, customB
       const supabase = createBrowserSupabaseClient();
       const [{ data: vs }, { data: prices }] = await Promise.all([
         supabase
-          .from('vehicle_settings')
-          .select('thumbnail_url, min_car_price, max_car_price')
-          .eq('vehicle_slug', vehicleSlug)
+          .from('vehicles')
+          .select('image_url, min_price, max_price')
+          .eq('slug', vehicleSlug)
           .maybeSingle(),
         supabase
           .from('price_ranges')
@@ -88,9 +88,9 @@ export function VehicleEditor({ vehicleSlug, isOpen, onClose, onSuccess, customB
       ]);
 
       setSetting({
-        thumbnailUrl: vs?.thumbnail_url ?? '',
-        minCarPrice: vs?.min_car_price ? String(Math.round(vs.min_car_price / 10000)) : '',
-        maxCarPrice: vs?.max_car_price ? String(Math.round(vs.max_car_price / 10000)) : '',
+        thumbnailUrl: vs?.image_url ?? '',
+        minCarPrice: vs?.min_price ? String(vs.min_price) : '',
+        maxCarPrice: vs?.max_price ? String(vs.max_price) : '',
       });
 
       const matrix = emptyMatrix();
@@ -135,15 +135,15 @@ export function VehicleEditor({ vehicleSlug, isOpen, onClose, onSuccess, customB
     try {
       const supabase = createBrowserSupabaseClient();
 
-      await supabase.from('vehicle_settings').upsert({
-        vehicle_slug: vehicleSlug,
-        car_brand: brand,
-        car_model: model,
-        thumbnail_url: setting.thumbnailUrl.trim() || null,
-        min_car_price: setting.minCarPrice ? Number(setting.minCarPrice) * 10000 : null,
-        max_car_price: setting.maxCarPrice ? Number(setting.maxCarPrice) * 10000 : null,
+      await supabase.from('vehicles').upsert({
+        slug: vehicleSlug,
+        manufacturer: brand,
+        name: model,
+        image_url: setting.thumbnailUrl.trim() || null,
+        min_price: setting.minCarPrice ? Number(setting.minCarPrice) : null,
+        max_price: setting.maxCarPrice ? Number(setting.maxCarPrice) : null,
         updated_at: new Date().toISOString(),
-      }, { onConflict: 'vehicle_slug' });
+      }, { onConflict: 'slug' });
 
       for (const months of CONTRACT_MONTHS) {
         for (const km of ANNUAL_KM) {

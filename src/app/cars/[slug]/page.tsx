@@ -23,9 +23,9 @@ interface PriceRangeRow {
   max_monthly: number;
 }
 
-interface VehicleSettingRow {
-  min_car_price: number | null;
-  max_car_price: number | null;
+interface VehicleDbRow {
+  min_price: number | null;
+  max_price: number | null;
 }
 
 interface ArticleRow {
@@ -80,7 +80,7 @@ async function CarPageContent({ slug }: { slug: string }) {
 
   const supabase = await createServerSupabaseClient();
 
-  const [{ data: priceRanges, error }, { data: articleRows }, { data: vehicleSetting }] = await Promise.all([
+  const [{ data: priceRanges, error }, { data: articleRows }, { data: vehicleDb }] = await Promise.all([
     supabase
       .from('price_ranges')
       .select('contract_months, annual_km, min_monthly, max_monthly')
@@ -94,9 +94,9 @@ async function CarPageContent({ slug }: { slug: string }) {
       .eq('is_active', true)
       .order('display_order', { ascending: true }),
     supabase
-      .from('vehicle_settings')
-      .select('min_car_price, max_car_price')
-      .eq('vehicle_slug', vehicle.slug)
+      .from('vehicles')
+      .select('min_price, max_price')
+      .eq('slug', vehicle.slug)
       .maybeSingle(),
   ]);
 
@@ -106,9 +106,9 @@ async function CarPageContent({ slug }: { slug: string }) {
       ? Math.min(...priceRows.map((r) => r.min_monthly))
       : null;
 
-  const vs = vehicleSetting as VehicleSettingRow | null;
-  const minCarPrice = vs?.min_car_price ?? null;
-  const maxCarPrice = vs?.max_car_price ?? null;
+  const vs = vehicleDb as VehicleDbRow | null;
+  const minCarPrice = vs?.min_price ? vs.min_price * 10000 : null;
+  const maxCarPrice = vs?.max_price ? vs.max_price * 10000 : null;
 
   const articles = ((articleRows ?? []) as ArticleRow[]).map((r) => ({
     id: r.id,
