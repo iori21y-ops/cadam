@@ -152,7 +152,7 @@ export function PriceEditor({
 
       if (isEdit && priceRange) {
         const { error: err } = await supabase
-          .from('price_ranges')
+          .from('pricing')
           .update({
             car_brand: brand,
             car_model: trimmedModel,
@@ -169,7 +169,7 @@ export function PriceEditor({
         const slug = getSlugForModel(brand, trimmedModel);
         if (slug) await callRevalidate(slug);
       } else {
-        const { error: err } = await supabase.from('price_ranges').insert({
+        const { error: err } = await supabase.from('pricing').insert({
           car_brand: brand,
           car_model: trimmedModel,
           contract_months: contractMonths,
@@ -240,7 +240,7 @@ export function PriceEditor({
         if (vehicle) slugsToRevalidate.add(vehicle.slug);
 
         const { data: existingRow } = await supabase
-          .from('price_ranges')
+          .from('pricing')
           .select('id')
           .eq('car_brand', row.brand)
           .eq('car_model', row.model)
@@ -250,14 +250,14 @@ export function PriceEditor({
 
         if (existingRow) {
           await supabase
-            .from('price_ranges')
+            .from('pricing')
             .update({
               min_monthly: row.min,
               max_monthly: row.max,
             })
             .eq('id', existingRow.id);
         } else {
-          await supabase.from('price_ranges').insert({
+          await supabase.from('pricing').insert({
             car_brand: row.brand,
             car_model: row.model,
             contract_months: row.months,

@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
     const supabase = await createServerSupabaseClient();
 
     const { data, error } = await supabase
-      .from('price_ranges')
+      .from('pricing')
       .select('min_monthly, max_monthly, conditions')
       .eq('car_brand', params.brand)
       .eq('car_model', params.model)
@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
       .maybeSingle();
 
     if (error) {
-      console.error('price_ranges query error:', error);
+      console.error('pricing query error:', error);
       return NextResponse.json(
         { error: 'Failed to fetch price range' },
         { status: 500 }

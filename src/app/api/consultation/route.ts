@@ -171,7 +171,7 @@ export async function POST(request: NextRequest) {
       input.annualKm
     ) {
       const { data: priceRange } = await supabase
-        .from('price_ranges')
+        .from('pricing')
         .select('min_monthly, max_monthly')
         .eq('car_brand', input.carBrand)
         .eq('car_model', input.carModel)

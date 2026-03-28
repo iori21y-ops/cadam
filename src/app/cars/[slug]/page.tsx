@@ -82,7 +82,7 @@ async function CarPageContent({ slug }: { slug: string }) {
 
   const [{ data: priceRanges, error }, { data: articleRows }, { data: vehicleDb }] = await Promise.all([
     supabase
-      .from('price_ranges')
+      .from('pricing')
       .select('contract_months, annual_km, min_monthly, max_monthly')
       .eq('car_brand', vehicle.brand)
       .eq('car_model', vehicle.model)

@@ -80,7 +80,7 @@ export function VehicleEditor({ vehicleSlug, isOpen, onClose, onSuccess, customB
           .eq('slug', vehicleSlug)
           .maybeSingle(),
         supabase
-          .from('price_ranges')
+          .from('pricing')
           .select('contract_months, annual_km, min_monthly, max_monthly')
           .eq('car_brand', currentBrand)
           .eq('car_model', currentModel)
@@ -152,7 +152,7 @@ export function VehicleEditor({ vehicleSlug, isOpen, onClose, onSuccess, customB
           if (!cell || (!cell.min && !cell.max)) continue;
 
           const { data: existing } = await supabase
-            .from('price_ranges')
+            .from('pricing')
             .select('id')
             .eq('car_brand', brand)
             .eq('car_model', model)
@@ -162,11 +162,11 @@ export function VehicleEditor({ vehicleSlug, isOpen, onClose, onSuccess, customB
 
           if (existing) {
             await supabase
-              .from('price_ranges')
+              .from('pricing')
               .update({ min_monthly: cell.min, max_monthly: cell.max, is_active: true })
               .eq('id', existing.id);
           } else {
-            await supabase.from('price_ranges').insert({
+            await supabase.from('pricing').insert({
               car_brand: brand,
               car_model: model,
               contract_months: months,

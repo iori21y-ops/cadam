@@ -58,7 +58,7 @@ async function VehicleListSection() {
   const [{ data: allVehicles }, { data: priceRanges }] = await Promise.all([
     supabase.from('vehicles').select('slug, is_active, display_order'),
     supabase
-      .from('price_ranges')
+      .from('pricing')
       .select('car_brand, car_model, contract_months, annual_km, min_monthly, max_monthly')
       .in('car_model', allModels)
       .eq('is_active', true)

@@ -71,7 +71,7 @@ export default function AdminPricesPage() {
       const supabase = createBrowserSupabaseClient();
       const [{ data: dbVehicles }, { data: prices }] = await Promise.all([
         supabase.from('vehicles').select('slug, image_url, min_price, max_price, is_active, display_order, manufacturer, name'),
-        supabase.from('price_ranges').select('car_brand, car_model').eq('is_active', true),
+        supabase.from('pricing').select('car_brand, car_model').eq('is_active', true),
       ]);
 
       const settingMap = new Map(
@@ -270,7 +270,7 @@ export default function AdminPricesPage() {
       const supabase = createBrowserSupabaseClient();
       const [{ data: dbVehiclesDown }, { data: prices }] = await Promise.all([
         supabase.from('vehicles').select('slug, image_url, min_price, max_price'),
-        supabase.from('price_ranges').select('car_brand, car_model, contract_months, annual_km, min_monthly, max_monthly').eq('is_active', true),
+        supabase.from('pricing').select('car_brand, car_model, contract_months, annual_km, min_monthly, max_monthly').eq('is_active', true),
       ]);
 
       const settingMap = new Map(
@@ -371,7 +371,7 @@ export default function AdminPricesPage() {
         if (settingsError) throw new Error(`설정 저장 실패: ${settingsError.message}`);
       }
 
-      // 2. price_ranges: 기존 비활성화 후 신규 삽입 (DELETE 권한 불필요)
+      // 2. pricing: 기존 비활성화 후 신규 삽입 (DELETE 권한 불필요)
       let priceUpdated = 0;
       const priceErrors: string[] = [];
 
@@ -398,7 +398,7 @@ export default function AdminPricesPage() {
         if (toInsert.length > 0) {
           // 기존 레코드 비활성화
           const { error: deactivateError } = await supabase
-            .from('price_ranges')
+            .from('pricing')
             .update({ is_active: false })
             .eq('car_brand', brand)
             .eq('car_model', model)
@@ -410,7 +410,7 @@ export default function AdminPricesPage() {
           }
 
           // 신규 삽입
-          const { error: insertError } = await supabase.from('price_ranges').insert(toInsert);
+          const { error: insertError } = await supabase.from('pricing').insert(toInsert);
           if (insertError) {
             priceErrors.push(`${model} 가격 저장 실패: ${insertError.message}`);
             continue;
