@@ -1,0 +1,36 @@
+services:
+  prompt-bff:
+    image: node:22-alpine
+    working_dir: /app
+    restart: unless-stopped
+    ports:
+      - "3099:3099"
+    volumes:
+      - ./prompt-bff:/app
+    command: sh -c "npm install --omit=dev && node server.js"
+    environment:
+      - PORT=3099
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      - N8N_BASE_URL=http://n8n:5678
+      - N8N_API_KEY=${N8N_API_KEY}
+      - BFF_API_KEY=${BFF_API_KEY}
+    depends_on:
+      - n8n
+
+  n8n:
+    image: n8nio/n8n:latest
+    restart: always
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_HOST=localhost
+      - NODE_ENV=production
+      - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY}
+      - N8N_CORS_ENABLE=true
+      - N8N_CORS_ORIGIN=*
+      - WP_URL=${WP_URL}
+      - N8N_API_DISABLED=false
+      - N8N_API_KEY=${N8N_API_KEY}
+    volumes:
+      - ./n8n_data:/home/node/.n8n

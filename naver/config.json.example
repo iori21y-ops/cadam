@@ -1,0 +1,9 @@
+{
+  "brand": "카담",
+  "blogId": "your-blog-id",
+  "defaultTags": "장기렌터카,카담,렌터카,자동차,절약",
+  "telegram": {
+    "botToken": "your-telegram-bot-token",
+    "chatId": "your-chat-id"
+  }
+}
