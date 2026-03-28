@@ -30,10 +30,8 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files
-**/.env
-**/.env.*
-!**/.env.example
+# env files (can opt-in for committing if needed)
+.env*
 
 # vercel
 .vercel
@@ -41,24 +39,3 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-
-# === 민감 정보 (모노레포 전체) ===
-**/credentials.json
-**/google-service-account.json
-**/naver-cookies.json
-**/*-cookies.json
-**/config.json
-!**/config.json.example
-
-# === n8n 데이터 (DB에 크리덴셜 포함) ===
-**/n8n_data/database.sqlite*
-**/n8n_data/*.log
-**/n8n_data/config
-**/n8n_data/nodes/
-**/n8n_data/storage/
-**/n8n_data/crash.journal
-
-# === 공통 ===
-**/node_modules/
-**/__pycache__/
-*.pyc
