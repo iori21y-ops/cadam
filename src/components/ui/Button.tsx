@@ -10,7 +10,7 @@ const BASE =
 
 const VARIANTS: Record<Variant, string> = {
   primary:   'bg-primary text-white hover:opacity-90 disabled:bg-[#D1D1D6] disabled:opacity-100',
-  secondary: 'bg-surface-secondary border border-[#E5E5EA] text-text hover:border-primary hover:text-primary disabled:opacity-60',
+  secondary: 'bg-surface-secondary border border-border-solid text-text hover:border-primary hover:text-primary disabled:opacity-60',
   surface:   'bg-surface shadow-sm text-text-sub hover:text-text disabled:opacity-60',
   outline:   'border border-primary text-primary bg-surface-secondary hover:bg-primary/5 disabled:opacity-60',
   ghost:     'bg-transparent text-text-muted underline hover:text-primary disabled:opacity-60',

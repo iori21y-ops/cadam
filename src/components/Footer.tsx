@@ -38,9 +38,6 @@ export function Footer() {
           개인정보 처리방침
         </Link>
       </p>
-      <p className="text-[13px] text-text-muted mb-2">
-        (사업자 등록 후 기입)
-      </p>
       <p className="text-[13px] text-text-muted">© 카담(CADAM)</p>
     </footer>
   );

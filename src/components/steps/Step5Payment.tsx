@@ -65,10 +65,10 @@ export function Step5Payment({ onCompleteChange }: Step5PaymentProps) {
     <div className="overflow-y-auto scrollbar-hide">
       {/* 1단계: 보증금 vs 선납금 선택 */}
       <div className="px-5">
-        <h3 className="text-sm font-bold text-[#1D1D1F] mt-3 mb-2">
+        <h3 className="text-sm font-bold text-text mt-3 mb-2">
           보증금과 선납금 중 하나를 선택해 주세요
         </h3>
-        <p className="text-sm text-[#86868B] mb-3">
+        <p className="text-sm text-text-sub mb-3">
           비율에 따라 월 납부금이 달라집니다
         </p>
         <div className="flex gap-2.5">
@@ -77,7 +77,7 @@ export function Step5Payment({ onCompleteChange }: Step5PaymentProps) {
             selected={selectedType === 'deposit'}
             onClick={() => handleTypeSelect('deposit')}
           >
-            <span className={`text-sm font-semibold flex-1 ${selectedType === 'deposit' ? 'text-white' : 'text-[#1D1D1F]'}`}>
+            <span className={`text-sm font-semibold flex-1 ${selectedType === 'deposit' ? 'text-white' : 'text-text'}`}>
               보증금
             </span>
           </SelectCard>
@@ -86,7 +86,7 @@ export function Step5Payment({ onCompleteChange }: Step5PaymentProps) {
             selected={selectedType === 'prepayment'}
             onClick={() => handleTypeSelect('prepayment')}
           >
-            <span className={`text-sm font-semibold flex-1 ${selectedType === 'prepayment' ? 'text-white' : 'text-[#1D1D1F]'}`}>
+            <span className={`text-sm font-semibold flex-1 ${selectedType === 'prepayment' ? 'text-white' : 'text-text'}`}>
               선납금
             </span>
           </SelectCard>
@@ -96,10 +96,10 @@ export function Step5Payment({ onCompleteChange }: Step5PaymentProps) {
       {/* 2단계: 비율 선택 */}
       {selectedType && (
         <div className="px-5 mt-6">
-          <h3 className="text-sm font-bold text-[#1D1D1F] mb-2">
+          <h3 className="text-sm font-bold text-text mb-2">
             {selectedType === 'deposit' ? '보증금' : '선납금'} 비율을 선택해 주세요
           </h3>
-          <p className="text-sm text-[#86868B] mb-3">
+          <p className="text-sm text-text-sub mb-3">
             {selectedType === 'deposit'
               ? '보증금 비율이 높을수록 월 납부금이 낮아집니다'
               : '차량가의 일부를 선납하면 월 납부금이 낮아집니다'}
@@ -115,7 +115,7 @@ export function Step5Payment({ onCompleteChange }: Step5PaymentProps) {
                   selected={isSel}
                   onClick={() => handleRatioSelect(opt.value)}
                 >
-                  <span className={`text-sm font-semibold flex-1 ${isSel ? 'text-white' : 'text-[#1D1D1F]'}`}>
+                  <span className={`text-sm font-semibold flex-1 ${isSel ? 'text-white' : 'text-text'}`}>
                     {opt.label}
                   </span>
                 </SelectCard>

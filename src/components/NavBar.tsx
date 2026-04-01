@@ -18,11 +18,11 @@ export function NavBar() {
   if (pathname?.startsWith('/admin')) return null;
 
   return (
-    <nav className="sticky top-0 z-50 glass border-b border-[#E5E5EA] overflow-hidden">
+    <nav className="sticky top-0 z-50 glass border-b border-border-solid overflow-hidden">
       <div className="max-w-[1024px] mx-auto px-5 py-3 flex items-center gap-3 w-full min-w-0">
         <Link
           href="/"
-          className="text-[15px] font-bold text-text shrink-0 hover:text-[#0A84FF] transition-colors"
+          className="text-[15px] font-bold text-text shrink-0 hover:text-primary transition-colors"
         >
           🚘 카담
         </Link>
@@ -45,8 +45,8 @@ export function NavBar() {
                 href={item.href}
                 className={`px-4 py-2 rounded-full text-[13px] font-semibold transition-all whitespace-nowrap ${
                   isActive
-                    ? 'bg-[#0A84FF] text-white'
-                    : 'text-text-sub hover:text-[#0A84FF] hover:bg-[#0A84FF0D]'
+                    ? 'bg-primary text-white'
+                    : 'text-text-sub hover:text-primary hover:bg-primary/5'
                 }`}
               >
                 {item.label}
@@ -56,7 +56,7 @@ export function NavBar() {
         </div>
         <Link
           href="/admin"
-          className="shrink-0 px-3 py-1.5 rounded-full text-[12px] font-semibold text-[#AEAEB2] hover:text-[#0A84FF] hover:bg-[#0A84FF0D] transition-colors"
+          className="shrink-0 px-3 py-1.5 rounded-full text-[12px] font-semibold text-text-muted hover:text-primary hover:bg-primary/5 transition-colors"
         >
           관리자
         </Link>

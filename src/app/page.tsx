@@ -20,7 +20,7 @@ const MAIN_CARDS = [
     title: '무료 견적 받기',
     description: '차종·예산·기간을 선택하면 맞춤 월 납부금을 바로 확인할 수 있어요.',
     cta: '견적 시작하기',
-    color: 'bg-[#0A84FF1A]',
+    color: 'bg-primary/10',
   },
   {
     id: 'diagnosis',
@@ -64,8 +64,10 @@ export default function HomePage() {
   const pathname = usePathname();
   const router = useRouter();
   const [clickedHref, setClickedHref] = useState<string | null>(null);
+  const [fading, setFading] = useState(false);
   const clickedRef = useRef<string | null>(null);
   const NAV_DELAY_MS = 300;
+  const FADE_MS = 350;
 
   const triggerPageTransition = usePageTransitionStore((s) => s.trigger);
 
@@ -74,10 +76,14 @@ export default function HomePage() {
     if (clickedRef.current) return;
     clickedRef.current = href;
     setClickedHref(href);
+    // selected 효과(300ms)를 보여준 뒤 fade→navigate
+    window.setTimeout(() => {
+      setFading(true);
+    }, NAV_DELAY_MS);
     window.setTimeout(() => {
       triggerPageTransition();
       router.push(href);
-    }, NAV_DELAY_MS);
+    }, NAV_DELAY_MS + FADE_MS);
   };
 
   return (
@@ -89,7 +95,7 @@ export default function HomePage() {
         </h2>
         <motion.div
           className="flex flex-col gap-4 max-w-lg mx-auto"
-          animate={clickedHref ? { opacity: 0, x: -40 } : { opacity: 1, x: 0 }}
+          animate={fading ? { opacity: 0, x: -40 } : { opacity: 1, x: 0 }}
           transition={{ duration: 0.35, ease: 'easeOut' }}
         >
           {MAIN_CARDS.map((card, idx) => {
@@ -116,7 +122,7 @@ export default function HomePage() {
                   <div className="min-w-0 flex-1">
                     <h3
                       className={`text-[16px] font-medium mb-0.5 ${
-                        isActive ? 'text-white' : 'text-[#1D1D1F]'
+                        isActive ? 'text-white' : 'text-text'
                       }`}
                     >
                       {card.title}
@@ -150,10 +156,10 @@ export default function HomePage() {
               <Link
                 key={slug}
                 href={`/cars/${slug}`}
-                className={`px-4 py-2.5 rounded-[20px] border-2 shadow-[0_2px_16px_rgba(0,0,0,0.05)] font-semibold transition-all duration-300 focus:outline-none focus-visible:outline-none ${
+                className={`px-4 py-2.5 rounded-full border font-semibold transition-all duration-300 focus:outline-none focus-visible:outline-none ${
                   isSel
-                    ? 'bg-[#007AFF] border-[#007AFF] text-white shadow-[0_4px_24px_rgba(0,122,255,0.25)] pointer-events-none cursor-default'
-                    : 'bg-white border-transparent text-text-sub hover:border-[#007AFF] hover:scale-[1.015]'
+                    ? 'bg-primary border-primary text-white pointer-events-none cursor-default'
+                    : 'bg-white border-border-solid text-text-sub hover:border-primary hover:text-primary'
                 }`}
               >
                 {vehicle.model}
@@ -164,18 +170,6 @@ export default function HomePage() {
       </section>
 
       <Footer />
-
-      {/* 관리자 버튼 */}
-      <div className="flex justify-center py-4 border-t border-border">
-        <a
-          href="/admin"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-xs text-text-muted hover:text-text-sub transition-colors"
-        >
-          관리자
-        </a>
-      </div>
     </div>
   );
 }

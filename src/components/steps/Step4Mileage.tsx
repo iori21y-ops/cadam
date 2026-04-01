@@ -44,10 +44,10 @@ export function Step4Mileage() {
   return (
     <>
       <div className="pt-7 px-5 pb-2 text-center">
-        <h2 className="text-[22px] font-bold text-[#1D1D1F] leading-snug">
+        <h2 className="text-[22px] font-bold text-text leading-snug">
           연간 주행거리를 선택해 주세요
         </h2>
-        <p className="text-sm text-[#86868B] mt-2">
+        <p className="text-sm text-text-sub mt-2">
           실제 주행거리를 초과하면 추가 요금이 발생할 수 있습니다
         </p>
       </div>
@@ -67,10 +67,10 @@ export function Step4Mileage() {
             )}
             <span className="text-2xl shrink-0">🚗</span>
             <div className="min-w-0 flex-1">
-              <div className={`text-base font-semibold ${selectedValue === opt.value ? 'text-white' : 'text-[#1D1D1F]'}`}>
+              <div className={`text-base font-semibold ${selectedValue === opt.value ? 'text-white' : 'text-text'}`}>
                 {opt.label}
               </div>
-              <div className={`text-[13px] mt-0.5 ${selectedValue === opt.value ? 'text-white/70' : 'text-[#86868B]'}`}>
+              <div className={`text-[13px] mt-0.5 ${selectedValue === opt.value ? 'text-white/70' : 'text-text-sub'}`}>
                 {opt.sub}
               </div>
             </div>

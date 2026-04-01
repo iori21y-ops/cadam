@@ -36,7 +36,7 @@ const SERVICES = [
     emoji: '📋',
     title: '무료 견적',
     description: '원하는 차종과 조건을 선택하면 전문가가 무료로 견적을 드립니다.',
-    color: 'text-[#34C759]',
+    color: 'text-success',
     bg: 'bg-[#34C759]/8',
   },
 ];
@@ -52,8 +52,10 @@ export default function DiagnosisPage() {
   const ACCENT = '#007AFF';
   const router = useRouter();
   const [clickedHref, setClickedHref] = useState<string | null>(null);
+  const [fading, setFading] = useState(false);
   const clickedRef = useRef<string | null>(null);
   const NAV_DELAY_MS = 300;
+  const FADE_MS = 350;
   const [aiConfig, setAiConfig] = useState<AIConfig>(DEFAULT_AI_CONFIG);
 
   const triggerPageTransition = usePageTransitionStore((s) => s.trigger);
@@ -77,20 +79,23 @@ export default function DiagnosisPage() {
     clickedRef.current = href;
     setClickedHref(href);
     window.setTimeout(() => {
+      setFading(true);
+    }, NAV_DELAY_MS);
+    window.setTimeout(() => {
       triggerPageTransition();
       router.push(href);
-    }, NAV_DELAY_MS);
+    }, NAV_DELAY_MS + FADE_MS);
   };
 
   return (
     <div className="min-h-screen bg-surface-secondary pb-10">
       {/* 박대표AI 코멘트 */}
       <section className="px-5 pt-6 pb-4 max-w-lg mx-auto">
-        <div className="flex gap-3 items-start p-4 rounded-2xl bg-[#007AFF0D] border border-[#007AFF20]">
+        <div className="flex gap-3 items-start p-4 rounded-2xl bg-primary/5 border border-primary/[0.12]">
           <span className="text-3xl shrink-0">{aiConfig.charEmoji}</span>
           <div className="min-w-0">
-            <p className="text-xs font-bold text-[#007AFF] mb-1">{aiConfig.charTitle}</p>
-            <p className="text-sm text-[#1D1D1F] leading-relaxed">{aiConfig.introComment}</p>
+            <p className="text-xs font-bold text-primary mb-1">{aiConfig.charTitle}</p>
+            <p className="text-sm text-text leading-relaxed">{aiConfig.introComment}</p>
           </div>
         </div>
       </section>
@@ -98,7 +103,7 @@ export default function DiagnosisPage() {
       {/* 서비스 카드 */}
       <motion.section
         className="px-5 max-w-lg mx-auto flex flex-col gap-4"
-        animate={clickedHref ? { opacity: 0, x: -40 } : { opacity: 1, x: 0 }}
+        animate={fading ? { opacity: 0, x: -40 } : { opacity: 1, x: 0 }}
         transition={{ duration: 0.35, ease: 'easeOut' }}
       >
         {SERVICES.map((service, i) => (
@@ -121,7 +126,7 @@ export default function DiagnosisPage() {
                     color={ACCENT}
                     onClick={() => handleCardClick(service.href)}
                   >
-                    <span className="text-3xl w-14 h-14 flex items-center justify-center rounded-2xl shrink-0 bg-[#007AFF0D]">
+                    <span className="text-3xl w-14 h-14 flex items-center justify-center rounded-2xl shrink-0 bg-primary/5">
                       {service.emoji}
                     </span>
                     <div className="flex-1 min-w-0">

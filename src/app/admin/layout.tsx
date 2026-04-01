@@ -57,7 +57,7 @@ export default function AdminLayout({
   if (isChecking) {
     return (
       <div className="min-h-[100dvh] flex items-center justify-center bg-surface-secondary">
-        <div className="w-8 h-8 border-2 border-[#007AFF] border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -72,11 +72,11 @@ export default function AdminLayout({
 
   return (
     <div className="min-h-[100dvh] flex flex-col bg-surface-secondary">
-      <nav className="sticky top-0 z-50 glass border-b border-[#E5E5EA] overflow-hidden">
+      <nav className="sticky top-0 z-50 glass border-b border-border-solid overflow-hidden">
         <div className="max-w-[1200px] mx-auto px-5 py-3 flex items-center gap-4 min-w-0">
           <Link
             href="/admin"
-            className="text-base font-extrabold text-[#1D1D1F] shrink-0"
+            className="text-base font-extrabold text-text shrink-0"
           >
             카담 Admin
           </Link>
@@ -99,8 +99,8 @@ export default function AdminLayout({
                   href={item.href}
                   className={`px-3 py-2 rounded-full text-[13px] font-semibold whitespace-nowrap transition-colors ${
                     isActive
-                      ? 'bg-[#007AFF] text-white'
-                      : 'text-[#86868B] hover:bg-[#007AFF0D] hover:text-[#007AFF]'
+                      ? 'bg-primary text-white'
+                      : 'text-text-sub hover:bg-primary/5 hover:text-primary'
                   }`}
                 >
                   {item.label}
@@ -111,7 +111,7 @@ export default function AdminLayout({
           <button
             type="button"
             onClick={handleLogout}
-            className="shrink-0 px-4 py-2 rounded-full text-[13px] font-semibold text-[#86868B] hover:bg-[#007AFF0D] hover:text-[#007AFF] transition-colors"
+            className="shrink-0 px-4 py-2 rounded-full text-[13px] font-semibold text-text-sub hover:bg-primary/5 hover:text-primary transition-colors"
           >
             로그아웃
           </button>

@@ -1,8 +1,8 @@
 ﻿import { Suspense } from 'react';
-import Link from 'next/link';
 import { getVehicleBySlug, VEHICLE_LIST } from '@/constants/vehicles';
 import { createServerSupabaseClient } from '@/lib/supabase-server';
 import { Footer } from '@/components/Footer';
+import { ButtonLink } from '@/components/ui/Button';
 import { PopularEstimatesClient } from './PopularEstimatesClient';
 export const revalidate = 3600;
 const FALLBACK_SLUGS = [
@@ -36,13 +36,13 @@ function VehiclesSkeleton() {
   return (
     <div className="flex flex-col gap-2">
       {Array.from({ length: 6 }).map((_, i) => (
-        <div key={i} className="flex items-center gap-3 bg-white rounded-2xl border border-[#E5E5EA] p-3 animate-pulse">
-          <div className="w-8 h-5 bg-[#F5F5F7] rounded" />
-          <div className="w-20 h-12 bg-[#F5F5F7] rounded-xl" />
+        <div key={i} className="flex items-center gap-3 bg-white rounded-2xl border border-border-solid p-3 animate-pulse">
+          <div className="w-8 h-5 bg-surface-secondary rounded" />
+          <div className="w-20 h-12 bg-surface-secondary rounded-xl" />
           <div className="flex-1 space-y-1.5">
-            <div className="h-3.5 bg-[#F5F5F7] rounded w-2/3" />
-            <div className="h-3 bg-[#F5F5F7] rounded w-1/2" />
-            <div className="h-3.5 bg-[#F5F5F7] rounded w-1/3" />
+            <div className="h-3.5 bg-surface-secondary rounded w-2/3" />
+            <div className="h-3 bg-surface-secondary rounded w-1/2" />
+            <div className="h-3.5 bg-surface-secondary rounded w-1/3" />
           </div>
         </div>
       ))}
@@ -100,22 +100,19 @@ export default function PopularEstimatesPage() {
       <div className="px-5 pt-10 max-w-lg mx-auto">
         
         <div className="mb-6">
-          <p className="text-sm text-[#86868B] mb-1">36개월 기준 · 보증금 0원</p>
-          <h1 className="text-2xl font-bold text-[#1D1D1F] tracking-tight">인기차종 순위</h1>
+          <p className="text-sm text-text-sub mb-1">36개월 기준 · 보증금 0원</p>
+          <h1 className="text-2xl font-bold text-text tracking-tight">인기차종 순위</h1>
         </div>
         
         <Suspense fallback={<VehiclesSkeleton />}>
           <VehicleListSection />
         </Suspense>
         
-        <div className="mt-6 p-5 rounded-2xl bg-[#0A84FF1A]">
-          <p className="text-[#86868B] text-sm mb-4">내 조건에 맞는 정확한 견적을 받아보세요</p>
-          <Link
-            href="/quote"
-            className="block text-center px-8 py-3.5 rounded-[10px] font-semibold bg-[#007AFF] text-white hover:opacity-90 transition-opacity"
-          >
+        <div className="mt-6 p-5 rounded-2xl bg-primary/10">
+          <p className="text-text-sub text-sm mb-4">내 조건에 맞는 정확한 견적을 받아보세요</p>
+          <ButtonLink href="/quote" variant="primary" size="lg" fullWidth>
             무료 견적 받기
-          </Link>
+          </ButtonLink>
         </div>
       </div>
       <Footer />

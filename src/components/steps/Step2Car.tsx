@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { FilterPill } from '@/components/ui/FilterPill';
 import {
   getVehiclesByBrand,
   type Brand,
@@ -92,14 +93,14 @@ export function Step2Car() {
     <>
       {/* Step heading */}
       <div className="pt-7 px-5 pb-2 text-center">
-        <h2 className="text-[22px] font-bold text-[#1D1D1F] leading-snug">
+        <h2 className="text-[22px] font-bold text-text leading-snug">
           차종을 선택해 주세요
         </h2>
       </div>
 
       {/* Brand tabs - sticky */}
       <div className="sticky top-0 z-10 bg-surface-secondary px-5 pt-1 pb-2">
-        <div className="bg-white border border-[#E5E5EA] rounded-2xl overflow-hidden">
+        <div className="bg-white border border-border-solid rounded-2xl overflow-hidden">
           <div className="flex">
           {BRANDS.map((brand) => (
             <button
@@ -118,8 +119,8 @@ export function Step2Car() {
                 border-b-2 border-transparent -mb-0.5 transition-all duration-150
                 ${
                   activeBrand === brand
-                    ? 'text-[#007AFF] border-b-[#007AFF]'
-                    : 'text-[#AEAEB2]'
+                    ? 'text-primary border-b-primary'
+                    : 'text-text-muted'
                 }
               `}
             >
@@ -133,9 +134,9 @@ export function Step2Car() {
       {/* Category sub-filter - horizontal scroll */}
       <div className="flex gap-2 px-5 py-2.5 overflow-x-auto shrink-0">
         {CATEGORY_FILTERS.map((cat) => (
-          <button
+          <FilterPill
             key={cat}
-            type="button"
+            active={activeCategory === cat}
             onClick={() => {
               setActiveCategory(cat);
               setSelectedVehicle(null);
@@ -144,25 +145,16 @@ export function Step2Car() {
               setCarModel(null);
               setTrim(null);
             }}
-            className={`
-              shrink-0 py-1.5 px-3.5 rounded-2xl border text-xs font-semibold
-              transition-all duration-150
-              ${
-                activeCategory === cat
-                  ? 'bg-[#0A84FF] text-white border-[#0A84FF]'
-                  : 'bg-white border-[#E5E5EA] text-[#86868B]'
-              }
-            `}
           >
             {cat}
-          </button>
+          </FilterPill>
         ))}
       </div>
 
       {/* Vehicle grid - scroll area */}
       <div className="px-5 py-3 overflow-y-auto max-h-[340px] scrollbar-hide">
         {filteredVehicles.length === 0 ? (
-          <p className="py-8 text-center text-[#86868B] text-sm">
+          <p className="py-8 text-center text-text-sub text-sm">
             해당 차종이 없습니다
           </p>
         ) : (
@@ -186,14 +178,14 @@ export function Step2Car() {
                   <div className="flex-1 text-center">
                     <div
                       className={`text-[13px] font-medium ${
-                        isVehicleSelected ? 'text-white' : 'text-[#1D1D1F]'
+                        isVehicleSelected ? 'text-white' : 'text-text'
                       }`}
                     >
                       {vehicle.model}
                     </div>
                     <div
                       className={`text-[10px] mt-0.5 ${
-                        isVehicleSelected ? 'text-white/60' : 'text-[#AEAEB2]'
+                        isVehicleSelected ? 'text-white/60' : 'text-text-muted'
                       }`}
                     >
                       {vehicle.segment}
@@ -212,8 +204,8 @@ export function Step2Car() {
                         transition={{ duration: 0.2 }}
                         className="overflow-hidden"
                       >
-                        <div className="mt-2 p-3 border border-[#007AFF] rounded-2xl bg-[#007AFF0D]">
-                          <div className="text-xs font-semibold text-[#1D1D1F] mb-2">
+                        <div className="mt-2 p-3 border border-primary rounded-2xl bg-primary/5">
+                          <div className="text-xs font-semibold text-text mb-2">
                             트림 선택
                           </div>
                           <div className="flex flex-wrap gap-2">
@@ -226,8 +218,8 @@ export function Step2Car() {
                                 }
                                 className={`px-3 py-1.5 rounded-[10px] text-xs font-semibold transition-colors border ${
                                   selectedTrim === trim
-                                    ? 'bg-[#007AFF] border-[#007AFF] text-white shadow-[0_4px_24px_rgba(0,122,255,0.25)]'
-                                    : 'bg-white border-[#E5E5EA] text-[#1D1D1F] hover:border-[#007AFF]'
+                                    ? 'bg-primary border-primary text-white shadow-[0_4px_24px_rgba(0,122,255,0.25)]'
+                                    : 'bg-white border-border-solid text-text hover:border-primary'
                                 }`}
                               >
                                 {trim}
@@ -270,10 +262,10 @@ export function Step2Car() {
             >
               <div className="p-5 pb-8">
                 <div className="w-12 h-1 bg-[#D1D1D6] rounded-full mx-auto mb-4" />
-                <h3 className="text-base font-bold text-[#1D1D1F] mb-1">
+                <h3 className="text-base font-bold text-text mb-1">
                   {selectedVehicle.model}
                 </h3>
-                <p className="text-sm text-[#86868B] mb-4">
+                <p className="text-sm text-text-sub mb-4">
                   트림을 선택해 주세요
                 </p>
                 <div className="flex flex-col gap-2">
@@ -286,8 +278,8 @@ export function Step2Car() {
                       }
                       className={`w-full p-4 border rounded-2xl text-left font-semibold transition-all ${
                         selectedTrim === trim
-                                ? 'bg-[#007AFF] border-[#007AFF] text-white shadow-[0_4px_24px_rgba(0,122,255,0.25)]'
-                                : 'bg-white border-[#E5E5EA] text-[#1D1D1F] hover:border-[#007AFF]'
+                                ? 'bg-primary border-primary text-white shadow-[0_4px_24px_rgba(0,122,255,0.25)]'
+                                : 'bg-white border-border-solid text-text hover:border-primary'
                       }`}
                     >
                       <div className="flex items-center justify-between gap-3">
@@ -299,7 +291,7 @@ export function Step2Car() {
                 <button
                   type="button"
                   onClick={closeTrimSheet}
-                  className="w-full mt-4 py-3 text-sm text-[#86868B] font-medium"
+                  className="w-full mt-4 py-3 text-sm text-text-sub font-medium"
                 >
                   취소
                 </button>

@@ -35,17 +35,17 @@ export function PriceCompareTable({ priceRanges }: PriceCompareTableProps) {
     : null;
 
   return (
-    <div className="overflow-x-auto rounded-2xl border border-[#E5E5EA] bg-white">
+    <div className="overflow-x-auto rounded-2xl border border-border-solid bg-white">
       <table className="w-full min-w-[280px] border-collapse">
         <thead>
           <tr>
-            <th className="bg-[#007AFF] text-white py-2.5 px-2 text-xs font-semibold text-left pl-4">
+            <th className="bg-primary text-white py-2.5 px-2 text-xs font-semibold text-left pl-4">
               계약 기간
             </th>
             {ANNUAL_KM.map((km) => (
               <th
                 key={km}
-                className="bg-[#007AFF] text-white py-2.5 px-2 text-xs font-semibold text-center"
+                className="bg-primary text-white py-2.5 px-2 text-xs font-semibold text-center"
               >
                 {KM_LABELS[km]}
               </th>
@@ -56,9 +56,9 @@ export function PriceCompareTable({ priceRanges }: PriceCompareTableProps) {
           {CONTRACT_MONTHS.map((months, rowIdx) => (
             <tr
               key={months}
-              className={rowIdx % 2 === 1 ? 'bg-[#F5F5F7]' : 'bg-white'}
+              className={rowIdx % 2 === 1 ? 'bg-surface-secondary' : 'bg-white'}
             >
-              <td className="py-2.5 px-2 pl-4 text-[13px] text-[#1D1D1F] border-b border-[#E5E5EA]">
+              <td className="py-2.5 px-2 pl-4 text-[13px] text-text border-b border-border-solid">
                 {months}개월
               </td>
               {ANNUAL_KM.map((km) => {
@@ -67,19 +67,19 @@ export function PriceCompareTable({ priceRanges }: PriceCompareTableProps) {
                   <span
                     className={
                       minOverall != null && price.min === minOverall
-                        ? 'text-[#007AFF] font-semibold'
-                        : 'text-[#1D1D1F]'
+                        ? 'text-primary font-semibold'
+                        : 'text-text'
                     }
                   >
                     {formatManwon(price.min)}~
                   </span>
                 ) : (
-                  <span className="text-[#86868B] text-sm">상담 문의</span>
+                  <span className="text-text-sub text-sm">상담 문의</span>
                 );
                 return (
                   <td
                     key={km}
-                    className="py-2.5 px-2 text-[13px] text-center border-b border-[#E5E5EA]"
+                    className="py-2.5 px-2 text-[13px] text-center border-b border-border-solid"
                   >
                     {cellContent}
                   </td>

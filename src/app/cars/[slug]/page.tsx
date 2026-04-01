@@ -66,10 +66,10 @@ export async function generateMetadata({
 function PriceSkeleton() {
   return (
     <div className="animate-pulse space-y-3 px-5 py-8">
-      <div className="h-5 bg-[#F5F5F7] rounded w-1/3 mb-4" />
-      <div className="h-10 bg-[#F5F5F7] rounded" />
-      <div className="h-10 bg-[#F5F5F7] rounded" />
-      <div className="h-10 bg-[#F5F5F7] rounded" />
+      <div className="h-5 bg-surface-secondary rounded w-1/3 mb-4" />
+      <div className="h-10 bg-surface-secondary rounded" />
+      <div className="h-10 bg-surface-secondary rounded" />
+      <div className="h-10 bg-surface-secondary rounded" />
     </div>
   );
 }
@@ -123,13 +123,13 @@ async function CarPageContent({ slug }: { slug: string }) {
       <CarHero vehicle={vehicle} minPrice={minPrice} minCarPrice={minCarPrice} maxCarPrice={maxCarPrice} />
 
       <section className="px-5 py-8">
-        <h2 className="text-lg font-bold text-[#007AFF] mb-4">
+        <h2 className="text-lg font-bold text-primary mb-4">
           계약 조건별 월 납부금
         </h2>
         {priceRows.length > 0 ? (
           <PriceCompareTable priceRanges={priceRows} />
         ) : (
-          <div className="py-8 text-center text-[#86868B] rounded-2xl border border-[#E5E5EA] bg-white">
+          <div className="py-8 text-center text-text-sub rounded-2xl border border-border-solid bg-white">
             상담 문의
           </div>
         )}

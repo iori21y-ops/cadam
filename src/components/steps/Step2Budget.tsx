@@ -42,7 +42,7 @@ export function Step2Budget() {
   return (
     <>
       <div className="pt-7 px-5 pb-2 text-center">
-        <h2 className="text-[22px] font-bold text-[#1D1D1F] leading-snug">
+        <h2 className="text-[22px] font-bold text-text leading-snug">
           월 예산은 어느 정도 생각하고 계세요?
         </h2>
       </div>
@@ -57,7 +57,7 @@ export function Step2Budget() {
           >
             <span className="text-2xl shrink-0">💰</span>
             <div className="min-w-0 flex-1">
-              <div className={`text-base font-semibold ${selectedValue === opt.value ? 'text-white' : 'text-[#1D1D1F]'}`}>
+              <div className={`text-base font-semibold ${selectedValue === opt.value ? 'text-white' : 'text-text'}`}>
                 {opt.label}
               </div>
             </div>

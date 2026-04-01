@@ -162,10 +162,10 @@ function SmallButton({
 }) {
   const cls =
     variant === 'primary'
-      ? 'bg-[#007AFF] text-white shadow-[0_4px_16px_rgba(0,122,255,0.25)]'
+      ? 'bg-primary text-white shadow-[0_4px_16px_rgba(0,122,255,0.25)]'
       : variant === 'danger'
-        ? 'bg-[#FF3B30] text-white'
-        : 'bg-[#F5F5F7] text-[#1D1D1F]';
+        ? 'bg-danger text-white'
+        : 'bg-surface-secondary text-text';
   return (
     <button
       type="button"
@@ -190,7 +190,7 @@ function PlusTinyButton({
       type="button"
       onClick={onClick}
       aria-label={label}
-      className="bg-[#F5F5F7] text-[#007AFF] rounded-[10px] px-2.5 py-1.5 text-xs font-semibold"
+      className="bg-surface-secondary text-primary rounded-[10px] px-2.5 py-1.5 text-xs font-semibold"
     >
       +
     </button>
@@ -223,8 +223,8 @@ function AdminTabBar({
             onClick={() => setTab(it.key)}
             className={`flex-1 min-w-[50px] py-2 rounded-[10px] border-0 text-[11px] font-semibold ${
               active
-                ? 'bg-white text-[#1D1D1F] shadow-[0_1px_4px_rgba(0,0,0,0.08)]'
-                : 'bg-transparent text-[#86868B]'
+                ? 'bg-white text-text shadow-[0_1px_4px_rgba(0,0,0,0.08)]'
+                : 'bg-transparent text-text-sub'
             }`}
           >
             {it.label}
@@ -264,7 +264,7 @@ function QuestionEditor({
 }) {
   const [openIdx, setOpenIdx] = useState<number | null>(null);
 
-  const ainp = 'bg-[#F5F5F7] border border-[#E5E5EA] rounded-[10px] outline-none w-full box-border';
+  const ainp = 'bg-surface-secondary border border-border-solid rounded-[10px] outline-none w-full box-border';
 
   const addQuestion = () => {
     const id = `q_${Date.now()}`;
@@ -417,13 +417,13 @@ function QuestionEditor({
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
-        <span className="text-[18px] font-bold text-[#1D1D1F]">
+        <span className="text-[18px] font-bold text-text">
           {label} ({questions.length}개)
         </span>
         <button
           type="button"
           onClick={addQuestion}
-          className="bg-[#007AFF] text-white rounded-[10px] px-4 py-2 text-sm font-semibold shadow-[0_4px_16px_rgba(0,122,255,0.25)]"
+          className="bg-primary text-white rounded-[10px] px-4 py-2 text-sm font-semibold shadow-[0_4px_16px_rgba(0,122,255,0.25)]"
         >
           + 추가
         </button>
@@ -436,7 +436,7 @@ function QuestionEditor({
           <div
             key={q.id}
             className={`bg-white rounded-2xl overflow-hidden mb-[10px] border-2 ${
-              isOpen ? 'border-[#007AFF]' : 'border-transparent'
+              isOpen ? 'border-primary' : 'border-transparent'
             }`}
           >
             <div
@@ -451,12 +451,12 @@ function QuestionEditor({
                 }
               }}
             >
-              <span className="text-xs font-bold text-[#86868B] min-w-[26px]">Q{qi + 1}</span>
+              <span className="text-xs font-bold text-text-sub min-w-[26px]">Q{qi + 1}</span>
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-semibold text-[#1D1D1F]">{q.question.replace('\n', ' ')}</div>
-                <div className="text-[10px] text-[#AEAEB2] mt-0.5 flex gap-2">
+                <div className="text-sm font-semibold text-text">{q.question.replace('\n', ' ')}</div>
+                <div className="text-[10px] text-text-muted mt-0.5 flex gap-2">
                   <span>{q.options.length}개</span>
-                  {q.skipIf?.length > 0 && <span className="text-[#FF9500] font-semibold">스킵{q.skipIf.length}</span>}
+                  {q.skipIf?.length > 0 && <span className="text-warning font-semibold">스킵{q.skipIf.length}</span>}
                   {hasBranch && <span className="text-[#5856D6] font-semibold">분기</span>}
                   <span>id: {q.id}</span>
                 </div>
@@ -465,21 +465,21 @@ function QuestionEditor({
                 <button
                   type="button"
                   onClick={() => moveQuestion(qi, -1)}
-                  className="bg-[#F5F5F7] rounded-lg w-[30px] h-[30px] text-[13px]"
+                  className="bg-surface-secondary rounded-lg w-[30px] h-[30px] text-[13px]"
                 >
                   ↑
                 </button>
                 <button
                   type="button"
                   onClick={() => moveQuestion(qi, 1)}
-                  className="bg-[#F5F5F7] rounded-lg w-[30px] h-[30px] text-[13px]"
+                  className="bg-surface-secondary rounded-lg w-[30px] h-[30px] text-[13px]"
                 >
                   ↓
                 </button>
                 <button
                   type="button"
                   onClick={() => deleteQuestion(qi)}
-                  className="bg-[#FFF5F5] text-[#FF3B30] rounded-lg w-[30px] h-[30px] text-[13px]"
+                  className="bg-[#FFF5F5] text-danger rounded-lg w-[30px] h-[30px] text-[13px]"
                 >
                   ✕
                 </button>
@@ -490,36 +490,36 @@ function QuestionEditor({
               <div className="px-5 pb-5 border-t border-[#F5F5F7]">
                 <div className="pt-[14px] flex flex-col gap-3">
                   <div>
-                    <label className="block text-[11px] font-semibold text-[#86868B] mb-1">질문</label>
+                    <label className="block text-[11px] font-semibold text-text-sub mb-1">질문</label>
                     <textarea
                       value={q.question}
                       onChange={(e) => updateQuestionField(qi, 'question', e.target.value)}
-                      className={`${ainp} px-[14px] py-[10px] text-sm text-[#1D1D1F] resize-y`}
+                      className={`${ainp} px-[14px] py-[10px] text-sm text-text resize-y`}
                       style={{ height: 56 }}
                     />
                   </div>
                   <div>
-                    <label className="block text-[11px] font-semibold text-[#86868B] mb-1">설명</label>
+                    <label className="block text-[11px] font-semibold text-text-sub mb-1">설명</label>
                     <input
                       value={q.subtitle}
                       onChange={(e) => updateQuestionField(qi, 'subtitle', e.target.value)}
-                      className={`${ainp} px-[14px] py-[10px] text-sm text-[#1D1D1F]`}
+                      className={`${ainp} px-[14px] py-[10px] text-sm text-text`}
                     />
                   </div>
 
                   <div className="bg-[#FFFBF0] rounded-xl p-3 border border-[#FFE8B0]">
                     <div className="flex justify-between mb-2">
-                      <span className="text-[11px] font-semibold text-[#FF9500]">🔀 스킵 조건</span>
+                      <span className="text-[11px] font-semibold text-warning">🔀 스킵 조건</span>
                       <button
                         type="button"
                         onClick={() => addSkipCondition(qi)}
-                        className="bg-[#FFF5E0] text-[#FF9500] rounded-[10px] px-2.5 py-1 text-[10px] font-semibold"
+                        className="bg-[#FFF5E0] text-warning rounded-[10px] px-2.5 py-1 text-[10px] font-semibold"
                       >
                         + 조건
                       </button>
                     </div>
                     {(!q.skipIf || q.skipIf.length === 0) ? (
-                      <div className="text-[11px] text-[#AEAEB2]">조건 없음</div>
+                      <div className="text-[11px] text-text-muted">조건 없음</div>
                     ) : (
                       q.skipIf.map((c, si) => {
                         const refQ = allQuestionsForSkipRef.find((x) => x.id === c.qId) ?? null;
@@ -538,7 +538,7 @@ function QuestionEditor({
                                   </option>
                                 ))}
                               </select>
-                              <button type="button" onClick={() => removeSkipCondition(qi, si)} className="text-[#FF3B30] text-sm px-2">
+                              <button type="button" onClick={() => removeSkipCondition(qi, si)} className="text-danger text-sm px-2">
                                 ✕
                               </button>
                             </div>
@@ -552,7 +552,7 @@ function QuestionEditor({
                                       type="button"
                                       onClick={() => toggleSkipValue(qi, si, o.value)}
                                       className={`text-[10px] px-2 py-0.5 rounded-md font-semibold ${
-                                        active ? 'bg-[#FF9500] text-white' : 'bg-[#F5F5F7] text-[#86868B]'
+                                        active ? 'bg-[#FF9500] text-white' : 'bg-surface-secondary text-text-sub'
                                       }`}
                                     >
                                       {o.label}
@@ -569,13 +569,13 @@ function QuestionEditor({
 
                   <div>
                     <div className="flex justify-between mb-2">
-                      <label className="text-[11px] font-semibold text-[#86868B]">
+                      <label className="text-[11px] font-semibold text-text-sub">
                         선택지{type === 'finance' ? ' & 가중치' : ''} & 분기{type === 'vehicle' ? ' & 태그' : ''}
                       </label>
                       <button
                         type="button"
                         onClick={() => addOption(qi)}
-                        className="bg-[#F5F5F7] text-[#007AFF] rounded-[10px] px-2.5 py-1.5 text-xs font-semibold"
+                        className="bg-surface-secondary text-primary rounded-[10px] px-2.5 py-1.5 text-xs font-semibold"
                       >
                         +
                       </button>
@@ -590,7 +590,7 @@ function QuestionEditor({
                             className={`${ainp} flex-1 px-[14px] py-[10px] text-[13px]`}
                           />
                           {q.options.length > 2 && (
-                            <button type="button" onClick={() => deleteOption(qi, oi)} className="text-[#FF3B30] text-sm font-semibold px-1">
+                            <button type="button" onClick={() => deleteOption(qi, oi)} className="text-danger text-sm font-semibold px-1">
                               ✕
                             </button>
                           )}
@@ -600,7 +600,7 @@ function QuestionEditor({
                           <div className="grid grid-cols-4 gap-1.5 mb-2">
                             {PRODUCT_KEYS.map((pk) => (
                               <div key={pk} className="text-center">
-                                <div className="text-[9px] font-semibold text-[#AEAEB2] mb-1">{PRODUCT_LABELS[pk]}</div>
+                                <div className="text-[9px] font-semibold text-text-muted mb-1">{PRODUCT_LABELS[pk]}</div>
                                 <input
                                   type="number"
                                   min={0}
@@ -616,7 +616,7 @@ function QuestionEditor({
 
                         {type === 'vehicle' && (
                           <div className="mb-2">
-                            <div className="text-[10px] text-[#86868B] mb-1">태그:</div>
+                            <div className="text-[10px] text-text-sub mb-1">태그:</div>
                             <div className="flex flex-wrap gap-1">
                               {ALL_VEHICLE_TAGS.map((t) => {
                                 const active = (o as VehicleOption).tags.includes(t);
@@ -626,7 +626,7 @@ function QuestionEditor({
                                     type="button"
                                     onClick={() => toggleVehicleTag(qi, oi, t)}
                                     className={`text-[10px] px-2 py-0.5 rounded-md font-semibold ${
-                                      active ? 'bg-[#5856D6] text-white' : 'bg-[#F0F0F0] text-[#86868B]'
+                                      active ? 'bg-[#5856D6] text-white' : 'bg-[#F0F0F0] text-text-sub'
                                     }`}
                                   >
                                     {t}
@@ -642,7 +642,7 @@ function QuestionEditor({
                           <select
                             value={o.nextQ || ''}
                             onChange={(e) => updateOptionField(qi, oi, 'nextQ', e.target.value)}
-                            className={`${ainp} flex-1 px-2 py-1.5 text-[11px] ${o.nextQ ? 'text-[#5856D6]' : 'text-[#AEAEB2]'}`}
+                            className={`${ainp} flex-1 px-2 py-1.5 text-[11px] ${o.nextQ ? 'text-[#5856D6]' : 'text-text-muted'}`}
                           >
                             <option value="">기본 순서</option>
                             {allQuestionsForBranch.filter((x) => x.id !== q.id).map((x) => (
@@ -678,7 +678,7 @@ function VehiclesEditor({
 }) {
   const [openIdx, setOpenIdx] = useState<number | null>(null);
 
-  const ainp = 'bg-[#F5F5F7] border border-[#E5E5EA] rounded-[10px] outline-none w-full box-border px-[14px] py-[10px] text-sm text-[#1D1D1F]';
+  const ainp = 'bg-surface-secondary border border-border-solid rounded-[10px] outline-none w-full box-border px-[14px] py-[10px] text-sm text-text';
 
   const addVehicle = () => {
     const next: DiagnosisVehicle[] = [
@@ -736,11 +736,11 @@ function VehiclesEditor({
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
-        <span className="text-[18px] font-bold text-[#1D1D1F]">차종 목록 ({vehicles.length}개)</span>
+        <span className="text-[18px] font-bold text-text">차종 목록 ({vehicles.length}개)</span>
         <button
           type="button"
           onClick={addVehicle}
-          className="bg-[#007AFF] text-white rounded-[10px] px-4 py-2 text-sm font-semibold shadow-[0_4px_16px_rgba(0,122,255,0.25)]"
+          className="bg-primary text-white rounded-[10px] px-4 py-2 text-sm font-semibold shadow-[0_4px_16px_rgba(0,122,255,0.25)]"
         >
           + 추가
         </button>
@@ -751,7 +751,7 @@ function VehiclesEditor({
         return (
           <div
             key={`${v.name}-${vi}`}
-            className={`bg-white rounded-2xl overflow-hidden mb-[10px] border-2 ${isOpen ? 'border-[#007AFF]' : 'border-transparent'}`}
+            className={`bg-white rounded-2xl overflow-hidden mb-[10px] border-2 ${isOpen ? 'border-primary' : 'border-transparent'}`}
           >
             <div
               className="px-5 py-[14px] flex items-center gap-3 cursor-pointer"
@@ -764,13 +764,13 @@ function VehiclesEditor({
             >
               <span className="text-xl shrink-0">{v.img}</span>
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-semibold text-[#1D1D1F]">{v.brand} {v.name}</div>
-                <div className="text-[10px] text-[#AEAEB2] mt-0.5">{v.class} · {v.price}만원~ · 렌트 {v.monthly.rent}만</div>
+                <div className="text-sm font-semibold text-text">{v.brand} {v.name}</div>
+                <div className="text-[10px] text-text-muted mt-0.5">{v.class} · {v.price}만원~ · 렌트 {v.monthly.rent}만</div>
               </div>
               <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
-                <button type="button" onClick={() => moveVehicle(vi, -1)} className="bg-[#F5F5F7] rounded-lg w-[30px] h-[30px] text-[13px]">↑</button>
-                <button type="button" onClick={() => moveVehicle(vi, 1)} className="bg-[#F5F5F7] rounded-lg w-[30px] h-[30px] text-[13px]">↓</button>
-                <button type="button" onClick={() => deleteVehicle(vi)} className="bg-[#FFF5F5] text-[#FF3B30] rounded-lg w-[30px] h-[30px] text-[13px]">✕</button>
+                <button type="button" onClick={() => moveVehicle(vi, -1)} className="bg-surface-secondary rounded-lg w-[30px] h-[30px] text-[13px]">↑</button>
+                <button type="button" onClick={() => moveVehicle(vi, 1)} className="bg-surface-secondary rounded-lg w-[30px] h-[30px] text-[13px]">↓</button>
+                <button type="button" onClick={() => deleteVehicle(vi)} className="bg-[#FFF5F5] text-danger rounded-lg w-[30px] h-[30px] text-[13px]">✕</button>
               </div>
             </div>
 
@@ -779,39 +779,39 @@ function VehiclesEditor({
                 <div className="pt-4 flex flex-col gap-3">
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-[11px] font-semibold text-[#86868B] mb-1">이모지</label>
+                      <label className="block text-[11px] font-semibold text-text-sub mb-1">이모지</label>
                       <input className={ainp} value={v.img} onChange={(e) => updateField(vi, 'img', e.target.value)} />
                     </div>
                     <div>
-                      <label className="block text-[11px] font-semibold text-[#86868B] mb-1">차종명</label>
+                      <label className="block text-[11px] font-semibold text-text-sub mb-1">차종명</label>
                       <input className={ainp} value={v.name} onChange={(e) => updateField(vi, 'name', e.target.value)} />
                     </div>
                     <div>
-                      <label className="block text-[11px] font-semibold text-[#86868B] mb-1">브랜드</label>
+                      <label className="block text-[11px] font-semibold text-text-sub mb-1">브랜드</label>
                       <input className={ainp} value={v.brand} onChange={(e) => updateField(vi, 'brand', e.target.value)} />
                     </div>
                     <div>
-                      <label className="block text-[11px] font-semibold text-[#86868B] mb-1">차급</label>
+                      <label className="block text-[11px] font-semibold text-text-sub mb-1">차급</label>
                       <input className={ainp} value={v.class} onChange={(e) => updateField(vi, 'class', e.target.value)} />
                     </div>
                     <div className="col-span-2">
-                      <label className="block text-[11px] font-semibold text-[#86868B] mb-1">기본가격 (만원)</label>
+                      <label className="block text-[11px] font-semibold text-text-sub mb-1">기본가격 (만원)</label>
                       <input type="number" min={0} className={ainp} value={v.price} onChange={(e) => updateField(vi, 'price', Number(e.target.value))} />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-semibold text-[#86868B] mb-2">월 예상금 (만원)</label>
+                    <label className="block text-[11px] font-semibold text-text-sub mb-2">월 예상금 (만원)</label>
                     <div className="grid grid-cols-4 gap-1.5">
                       {(Object.keys(MONTHLY_LABELS) as (keyof DiagnosisVehicle['monthly'])[]).map((key) => (
                         <div key={key} className="text-center">
-                          <div className="text-[9px] font-semibold text-[#AEAEB2] mb-1">{MONTHLY_LABELS[key]}</div>
+                          <div className="text-[9px] font-semibold text-text-muted mb-1">{MONTHLY_LABELS[key]}</div>
                           <input
                             type="number"
                             min={0}
                             value={v.monthly[key]}
                             onChange={(e) => updateMonthly(vi, key, Number(e.target.value))}
-                            className="bg-[#F5F5F7] border border-[#E5E5EA] rounded-[10px] outline-none w-full px-1 py-1.5 text-sm font-bold text-center"
+                            className="bg-surface-secondary border border-border-solid rounded-[10px] outline-none w-full px-1 py-1.5 text-sm font-bold text-center"
                           />
                         </div>
                       ))}
@@ -819,7 +819,7 @@ function VehiclesEditor({
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-semibold text-[#86868B] mb-2">매칭 태그</label>
+                    <label className="block text-[11px] font-semibold text-text-sub mb-2">매칭 태그</label>
                     <div className="flex flex-wrap gap-1">
                       {ALL_VEHICLE_TAGS.map((tag) => {
                         const active = v.tags.includes(tag);
@@ -828,7 +828,7 @@ function VehiclesEditor({
                             key={tag}
                             type="button"
                             onClick={() => toggleTag(vi, tag)}
-                            className={`text-[10px] px-2 py-0.5 rounded-md font-semibold ${active ? 'bg-[#5856D6] text-white' : 'bg-[#F0F0F0] text-[#86868B]'}`}
+                            className={`text-[10px] px-2 py-0.5 rounded-md font-semibold ${active ? 'bg-[#5856D6] text-white' : 'bg-[#F0F0F0] text-text-sub'}`}
                           >
                             {tag}
                           </button>
@@ -893,11 +893,11 @@ function ProductsEditor({
     cash: 'bg-[rgba(255,149,0,0.08)]',
   };
   const fieldWrap = 'bg-white rounded-2xl p-5 mb-3';
-  const labelCls = 'block text-[11px] font-semibold text-[#86868B] mb-1';
+  const labelCls = 'block text-[11px] font-semibold text-text-sub mb-1';
   const inpCls =
-    'w-full bg-[#F5F5F7] border border-[#E5E5EA] rounded-[10px] px-[14px] py-[10px] text-sm text-[#1D1D1F] outline-none';
+    'w-full bg-surface-secondary border border-border-solid rounded-[10px] px-[14px] py-[10px] text-sm text-text outline-none';
   const taCls =
-    'w-full bg-[#F5F5F7] border border-[#E5E5EA] rounded-[10px] px-[14px] py-[10px] text-sm text-[#1D1D1F] outline-none resize-y';
+    'w-full bg-surface-secondary border border-border-solid rounded-[10px] px-[14px] py-[10px] text-sm text-text outline-none resize-y';
 
   return (
     <div className="flex flex-col gap-4">
@@ -910,7 +910,7 @@ function ProductsEditor({
               <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl ${iconBg}`}>
                 {p.emoji}
               </div>
-              <div className="text-[18px] font-bold text-[#1D1D1F]">{p.name}</div>
+              <div className="text-[18px] font-bold text-text">{p.name}</div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
@@ -945,13 +945,13 @@ function ProductsEditor({
               {(['pros', 'cons'] as const).map((field) => (
                 <div key={field}>
                   <div className="flex justify-between mb-2">
-                    <label className={`text-[11px] font-semibold ${field === 'pros' ? 'text-[#34C759]' : 'text-[#FF3B30]'}`}>
+                    <label className={`text-[11px] font-semibold ${field === 'pros' ? 'text-success' : 'text-danger'}`}>
                       {field === 'pros' ? '장점' : '유의사항'}
                     </label>
                     <button
                       type="button"
                       onClick={() => addArrayItem(key, field)}
-                      className="bg-none text-[#007AFF] text-xs font-semibold"
+                      className="bg-none text-primary text-xs font-semibold"
                     >
                       +
                     </button>
@@ -959,7 +959,7 @@ function ProductsEditor({
                   {p[field].map((item, idx) => (
                     <div key={`${key}-${field}-${idx}`} className="flex gap-2 mb-2">
                       <input className={`${inpCls} text-xs py-[6px] px-[10px]`} value={item} onChange={(e) => updateArray(key, field, idx, e.target.value)} />
-                      <button type="button" onClick={() => removeArrayItem(key, field, idx)} className="text-[#FF3B30] text-sm px-2">
+                      <button type="button" onClick={() => removeArrayItem(key, field, idx)} className="text-danger text-sm px-2">
                         ✕
                       </button>
                     </div>
@@ -1109,17 +1109,17 @@ export default function DiagnosisAdminPage() {
   };
 
   return (
-    <div className="min-h-[100dvh] bg-[#F5F5F7]">
+    <div className="min-h-[100dvh] bg-surface-secondary">
       <div className="px-5 py-6 max-w-[700px] mx-auto">
         <div className="flex items-start justify-between gap-4 mb-4">
           <div>
-            <h1 className="text-xl font-extrabold text-[#1D1D1F] flex items-center gap-2">
+            <h1 className="text-xl font-extrabold text-text flex items-center gap-2">
               <span className="text-2xl">📊</span> 진단 관리
             </h1>
-            <p className="text-sm text-[#86868B] mt-1">
+            <p className="text-sm text-text-sub mt-1">
               질문/선택지/스킵/분기/태그/상품/AI 설정을 수정하고 저장할 수 있습니다.
             </p>
-            {error && <p className="text-sm text-[#FF3B30] font-semibold mt-2">{error}</p>}
+            {error && <p className="text-sm text-danger font-semibold mt-2">{error}</p>}
           </div>
 
           <div className="flex items-center gap-2">
@@ -1127,7 +1127,7 @@ export default function DiagnosisAdminPage() {
               type="button"
               onClick={() => setResetConfirm((v) => !v)}
               disabled={saving || loading}
-              className="text-sm font-semibold text-[#1D1D1F] px-3 py-2 rounded-[10px] bg-[#F5F5F7] disabled:opacity-60"
+              className="text-sm font-semibold text-text px-3 py-2 rounded-[10px] bg-surface-secondary disabled:opacity-60"
             >
               초기화
             </button>
@@ -1136,7 +1136,7 @@ export default function DiagnosisAdminPage() {
                 type="button"
                 onClick={resetToDefault}
                 disabled={saving || loading}
-                className="text-sm font-semibold text-white px-3 py-2 rounded-[10px] bg-[#FF3B30] disabled:opacity-60"
+                className="text-sm font-semibold text-white px-3 py-2 rounded-[10px] bg-danger disabled:opacity-60"
               >
                 확인
               </button>
@@ -1145,7 +1145,7 @@ export default function DiagnosisAdminPage() {
                 type="button"
                 onClick={save}
                 disabled={saving || loading}
-                className="text-sm font-semibold text-white px-4 py-2 rounded-[10px] bg-[#007AFF] shadow-[0_4px_16px_rgba(0,122,255,0.25)] disabled:opacity-60"
+                className="text-sm font-semibold text-white px-4 py-2 rounded-[10px] bg-primary shadow-[0_4px_16px_rgba(0,122,255,0.25)] disabled:opacity-60"
               >
                 {saving ? '저장 중...' : '저장'}
               </button>
@@ -1156,8 +1156,8 @@ export default function DiagnosisAdminPage() {
         <SectionCard>
           <div className="p-5">
             <div className="flex items-center justify-between mb-3">
-              <p className="text-sm font-bold text-[#1D1D1F]">설정 범위</p>
-              <p className="text-xs text-[#86868B]">
+              <p className="text-sm font-bold text-text">설정 범위</p>
+              <p className="text-xs text-text-sub">
                 저장 id: <span className="font-mono">{CONFIG_ID}</span>
               </p>
             </div>
@@ -1170,7 +1170,7 @@ export default function DiagnosisAdminPage() {
             <div className="p-5">
               {loading ? (
                 <div className="py-16 flex items-center justify-center">
-                  <div className="w-8 h-8 border-2 border-[#007AFF] border-t-transparent rounded-full animate-spin" />
+                  <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
                 </div>
               ) : (
                 tabContent[tab]

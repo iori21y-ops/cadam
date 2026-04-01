@@ -1,6 +1,7 @@
 'use client';
 
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { FilterPill } from '@/components/ui/FilterPill';
 
 interface Article {
   id: string;
@@ -19,53 +20,6 @@ function getDisplayType(article: Article): 'blog' | 'youtube' | 'shorts' {
   if (article.sourceType === 'youtube') return 'youtube';
   return 'blog';
 }
-
-const MOCK_ARTICLES: Article[] = [
-  {
-    id: 'mock-1',
-    title: '장기렌터카 vs 리스, 뭐가 다를까?',
-    excerpt: '장기렌터카와 리스의 차이점, 세금 처리, 비용 비교를 쉽게 설명합니다.',
-    linkUrl: 'https://www.youtube.com/watch?v=9bZkp7q19f0',
-    thumbnailUrl: 'https://img.youtube.com/vi/9bZkp7q19f0/mqdefault.jpg',
-    sourceType: 'youtube',
-    publishedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-    category: 'rental',
-    vehicleSlug: null,
-  },
-  {
-    id: 'mock-2',
-    title: '2025년 장기렌터카 인기 차종 TOP 5',
-    excerpt: '올해 가장 인기 있는 장기렌터카 차종과 월 납부금을 알아봅니다.',
-    linkUrl: 'https://www.youtube.com/shorts/abc123',
-    thumbnailUrl: 'https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg',
-    sourceType: 'youtube',
-    publishedAt: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000).toISOString(),
-    category: 'rental',
-    vehicleSlug: null,
-  },
-  {
-    id: 'mock-3',
-    title: '법인 장기렌터카 비용 처리 완벽 가이드',
-    excerpt: '법인사업자가 장기렌터카 비용을 어떻게 처리하는지, 세금 혜택을 정리했습니다.',
-    linkUrl: 'https://brunch.co.kr',
-    thumbnailUrl: null,
-    sourceType: 'blog',
-    publishedAt: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString(),
-    category: 'rental',
-    vehicleSlug: null,
-  },
-  {
-    id: 'mock-4',
-    title: '2025 신차 TOP 10 완전 정복',
-    excerpt: '올해 주목해야 할 신차 라인업과 장단점을 소개합니다.',
-    linkUrl: 'https://blog.naver.com',
-    thumbnailUrl: null,
-    sourceType: 'blog',
-    publishedAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-    category: 'car',
-    vehicleSlug: null,
-  },
-];
 
 const TYPE_FILTERS = [
   { value: 'all', label: '전체' },
@@ -169,7 +123,7 @@ const ArticleSlide = memo(function ArticleSlide({
 
       {/* 다음 컨텐츠 인디케이터 */}
       {index < total - 1 && (
-        <div className="shrink-0 flex justify-center items-center gap-1 py-2 text-[#AEAEB2]">
+        <div className="shrink-0 flex justify-center items-center gap-1 py-2 text-text-muted">
           <span className="text-[11px]">다음</span>
           <svg width="12" height="8" viewBox="0 0 12 8" fill="none">
             <path d="M1 1.5l5 5 5-5" stroke="#AEAEB2" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -198,10 +152,9 @@ export function InfoArticles({
     fetch('/api/info-articles')
       .then((r) => r.json())
       .then((d: { articles?: Article[] }) => {
-        const fetched = d.articles ?? [];
-        setArticles(fetched.length > 0 ? fetched : MOCK_ARTICLES);
+        setArticles(d.articles ?? []);
       })
-      .catch(() => setArticles(MOCK_ARTICLES))
+      .catch(() => setArticles([]))
       .finally(() => setLoading(false));
   }, [initialArticles]);
 
@@ -240,18 +193,13 @@ export function InfoArticles({
         <div className="relative mb-2">
           <div className="flex gap-2 overflow-x-auto scrollbar-hide pr-6">
             {categoryFilters.map((f) => (
-              <button
+              <FilterPill
                 key={f.value}
-                type="button"
+                active={selectedKeyword === f.value}
                 onClick={() => handleKeyword(f.value)}
-                className={`shrink-0 px-3.5 py-1.5 rounded-full text-sm font-semibold border transition-all ${
-                  selectedKeyword === f.value
-                    ? 'bg-[#1D1D1F] text-white border-[#1D1D1F]'
-                    : 'bg-white text-[#86868B] border-[#E5E5EA] hover:border-[#1D1D1F] hover:text-[#1D1D1F]'
-                }`}
               >
                 {f.label}
-              </button>
+              </FilterPill>
             ))}
           </div>
           <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-surface-secondary to-transparent pointer-events-none" />
@@ -260,18 +208,13 @@ export function InfoArticles({
         {/* 컨텐츠 타입 필터 */}
         <div className="flex gap-2 overflow-x-auto scrollbar-hide">
           {TYPE_FILTERS.map((f) => (
-            <button
+            <FilterPill
               key={f.value}
-              type="button"
+              active={selectedType === f.value}
               onClick={() => handleType(f.value)}
-              className={`shrink-0 px-3.5 py-1.5 rounded-full text-sm font-semibold border transition-all ${
-                selectedType === f.value
-                  ? 'bg-[#007AFF] text-white border-[#007AFF]'
-                  : 'bg-white text-[#86868B] border-[#E5E5EA] hover:border-[#007AFF] hover:text-[#007AFF]'
-              }`}
             >
               {f.label}
-            </button>
+            </FilterPill>
           ))}
         </div>
       </div>
@@ -279,13 +222,13 @@ export function InfoArticles({
       {/* 피드 영역 */}
       {loading ? (
         <div className="flex-1 flex items-center justify-center">
-          <div className="w-8 h-8 border-2 border-[#007AFF] border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
         </div>
       ) : filteredArticles.length === 0 ? (
         <div className="flex-1 flex items-center justify-center px-5">
-          <div className="w-full max-w-lg text-center py-16 rounded-2xl bg-white border border-[#E5E5EA]">
-            <p className="text-[#86868B]">해당 콘텐츠가 없습니다</p>
-            <p className="text-[#AEAEB2] text-sm mt-1">다른 필터를 선택해보세요</p>
+          <div className="w-full max-w-lg text-center py-16 rounded-2xl bg-white border border-border-solid">
+            <p className="text-text-sub">해당 콘텐츠가 없습니다</p>
+            <p className="text-text-muted text-sm mt-1">다른 필터를 선택해보세요</p>
           </div>
         </div>
       ) : (

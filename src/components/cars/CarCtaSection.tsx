@@ -34,7 +34,7 @@ export function CarCtaSection({ vehicle }: CarCtaSectionProps) {
   const telHref = `tel:${PHONE.replace(/-/g, '')}`;
 
   return (
-    <div className="p-5 flex flex-col gap-3 bg-white rounded-2xl border border-[#E5E5EA]">
+    <div className="p-5 flex flex-col gap-3 bg-white rounded-2xl border border-border-solid">
       <Button type="button" variant="primary" size="lg" fullWidth onClick={handleQuoteClick}>
         이 차량으로 무료 견적 받기
       </Button>

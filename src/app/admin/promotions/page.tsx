@@ -76,11 +76,11 @@ export default function AdminPromotionsPage() {
   return (
     <div className="max-w-[1200px] mx-auto p-5">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-xl font-bold text-[#1D1D1F] tracking-tight">프로모션 관리</h1>
+        <h1 className="text-xl font-bold text-text tracking-tight">프로모션 관리</h1>
         <button
           type="button"
           onClick={handleAddNew}
-          className="px-4 py-2 rounded-[10px] font-semibold bg-[#007AFF] text-white hover:opacity-90 transition-opacity"
+          className="px-4 py-2 rounded-[10px] font-semibold bg-primary text-white hover:opacity-90 transition-opacity"
         >
           새 프로모션 추가
         </button>
@@ -88,20 +88,20 @@ export default function AdminPromotionsPage() {
 
       {loading ? (
         <div className="flex justify-center py-16">
-          <div className="w-8 h-8 border-2 border-[#007AFF] border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
         </div>
       ) : error ? (
         <div className="rounded-2xl bg-white border border-[#FF3B3033] p-4">
           <p className="text-danger font-medium">{error}</p>
         </div>
       ) : promotions.length === 0 ? (
-        <div className="rounded-2xl bg-white border border-[#E5E5EA] p-12 text-center">
-          <p className="text-[#86868B] mb-2">등록된 프로모션이 없습니다</p>
-          <p className="text-[#AEAEB2] text-sm mb-4">새 프로모션을 추가해 주세요</p>
+        <div className="rounded-2xl bg-white border border-border-solid p-12 text-center">
+          <p className="text-text-sub mb-2">등록된 프로모션이 없습니다</p>
+          <p className="text-text-muted text-sm mb-4">새 프로모션을 추가해 주세요</p>
           <button
             type="button"
             onClick={handleAddNew}
-            className="px-4 py-2 rounded-[10px] font-semibold bg-[#007AFF] text-white hover:opacity-90"
+            className="px-4 py-2 rounded-[10px] font-semibold bg-primary text-white hover:opacity-90"
           >
             새 프로모션 추가
           </button>
@@ -111,10 +111,10 @@ export default function AdminPromotionsPage() {
           {promotions.map((promo) => (
             <div
               key={promo.id}
-              className="flex items-center gap-3 p-3 rounded-2xl border border-[#E5E5EA] bg-white hover:border-[#007AFF] transition-all"
+              className="flex items-center gap-3 p-3 rounded-2xl border border-border-solid bg-white hover:border-primary transition-all"
             >
               {/* 썸네일 */}
-              <div className="shrink-0 w-14 h-14 rounded-[10px] overflow-hidden bg-[#F5F5F7] border border-[#E5E5EA] flex items-center justify-center">
+              <div className="shrink-0 w-14 h-14 rounded-[10px] overflow-hidden bg-surface-secondary border border-border-solid flex items-center justify-center">
                 {promo.image_url ? (
                   <img
                     src={promo.image_url}
@@ -122,13 +122,13 @@ export default function AdminPromotionsPage() {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <span className="text-[#AEAEB2] text-2xl">📷</span>
+                  <span className="text-text-muted text-2xl">📷</span>
                 )}
               </div>
               {/* 제목 + 날짜 */}
               <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-sm text-[#1D1D1F] truncate">{promo.title}</h3>
-                <p className="text-xs text-[#86868B] mt-0.5">
+                <h3 className="font-semibold text-sm text-text truncate">{promo.title}</h3>
+                <p className="text-xs text-text-sub mt-0.5">
                   {formatDateRange(promo.start_date, promo.end_date)}
                 </p>
               </div>
@@ -136,7 +136,7 @@ export default function AdminPromotionsPage() {
               <div className="flex items-center gap-2 shrink-0">
                 <span
                   className={`text-xs font-semibold px-2 py-1 rounded ${
-                    promo.is_active ? 'bg-[#34C7591A] text-[#34C759]' : 'bg-[#F5F5F7] text-[#86868B]'
+                    promo.is_active ? 'bg-success/10 text-success' : 'bg-surface-secondary text-text-sub'
                   }`}
                 >
                   {promo.is_active ? '노출중' : '비노출'}
@@ -145,7 +145,7 @@ export default function AdminPromotionsPage() {
                   type="button"
                   onClick={() => handleToggleActive(promo)}
                   className={`relative w-10 h-6 rounded-full transition-colors ${
-                    promo.is_active ? 'bg-[#007AFF]' : 'bg-[#D1D1D6]'
+                    promo.is_active ? 'bg-primary' : 'bg-[#D1D1D6]'
                   }`}
                 >
                   <span
@@ -157,7 +157,7 @@ export default function AdminPromotionsPage() {
                 <button
                   type="button"
                   onClick={() => handleEdit(promo)}
-                  className="px-2.5 py-1 rounded-lg text-xs font-medium bg-[#F5F5F7] text-[#1D1D1F] hover:bg-[#E5E5EA] transition-colors"
+                  className="px-2.5 py-1 rounded-lg text-xs font-medium bg-surface-secondary text-text hover:bg-[#E5E5EA] transition-colors"
                 >
                   수정
                 </button>

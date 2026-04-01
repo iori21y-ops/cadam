@@ -55,7 +55,7 @@ export function Step1Branch() {
   return (
     <>
       <div className="pt-7 px-5 pb-2 text-center">
-        <h2 className="text-[22px] font-bold text-[#1D1D1F] leading-snug">
+        <h2 className="text-[22px] font-bold text-text leading-snug">
           당신에게 더 중요한 선택은
           <br />
           무엇인가요?
@@ -80,14 +80,14 @@ export function Step1Branch() {
               <div className="min-w-0 flex-1">
                 <div
                   className={`text-[16px] font-medium leading-tight ${
-                    selectedPath === opt.path ? 'text-white' : 'text-[#1D1D1F]'
+                    selectedPath === opt.path ? 'text-white' : 'text-text'
                   }`}
                 >
                   {opt.label}
                 </div>
                 <div
                   className={`text-[15px] mt-0.5 ${
-                    selectedPath === opt.path ? 'text-white/70' : 'text-[#86868B]'
+                    selectedPath === opt.path ? 'text-white/70' : 'text-text-sub'
                   }`}
                 >
                   {opt.sub}

@@ -132,7 +132,7 @@ export function Step6Contact() {
       <div className="mb-4">
         <label
           htmlFor="step6-name"
-          className="block text-[11px] font-semibold text-[#86868B] mb-1"
+          className="block text-[11px] font-semibold text-text-sub mb-1"
         >
           이름
         </label>
@@ -142,8 +142,8 @@ export function Step6Contact() {
           placeholder="홍길동"
           value={name}
           onChange={handleNameChange}
-          className={`w-full bg-[#F5F5F7] border rounded-[10px] px-[14px] py-[12px] text-sm text-[#1D1D1F] outline-none focus:border-[#007AFF] ${
-            nameError ? 'border-[#FF3B30]' : 'border-[#E5E5EA]'
+          className={`w-full bg-surface-secondary border rounded-[10px] px-[14px] py-[12px] text-sm text-text outline-none focus:border-primary ${
+            nameError ? 'border-[#FF3B30]' : 'border-border-solid'
           }`}
         />
         {nameError && (
@@ -155,7 +155,7 @@ export function Step6Contact() {
       <div className="mb-4">
         <label
           htmlFor="step6-phone"
-          className="block text-[11px] font-semibold text-[#86868B] mb-1"
+          className="block text-[11px] font-semibold text-text-sub mb-1"
         >
           연락처
         </label>
@@ -165,8 +165,8 @@ export function Step6Contact() {
           placeholder="010-0000-0000"
           value={phone}
           onChange={handlePhoneChange}
-          className={`w-full bg-[#F5F5F7] border rounded-[10px] px-[14px] py-[12px] text-sm text-[#1D1D1F] outline-none focus:border-[#007AFF] ${
-            phoneError ? 'border-[#FF3B30]' : 'border-[#E5E5EA]'
+          className={`w-full bg-surface-secondary border rounded-[10px] px-[14px] py-[12px] text-sm text-text outline-none focus:border-primary ${
+            phoneError ? 'border-[#FF3B30]' : 'border-border-solid'
           }`}
         />
         {phoneError && (
@@ -184,13 +184,13 @@ export function Step6Contact() {
           onChange={(e) => setPrivacyAgreed(e.target.checked)}
           className="w-5 h-5 mt-0.5 shrink-0 accent-primary"
         />
-        <span className="text-sm text-[#1D1D1F] leading-relaxed">
+        <span className="text-sm text-text leading-relaxed">
           개인정보 수집 및 이용에 동의합니다{' '}
           <Link
             href="/privacy"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-[#007AFF] text-xs font-semibold"
+            className="text-primary text-xs font-semibold"
           >
             [전문보기]
           </Link>

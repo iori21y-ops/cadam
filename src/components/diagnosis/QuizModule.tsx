@@ -155,70 +155,33 @@ export function QuizModule({ basicQs, detailQs, color, onHome, renderResult }: Q
             const isSel = selectedMode === m;
             const isDimmed = selectedMode !== null && !isSel;
             return (
-              <button
+              <SelectCard
                 key={m}
+                selected={isSel}
+                dimmed={isDimmed}
+                disabled={!!selectedMode}
+                color={color}
                 onClick={() => !selectedMode && pickMode(m)}
-                className="rounded-[20px] p-7 text-left transition-all duration-300"
-                style={{
-                  background: isSel ? color : '#FFFFFF',
-                  border: `2px solid ${isSel ? color : 'transparent'}`,
-                  boxShadow: isSel ? `0 4px 24px ${color}40` : '0 2px 16px rgba(0,0,0,0.05)',
-                  opacity: isDimmed ? 0.4 : 1,
-                  cursor: selectedMode ? 'default' : 'pointer',
-                  pointerEvents: selectedMode ? 'none' : 'auto',
-                  transform: isSel ? 'scale(1)' : 'scale(1)',
-                }}
-                onMouseEnter={(e) => {
-                  if (!selectedMode) {
-                    e.currentTarget.style.borderColor = color;
-                    e.currentTarget.style.transform = 'scale(1.015)';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!selectedMode) {
-                    e.currentTarget.style.borderColor = 'transparent';
-                    e.currentTarget.style.transform = 'scale(1)';
-                  }
-                }}
               >
-                <div className="flex justify-between mb-3.5">
-                  <span className="text-xs font-semibold px-3 py-1 rounded-lg"
-                    style={{
-                      background: isSel ? 'rgba(255,255,255,0.2)' : '#F5F5F7',
-                      color: isSel ? 'rgba(255,255,255,0.8)' : '#86868B',
-                    }}>
-                    {time}
-                  </span>
-                  <div className="flex items-center gap-2.5">
-                    <span className="text-[13px]"
-                      style={{ color: isSel ? 'rgba(255,255,255,0.6)' : '#AEAEB2' }}>
+                <div className="flex-1 min-w-0">
+                  <div className="flex justify-between mb-3.5">
+                    <span className={`text-xs font-semibold px-3 py-1 rounded-lg ${
+                      isSel ? 'bg-white/20 text-white/80' : 'bg-surface-secondary text-text-sub'
+                    }`}>
+                      {time}
+                    </span>
+                    <span className={`text-[13px] ${isSel ? 'text-white/60' : 'text-text-muted'}`}>
                       {count}개
                     </span>
-                    <div className="w-[22px] h-[22px] rounded-full flex items-center justify-center"
-                      style={{
-                        border: isSel ? 'none' : '2px solid #D1D1D6',
-                        background: isSel ? '#FFF' : 'transparent',
-                      }}>
-                      {isSel && (
-                        <svg width="12" height="12" viewBox="0 0 12 12">
-                          <path d="M2 6l3 3 5-5" stroke={color} strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                      )}
-                    </div>
                   </div>
+                  <p className={`text-[22px] font-bold mb-1.5 ${isSel ? 'text-white' : 'text-text'}`}>
+                    {title}
+                  </p>
+                  <p className={`text-sm ${isSel ? 'text-white/70' : 'text-text-sub'}`}>
+                    {desc}
+                  </p>
                 </div>
-                <p className="font-bold mb-1.5 transition-colors"
-                  style={{
-                    fontSize: 22,
-                    color: isSel ? '#FFF' : '#1D1D1F',
-                  }}>
-                  {title}
-                </p>
-                <p className="text-sm transition-colors"
-                  style={{ color: isSel ? 'rgba(255,255,255,0.7)' : '#86868B' }}>
-                  {desc}
-                </p>
-              </button>
+              </SelectCard>
             );
           })}
         </div>
@@ -291,7 +254,7 @@ export function QuizModule({ basicQs, detailQs, color, onHome, renderResult }: Q
                   disabled={!!selected}
                   onClick={() => handleSelect(option)}
                 >
-                  <span className="flex-1 text-[16px] font-medium" style={{ color: isSel ? '#FFF' : '#1D1D1F' }}>
+                  <span className={`flex-1 text-[16px] font-medium ${isSel ? 'text-white' : 'text-text'}`}>
                     {option.label}
                   </span>
                 </SelectCard>

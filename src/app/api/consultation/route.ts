@@ -81,7 +81,7 @@ export async function POST(request: NextRequest) {
     const supabase = createServiceRoleSupabaseClient();
 
     // 4단계 - 중복 체크 (24시간 내 동일 ip_hash) — 상용화 배포 시 활성화
-    const isDev = true; // TODO: 상용화 시 process.env.NODE_ENV === 'development' 로 변경
+    const isDev = process.env.NODE_ENV === 'development';
     if (!isDev) {
       const twentyFourHoursAgo = new Date(
         Date.now() - 24 * 60 * 60 * 1000

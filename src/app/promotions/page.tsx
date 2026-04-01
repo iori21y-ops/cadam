@@ -1,6 +1,6 @@
-import Link from 'next/link';
 import Image from 'next/image';
 import { Footer } from '@/components/Footer';
+import { ButtonLink } from '@/components/ui/Button';
 import { createServerSupabaseClient } from '@/lib/supabase-server';
 
 export const revalidate = 3600;
@@ -65,18 +65,15 @@ export default async function PromotionsPage() {
       {/* Hero */}
       <section className="flex flex-col items-center justify-center px-5 pt-14 pb-10 text-center">
         <div className="max-w-lg mx-auto w-full">
-          <h1 className="text-2xl sm:text-3xl font-bold leading-tight mb-3 text-[#1D1D1F] tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-bold leading-tight mb-3 text-text tracking-tight">
             이달의 프로모션
           </h1>
-          <p className="text-base sm:text-lg text-[#86868B] mb-6">
+          <p className="text-base sm:text-lg text-text-sub mb-6">
             카담에서 진행 중인 특별 혜택을 확인하세요
           </p>
-          <Link
-            href="/quote"
-            className="px-8 py-3.5 rounded-[10px] font-semibold bg-[#007AFF] text-white hover:opacity-90 transition-opacity"
-          >
+          <ButtonLink href="/quote" variant="primary" size="lg">
             무료 견적 받기
-          </Link>
+          </ButtonLink>
         </div>
       </section>
 
@@ -85,10 +82,10 @@ export default async function PromotionsPage() {
         <div className="max-w-lg mx-auto">
         {promotions.length === 0 ? (
           <div className="py-16 text-center">
-            <p className="text-[#86868B] text-lg mb-2">
+            <p className="text-text-sub text-lg mb-2">
               현재 진행 중인 프로모션이 없습니다
             </p>
-            <p className="text-[#AEAEB2] text-sm">
+            <p className="text-text-muted text-sm">
               새로운 혜택을 준비 중입니다. 곧 만나보세요!
             </p>
           </div>
@@ -97,7 +94,7 @@ export default async function PromotionsPage() {
             {promotions.map((p) => {
               const cardContent = (
                 <>
-                  <div className="relative aspect-[16/10] bg-[#F5F5F7]">
+                  <div className="relative aspect-[16/10] bg-surface-secondary">
                     {p.imageUrl ? (
                       <Image
                         src={p.imageUrl}
@@ -107,21 +104,21 @@ export default async function PromotionsPage() {
                         className="object-cover"
                       />
                     ) : (
-                      <span className="absolute inset-0 flex items-center justify-center text-[#AEAEB2] text-sm">배너 이미지</span>
+                      <span className="absolute inset-0 flex items-center justify-center text-text-muted text-sm">배너 이미지</span>
                     )}
                   </div>
                   <div className="p-4">
-                    <h3 className="font-semibold text-[#1D1D1F] mb-1 text-lg">
+                    <h3 className="font-semibold text-text mb-1 text-lg">
                       {p.title}
                     </h3>
-                    <p className="text-sm text-[#86868B] line-clamp-2">
+                    <p className="text-sm text-text-sub line-clamp-2">
                       {p.description ?? '-'}
                     </p>
                   </div>
                 </>
               );
               const className =
-                'flex flex-col flex-shrink-0 w-full sm:w-[280px] rounded-2xl overflow-hidden bg-white border border-[#E5E5EA] shadow-sm hover:shadow-md transition-shadow';
+                'flex flex-col flex-shrink-0 w-full sm:w-[280px] rounded-2xl overflow-hidden bg-white border border-border-solid shadow-sm hover:shadow-md transition-shadow';
               return p.linkUrl ? (
                 <a key={p.id} href={p.linkUrl} className={className}>
                   {cardContent}

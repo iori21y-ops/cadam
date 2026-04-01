@@ -98,30 +98,30 @@ export default function AdminAIPage() {
   if (loading) {
     return (
       <div className="flex justify-center py-24">
-        <div className="w-8 h-8 border-2 border-[#007AFF] border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-[100dvh] bg-[#F5F5F7]">
+    <div className="min-h-[100dvh] bg-surface-secondary">
       <div className="px-5 py-6 max-w-[700px] mx-auto">
         {/* 헤더 */}
         <div className="flex items-start justify-between gap-4 mb-6">
           <div>
-            <h1 className="text-xl font-extrabold text-[#1D1D1F] flex items-center gap-2">
+            <h1 className="text-xl font-extrabold text-text flex items-center gap-2">
               <span className="text-2xl">🤖</span> AI 설정
             </h1>
-            <p className="text-sm text-[#86868B] mt-1">
+            <p className="text-sm text-text-sub mt-1">
               박대표AI 캐릭터 및 코멘트 설정을 관리합니다.
             </p>
-            {error && <p className="text-sm text-[#FF3B30] font-semibold mt-2">{error}</p>}
+            {error && <p className="text-sm text-danger font-semibold mt-2">{error}</p>}
           </div>
           <button
             type="button"
             onClick={save}
             disabled={saving}
-            className="shrink-0 text-sm font-semibold text-white px-4 py-2 rounded-[10px] bg-[#007AFF] shadow-[0_4px_16px_rgba(0,122,255,0.25)] disabled:opacity-60"
+            className="shrink-0 text-sm font-semibold text-white px-4 py-2 rounded-[10px] bg-primary shadow-[0_4px_16px_rgba(0,122,255,0.25)] disabled:opacity-60"
           >
             {saving ? '저장 중...' : '저장'}
           </button>
@@ -131,7 +131,7 @@ export default function AdminAIPage() {
           {/* 미리보기 */}
           <div className="rounded-2xl p-5 text-white bg-[linear-gradient(135deg,#1D1D1F,#2C2C2E)]">
             <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-full flex items-center justify-center text-xl bg-[#007AFF]">
+              <div className="w-11 h-11 rounded-full flex items-center justify-center text-xl bg-primary">
                 {cfg.charEmoji}
               </div>
               <div>
@@ -144,12 +144,12 @@ export default function AdminAIPage() {
 
           {/* 진단 페이지 상단 코멘트 */}
           <div className="bg-white rounded-2xl p-5">
-            <div className="text-sm font-bold text-[#1D1D1F] mb-1">진단 페이지 상단 코멘트</div>
-            <div className="text-[11px] text-[#86868B] mb-3">AI 진단 탭 상단에 표시되는 박대표 인삿말입니다.</div>
+            <div className="text-sm font-bold text-text mb-1">진단 페이지 상단 코멘트</div>
+            <div className="text-[11px] text-text-sub mb-3">AI 진단 탭 상단에 표시되는 박대표 인삿말입니다.</div>
             <textarea
               value={cfg.introComment ?? ''}
               onChange={(e) => setCfg({ ...cfg, introComment: e.target.value })}
-              className="w-full bg-[#F5F5F7] border border-[#E5E5EA] rounded-[10px] px-[14px] py-[10px] text-[13px] text-[#1D1D1F] outline-none resize-y"
+              className="w-full bg-surface-secondary border border-border-solid rounded-[10px] px-[14px] py-[10px] text-[13px] text-text outline-none resize-y"
               rows={3}
               placeholder="예: 사장님, 차량 이용방법 고민되시죠? 제가 1분 만에 딱 맞는 방법 찾아드릴게요! 🚗"
             />
@@ -157,7 +157,7 @@ export default function AdminAIPage() {
 
           {/* 캐릭터 기본 정보 */}
           <div className="bg-white rounded-2xl p-5">
-            <div className="text-sm font-bold text-[#1D1D1F] mb-4">캐릭터 기본 정보</div>
+            <div className="text-sm font-bold text-text mb-4">캐릭터 기본 정보</div>
             <div className="grid grid-cols-2 gap-3 mb-3">
               {[
                 { label: '캐릭터 이름', key: 'charName' as const },
@@ -166,9 +166,9 @@ export default function AdminAIPage() {
                 { label: '부제', key: 'charSubtitle' as const },
               ].map(({ label, key }) => (
                 <div key={key}>
-                  <label className="block text-[11px] font-semibold text-[#86868B] mb-1">{label}</label>
+                  <label className="block text-[11px] font-semibold text-text-sub mb-1">{label}</label>
                   <input
-                    className="w-full bg-[#F5F5F7] border border-[#E5E5EA] rounded-[10px] px-[14px] py-[10px] text-sm text-[#1D1D1F] outline-none"
+                    className="w-full bg-surface-secondary border border-border-solid rounded-[10px] px-[14px] py-[10px] text-sm text-text outline-none"
                     value={cfg[key]}
                     onChange={(e) => setCfg({ ...cfg, [key]: e.target.value })}
                   />
@@ -177,30 +177,30 @@ export default function AdminAIPage() {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-[11px] font-semibold text-[#86868B] mb-1">아이콘 배경색</label>
+                <label className="block text-[11px] font-semibold text-text-sub mb-1">아이콘 배경색</label>
                 <div className="flex items-center gap-2">
                   <input
                     type="color"
                     value={cfg.bgColor}
                     onChange={(e) => setCfg({ ...cfg, bgColor: e.target.value })}
-                    className="w-10 h-9 rounded-lg cursor-pointer border border-[#E5E5EA]"
+                    className="w-10 h-9 rounded-lg cursor-pointer border border-border-solid"
                   />
                   <input
-                    className="flex-1 bg-[#F5F5F7] border border-[#E5E5EA] rounded-[10px] px-[14px] py-[10px] text-sm text-[#1D1D1F] outline-none"
+                    className="flex-1 bg-surface-secondary border border-border-solid rounded-[10px] px-[14px] py-[10px] text-sm text-text outline-none"
                     value={cfg.bgColor}
                     onChange={(e) => setCfg({ ...cfg, bgColor: e.target.value })}
                   />
                 </div>
               </div>
               <div>
-                <label className="block text-[11px] font-semibold text-[#86868B] mb-1">세션당 최대 호출</label>
+                <label className="block text-[11px] font-semibold text-text-sub mb-1">세션당 최대 호출</label>
                 <input
                   type="number"
                   min={1}
                   max={50}
                   value={cfg.maxCalls}
                   onChange={(e) => setCfg({ ...cfg, maxCalls: Math.max(1, Number(e.target.value) || 1) })}
-                  className="w-full bg-[#F5F5F7] border border-[#E5E5EA] rounded-[10px] px-[14px] py-[10px] text-sm text-[#1D1D1F] outline-none"
+                  className="w-full bg-surface-secondary border border-border-solid rounded-[10px] px-[14px] py-[10px] text-sm text-text outline-none"
                 />
               </div>
             </div>
@@ -208,7 +208,7 @@ export default function AdminAIPage() {
 
           {/* AI 모델 선택 */}
           <div className="bg-white rounded-2xl p-5">
-            <div className="text-sm font-bold text-[#1D1D1F] mb-3">AI 모델 선택</div>
+            <div className="text-sm font-bold text-text mb-3">AI 모델 선택</div>
             <div className="flex flex-col gap-2">
               {AI_MODELS.map((m) => {
                 const active = cfg.model === m.id;
@@ -217,21 +217,21 @@ export default function AdminAIPage() {
                     key={m.id}
                     type="button"
                     onClick={() => setCfg({ ...cfg, model: m.id })}
-                    className={`flex items-center gap-3 p-4 rounded-xl text-left ${active ? 'bg-[#007AFF] text-white' : 'bg-[#F5F5F7] text-[#1D1D1F]'}`}
+                    className={`flex items-center gap-3 p-4 rounded-xl text-left ${active ? 'bg-primary text-white' : 'bg-surface-secondary text-text'}`}
                   >
                     <div className={`w-[18px] h-[18px] rounded-full flex items-center justify-center ${active ? 'bg-white' : 'border-2 border-[#D1D1D6]'}`}>
-                      {active && <div className="w-2 h-2 rounded-full bg-[#007AFF]" />}
+                      {active && <div className="w-2 h-2 rounded-full bg-primary" />}
                     </div>
                     <div className="flex-1">
-                      <div className={`text-sm font-semibold ${active ? 'text-white' : 'text-[#1D1D1F]'}`}>
+                      <div className={`text-sm font-semibold ${active ? 'text-white' : 'text-text'}`}>
                         {m.name}
                         {m.badge && (
-                          <span className={`ml-2 text-[10px] font-bold px-1.5 py-0.5 rounded ${active ? 'bg-white/20 text-white' : 'bg-[#007AFF1A] text-[#007AFF]'}`}>
+                          <span className={`ml-2 text-[10px] font-bold px-1.5 py-0.5 rounded ${active ? 'bg-white/20 text-white' : 'bg-[#007AFF1A] text-primary'}`}>
                             {m.badge}
                           </span>
                         )}
                       </div>
-                      <div className={`text-[11px] mt-0.5 ${active ? 'text-white/70' : 'text-[#86868B]'}`}>{m.desc}</div>
+                      <div className={`text-[11px] mt-0.5 ${active ? 'text-white/70' : 'text-text-sub'}`}>{m.desc}</div>
                     </div>
                   </button>
                 );
@@ -241,18 +241,18 @@ export default function AdminAIPage() {
 
           {/* 톤 프리셋 */}
           <div className="bg-white rounded-2xl p-5">
-            <div className="text-sm font-bold text-[#1D1D1F] mb-2">톤 프리셋</div>
-            <div className="text-xs text-[#86868B] mb-3">클릭하면 프롬프트의 조언 스타일 라인이 변경됩니다</div>
+            <div className="text-sm font-bold text-text mb-2">톤 프리셋</div>
+            <div className="text-xs text-text-sub mb-3">클릭하면 프롬프트의 조언 스타일 라인이 변경됩니다</div>
             <div className="grid grid-cols-2 gap-2">
               {(cfg.tonePresets ?? []).map((tp, i) => (
                 <button
                   key={i}
                   type="button"
                   onClick={() => applyTone(tp)}
-                  className="p-3 bg-[#F5F5F7] rounded-xl text-left"
+                  className="p-3 bg-surface-secondary rounded-xl text-left"
                 >
-                  <div className="text-[13px] font-semibold text-[#1D1D1F]">{tp.name}</div>
-                  <div className="text-[11px] text-[#86868B] mt-0.5">{tp.desc}</div>
+                  <div className="text-[13px] font-semibold text-text">{tp.name}</div>
+                  <div className="text-[11px] text-text-sub mt-0.5">{tp.desc}</div>
                 </button>
               ))}
             </div>
@@ -261,23 +261,23 @@ export default function AdminAIPage() {
           {/* 프롬프트 템플릿 */}
           <div className="bg-white rounded-2xl p-5">
             <div className="flex items-center justify-between mb-2">
-              <div className="text-sm font-bold text-[#1D1D1F]">프롬프트 템플릿</div>
+              <div className="text-sm font-bold text-text">프롬프트 템플릿</div>
               <button
                 type="button"
                 onClick={() => setCfg({ ...cfg, promptTemplate: DEFAULT_AI_CONFIG.promptTemplate })}
-                className="bg-[#F5F5F7] text-[#86868B] rounded-[10px] px-2.5 py-1.5 text-xs font-semibold"
+                className="bg-surface-secondary text-text-sub rounded-[10px] px-2.5 py-1.5 text-xs font-semibold"
               >
                 기본값
               </button>
             </div>
-            <div className="text-[11px] text-[#86868B] mb-2 leading-relaxed">
+            <div className="text-[11px] text-text-sub mb-2 leading-relaxed">
               사용 변수: <span className="font-mono bg-[#F0F0F5] px-1.5 py-0.5 rounded">{'{charName}'}</span>,{' '}
               <span className="font-mono bg-[#F0F0F5] px-1.5 py-0.5 rounded">{'{context}'}</span>
             </div>
             <textarea
               value={cfg.promptTemplate}
               onChange={(e) => setCfg({ ...cfg, promptTemplate: e.target.value })}
-              className="w-full bg-[#F5F5F7] border border-[#E5E5EA] rounded-[10px] px-[14px] py-[10px] text-[13px] text-[#1D1D1F] outline-none font-mono leading-relaxed resize-y"
+              className="w-full bg-surface-secondary border border-border-solid rounded-[10px] px-[14px] py-[10px] text-[13px] text-text outline-none font-mono leading-relaxed resize-y"
               rows={8}
             />
           </div>
@@ -286,20 +286,20 @@ export default function AdminAIPage() {
           <div className="bg-white rounded-2xl p-5">
             <div className="flex items-center justify-between mb-3">
               <div>
-                <div className="text-sm font-bold text-[#1D1D1F]">폴백 메시지</div>
-                <div className="text-[11px] text-[#86868B] mt-0.5">API 실패 또는 세션 한도 초과 시 표시됩니다</div>
+                <div className="text-sm font-bold text-text">폴백 메시지</div>
+                <div className="text-[11px] text-text-sub mt-0.5">API 실패 또는 세션 한도 초과 시 표시됩니다</div>
               </div>
               <button
                 type="button"
                 onClick={() => setCfg({ ...cfg, fallbacks: [...cfg.fallbacks, ''] })}
-                className="bg-[#F5F5F7] text-[#007AFF] rounded-[10px] px-2.5 py-1.5 text-xs font-semibold"
+                className="bg-surface-secondary text-primary rounded-[10px] px-2.5 py-1.5 text-xs font-semibold"
               >
                 + 추가
               </button>
             </div>
             {cfg.fallbacks.map((fb, i) => (
               <div key={i} className="flex gap-2 items-start mb-2">
-                <span className="text-xs text-[#AEAEB2] mt-2 min-w-5">{i + 1}</span>
+                <span className="text-xs text-text-muted mt-2 min-w-5">{i + 1}</span>
                 <textarea
                   value={fb}
                   onChange={(e) => {
@@ -307,14 +307,14 @@ export default function AdminAIPage() {
                     next[i] = e.target.value;
                     setCfg({ ...cfg, fallbacks: next });
                   }}
-                  className="flex-1 bg-[#F5F5F7] border border-[#E5E5EA] rounded-[10px] px-[14px] py-[10px] text-[13px] text-[#1D1D1F] outline-none resize-y"
+                  className="flex-1 bg-surface-secondary border border-border-solid rounded-[10px] px-[14px] py-[10px] text-[13px] text-text outline-none resize-y"
                   rows={2}
                 />
                 {cfg.fallbacks.length > 1 && (
                   <button
                     type="button"
                     onClick={() => setCfg({ ...cfg, fallbacks: cfg.fallbacks.filter((_, j) => j !== i) })}
-                    className="text-[#FF3B30] text-sm font-semibold px-2 mt-2"
+                    className="text-danger text-sm font-semibold px-2 mt-2"
                   >
                     ✕
                   </button>
@@ -326,19 +326,19 @@ export default function AdminAIPage() {
           {/* 테스트 실행 */}
           <div className="bg-white rounded-2xl p-5">
             <div className="flex items-center justify-between mb-2">
-              <div className="text-sm font-bold text-[#1D1D1F]">테스트 실행</div>
+              <div className="text-sm font-bold text-text">테스트 실행</div>
               <button
                 type="button"
                 onClick={handleTest}
                 disabled={testing}
                 className={`px-4 py-2 rounded-[10px] text-xs font-semibold ${
-                  testing ? 'bg-[#D1D1D6] text-white' : 'bg-[#007AFF] text-white'
+                  testing ? 'bg-[#D1D1D6] text-white' : 'bg-primary text-white'
                 }`}
               >
                 {testing ? '생성 중...' : '테스트 호출'}
               </button>
             </div>
-            <div className="text-[11px] text-[#86868B] mb-2">샘플 데이터로 실제 API를 호출합니다</div>
+            <div className="text-[11px] text-text-sub mb-2">샘플 데이터로 실제 API를 호출합니다</div>
             {testResult && (
               <div className="rounded-xl p-4 bg-[linear-gradient(135deg,#1D1D1F,#2C2C2E)]">
                 <div className="flex items-center gap-2 mb-2">

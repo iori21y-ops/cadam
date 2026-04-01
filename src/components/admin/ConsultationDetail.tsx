@@ -250,14 +250,14 @@ export function ConsultationDetail({
         className="fixed inset-y-0 right-0 z-50 w-full max-w-md bg-white shadow-xl flex flex-col"
       >
         {/* 헤더 — 닫기 버튼 상단 우측 */}
-        <div className="flex items-center justify-between p-4 border-b border-[#E5E5EA] shrink-0">
-          <span className="font-bold text-[#1D1D1F]">
+        <div className="flex items-center justify-between p-4 border-b border-border-solid shrink-0">
+          <span className="font-bold text-text">
             CRM 상세 — {consultation?.name ?? '로딩 중...'}
           </span>
           <button
             type="button"
             onClick={onClose}
-            className="px-3 py-1.5 rounded-[10px] text-sm font-semibold text-[#86868B] hover:bg-[#F5F5F7] transition-colors"
+            className="px-3 py-1.5 rounded-[10px] text-sm font-semibold text-text-sub hover:bg-surface-secondary transition-colors"
           >
             닫기
           </button>
@@ -269,22 +269,22 @@ export function ConsultationDetail({
               <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
             </div>
           ) : !consultation ? (
-            <p className="text-[#86868B] text-center py-8">상담 정보를 불러올 수 없습니다</p>
+            <p className="text-text-sub text-center py-8">상담 정보를 불러올 수 없습니다</p>
           ) : (
             <>
           {/* 고객 기본 정보 */}
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-full bg-[#007AFF1A] flex items-center justify-center text-xl font-bold text-[#007AFF]">
+            <div className="w-12 h-12 rounded-full bg-[#007AFF1A] flex items-center justify-center text-xl font-bold text-primary">
               {consultation.name.charAt(0)}
             </div>
             <div>
-              <div className="font-bold text-[#1D1D1F] flex items-center gap-2">
+              <div className="font-bold text-text flex items-center gap-2">
                 {consultation.name}
                 <LeadBadge score={consultation.lead_score} />
               </div>
               <a
                 href={`tel:${consultation.phone.replace(/\D/g, '')}`}
-                className="text-sm text-[#007AFF] hover:underline"
+                className="text-sm text-primary hover:underline"
               >
                 📞 {consultation.phone}
               </a>
@@ -292,11 +292,11 @@ export function ConsultationDetail({
           </div>
 
           {/* [고객 선택 내역] */}
-          <div className="rounded-2xl bg-[#F5F5F7] p-4">
-            <h3 className="text-sm font-bold text-[#1D1D1F] mb-3">고객 선택 내역</h3>
+          <div className="rounded-2xl bg-surface-secondary p-4">
+            <h3 className="text-sm font-bold text-text mb-3">고객 선택 내역</h3>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-[#86868B]">선택 경로</span>
+                <span className="text-text-sub">선택 경로</span>
                 <span>
                   {selectionPath === '차종'
                     ? '차종 먼저 선택'
@@ -306,15 +306,15 @@ export function ConsultationDetail({
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-[#86868B]">차종</span>
+                <span className="text-text-sub">차종</span>
                 <span>{carDisplay}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-[#86868B]">계약 기간</span>
+                <span className="text-text-sub">계약 기간</span>
                 <span>{consultation.contract_months ? `${consultation.contract_months}개월` : '—'}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-[#86868B]">연간 주행거리</span>
+                <span className="text-text-sub">연간 주행거리</span>
                 <span>
                   {consultation.annual_km
                     ? `연 ${(consultation.annual_km / 10000).toFixed(0)}만km`
@@ -322,7 +322,7 @@ export function ConsultationDetail({
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-[#86868B]">보증금</span>
+                <span className="text-text-sub">보증금</span>
                 <span>
                   {consultation.deposit != null
                     ? `${(consultation.deposit / 10000).toFixed(0)}만원`
@@ -330,14 +330,14 @@ export function ConsultationDetail({
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-[#86868B]">선납금 비율</span>
+                <span className="text-text-sub">선납금 비율</span>
                 <span>
                   {consultation.prepayment_pct != null ? `${consultation.prepayment_pct}%` : '—'}
                 </span>
               </div>
               {selectionPath === '예산' && (
                 <div className="flex justify-between">
-                  <span className="text-[#86868B]">월 예산</span>
+                  <span className="text-text-sub">월 예산</span>
                   <span>
                     {consultation.monthly_budget != null
                       ? `${(consultation.monthly_budget / 10000).toFixed(0)}만원`
@@ -346,8 +346,8 @@ export function ConsultationDetail({
                 </div>
               )}
               <div className="flex justify-between">
-                <span className="text-[#86868B]">예상 금액</span>
-                <span className="text-[#007AFF] font-semibold">{priceDisplay}</span>
+                <span className="text-text-sub">예상 금액</span>
+                <span className="text-primary font-semibold">{priceDisplay}</span>
               </div>
             </div>
           </div>

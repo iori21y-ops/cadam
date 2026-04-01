@@ -124,7 +124,7 @@ function VehResult({ answers, mode, restart, toDetail, onHome, vehicles }: {
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.35, duration: 0.35, ease: 'easeOut' }}
           className="p-6 rounded-2xl mb-4 text-center"
-          style={{ background: 'linear-gradient(135deg, #007AFF, #0A84FF)' }}
+          style={{ background: 'linear-gradient(135deg, #007AFF, #3395FF)' }}
         >
           <p className="text-[17px] font-bold text-white mb-1.5">{best.name}의 최적 옵션은?</p>
           <p className="text-[13px] mb-4" style={{ color: 'rgba(255,255,255,0.7)' }}>5개 질문으로 딱 맞는 트림과 옵션을 추천해드립니다</p>

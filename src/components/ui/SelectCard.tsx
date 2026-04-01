@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React from 'react';
 
@@ -18,8 +18,6 @@ export function SelectCard({
   className = '',
   children,
   style,
-  onMouseEnter,
-  onMouseLeave,
   ...props
 }: SelectCardProps) {
   const selectedShadow = `0 4px 24px ${color}40`;
@@ -28,12 +26,13 @@ export function SelectCard({
     <button
       {...props}
       style={{
+        '--card-accent': color,
         ...(selected
           ? { background: color, borderColor: color, boxShadow: selectedShadow }
           : {}),
         ...(dimmed ? { opacity: 0.4 } : {}),
         ...style,
-      }}
+      } as React.CSSProperties}
       className={[
         'relative w-full rounded-[20px] text-left flex items-center gap-3',
         'border-2 transition-all duration-300',
@@ -41,25 +40,14 @@ export function SelectCard({
         !selected
           ? 'bg-white border-transparent shadow-[0_2px_16px_rgba(0,0,0,0.05)]'
           : '',
+        !selected && !props.disabled
+          ? 'hover:border-[var(--card-accent)] hover:scale-[1.015]'
+          : '',
         props.disabled ? 'cursor-default' : 'cursor-pointer',
         className,
       ]
         .filter(Boolean)
         .join(' ')}
-      onMouseEnter={(e) => {
-        if (!selected && !props.disabled) {
-          e.currentTarget.style.borderColor = color;
-          e.currentTarget.style.transform = 'scale(1.015)';
-        }
-        onMouseEnter?.(e);
-      }}
-      onMouseLeave={(e) => {
-        if (!selected && !props.disabled) {
-          e.currentTarget.style.borderColor = 'transparent';
-          e.currentTarget.style.transform = 'scale(1)';
-        }
-        onMouseLeave?.(e);
-      }}
     >
       {children}
       {/* 라디오 서클 */}

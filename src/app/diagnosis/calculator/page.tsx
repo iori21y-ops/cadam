@@ -6,11 +6,10 @@ import { VEHICLES } from '@/data/diagnosis-vehicles';
 import { DEFAULT_PRODUCTS, PRODUCT_KEYS } from '@/data/diagnosis-products';
 import type { ProductKey } from '@/types/diagnosis';
 import { Button } from '@/components/ui/Button';
+import { SelectCard } from '@/components/ui/SelectCard';
 
 const FEATURED = ['아반떼', '쏘나타', 'K5', '투싼', '스포티지', '팰리세이드', '카니발', '아이오닉5', 'EV6'];
 const FEATURED_VEHICLES = VEHICLES.filter((v) => FEATURED.includes(v.name));
-
-const ACCENT = '#0A84FF';
 
 const resultBgByKey: Record<ProductKey, string> = {
   installment: 'bg-[rgba(0,122,255,0.08)]',
@@ -20,10 +19,10 @@ const resultBgByKey: Record<ProductKey, string> = {
 };
 
 const resultTextByKey: Record<ProductKey, string> = {
-  installment: 'text-[#007AFF]',
-  lease: 'text-[#5856D6]',
-  rent: 'text-[#34C759]',
-  cash: 'text-[#FF9500]',
+  installment: 'text-primary',
+  lease: 'text-vehicle',
+  rent: 'text-success',
+  cash: 'text-warning',
 };
 
 function calcMonthly(price: number, rate: number, months: number, downPct: number) {
@@ -57,57 +56,39 @@ export default function CalculatorPage() {
         </div>
 
         {/* 차종 선택 */}
-        <div className="p-5 rounded-2xl bg-white border border-[#E5E5EA] mb-4">
+        <div className="p-5 rounded-2xl bg-white border border-border-solid mb-4">
           <p className="text-sm font-bold text-text mb-3">차종 선택</p>
           <div className="grid grid-cols-3 gap-2">
-            {FEATURED_VEHICLES.map((v) => (
-              <button
-                key={v.name}
-                onClick={() => setSelectedCar(v)}
-                className={`p-3 rounded-[16px] border-2 transition-all duration-300 flex items-center justify-between gap-2 ${
-                  selectedCar.name === v.name
-                    ? `bg-[#0A84FF] border-[#0A84FF] text-white shadow-[0_4px_24px_rgba(10,132,255,0.25)]`
-                    : 'bg-white border-transparent text-[#1D1D1F] shadow-[0_2px_16px_rgba(0,0,0,0.05)] hover:border-[#0A84FF] hover:bg-[#0A84FF0D] hover:shadow-[0_4px_24px_rgba(10,132,255,0.14)]'
-                }`}
-              >
-                <div className="flex items-center gap-2 min-w-0">
-                  <span className="text-xl shrink-0">{v.img}</span>
-                  <span className="text-[13px] font-semibold truncate">{v.name}</span>
-                </div>
-                <div
-                  className={`w-[20px] h-[20px] rounded-full flex items-center justify-center shrink-0 ${
-                    selectedCar.name === v.name ? 'bg-white' : 'border-2 border-[#D1D1D6]'
-                  }`}
+            {FEATURED_VEHICLES.map((v) => {
+              const isSel = selectedCar.name === v.name;
+              return (
+                <SelectCard
+                  key={v.name}
+                  compact
+                  selected={isSel}
+                  onClick={() => setSelectedCar(v)}
                 >
-                  {selectedCar.name === v.name && (
-                    <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden>
-                      <path
-                        d="M2 6l3 3 5-5"
-                        stroke={ACCENT}
-                        strokeWidth="2"
-                        fill="none"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  )}
-                </div>
-              </button>
-            ))}
+                  <div className="flex items-center gap-2 min-w-0 flex-1">
+                    <span className="text-xl shrink-0">{v.img}</span>
+                    <span className={`text-[13px] font-semibold truncate ${isSel ? 'text-white' : 'text-text'}`}>{v.name}</span>
+                  </div>
+                </SelectCard>
+              );
+            })}
           </div>
         </div>
 
         {/* 슬라이더 */}
-        <div className="p-5 rounded-2xl bg-white border border-[#E5E5EA] mb-4">
+        <div className="p-5 rounded-2xl bg-white border border-border-solid mb-4">
           <div className="mb-5">
             <div className="flex justify-between mb-2">
               <p className="text-sm font-bold text-text">계약 기간</p>
-              <p className="text-sm font-bold text-[#0A84FF]">{months}개월</p>
+              <p className="text-sm font-bold text-primary">{months}개월</p>
             </div>
             <input
               type="range" min={24} max={72} step={12} value={months}
               onChange={(e) => setMonths(Number(e.target.value))}
-              className="w-full accent-[#0A84FF]"
+              className="w-full accent-primary"
             />
             <div className="flex justify-between text-xs text-text-muted mt-1">
               <span>24개월</span><span>72개월</span>
@@ -116,12 +97,12 @@ export default function CalculatorPage() {
           <div>
             <div className="flex justify-between mb-2">
               <p className="text-sm font-bold text-text">선수금 비율</p>
-              <p className="text-sm font-bold text-[#0A84FF]">{downPct}%</p>
+              <p className="text-sm font-bold text-primary">{downPct}%</p>
             </div>
             <input
               type="range" min={0} max={50} step={10} value={downPct}
               onChange={(e) => setDownPct(Number(e.target.value))}
-              className="w-full accent-[#0A84FF]"
+              className="w-full accent-primary"
             />
             <div className="flex justify-between text-xs text-text-muted mt-1">
               <span>0%</span><span>50%</span>
@@ -130,7 +111,7 @@ export default function CalculatorPage() {
         </div>
 
         {/* 결과 카드 */}
-        <div className="p-5 rounded-2xl bg-white border border-[#E5E5EA] mb-4">
+        <div className="p-5 rounded-2xl bg-white border border-border-solid mb-4">
           <p className="text-base font-bold text-text mb-1">{selectedCar.brand} {selectedCar.name}</p>
           <p className="text-[13px] text-text-sub mb-5">{(selectedCar.price / 100).toFixed(1)}천만 · {months}개월 · 선수금 {downPct}%</p>
           <div className="flex flex-col gap-2.5">
@@ -167,7 +148,7 @@ export default function CalculatorPage() {
         </div>
 
         {/* 상담 CTA */}
-        <div className="p-5 rounded-2xl bg-[#0A84FF1A] mb-4">
+        <div className="p-5 rounded-2xl bg-[#007AFF1A] mb-4">
           <p className="text-sm font-bold text-text mb-1">더 정확한 견적이 필요하신가요?</p>
           <p className="text-xs text-text-sub mb-3">전문 상담사가 실제 조건으로 최저가를 찾아드립니다.</p>
           <Button variant="primary" fullWidth className="shadow-lg shadow-primary/20 font-bold" onClick={() => router.push('/quote')}>
