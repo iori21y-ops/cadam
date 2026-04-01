@@ -29,8 +29,25 @@ export interface FinanceQuestion {
   id: string;
   question: string;
   subtitle: string;
+  weight: number; // 1.0~3.0 — 질문 중요도 가중치
   skipIf: SkipCondition[];
   options: FinanceOption[];
+}
+
+// ─── 금융 진단 결과 (랭킹) ───
+
+export interface FinanceRankedProduct {
+  key: ProductKey;
+  score: number;
+  pct: number; // 적합도 백분율 (0~100)
+  reasons: string[]; // 추천 이유 (핵심 질문 기반)
+}
+
+export interface FinanceResultData {
+  ranking: FinanceRankedProduct[]; // 상위 3개
+  answeredCount: number;
+  mode: 'basic' | 'detail';
+  keyFactors: { questionId: string; label: string; impact: string }[];
 }
 
 // ─── 차종 진단 ───

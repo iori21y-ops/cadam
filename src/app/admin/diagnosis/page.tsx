@@ -52,14 +52,18 @@ function normalizeDiagnosisData(input: unknown): DiagnosisData {
   const base = deepClone(buildDefaultData());
   if (!isRecord(input)) return base;
 
+  // Supabase에서 로드한 기존 데이터에 weight가 없을 수 있으므로 기본값 채움
+  const ensureWeight = (qs: FinanceQuestion[]): FinanceQuestion[] =>
+    qs.map((q) => ({ ...q, weight: q.weight ?? 1.0 }));
+
   const out: DiagnosisData = {
     finBasic:
       Array.isArray(input.finBasic) && (input.finBasic as unknown[]).length > 0
-        ? (input.finBasic as FinanceQuestion[])
+        ? ensureWeight(input.finBasic as FinanceQuestion[])
         : base.finBasic,
     finDetail:
       Array.isArray(input.finDetail) && (input.finDetail as unknown[]).length > 0
-        ? (input.finDetail as FinanceQuestion[])
+        ? ensureWeight(input.finDetail as FinanceQuestion[])
         : base.finDetail,
     vehBasic:
       Array.isArray(input.vehBasic) && (input.vehBasic as unknown[]).length > 0
@@ -275,6 +279,7 @@ function QuestionEditor({
           id,
           question: '새 질문',
           subtitle: '설명',
+          weight: 1.0,
           skipIf: [],
           options: [
             { label: '선택지 1', value: 'o1', scores: { installment: 0, lease: 0, rent: 0, cash: 0 }, nextQ: '' },
@@ -322,6 +327,12 @@ function QuestionEditor({
   const updateQuestionField = <K extends 'question' | 'subtitle'>(idx: number, key: K, value: string) => {
     const next = [...questions] as (FinanceQuestion | VehicleQuestion)[];
     next[idx] = { ...next[idx], [key]: value } as FinanceQuestion | VehicleQuestion;
+    setQuestions(next);
+  };
+
+  const updateWeight = (idx: number, value: number) => {
+    const next = deepClone(questions) as FinanceQuestion[];
+    next[idx].weight = Math.max(0.5, Math.min(3.0, Number.isFinite(value) ? value : 1.0));
     setQuestions(next);
   };
 
@@ -456,6 +467,7 @@ function QuestionEditor({
                 <div className="text-sm font-semibold text-text">{q.question.replace('\n', ' ')}</div>
                 <div className="text-[10px] text-text-muted mt-0.5 flex gap-2">
                   <span>{q.options.length}개</span>
+                  {type === 'finance' && <span className="text-primary font-semibold">W{(q as FinanceQuestion).weight ?? 1.0}</span>}
                   {q.skipIf?.length > 0 && <span className="text-warning font-semibold">스킵{q.skipIf.length}</span>}
                   {hasBranch && <span className="text-[#5856D6] font-semibold">분기</span>}
                   <span>id: {q.id}</span>
@@ -506,6 +518,23 @@ function QuestionEditor({
                       className={`${ainp} px-[14px] py-[10px] text-sm text-text`}
                     />
                   </div>
+
+                  {type === 'finance' && (
+                    <div>
+                      <label className="block text-[11px] font-semibold text-text-sub mb-1">
+                        가중치 <span className="text-text-muted font-normal">(0.5~3.0, 높을수록 결과에 큰 영향)</span>
+                      </label>
+                      <input
+                        type="number"
+                        step={0.5}
+                        min={0.5}
+                        max={3.0}
+                        value={(q as FinanceQuestion).weight ?? 1.0}
+                        onChange={(e) => updateWeight(qi, parseFloat(e.target.value))}
+                        className={`${ainp} px-[14px] py-[10px] text-sm text-text w-28`}
+                      />
+                    </div>
+                  )}
 
                   <div className="bg-[#FFFBF0] rounded-xl p-3 border border-[#FFE8B0]">
                     <div className="flex justify-between mb-2">

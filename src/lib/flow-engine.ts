@@ -1,4 +1,9 @@
-import type { DiagnosisQuestion, DiagnosisAnswer, SkipCondition, FinanceScores } from '@/types/diagnosis';
+import type {
+  DiagnosisQuestion, DiagnosisAnswer, SkipCondition,
+  FinanceScores, FinanceQuestion, FinanceRankedProduct, ProductKey,
+} from '@/types/diagnosis';
+import { QUESTION_REASON_MAP } from '@/data/diagnosis-finance';
+import { PRODUCT_KEYS } from '@/data/diagnosis-products';
 
 /**
  * Check if a question should be skipped based on previous answers.
@@ -37,24 +42,102 @@ export function findNextIndex(
 }
 
 /**
- * Calculate finance scores from answers.
+ * Calculate finance scores with weight system.
  */
 export function calculateFinanceScores(
-  answers: Record<string, DiagnosisAnswer>
+  answers: Record<string, DiagnosisAnswer>,
+  questions?: FinanceQuestion[]
 ): { totals: FinanceScores; maxPossible: number } {
   const totals: FinanceScores = { installment: 0, lease: 0, rent: 0, cash: 0 };
-  let count = 0;
+  let maxPossible = 0;
 
-  Object.values(answers).forEach((answer) => {
+  Object.entries(answers).forEach(([qId, answer]) => {
     if ('scores' in answer) {
-      count++;
+      // 해당 질문의 가중치 찾기
+      const q = questions?.find((qq) => qq.id === qId);
+      const weight = q?.weight ?? 1.0;
+
       (Object.keys(answer.scores) as (keyof FinanceScores)[]).forEach((key) => {
-        totals[key] += answer.scores[key];
+        totals[key] += answer.scores[key] * weight;
       });
+      maxPossible += 3 * weight;
     }
   });
 
-  return { totals, maxPossible: count * 3 };
+  return { totals, maxPossible };
+}
+
+/**
+ * Rank finance products — returns top 3 with percentages and reasons.
+ */
+export function rankFinanceProducts(
+  answers: Record<string, DiagnosisAnswer>,
+  questions: FinanceQuestion[]
+): FinanceRankedProduct[] {
+  const { totals, maxPossible } = calculateFinanceScores(answers, questions);
+
+  // 각 상품별 적합도 퍼센트 계산
+  const ranked = PRODUCT_KEYS.map((key) => {
+    const pct = maxPossible > 0 ? Math.round((totals[key] / maxPossible) * 100) : 0;
+
+    // 추천 이유 생성: 높은 가중치 질문에서 해당 상품에 기여한 답변 추출
+    const reasons: string[] = [];
+    const sortedQs = [...questions]
+      .filter((q) => answers[q.id])
+      .sort((a, b) => (b.weight ?? 1) - (a.weight ?? 1));
+
+    for (const q of sortedQs) {
+      const ans = answers[q.id];
+      if (!ans || !('scores' in ans)) continue;
+
+      const reasonMap = QUESTION_REASON_MAP[q.id]?.[ans.value];
+      if (reasonMap?.[key]) {
+        reasons.push(reasonMap[key]);
+      }
+      if (reasons.length >= 3) break;
+    }
+
+    return { key, score: totals[key], pct, reasons } as FinanceRankedProduct;
+  });
+
+  // 점수 높은 순 정렬
+  ranked.sort((a, b) => b.score - a.score);
+
+  return ranked.slice(0, 3);
+}
+
+/**
+ * Get key factors that influenced the result.
+ */
+export function getKeyFactors(
+  answers: Record<string, DiagnosisAnswer>,
+  questions: FinanceQuestion[],
+  bestKey: ProductKey
+): { questionId: string; label: string; impact: string }[] {
+  const factors: { questionId: string; label: string; impact: string; weight: number; score: number }[] = [];
+
+  for (const q of questions) {
+    const ans = answers[q.id];
+    if (!ans || !('scores' in ans)) continue;
+
+    const score = ans.scores[bestKey];
+    const weight = q.weight ?? 1;
+
+    if (score >= 2) {
+      factors.push({
+        questionId: q.id,
+        label: ans.label,
+        impact: score === 3 ? '매우 유리' : '유리',
+        weight,
+        score: score * weight,
+      });
+    }
+  }
+
+  return factors
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 4)
+    .map(({ questionId, label, impact }) => ({ questionId, label, impact }));
 }
 
 /**
