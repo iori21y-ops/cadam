@@ -152,7 +152,7 @@ export function Step2Car() {
       </div>
 
       {/* Vehicle grid - scroll area */}
-      <div className="px-5 py-3 overflow-y-auto max-h-[340px] scrollbar-hide">
+      <div className="px-5 py-3 overflow-y-auto scrollbar-hide">
         {filteredVehicles.length === 0 ? (
           <p className="py-8 text-center text-text-sub text-sm">
             해당 차종이 없습니다

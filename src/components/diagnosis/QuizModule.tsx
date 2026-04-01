@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import type { DiagnosisQuestion, DiagnosisAnswer } from '@/types/diagnosis';
 import { shouldSkip, findNextIndex } from '@/lib/flow-engine';
 import { SelectCard } from '@/components/ui/SelectCard';
+import { Button } from '@/components/ui/Button';
 
 interface QuizModuleProps {
   basicQs: DiagnosisQuestion[];
@@ -91,6 +92,18 @@ export function QuizModule({ basicQs, detailQs, color, onHome, renderResult }: Q
         setSelected(null);
       }
     }, 300);
+  };
+
+  const handleNext = () => {
+    // 건너뛰기: 선택 없이 다음 질문으로 이동
+    const nextIdx = findNextIndex(questions, currentIdx, {}, answers);
+    if (nextIdx === -1) {
+      setScreen('result');
+    } else {
+      setHistory((h) => [...h, currentIdx]);
+      setCurrentIdx(nextIdx);
+      setSelected(null);
+    }
   };
 
   const handleBack = () => {
@@ -186,12 +199,6 @@ export function QuizModule({ basicQs, detailQs, color, onHome, renderResult }: Q
           })}
         </div>
 
-        <div className="text-center mt-8">
-          <button onClick={onHome} className="text-[15px] bg-transparent border-none cursor-pointer"
-            style={{ color, fontFamily: 'inherit' }}>
-            ← 홈으로
-          </button>
-        </div>
       </div>
     );
   }
@@ -209,9 +216,9 @@ export function QuizModule({ basicQs, detailQs, color, onHome, renderResult }: Q
   const progressPct = Math.round((answeredCount / questions.length) * 100);
 
   return (
-    <div className="min-h-screen bg-surface-secondary">
+    <div className="flex flex-col h-[calc(100dvh-49px)] overflow-hidden bg-surface-secondary">
       {/* 프로그레스 바 */}
-      <div className="px-5 pt-4 pb-2 max-w-[500px] mx-auto">
+      <div className="px-5 pt-4 pb-2 max-w-[500px] mx-auto w-full">
         <div className="flex justify-between mb-2" style={{ fontFamily: 'inherit', fontSize: 12, color: '#AEAEB2' }}>
           <span>Q{answeredCount + 1}</span>
           <span>{answeredCount}/~{questions.length}</span>
@@ -225,51 +232,61 @@ export function QuizModule({ basicQs, detailQs, color, onHome, renderResult }: Q
       </div>
 
       {/* 질문 (nextIdx 변경 시 슬라이드) */}
-      <AnimatePresence mode="wait" initial={false}>
-        <motion.div
-          key={currentIdx}
-          className="px-5 pt-8 pb-6 max-w-[500px] mx-auto"
-          initial={{ opacity: 0, x: quizDir * 40 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -quizDir * 40 }}
-          transition={{ duration: 0.35, ease: 'easeOut' }}
-        >
-          <h2
-            className="font-bold text-text text-center leading-tight mb-2 whitespace-pre-line"
-            style={{ fontSize: 'clamp(26px, 5vw, 34px)' }}
+      <div className="flex-1 min-h-0 overflow-y-auto scrollbar-hide">
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={currentIdx}
+            className="px-5 pt-8 pb-6 max-w-[500px] mx-auto"
+            initial={{ opacity: 0, x: quizDir * 40 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -quizDir * 40 }}
+            transition={{ duration: 0.35, ease: 'easeOut' }}
           >
-            {q.question}
-          </h2>
-          {q.subtitle && <p className="text-[15px] text-text-sub text-center mb-9">{q.subtitle}</p>}
+            <h2
+              className="font-bold text-text text-center leading-tight mb-2 whitespace-pre-line"
+              style={{ fontSize: 'clamp(26px, 5vw, 34px)' }}
+            >
+              {q.question}
+            </h2>
+            {q.subtitle && <p className="text-[15px] text-text-sub text-center mb-9">{q.subtitle}</p>}
 
-          <div className="flex flex-col gap-2.5">
-            {q.options.map((option) => {
-              const isSel = selected?.value === option.value;
-              return (
-                <SelectCard
-                  key={option.value}
-                  selected={isSel}
-                  dimmed={!!selected && !isSel}
-                  color={color}
-                  disabled={!!selected}
-                  onClick={() => handleSelect(option)}
-                >
-                  <span className={`flex-1 text-[16px] font-medium ${isSel ? 'text-white' : 'text-text'}`}>
-                    {option.label}
-                  </span>
-                </SelectCard>
-              );
-            })}
+            <div className="flex flex-col gap-2.5">
+              {q.options.map((option) => {
+                const isSel = selected?.value === option.value;
+                return (
+                  <SelectCard
+                    key={option.value}
+                    selected={isSel}
+                    dimmed={!!selected && !isSel}
+                    color={color}
+                    disabled={!!selected}
+                    onClick={() => handleSelect(option)}
+                  >
+                    <span className={`flex-1 text-[16px] font-medium ${isSel ? 'text-white' : 'text-text'}`}>
+                      {option.label}
+                    </span>
+                  </SelectCard>
+                );
+              })}
+            </div>
+          </motion.div>
+        </AnimatePresence>
+      </div>
+
+      {/* 하단 고정 — 이전 / 다음 */}
+      <div className="shrink-0 bg-surface-secondary">
+        <div className="px-5 pb-5 pt-3">
+          <div className="bg-white rounded-2xl p-4 shadow-[0_6px_18px_rgba(0,0,0,0.06)]">
+            <div className="flex gap-3">
+              <Button type="button" variant="secondary" size="lg" className="flex-1" onClick={handleBack}>
+                이전
+              </Button>
+              <Button type="button" variant="primary" size="lg" className="flex-1" onClick={handleNext}>
+                다음
+              </Button>
+            </div>
           </div>
-        </motion.div>
-      </AnimatePresence>
-
-      {/* 뒤로 가기 */}
-      <div className="text-center mt-8 pb-8">
-        <button onClick={handleBack} className="bg-transparent border-none text-[15px] cursor-pointer"
-          style={{ color, fontFamily: 'inherit' }}>
-          {history.length === 0 ? '← 테스트 선택' : '이전으로'}
-        </button>
+        </div>
       </div>
     </div>
   );

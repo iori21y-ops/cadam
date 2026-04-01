@@ -66,13 +66,11 @@ export function StepLayout({
 
   const showPrev = currentStep > 1;
   const showNext = currentStep < 6;
-  const scrollWrapperClass =
-    currentStep === 2 ? 'overflow-y-hidden' : 'overflow-y-auto';
 
   return (
-    <div className="flex flex-col h-[100dvh] overflow-hidden bg-surface-secondary">
+    <div className="flex flex-col h-[calc(100dvh-49px)] overflow-hidden bg-surface-secondary">
       <ProgressBar currentStep={currentStep} />
-      <div className={`flex-1 pb-32 scrollbar-hide ${scrollWrapperClass}`}>
+      <div className="flex-1 min-h-0 overflow-y-auto scrollbar-hide">
         <AnimatePresence mode="wait" initial={true}>
           <motion.div
             key={currentStep}
@@ -86,8 +84,8 @@ export function StepLayout({
           </motion.div>
         </AnimatePresence>
       </div>
-      <div className="fixed bottom-0 left-0 right-0 z-40 bg-surface-secondary min-w-[360px] max-w-[1024px] mx-auto">
-        <SelectionSummary currentStep={currentStep} />
+      <div className="shrink-0 bg-surface-secondary">
+        {currentStep === 6 && <SelectionSummary currentStep={currentStep} />}
         <div className="px-5 pb-5 pt-3">
           <div className="bg-white rounded-2xl p-4 shadow-[0_6px_18px_rgba(0,0,0,0.06)]">
             <div className="flex gap-3">

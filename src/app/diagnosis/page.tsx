@@ -52,10 +52,8 @@ export default function DiagnosisPage() {
   const ACCENT = '#007AFF';
   const router = useRouter();
   const [clickedHref, setClickedHref] = useState<string | null>(null);
-  const [fading, setFading] = useState(false);
   const clickedRef = useRef<string | null>(null);
   const NAV_DELAY_MS = 300;
-  const FADE_MS = 350;
   const [aiConfig, setAiConfig] = useState<AIConfig>(DEFAULT_AI_CONFIG);
 
   const triggerPageTransition = usePageTransitionStore((s) => s.trigger);
@@ -79,12 +77,9 @@ export default function DiagnosisPage() {
     clickedRef.current = href;
     setClickedHref(href);
     window.setTimeout(() => {
-      setFading(true);
-    }, NAV_DELAY_MS);
-    window.setTimeout(() => {
       triggerPageTransition();
       router.push(href);
-    }, NAV_DELAY_MS + FADE_MS);
+    }, NAV_DELAY_MS);
   };
 
   return (
@@ -101,10 +96,8 @@ export default function DiagnosisPage() {
       </section>
 
       {/* 서비스 카드 */}
-      <motion.section
+      <section
         className="px-5 max-w-lg mx-auto flex flex-col gap-4"
-        animate={fading ? { opacity: 0, x: -40 } : { opacity: 1, x: 0 }}
-        transition={{ duration: 0.35, ease: 'easeOut' }}
       >
         {SERVICES.map((service, i) => (
           <motion.div
@@ -150,7 +143,7 @@ export default function DiagnosisPage() {
               })()}
           </motion.div>
         ))}
-      </motion.section>
+      </section>
 
       {/* 신뢰 배지 */}
       <section className="px-5 mt-8 max-w-lg mx-auto">

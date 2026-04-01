@@ -64,26 +64,20 @@ export default function HomePage() {
   const pathname = usePathname();
   const router = useRouter();
   const [clickedHref, setClickedHref] = useState<string | null>(null);
-  const [fading, setFading] = useState(false);
   const clickedRef = useRef<string | null>(null);
   const NAV_DELAY_MS = 300;
-  const FADE_MS = 350;
 
   const triggerPageTransition = usePageTransitionStore((s) => s.trigger);
 
   const handleCardClick = (href: string) => {
-    // state 반영 전 더블 탭/이벤트 중복을 ref로 선차단
     if (clickedRef.current) return;
     clickedRef.current = href;
     setClickedHref(href);
-    // selected 효과(300ms)를 보여준 뒤 fade→navigate
-    window.setTimeout(() => {
-      setFading(true);
-    }, NAV_DELAY_MS);
+    // selected 효과를 보여준 뒤 PageTransition으로 넘김
     window.setTimeout(() => {
       triggerPageTransition();
       router.push(href);
-    }, NAV_DELAY_MS + FADE_MS);
+    }, NAV_DELAY_MS);
   };
 
   return (
@@ -93,10 +87,8 @@ export default function HomePage() {
         <h2 className="text-xl font-bold text-text mb-6 text-center">
           카담과 함께하기
         </h2>
-        <motion.div
+        <div
           className="flex flex-col gap-4 max-w-lg mx-auto"
-          animate={fading ? { opacity: 0, x: -40 } : { opacity: 1, x: 0 }}
-          transition={{ duration: 0.35, ease: 'easeOut' }}
         >
           {MAIN_CARDS.map((card, idx) => {
             const isSel = pathname?.startsWith(card.href);
@@ -139,7 +131,7 @@ export default function HomePage() {
               </motion.div>
             );
           })}
-        </motion.div>
+        </div>
       </section>
 
       {/* 인기 차종 바로가기 */}
