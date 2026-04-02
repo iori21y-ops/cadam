@@ -136,11 +136,27 @@ function VehResult({ answers, mode, restart, toDetail, onHome, vehicles }: {
           </h1>
         </motion.div>
 
-        {/* ParkAI */}
-        <ParkAI
-          ctx={`차종추천결과: TOP3 - ${scored.slice(0, 3).map(v => `${v.name}(${v.score}점)`).join(', ')}. 응답수: ${answerCount}개. 모드: ${mode}. 1순위: ${best.brand} ${best.name} (${best.class}, ${best.price}만원~). 용도: ${answers['v_purpose']?.label ?? '미응답'}. 예산: ${answers['v_budget']?.label ?? '미응답'}.`}
-          mode="report"
-        />
+        {/* ParkAI + 공유 버튼 */}
+        <div className="relative">
+          <div className="absolute top-3 right-3 flex gap-1.5 z-10">
+            <button
+              onClick={handleKakaoShare}
+              className="px-2 py-1 rounded-lg bg-white/15 text-[10px] font-semibold text-white/70 hover:bg-white/25 transition-colors"
+            >
+              카카오
+            </button>
+            <button
+              onClick={handleShare}
+              className="px-2 py-1 rounded-lg bg-white/15 text-[10px] font-semibold text-white/70 hover:bg-white/25 transition-colors"
+            >
+              {copied ? '복사됨!' : '링크'}
+            </button>
+          </div>
+          <ParkAI
+            ctx={`차종추천결과: TOP3 - ${scored.slice(0, 3).map(v => `${v.name}(${v.score}점)`).join(', ')}. 응답수: ${answerCount}개. 모드: ${mode}. 1순위: ${best.brand} ${best.name} (${best.class}, ${best.price}만원~). 용도: ${answers['v_purpose']?.label ?? '미응답'}. 예산: ${answers['v_budget']?.label ?? '미응답'}.`}
+            mode="report"
+          />
+        </div>
 
         {/* 추천 순위 (1순위 상세 + 접기/펼치기) */}
         <motion.div
@@ -243,12 +259,8 @@ function VehResult({ answers, mode, restart, toDetail, onHome, vehicles }: {
         </motion.div>
 
 
-        {/* 공유 + 하단 버튼 */}
+        {/* 하단 버튼 */}
         <div className="flex flex-col gap-3">
-          <div className="flex gap-2">
-            <Button variant="surface" className="flex-1" onClick={handleKakaoShare}>카카오톡 공유</Button>
-            <Button variant="surface" className="flex-1" onClick={handleShare}>{copied ? '복사됨!' : '링크 공유'}</Button>
-          </div>
           <div className="mb-3">
             <NextMission current="vehicle" />
           </div>
