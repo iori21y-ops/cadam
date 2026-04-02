@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import { useHydrated } from '@/hooks/useHydrated';
 import { useQuoteStore } from '@/store/quoteStore';
 import { gtag } from '@/lib/gtag';
-import { Button, ButtonLink } from '@/components/ui/Button';
+import { Button } from '@/components/ui/Button';
 import { SimulationCalculator } from '@/components/diagnosis/SimulationCalculator';
 import { loadProgress } from '@/lib/mission-progress';
 import type { MissionProgress } from '@/lib/mission-progress';
@@ -80,9 +80,6 @@ export default function ResultPage() {
     setVehicleInfo(extractVehicleInfo(progress));
     setFinanceInfo(extractFinanceInfo(progress));
   }, []);
-
-  const kakaoUrl = process.env.NEXT_PUBLIC_KAKAO_CHANNEL_URL ?? '#';
-  const phoneNumber = process.env.NEXT_PUBLIC_PHONE_NUMBER ?? '02-0000-0000';
 
   const handleRetry = () => {
     gtag.resultRetry();
@@ -302,30 +299,10 @@ export default function ResultPage() {
         </div>
       </div>
 
-      {/* ━━━ CTA 하단 고정 ━━━ */}
+      {/* ━━━ 하단 고정 ━━━ */}
       <div className="fixed bottom-0 left-0 right-0 max-w-lg mx-auto px-5 py-4 bg-surface-secondary">
-        <div className="bg-white rounded-2xl p-4 border border-border-solid shadow-[0_6px_18px_rgba(0,0,0,0.06)] flex flex-col gap-3">
-          <ButtonLink
-            variant="kakao"
-            size="lg"
-            fullWidth
-            href={kakaoUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => gtag.resultKakaoClick()}
-          >
-            💬 카카오톡으로 상담하기
-          </ButtonLink>
-          <ButtonLink
-            variant="outline"
-            size="lg"
-            fullWidth
-            href={`tel:${phoneNumber.replace(/-/g, '')}`}
-            onClick={() => gtag.resultCallClick()}
-          >
-            📞 전화 상담 요청
-          </ButtonLink>
-          <Button type="button" variant="ghost" onClick={handleRetry} className="mt-1">
+        <div className="bg-white rounded-2xl p-4 border border-border-solid shadow-[0_6px_18px_rgba(0,0,0,0.06)]">
+          <Button type="button" variant="primary" size="lg" fullWidth onClick={handleRetry}>
             다른 조건으로 다시 상담하기
           </Button>
         </div>
