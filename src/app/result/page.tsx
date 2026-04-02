@@ -273,6 +273,13 @@ export default function ResultPage() {
                 carPrice={vehicleInfo.trimPrice ?? vehicleInfo.price}
                 carName={vehicleInfo.name + (vehicleInfo.trim ? ` ${vehicleInfo.trim.name}` : '')}
                 recommendedProduct={financeInfo?.key}
+                initialPeriod={contractMonths ?? undefined}
+                initialMileage={annualKm ?? undefined}
+                initialDownRate={
+                  deposit != null
+                    ? ({ 0: 0, 1000000: 10, 2000000: 20, 3000000: 30 } as Record<number, number>)[deposit] ?? 10
+                    : prepaymentPct ?? undefined
+                }
               />
             </motion.div>
           )}
