@@ -175,7 +175,7 @@ export async function sendConsultationNotification(
   const { error } = await resend.emails.send({
     from: `${BRAND.name} <onboarding@resend.dev>`,
     to: adminEmail,
-    subject: `[${leadGrade}] ${data.name} — ${carDisplay} / ${financeDisplay}`,
+    subject: `[상담 리포트] ${leadGrade} ${data.name} — ${carDisplay} / ${financeDisplay}`,
     html,
   });
 
