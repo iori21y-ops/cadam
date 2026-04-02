@@ -6,7 +6,6 @@ import { useDragScroll } from '@/hooks/useDragScroll';
 import { BRAND } from '@/constants/brand';
 
 const NAV_ITEMS = [
-  { href: '/diagnosis', label: 'AI 진단' },
   { href: '/popular-estimates', label: '인기차종' },
   { href: '/info', label: '정보' },
   { href: '/promotions', label: '프로모션' },
@@ -35,10 +34,7 @@ export function NavBar() {
           className="flex items-center gap-2 overflow-x-auto scrollbar-hide cursor-grab select-none flex-1 min-w-0"
         >
           {NAV_ITEMS.map((item) => {
-            const isActive =
-              item.href === '/diagnosis'
-                ? pathname === '/diagnosis' || pathname?.startsWith('/quote') || (pathname?.startsWith('/diagnosis/') && !pathname?.startsWith('/diagnosis/calculator'))
-                : pathname?.startsWith(item.href);
+            const isActive = pathname?.startsWith(item.href);
             return (
               <Link
                 key={item.href}

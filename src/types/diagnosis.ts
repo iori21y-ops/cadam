@@ -124,6 +124,12 @@ export interface DiagnosisVehicle {
   img: string;
   imageKey?: string;
   parentName?: string;
+  highlights?: string[];
+  pros?: string[];
+  cons?: string[];
+  bestFor?: string;
+  seats?: string;
+  engine?: string;
 }
 
 // ─── 트림 ───

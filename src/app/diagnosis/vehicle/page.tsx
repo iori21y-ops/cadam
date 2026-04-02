@@ -24,6 +24,16 @@ import { useQuoteStore } from '@/store/quoteStore';
 
 const COLOR = '#2563EB';
 
+function VehicleImage({ imageKey, brand, name, emoji }: { imageKey?: string; brand: string; name: string; emoji: string }) {
+  const [failed, setFailed] = useState(false);
+  if (!imageKey || failed) return <span className="text-2xl">{emoji}</span>;
+  return (
+    <div className="w-16 h-10 relative">
+      <Image src={`/cars/${imageKey}.webp`} alt={`${brand} ${name}`} fill sizes="64px" className="object-contain" onError={() => setFailed(true)} />
+    </div>
+  );
+}
+
 function RankBadge({ rank }: { rank: number }) {
   const badges = ['1st', '2nd', '3rd'];
   const colors = ['#EF4444', '#F59E0B', '#8E8E93'];
@@ -191,20 +201,7 @@ function VehResult({ answers, mode, restart, toDetail, onHome, vehicles }: {
                 <div className="flex items-center gap-3 mb-3">
                   <div className="flex flex-col items-center gap-1">
                     <RankBadge rank={i} />
-                    {v.imageKey ? (
-                      <div className="w-16 h-10 relative">
-                        <Image
-                          src={`/cars/${v.imageKey}.webp`}
-                          alt={`${v.brand} ${v.name}`}
-                          fill
-                          sizes="64px"
-                          className="object-contain"
-                          onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).parentElement!.innerHTML = `<span class="text-2xl">${v.img}</span>`; }}
-                        />
-                      </div>
-                    ) : (
-                      <span className="text-2xl">{v.img}</span>
-                    )}
+                    <VehicleImage imageKey={v.imageKey} brand={v.brand} name={v.name} emoji={v.img} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-0.5">
@@ -250,9 +247,81 @@ function VehResult({ answers, mode, restart, toDetail, onHome, vehicles }: {
                   </div>
                 )}
 
-                {/* 1순위에만 추가 정보 */}
+                {/* 1순위 상세 정보 */}
                 {isBest && (
-                  <p className="text-[11px] text-text-muted">고객님의 용도·예산·탑승 인원에 가장 적합한 차종입니다</p>
+                  <div className="mt-2">
+                    {/* 핵심 스펙 */}
+                    <div className="flex flex-wrap gap-1.5 mb-3">
+                      {v.seats && <span className="text-[10px] px-2 py-0.5 rounded-md bg-surface-secondary text-text-sub">{v.seats}</span>}
+                      {v.engine && <span className="text-[10px] px-2 py-0.5 rounded-md bg-surface-secondary text-text-sub">{v.engine}</span>}
+                    </div>
+
+                    {/* 핵심 특징 */}
+                    {v.highlights && v.highlights.length > 0 && (
+                      <div className="flex flex-col gap-1 mb-3">
+                        {v.highlights.map((h, hi) => (
+                          <p key={hi} className="text-xs text-text-sub"><span className="text-primary mr-1">✓</span>{h}</p>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* 장점 / 유의사항 */}
+                    {v.pros && v.cons && (
+                      <div className="grid grid-cols-2 gap-3 mb-3">
+                        <div>
+                          <p className="text-[11px] font-semibold text-success mb-1">장점</p>
+                          {v.pros.map((p) => (
+                            <p key={p} className="text-[11px] text-text-sub mb-0.5">✓ {p}</p>
+                          ))}
+                        </div>
+                        <div>
+                          <p className="text-[11px] font-semibold text-danger mb-1">유의사항</p>
+                          {v.cons.map((c) => (
+                            <p key={c} className="text-[11px] text-text-sub mb-0.5">· {c}</p>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* 추천 대상 */}
+                    {v.bestFor && (
+                      <p className="text-[11px] text-text-muted">이런 분께 최적: {v.bestFor}</p>
+                    )}
+
+                    {/* 진단 답변 기반 추천 이유 */}
+                    {Object.keys(answers).length > 0 && (
+                      <div className="mt-3 pt-3 border-t border-border">
+                        <p className="text-[11px] font-semibold text-text-sub mb-2">고객님의 진단 결과 기반 추천 이유</p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {answers['v_purpose'] && (
+                            <span className="text-[11px] font-semibold px-2 py-1 rounded-lg bg-primary/10 text-primary">
+                              용도: {answers['v_purpose'].label}
+                            </span>
+                          )}
+                          {answers['v_budget'] && (
+                            <span className="text-[11px] font-semibold px-2 py-1 rounded-lg bg-primary/10 text-primary">
+                              예산: {answers['v_budget'].label}
+                            </span>
+                          )}
+                          {answers['v_people'] && (
+                            <span className="text-[11px] font-semibold px-2 py-1 rounded-lg bg-primary/10 text-primary">
+                              인원: {answers['v_people'].label}
+                            </span>
+                          )}
+                          {answers['v_fuel'] && (
+                            <span className="text-[11px] font-semibold px-2 py-1 rounded-lg bg-primary/10 text-primary">
+                              연료: {answers['v_fuel'].label}
+                            </span>
+                          )}
+                          {answers['v_priority'] && (
+                            <span className="text-[11px] font-semibold px-2 py-1 rounded-lg bg-primary/10 text-primary">
+                              우선: {answers['v_priority'].label}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 )}
               </div>
             );
@@ -324,7 +393,7 @@ export default function VehiclePage() {
   useEffect(() => {
     const supabase = createBrowserSupabaseClient();
     supabase.from('vehicles')
-      .select('name, manufacturer, diagnosis_class, base_price, diagnosis_tags, img_emoji, image_key, parent_name')
+      .select('name, manufacturer, diagnosis_class, base_price, diagnosis_tags, img_emoji, image_key, parent_name, highlights, pros, cons, best_for, seats, engine')
       .eq('is_active', true)
       .eq('is_diagnosis', true)
       .order('display_order')
@@ -339,6 +408,12 @@ export default function VehiclePage() {
             img: v.img_emoji ?? '🚗',
             imageKey: v.image_key ?? undefined,
             parentName: v.parent_name ?? undefined,
+            highlights: v.highlights ?? undefined,
+            pros: v.pros ?? undefined,
+            cons: v.cons ?? undefined,
+            bestFor: v.best_for ?? undefined,
+            seats: v.seats ?? undefined,
+            engine: v.engine ?? undefined,
           }));
           setVehicles(mapped);
         }
