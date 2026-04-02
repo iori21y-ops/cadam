@@ -31,30 +31,38 @@ export function NextMission({ current }: NextMissionProps) {
   const [progress, setProgress] = useState<MissionProgress | null>(null);
 
   useEffect(() => {
-    setProgress(loadProgress());
+    // 약간의 딜레이로 saveMissionStep 이후 최신 상태 읽기
+    const timer = setTimeout(() => setProgress(loadProgress()), 100);
+    return () => clearTimeout(timer);
   }, []);
 
   if (!progress) return null;
 
-  const doneCount = [progress.vehicle.done, progress.finance.done].filter(Boolean).length;
+  // 현재 진단은 방금 완료했으므로 done으로 간주
+  const effectiveProgress = {
+    ...progress,
+    [current]: { ...progress[current], done: true },
+  };
+
+  const doneCount = [effectiveProgress.vehicle.done, effectiveProgress.finance.done].filter(Boolean).length;
   const allDone = doneCount === 2;
 
   // 다음 미완료 미션 찾기 (현재 스텝 제외)
-  const nextStep = MISSION_ORDER.find((key) => key !== current && !progress[key].done);
+  const nextStep = MISSION_ORDER.find((key) => key !== current && !effectiveProgress[key].done);
 
-  // 모든 미션 완료 → 최종 결과 페이지로
+  // 모든 미션 완료 → 맞춤 상담으로
   if (allDone) {
     return (
       <button
-        onClick={() => router.push('/summary')}
+        onClick={() => router.push('/quote')}
         className="w-full rounded-2xl p-5 text-center text-white transition-all hover:shadow-lg active:scale-[0.98]"
         style={{ background: 'linear-gradient(135deg, #F59E0B, #FBBF24)' }}
       >
         <span className="text-xl block mb-1">🏆</span>
         <p className="text-[15px] font-bold mb-1">2단계 진단 모두 완료!</p>
-        <p className="text-xs text-white/80 mb-3">종합 결과를 확인하고 맞춤 상담을 받아보세요</p>
+        <p className="text-xs text-white/80 mb-3">진단 결과를 바탕으로 맞춤 상담을 받아보세요</p>
         <span className="inline-block px-4 py-2 rounded-xl bg-white text-amber-600 font-bold text-sm">
-          최종 결과 확인 →
+          맞춤 상담 신청 →
         </span>
       </button>
     );
