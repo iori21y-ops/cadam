@@ -11,7 +11,9 @@ import { createServiceRoleSupabaseClient } from '@/lib/supabase-server';
 
 const consultationSchema = z.object({
   name: z.string().min(1).max(50),
-  phone: z.string().regex(/^01[016789]\d{3,4}\d{4}$/),
+  phone: z.string().default(''),
+  email: z.string().default(''),
+  contactMethod: z.enum(['phone', 'email', 'kakao', 'skip']).default('phone'),
   privacyAgreed: z.literal(true),
   selectionPath: z.enum(['car', 'budget']).nullish(),
   carBrand: z.string().nullish(),
@@ -127,7 +129,9 @@ export async function POST(request: NextRequest) {
       .from('consultations')
       .insert({
         name: input.name,
-        phone: input.phone,
+        phone: input.phone || null,
+        email: input.email || null,
+        contact_method: input.contactMethod,
         car_brand: input.carBrand,
         car_model: input.carModel,
         trim: input.trim,

@@ -16,83 +16,83 @@ import { loadProgress } from '@/lib/mission-progress';
 import { VEHICLES } from '@/data/diagnosis-vehicles';
 import type { Brand } from '@/constants/vehicles';
 
+type ContactMethod = 'phone' | 'email' | 'kakao' | 'skip';
+
+const KAKAO_URL = process.env.NEXT_PUBLIC_KAKAO_CHANNEL_URL ?? '#';
+
+/** 진단 결과에서 차종 정보 보충 */
+function getCarFromDiagnosis(): { brand: Brand; model: string } | null {
+  const progress = loadProgress();
+  if (!progress.vehicle.done || !progress.vehicle.summary) return null;
+  const parts = progress.vehicle.summary.split(' ');
+  if (parts.length < 2) return null;
+  const brand = parts[0];
+  const name = parts.slice(1).join(' ');
+  const found = VEHICLES.find((v) => v.brand === brand && v.name === name);
+  return found ? { brand: found.brand as Brand, model: found.name } : null;
+}
+
 export function Step6Contact() {
   const router = useRouter();
+  const [method, setMethod] = useState<ContactMethod | null>(null);
+  const [nameValue, setNameValue] = useState('');
+  const [phoneValue, setPhoneValue] = useState('');
+  const [emailValue, setEmailValue] = useState('');
   const [nameError, setNameError] = useState(false);
   const [phoneError, setPhoneError] = useState(false);
+  const [emailError, setEmailError] = useState(false);
+  const [privacyAgreed, setPrivacyAgreed] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const name = useQuoteStore((s) => s.name);
-  const phone = useQuoteStore((s) => s.phone);
-  const privacyAgreed = useQuoteStore((s) => s.privacyAgreed);
   const setName = useQuoteStore((s) => s.setName);
   const setPhone = useQuoteStore((s) => s.setPhone);
-  const setPrivacyAgreed = useQuoteStore((s) => s.setPrivacyAgreed);
 
   const { showToast } = useToast();
-  const isNameValid = name.trim().length > 0;
-  const isPhoneValid = isValidPhone(phone);
-  const isFormValid = isNameValid && isPhoneValid && privacyAgreed;
-  const isButtonDisabled = !isFormValid || isSubmitting;
 
-  const handleNameChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      setName(e.target.value);
-      setNameError(false);
-    },
-    [setName]
-  );
+  const handleSubmit = useCallback(async (submitMethod: ContactMethod) => {
+    if (isSubmitting) return;
 
-  const handlePhoneChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const formatted = formatPhone(e.target.value);
-      setPhone(formatted);
-      setPhoneError(false);
-    },
-    [setPhone]
-  );
-
-  const handleSubmit = useCallback(async () => {
-    if (isButtonDisabled) return;
-
-    const trimmedName = name.trim();
-    if (!trimmedName) {
-      setNameError(true);
+    // 건너뛰기
+    if (submitMethod === 'skip') {
+      // 이름만 임시로 설정해서 결과 페이지 접근 허용
+      setName('고객');
+      setPhone('skip');
+      router.push('/result');
       return;
     }
-    if (!isValidPhone(phone)) {
-      setPhoneError(true);
+
+    // 카카오
+    if (submitMethod === 'kakao') {
+      setName(nameValue.trim() || '고객');
+      setPhone('kakao');
+      window.open(KAKAO_URL, '_blank');
+      router.push('/result');
       return;
     }
-    if (!privacyAgreed) return;
+
+    // 유효성 검사
+    const trimmedName = nameValue.trim();
+    if (!trimmedName) { setNameError(true); return; }
+
+    if (submitMethod === 'phone') {
+      if (!isValidPhone(phoneValue)) { setPhoneError(true); return; }
+      if (!privacyAgreed) return;
+    }
+
+    if (submitMethod === 'email') {
+      if (!emailValue.includes('@') || emailValue.length < 5) { setEmailError(true); return; }
+      if (!privacyAgreed) return;
+    }
 
     setIsSubmitting(true);
 
     const state = useQuoteStore.getState();
-
-    // 진단 결과에서 차종 정보 보충
-    let carBrand: Brand | null = state.carBrand;
-    let carModel: string | null = state.carModel;
-    if (!carBrand || !carModel) {
-      const progress = loadProgress();
-      if (progress.vehicle.done && progress.vehicle.summary) {
-        const parts = progress.vehicle.summary.split(' ');
-        if (parts.length >= 2) {
-          const brand = parts[0];
-          const name = parts.slice(1).join(' ');
-          const found = VEHICLES.find((v) => v.brand === brand && v.name === name);
-          if (found) {
-            carBrand = found.brand as Brand;
-            carModel = found.name;
-          }
-        }
-      }
-    }
+    const carInfo = getCarFromDiagnosis();
 
     const body = {
       selectionPath: state.selectionPath ?? null,
-      carBrand,
-      carModel,
+      carBrand: state.carBrand ?? carInfo?.brand ?? null,
+      carModel: state.carModel ?? carInfo?.model ?? null,
       trim: state.trim,
       contractMonths: state.contractMonths,
       annualKm: state.annualKm,
@@ -100,7 +100,9 @@ export function Step6Contact() {
       prepaymentPct: state.prepaymentPct,
       monthlyBudget: state.monthlyBudget,
       name: trimmedName,
-      phone: removePhoneHyphens(phone),
+      phone: submitMethod === 'phone' ? removePhoneHyphens(phoneValue) : '',
+      email: submitMethod === 'email' ? emailValue : '',
+      contactMethod: submitMethod,
       privacyAgreed: true,
       stepCompleted: 5,
     };
@@ -114,11 +116,13 @@ export function Step6Contact() {
 
       if (res.ok) {
         const json = await res.json();
+        setName(trimmedName);
+        setPhone(submitMethod === 'phone' ? phoneValue : submitMethod);
         useQuoteStore.getState().setEstimatedMin(json.estimatedMin ?? null);
         useQuoteStore.getState().setEstimatedMax(json.estimatedMax ?? null);
         gtag.formSubmitSuccess(
-          state.carBrand ?? undefined,
-          state.carModel ?? undefined
+          body.carBrand ?? undefined,
+          body.carModel ?? undefined
         );
         router.push('/result');
         return;
@@ -129,16 +133,11 @@ export function Step6Contact() {
         showToast('과도한 요청입니다. 1분 후 다시 시도해 주세요.', 'error');
         return;
       }
-
       if (res.status === 409) {
         gtag.formSubmitError('duplicate');
-        showToast(
-          '이미 접수된 신청이 있습니다. 상담사가 곧 연락드립니다.',
-          'warning'
-        );
+        showToast('이미 접수된 신청이 있습니다. 상담사가 곧 연락드립니다.', 'warning');
         return;
       }
-
       gtag.formSubmitError('server_error');
       showToast('네트워크 오류가 발생했습니다. 다시 시도해 주세요.', 'error');
     } catch {
@@ -147,101 +146,202 @@ export function Step6Contact() {
     } finally {
       setIsSubmitting(false);
     }
-  }, [isButtonDisabled, name, phone, privacyAgreed, router, showToast]);
+  }, [isSubmitting, nameValue, phoneValue, emailValue, privacyAgreed, router, setName, setPhone, showToast]);
 
-  return (
-    <div className="px-5 py-4">
-      {/* 이름 */}
-      <div className="mb-4">
-        <label
-          htmlFor="step6-name"
-          className="block text-[11px] font-semibold text-text-sub mb-1"
-        >
-          이름
-        </label>
-        <input
-          id="step6-name"
-          type="text"
-          placeholder="홍길동"
-          value={name}
-          onChange={handleNameChange}
-          className={`w-full bg-surface-secondary border rounded-[10px] px-[14px] py-[12px] text-sm text-text outline-none focus:border-primary ${
-            nameError ? 'border-[#FF3B30]' : 'border-border-solid'
-          }`}
-        />
-        {nameError && (
-          <p className="text-xs text-danger mt-1">이름을 입력해 주세요</p>
-        )}
-      </div>
+  // ─── 방식 미선택: 선택 화면 ───
+  if (!method) {
+    return (
+      <div className="px-5 py-6">
+        <h2 className="text-[20px] font-bold text-text text-center leading-snug mb-2">
+          결과를 어떻게 받으시겠어요?
+        </h2>
+        <p className="text-xs text-text-sub text-center mb-6">
+          연락처 없이도 결과를 확인할 수 있어요
+        </p>
 
-      {/* 연락처 */}
-      <div className="mb-4">
-        <label
-          htmlFor="step6-phone"
-          className="block text-[11px] font-semibold text-text-sub mb-1"
-        >
-          연락처
-        </label>
-        <input
-          id="step6-phone"
-          type="tel"
-          placeholder="010-0000-0000"
-          value={phone}
-          onChange={handlePhoneChange}
-          className={`w-full bg-surface-secondary border rounded-[10px] px-[14px] py-[12px] text-sm text-text outline-none focus:border-primary ${
-            phoneError ? 'border-[#FF3B30]' : 'border-border-solid'
-          }`}
-        />
-        {phoneError && (
-          <p className="text-xs text-danger mt-1">
-            올바른 연락처를 입력해 주세요
-          </p>
-        )}
-      </div>
-
-      {/* 개인정보 동의 */}
-      <label className="flex items-start gap-2.5 mt-4 cursor-pointer">
-        <input
-          type="checkbox"
-          checked={privacyAgreed}
-          onChange={(e) => setPrivacyAgreed(e.target.checked)}
-          className="w-5 h-5 mt-0.5 shrink-0 accent-primary"
-        />
-        <span className="text-sm text-text leading-relaxed">
-          개인정보 수집 및 이용에 동의합니다{' '}
-          <Link
-            href="/privacy"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-primary text-xs font-semibold"
+        <div className="flex flex-col gap-2.5">
+          <button
+            onClick={() => setMethod('phone')}
+            className="w-full p-4 rounded-2xl bg-surface border border-border-solid text-left hover:border-primary transition-colors"
           >
-            [전문보기]
-          </Link>
-        </span>
-      </label>
+            <div className="flex items-center gap-3">
+              <span className="text-xl">📞</span>
+              <div>
+                <p className="text-sm font-bold text-text">전화번호로 상담 신청</p>
+                <p className="text-[11px] text-text-sub">전문 상담사가 직접 연락드립니다</p>
+              </div>
+            </div>
+          </button>
 
-      {/* 제출 버튼 */}
-      <Button
-        type="button"
-        variant="primary"
-        size="lg"
-        fullWidth
-        disabled={isButtonDisabled}
-        onClick={handleSubmit}
-        className="min-h-12 mt-6 gap-2"
-      >
-        {isSubmitting ? (
-          <>
-            <span
-              className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"
-              aria-hidden
-            />
-            견적 요청 중...
-          </>
-        ) : (
-          '무료 견적 받기'
-        )}
-      </Button>
-    </div>
-  );
+          <button
+            onClick={() => setMethod('email')}
+            className="w-full p-4 rounded-2xl bg-surface border border-border-solid text-left hover:border-primary transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <span className="text-xl">📧</span>
+              <div>
+                <p className="text-sm font-bold text-text">이메일로 결과 받기</p>
+                <p className="text-[11px] text-text-sub">상세 견적서를 이메일로 보내드립니다</p>
+              </div>
+            </div>
+          </button>
+
+          <button
+            onClick={() => setMethod('kakao')}
+            className="w-full p-4 rounded-2xl bg-surface border border-border-solid text-left hover:border-primary transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <span className="text-xl">💬</span>
+              <div>
+                <p className="text-sm font-bold text-text">카카오톡으로 상담하기</p>
+                <p className="text-[11px] text-text-sub">카카오 채널에서 바로 상담 가능</p>
+              </div>
+            </div>
+          </button>
+
+          <button
+            onClick={() => handleSubmit('skip')}
+            className="w-full py-3 text-xs text-text-muted hover:text-primary transition-colors"
+          >
+            연락처 없이 결과만 보기
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // ─── 전화번호 입력 ───
+  if (method === 'phone') {
+    return (
+      <div className="px-5 py-4">
+        <button onClick={() => setMethod(null)} className="text-xs text-text-sub mb-4 hover:text-primary">
+          ← 다른 방식 선택
+        </button>
+
+        <div className="mb-4">
+          <label htmlFor="c-name" className="block text-[11px] font-semibold text-text-sub mb-1">이름</label>
+          <input
+            id="c-name" type="text" placeholder="홍길동"
+            value={nameValue}
+            onChange={(e) => { setNameValue(e.target.value); setNameError(false); }}
+            className={`w-full bg-surface-secondary border rounded-[10px] px-[14px] py-[12px] text-sm text-text outline-none focus:border-primary ${nameError ? 'border-danger' : 'border-border-solid'}`}
+          />
+          {nameError && <p className="text-xs text-danger mt-1">이름을 입력해 주세요</p>}
+        </div>
+
+        <div className="mb-4">
+          <label htmlFor="c-phone" className="block text-[11px] font-semibold text-text-sub mb-1">연락처</label>
+          <input
+            id="c-phone" type="tel" placeholder="010-0000-0000"
+            value={phoneValue}
+            onChange={(e) => { setPhoneValue(formatPhone(e.target.value)); setPhoneError(false); }}
+            className={`w-full bg-surface-secondary border rounded-[10px] px-[14px] py-[12px] text-sm text-text outline-none focus:border-primary ${phoneError ? 'border-danger' : 'border-border-solid'}`}
+          />
+          {phoneError && <p className="text-xs text-danger mt-1">올바른 연락처를 입력해 주세요</p>}
+        </div>
+
+        <label className="flex items-start gap-2.5 mt-4 cursor-pointer">
+          <input type="checkbox" checked={privacyAgreed} onChange={(e) => setPrivacyAgreed(e.target.checked)}
+            className="w-5 h-5 mt-0.5 shrink-0 accent-primary" />
+          <span className="text-sm text-text leading-relaxed">
+            개인정보 수집 및 이용에 동의합니다{' '}
+            <Link href="/privacy" target="_blank" className="text-primary text-xs font-semibold">[전문보기]</Link>
+          </span>
+        </label>
+
+        <Button type="button" variant="primary" size="lg" fullWidth
+          disabled={isSubmitting || !nameValue.trim() || !isValidPhone(phoneValue) || !privacyAgreed}
+          onClick={() => handleSubmit('phone')}
+          className="min-h-12 mt-6 gap-2"
+        >
+          {isSubmitting ? (<><span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />요청 중...</>) : '📞 전화 상담 신청'}
+        </Button>
+      </div>
+    );
+  }
+
+  // ─── 이메일 입력 ───
+  if (method === 'email') {
+    return (
+      <div className="px-5 py-4">
+        <button onClick={() => setMethod(null)} className="text-xs text-text-sub mb-4 hover:text-primary">
+          ← 다른 방식 선택
+        </button>
+
+        <div className="mb-4">
+          <label htmlFor="c-name-e" className="block text-[11px] font-semibold text-text-sub mb-1">이름</label>
+          <input
+            id="c-name-e" type="text" placeholder="홍길동"
+            value={nameValue}
+            onChange={(e) => { setNameValue(e.target.value); setNameError(false); }}
+            className={`w-full bg-surface-secondary border rounded-[10px] px-[14px] py-[12px] text-sm text-text outline-none focus:border-primary ${nameError ? 'border-danger' : 'border-border-solid'}`}
+          />
+          {nameError && <p className="text-xs text-danger mt-1">이름을 입력해 주세요</p>}
+        </div>
+
+        <div className="mb-4">
+          <label htmlFor="c-email" className="block text-[11px] font-semibold text-text-sub mb-1">이메일</label>
+          <input
+            id="c-email" type="email" placeholder="example@email.com"
+            value={emailValue}
+            onChange={(e) => { setEmailValue(e.target.value); setEmailError(false); }}
+            className={`w-full bg-surface-secondary border rounded-[10px] px-[14px] py-[12px] text-sm text-text outline-none focus:border-primary ${emailError ? 'border-danger' : 'border-border-solid'}`}
+          />
+          {emailError && <p className="text-xs text-danger mt-1">올바른 이메일을 입력해 주세요</p>}
+        </div>
+
+        <label className="flex items-start gap-2.5 mt-4 cursor-pointer">
+          <input type="checkbox" checked={privacyAgreed} onChange={(e) => setPrivacyAgreed(e.target.checked)}
+            className="w-5 h-5 mt-0.5 shrink-0 accent-primary" />
+          <span className="text-sm text-text leading-relaxed">
+            개인정보 수집 및 이용에 동의합니다{' '}
+            <Link href="/privacy" target="_blank" className="text-primary text-xs font-semibold">[전문보기]</Link>
+          </span>
+        </label>
+
+        <Button type="button" variant="primary" size="lg" fullWidth
+          disabled={isSubmitting || !nameValue.trim() || !emailValue.includes('@') || !privacyAgreed}
+          onClick={() => handleSubmit('email')}
+          className="min-h-12 mt-6 gap-2"
+        >
+          {isSubmitting ? (<><span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />요청 중...</>) : '📧 이메일로 결과 받기'}
+        </Button>
+      </div>
+    );
+  }
+
+  // ─── 카카오 (이름만 + 채널 이동) ───
+  if (method === 'kakao') {
+    return (
+      <div className="px-5 py-4">
+        <button onClick={() => setMethod(null)} className="text-xs text-text-sub mb-4 hover:text-primary">
+          ← 다른 방식 선택
+        </button>
+
+        <div className="mb-4">
+          <label htmlFor="c-name-k" className="block text-[11px] font-semibold text-text-sub mb-1">이름 (선택)</label>
+          <input
+            id="c-name-k" type="text" placeholder="홍길동"
+            value={nameValue}
+            onChange={(e) => setNameValue(e.target.value)}
+            className="w-full bg-surface-secondary border border-border-solid rounded-[10px] px-[14px] py-[12px] text-sm text-text outline-none focus:border-primary"
+          />
+        </div>
+
+        <p className="text-xs text-text-sub mb-4 leading-relaxed">
+          카카오톡 채널로 이동하여 상담사와 직접 대화할 수 있습니다.
+          진단 결과를 함께 전달하면 더 정확한 상담이 가능합니다.
+        </p>
+
+        <Button type="button" variant="kakao" size="lg" fullWidth
+          onClick={() => handleSubmit('kakao')}
+          className="min-h-12 gap-2"
+        >
+          💬 카카오톡 채널로 이동
+        </Button>
+      </div>
+    );
+  }
+
+  return null;
 }
