@@ -173,10 +173,12 @@ export async function sendCustomerReport(
 </html>
 `;
 
+  // 도메인 미인증: 관리자 이메일로 발송 → 관리자가 고객에게 전달
+  // 도메인 인증 후: data.email로 직접 발송하도록 변경
   const { error } = await resend.emails.send({
     from: '카담 AI <onboarding@resend.dev>',
-    to: data.email,
-    subject: `[진단 결과] ${data.name}님의 맞춤 분석 리포트 — ${carDisplay}`,
+    to: adminEmail,
+    subject: `[고객 리포트] ${data.name}님 진단 결과 — ${carDisplay} (고객 이메일: ${data.email})`,
     html,
   });
 
