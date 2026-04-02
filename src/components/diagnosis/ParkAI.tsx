@@ -88,9 +88,9 @@ export function ParkAI({ ctx, cfg, mode = 'short', variant = 'dark', staticText 
         collapsed: 'text-white/70',
       }
     : {
-        bg: 'rgba(0,122,255,0.05)',
-        border: '1px solid rgba(0,122,255,0.12)',
-        iconBg: 'rgba(0,122,255,0.1)',
+        bg: `${config.bgColor || '#007AFF'}0D`, // 5% opacity
+        border: `1px solid ${config.bgColor || '#007AFF'}1F`, // 12% opacity
+        iconBg: `${config.bgColor || '#007AFF'}1A`, // 10% opacity
         title: 'text-primary',
         subtitle: 'text-text-sub',
         body: 'text-text',
