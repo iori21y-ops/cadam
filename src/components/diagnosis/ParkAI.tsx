@@ -171,8 +171,8 @@ export function ParkAI({ ctx, cfg, mode = 'short', variant = 'dark', staticText 
             </div>
             <div className="flex items-center gap-2">
               {isReport && comment && (
-                <span className={`text-[10px] ${colors.remaining}`}>
-                  {expanded ? '접기' : '펼치기'}
+                <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${expanded ? 'bg-black/10 text-gray-700' : 'bg-primary/15 text-primary'}`}>
+                  {expanded ? '접기 ▲' : '펼치기 ▼'}
                 </span>
               )}
               {showRemaining && (

@@ -1,5 +1,6 @@
 import { Resend } from 'resend';
 import { BRAND } from '@/constants/brand';
+import { type LeadDimensions, DIMENSION_LABELS, DIMENSION_MAX } from '@/lib/leadScore';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const adminEmail = process.env.ADMIN_EMAIL ?? 'iori21y@gmail.com';
@@ -29,6 +30,8 @@ export interface ConsultationEmailData {
   vehicleAnswers: Record<string, { value: string; label: string }> | null;
   /** 이용방법 진단 답변 */
   financeAnswers: Record<string, { value: string; label: string }> | null;
+  /** 리드 점수 차원별 breakdown */
+  leadDimensions?: LeadDimensions;
 }
 
 export interface CustomerReportData {
@@ -84,6 +87,310 @@ function escapeHtml(text: string): string {
     .replace(/'/g, '&#039;');
 }
 
+// ─── 헬퍼: 진단 응답에서 value 추출 ───
+
+function getAns(
+  answers: Record<string, { value: string; label: string }> | null,
+  questionId: string,
+): string | null {
+  return answers?.[questionId]?.value ?? null;
+}
+
+function getAnsLabel(
+  answers: Record<string, { value: string; label: string }> | null,
+  questionId: string,
+): string | null {
+  return answers?.[questionId]?.label ?? null;
+}
+
+// ════════════════════════════════════════════════════════════
+// 상담 접근 포인트 생성 (카테고리별 프로필 ↔ 전략 매핑)
+// ════════════════════════════════════════════════════════════
+
+interface TalkingPointRow {
+  category: string;
+  profiles: string[];
+  actions: string[];
+  isProduct?: boolean;
+}
+
+interface TalkingPointSections {
+  alerts: string[];
+  rows: TalkingPointRow[];
+}
+
+function buildTalkingPoints(data: ConsultationEmailData): TalkingPointSections {
+  const alerts: string[] = [];
+  const rows: TalkingPointRow[] = [];
+  const fa = data.financeAnswers;
+  const va = data.vehicleAnswers;
+
+  // ─── 긴급/경고 알림 ───
+  if (data.leadScore >= 80) {
+    alerts.push('전환 가능성 높은 HOT 리드입니다. 빠른 연락이 중요합니다.');
+  }
+  if (data.contactMethod === 'skip') {
+    alerts.push('연락처를 남기지 않았습니다. 재방문 시 전환 유도가 필요합니다.');
+  }
+  if (data.estimatedMin != null && data.monthlyBudget != null && data.monthlyBudget > 0) {
+    const gap = data.estimatedMin - data.monthlyBudget;
+    if (gap > 0) {
+      alerts.push(`예상 최소 월 납입금(${formatMoney(data.estimatedMin)})이 고객 희망 예산(${formatMoney(data.monthlyBudget)})보다 높습니다.`);
+    }
+  }
+
+  // ─── 추천 상품 ───
+  if (data.financeSummary) {
+    const product = data.financeSummary.split(' ')[0];
+    const pct = data.financeSummary.match(/(\d+)%/)?.[1];
+    const pctNote = pct ? ` (적합도 ${pct}%)` : '';
+    let action = '';
+    if (product === '장기렌트') action = `장기렌트${pctNote} — 올인원 패키지를 강조하세요`;
+    else if (product === '리스') action = `리스${pctNote} — 부가세 환급, 잔존가치 옵션을 안내하세요`;
+    else if (product === '할부') action = `할부${pctNote} — 금리 조건과 장기 보유 혜택을 강조하세요`;
+    else if (product === '현금구매') action = `현금구매${pctNote} — 프로모션 할인을 안내하세요`;
+    if (action) rows.push({ category: '추천 상품', profiles: [], actions: [action], isProduct: true });
+  }
+
+  // ─── 사업자·세금 ───
+  {
+    const business = getAns(fa, 'business');
+    const tax = getAns(fa, 'tax');
+    const p: string[] = [];
+    const a: string[] = [];
+    if (business === 'corp') {
+      p.push('법인사업자');
+      if (tax === 'priority') p.push('절세 최우선');
+      a.push('법인 리스/렌트 비용처리 절세 효과 강조');
+      if (tax === 'priority') a.push('부가세 환급 + 감가상각 시뮬레이션 제시');
+    } else if (business === 'sole') {
+      p.push('개인사업자');
+      if (tax === 'priority' || tax === 'some') p.push('비용처리 관심');
+      a.push('사업용 차량 비용처리 혜택 안내');
+      if (tax === 'priority' || tax === 'some') a.push('리스/렌트 세금 혜택을 구체적 금액으로 제시');
+    }
+    if (p.length || a.length) rows.push({ category: '사업자·세금', profiles: p, actions: a });
+  }
+
+  // ─── 예산·자금 ───
+  {
+    const budget = getAns(fa, 'budget');
+    const priceRange = getAns(fa, 'price_range');
+    const p: string[] = [];
+    const a: string[] = [];
+    if (budget === 'rich') {
+      const priceLabel = getAnsLabel(fa, 'price_range');
+      p.push(`자금 여유 충분${priceLabel ? ` · ${priceLabel}` : ''}`);
+      a.push('프리미엄 옵션/트림 업그레이드 제안 가능');
+    } else if (budget === 'tight') {
+      p.push('초기 자금 부담');
+      a.push('보증금 최소화, 월 납입 분산 방안 먼저 안내');
+      if (priceRange === 'high' || priceRange === 'premium') {
+        alerts.push('자금 부담 vs 고가 차량 희망 — 예산 격차 존재');
+        a.push('현실적 대안(트림 조정, 선납금 활용) 함께 제시');
+      }
+    } else if (budget === 'moderate') {
+      p.push('자금 있지만 분납 희망');
+      a.push('보증금/선납금 조합으로 월 납입 절감 효과 제시');
+    }
+    if (p.length || a.length) rows.push({ category: '예산·자금', profiles: p, actions: a });
+  }
+
+  // ─── 신용 ───
+  {
+    const credit = getAns(fa, 'credit');
+    const p: string[] = [];
+    const a: string[] = [];
+    if (credit === 'excellent') {
+      p.push('신용 1~3등급 우수');
+      a.push('우대 금리 협상 여지 — 금융 승인 빠름');
+    } else if (credit === 'low') {
+      p.push('신용등급 관리 필요');
+      a.push('장기렌트(신용 영향 최소) 우선 안내');
+      alerts.push('신용등급 낮음 — 금융 승인에 제약이 있을 수 있습니다.');
+    } else if (credit === 'unknown') {
+      p.push('신용등급 미파악');
+      a.push('무료 신용조회 안내 + 등급별 가능 상품 설명');
+    }
+    if (p.length || a.length) rows.push({ category: '신용', profiles: p, actions: a });
+  }
+
+  // ─── 소유·교체 ───
+  {
+    const ownership = getAns(fa, 'ownership');
+    const cycle = getAns(fa, 'cycle');
+    const p: string[] = [];
+    const a: string[] = [];
+    if (ownership === 'must_own') { p.push('소유권 강하게 원함'); a.push('할부/현금 적합 — 리스 인수 조건도 안내'); }
+    else if (ownership === 'use_only') { p.push('편한 사용 선호'); a.push('렌트 올인원 관리, 리스 반납 편의성 어필'); }
+    if (cycle === 'short') { p.push('2~3년 단기 교체'); a.push('잔존가치 높은 차종 + 만기 교체 프로그램 안내'); }
+    else if (cycle === 'long') { p.push('6년 이상 장기 보유'); a.push('할부/현금 소유 후 장기 유지비 절감 강조'); }
+    if (p.length || a.length) rows.push({ category: '소유·교체', profiles: p, actions: a });
+  }
+
+  // ─── 관리·보험 ───
+  {
+    const maintenance = getAns(fa, 'maintenance');
+    const insurance = getAns(fa, 'insurance');
+    const p: string[] = [];
+    const a: string[] = [];
+    if (maintenance === 'full' || insurance === 'included') {
+      p.push('올인원 관리 희망');
+      a.push('렌트 올인원 패키지 적극 추천');
+    } else if (maintenance === 'self' && insurance === 'self') {
+      p.push('직접 관리 선호');
+      a.push('할부/현금으로 보험·정비처 자유 선택 장점 안내');
+    }
+    if (p.length || a.length) rows.push({ category: '관리·보험', profiles: p, actions: a });
+  }
+
+  // ─── 감가상각 ───
+  {
+    const depreciation = getAns(fa, 'depreciation');
+    if (depreciation === 'concern') {
+      rows.push({ category: '감가상각', profiles: ['감가 리스크에 민감'], actions: ['리스/렌트로 감가 리스크 회피 가능 강조'] });
+    }
+  }
+
+  // ─── 유연성·해지 ───
+  {
+    const flexibility = getAns(fa, 'contract_flexibility');
+    const cancel = getAns(fa, 'cancel');
+    if (flexibility === 'flexible' || cancel === 'likely') {
+      rows.push({ category: '유연성·해지', profiles: ['중도 해지 가능성 있음'], actions: ['중도해지 수수료 낮은 상품 우선 추천'] });
+    }
+  }
+
+  // ─── 주행거리 ───
+  {
+    const p: string[] = [];
+    const a: string[] = [];
+    if (data.annualKm && data.annualKm >= 30000) {
+      p.push(`장거리 운전자 (연 ${(data.annualKm / 10000)}만km)`);
+      a.push('초과 비용 민감 — 충분한 거리 확보 또는 할부 제안');
+    } else if (data.annualKm && data.annualKm <= 10000) {
+      p.push('근거리·주말 운전자');
+      a.push('기본 거리로 충분 — 거리 절감 옵션 안내');
+    }
+    if (p.length || a.length) rows.push({ category: '주행거리', profiles: p, actions: a });
+  }
+
+  // ─── 계약기간 ───
+  {
+    const a: string[] = [];
+    if (data.contractMonths === 60) a.push('월 납입 절감 강조 + 중도해지 조건 안내');
+    else if (data.contractMonths === 36) a.push('교체 용이성 어필 + 만기 후 재계약/인수 옵션 설명');
+    if (a.length) rows.push({ category: '계약기간', profiles: [data.contractMonths ? `${data.contractMonths}개월` : ''], actions: a });
+  }
+
+  // ─── 차종·용도 ───
+  {
+    const vPurpose = getAns(va, 'v_purpose');
+    const p: string[] = [];
+    const a: string[] = [];
+    if (vPurpose === 'business') { p.push('영업·업무용'); a.push('비용처리 + 품격(세단) 동시 만족 견적 준비'); }
+    else if (vPurpose === 'family') { p.push('가족 여행·레저'); a.push('안전 사양 + 넓은 공간 SUV/미니밴 중심 안내'); }
+    else if (vPurpose === 'commute') { p.push('출퇴근·도심 이동'); }
+    else if (vPurpose === 'hobby') { p.push('주말 드라이브·취미'); }
+    if (p.length || a.length) rows.push({ category: '차량 용도', profiles: p, actions: a });
+  }
+
+  // ─── 차종·예산 ───
+  {
+    const vBudget = getAns(va, 'v_budget');
+    const p: string[] = [];
+    const a: string[] = [];
+    if (vBudget === 'premium') { p.push('월 80만원 이상'); a.push('고급 트림 + 풀옵션 적극 제안'); }
+    else if (vBudget === 'low') { p.push('월 30만원 이하'); a.push('경차/소형차 실속 견적 준비'); }
+    if (p.length || a.length) rows.push({ category: '월 예산', profiles: p, actions: a });
+  }
+
+  // ─── 주차 ───
+  {
+    const vParking = getAns(va, 'v_parking');
+    if (vParking === 'narrow') {
+      rows.push({ category: '주차 환경', profiles: ['좁은 골목/기계식'], actions: ['소형 차량 추천 — 대형 희망 시 주차 문제 사전 안내'] });
+    }
+  }
+
+  // ─── 연료 ───
+  {
+    const vFuel = getAns(va, 'v_fuel');
+    if (vFuel === 'ev') {
+      rows.push({ category: '선호 연료', profiles: ['전기차 관심'], actions: ['보조금 + 충전 인프라 + 전기차 특약 안내'] });
+    } else if (vFuel === 'hybrid') {
+      rows.push({ category: '선호 연료', profiles: ['하이브리드 선호'], actions: ['연비 절감 + 세금 혜택을 숫자로 제시'] });
+    }
+  }
+
+  // ─── 연락 방식 ───
+  {
+    const p: string[] = [];
+    const a: string[] = [];
+    if (data.contactMethod === 'kakao') { p.push('카카오톡 선호'); a.push('카카오 채널로 가벼운 인사 메시지 먼저'); }
+    if (data.leadScore >= 50 && data.leadScore < 80) { a.push('WARM 리드 — 견적 비교 자료 준비 후 후속 연락'); }
+    if (p.length || a.length) rows.push({ category: '연락', profiles: p, actions: a });
+  }
+
+  return { alerts, rows };
+}
+
+// ════════════════════════════════════════════════════════════
+// 다차원 리드 분석 HTML 생성 (이메일용)
+// ════════════════════════════════════════════════════════════
+
+function buildDimensionHtml(dimensions: LeadDimensions): string {
+  const dimKeys: (keyof LeadDimensions)[] = ['engagement', 'intent', 'specificity', 'contact', 'inflow'];
+
+  function getBarColor(pct: number): string {
+    if (pct >= 80) return '#EF4444'; // red
+    if (pct >= 60) return '#F59E0B'; // amber
+    if (pct >= 40) return '#3B82F6'; // blue
+    return '#9CA3AF';               // gray
+  }
+
+  function getLevel(pct: number): string {
+    if (pct >= 80) return '높음';
+    if (pct >= 60) return '중상';
+    if (pct >= 40) return '보통';
+    if (pct >= 20) return '낮음';
+    return '미참여';
+  }
+
+  const rows = dimKeys.map((key) => {
+    const val = dimensions[key];
+    const max = DIMENSION_MAX[key];
+    const pct = Math.round((val / max) * 100);
+    const label = DIMENSION_LABELS[key];
+    const color = getBarColor(pct);
+    const level = getLevel(pct);
+    // 10칸 바 생성 (이메일 호환: 테이블 셀)
+    const filledCount = Math.round(pct / 10);
+    const filled = Array(filledCount).fill(`<td style="width:14px;height:12px;background:${color};border-radius:2px;"></td>`).join('');
+    const empty = Array(10 - filledCount).fill('<td style="width:14px;height:12px;background:#E5E7EB;border-radius:2px;"></td>').join('');
+
+    return `
+      <tr>
+        <td style="font-size:12px;color:#6B7280;padding:4px 8px 4px 0;white-space:nowrap;width:80px;">${label}</td>
+        <td style="padding:4px 0;">
+          <table cellpadding="0" cellspacing="1" style="border-collapse:separate;border-spacing:1px;">
+            <tr>${filled}${empty}</tr>
+          </table>
+        </td>
+        <td style="font-size:11px;color:#374151;padding:4px 0 4px 8px;white-space:nowrap;font-weight:600;">${val}/${max}</td>
+        <td style="font-size:10px;color:${color};padding:4px 0 4px 6px;white-space:nowrap;font-weight:700;">${level}</td>
+      </tr>`;
+  }).join('');
+
+  return `
+    <div style="background:#F9FAFB;border-radius:8px;padding:12px 14px;">
+      <div style="font-size:11px;font-weight:700;color:#86868B;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">📊 리드 점수 분석</div>
+      <table cellpadding="0" cellspacing="0" style="width:100%;">
+        ${rows}
+      </table>
+    </div>`;
+}
+
 // ════════════════════════════════════════════
 // 1. 상담사용 알림 이메일
 // ════════════════════════════════════════════
@@ -102,20 +409,13 @@ export async function sendConsultationNotification(
     skip: '⏭️ 연락처 미입력',
   }[data.contactMethod] || data.contactMethod;
 
-  // 상담 접근 포인트 분석
-  const talkingPoints: string[] = [];
-  if (data.financeSummary) {
-    const product = data.financeSummary.split(' ')[0];
-    if (product === '장기렌트') talkingPoints.push('관리 편의성과 비용처리를 중시하는 고객입니다. 올인원 패키지를 강조하세요.');
-    else if (product === '리스') talkingPoints.push('세제 혜택과 신차 교체를 중시합니다. 부가세 환급, 잔존가치 옵션을 안내하세요.');
-    else if (product === '할부') talkingPoints.push('소유권 확보를 원합니다. 금리 조건과 장기 보유 혜택을 강조하세요.');
-    else if (product === '현금구매') talkingPoints.push('자금 여유가 있으며 이자를 피하려 합니다. 프로모션 할인을 안내하세요.');
-  }
-  if (data.annualKm && data.annualKm >= 30000) talkingPoints.push('장거리 운전자입니다. 주행거리 초과 비용에 민감할 수 있습니다.');
-  if (data.contractMonths === 60) talkingPoints.push('장기 계약을 선호합니다. 월 납입금 절감 효과를 강조하세요.');
-  if (data.contractMonths === 36) talkingPoints.push('단기 계약을 원합니다. 차량 교체 용이성을 어필하세요.');
-  if (data.leadScore >= 80) talkingPoints.push('⚡ 전환 가능성 높은 리드입니다. 빠른 연락이 중요합니다.');
-  if (data.contactMethod === 'skip') talkingPoints.push('⚠️ 연락처를 남기지 않았습니다. 재방문 시 전환 유도가 필요합니다.');
+  // 상담 접근 포인트 (진단 결과 / 상담 전략 분리)
+  const { alerts, rows } = buildTalkingPoints(data);
+
+  // 다차원 리드 분석 HTML
+  const dimensionHtml = data.leadDimensions
+    ? buildDimensionHtml(data.leadDimensions)
+    : '';
 
   const html = `
 <!DOCTYPE html>
@@ -136,6 +436,7 @@ export async function sendConsultationNotification(
     .value { font-size: 13px; font-weight: 600; color: #1D1D1F; }
     .tip { background: #FFFBF0; border-left: 3px solid #F59E0B; padding: 10px 14px; margin: 6px 0; border-radius: 0 8px 8px 0; font-size: 12px; color: #92400E; line-height: 1.5; }
     .urgent { background: #FFF5F5; border-left: 3px solid #EF4444; }
+    .info { background: #F0F7FF; border-left: 3px solid #3B82F6; color: #1E40AF; }
     .estimate { background: #2563EB; color: #fff; padding: 16px; border-radius: 8px; text-align: center; margin: 12px 0; }
     .estimate .amount { font-size: 22px; font-weight: 800; }
   </style>
@@ -146,6 +447,12 @@ export async function sendConsultationNotification(
       <h2>📋 새 상담 신청 — ${escapeHtml(data.name)}</h2>
       <span class="grade">${leadGrade} (${data.leadScore}점)</span>
     </div>
+
+    ${dimensionHtml ? `
+    <div class="section">
+      ${dimensionHtml}
+    </div>
+    ` : ''}
 
     <div class="section">
       <div class="section-title">고객 연락처</div>
@@ -175,10 +482,42 @@ export async function sendConsultationNotification(
       ` : ''}
     </div>
 
-    ${talkingPoints.length > 0 ? `
+    ${alerts.length > 0 ? `
     <div class="section">
-      <div class="section-title">💡 상담 접근 포인트</div>
-      ${talkingPoints.map(tip => `<div class="tip${tip.startsWith('⚡') || tip.startsWith('⚠️') ? ' urgent' : ''}">${tip}</div>`).join('')}
+      <div class="section-title">🚨 알림</div>
+      ${alerts.map(a => `<div class="tip urgent">${a}</div>`).join('')}
+    </div>
+    ` : ''}
+
+    ${rows.length > 0 ? `
+    <div class="section">
+      <div class="section-title">👤 고객 분석 & 상담 전략</div>
+      <table cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;border:1px solid #E5E5EA;border-radius:8px;">
+        <tr style="background:#F3F4F6;">
+          <th style="font-size:11px;font-weight:700;color:#86868B;padding:8px 12px;text-align:left;border-bottom:2px solid #E5E5EA;width:20%;">항목</th>
+          <th style="font-size:11px;font-weight:700;color:#86868B;padding:8px 12px;text-align:left;border-bottom:2px solid #E5E5EA;border-left:1px solid #E5E5EA;width:35%;">파악된 특성</th>
+          <th style="font-size:11px;font-weight:700;color:#86868B;padding:8px 12px;text-align:left;border-bottom:2px solid #E5E5EA;border-left:1px solid #E5E5EA;width:45%;">상담 전략</th>
+        </tr>
+        ${rows.map((row, i) => {
+          const isLast = i === rows.length - 1;
+          const borderBot = isLast ? '' : 'border-bottom:1px solid #F0F0F0;';
+          const profileHtml = row.profiles.length > 0
+            ? row.profiles.map(p => `<span style="display:inline-block;background:#F3F4F6;color:#374151;font-size:11px;font-weight:600;padding:2px 8px;border-radius:12px;margin:1px 2px;">${p}</span>`).join('')
+            : '<span style="color:#D1D5DB;font-size:11px;">—</span>';
+          const actionBg = row.isProduct ? '#F0F7FF' : '#FFFBF0';
+          const actionBorder = row.isProduct ? '#3B82F6' : '#F59E0B';
+          const actionColor = row.isProduct ? '#1E40AF' : '#92400E';
+          const actionHtml = row.actions.length > 0
+            ? row.actions.map(a => `<div style="background:${actionBg};border-left:3px solid ${actionBorder};padding:5px 10px;border-radius:0 6px 6px 0;font-size:11px;color:${actionColor};line-height:1.4;margin:2px 0;">${a}</div>`).join('')
+            : '<span style="color:#D1D5DB;font-size:11px;">—</span>';
+          return `
+        <tr>
+          <td style="padding:8px 12px;${borderBot}vertical-align:top;font-size:12px;font-weight:700;color:#1D1D1F;white-space:nowrap;">${row.category}</td>
+          <td style="padding:8px 10px;${borderBot}vertical-align:top;border-left:1px solid #E5E5EA;">${profileHtml}</td>
+          <td style="padding:8px 10px;${borderBot}vertical-align:top;border-left:1px solid #E5E5EA;">${actionHtml}</td>
+        </tr>`;
+        }).join('')}
+      </table>
     </div>
     ` : ''}
 

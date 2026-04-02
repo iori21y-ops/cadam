@@ -5,7 +5,7 @@ import DOMPurify from 'dompurify';
 import { motion } from 'framer-motion';
 import { createBrowserSupabaseClient } from '@/lib/supabase';
 import { useToast } from '@/hooks/useToast';
-import { LeadBadge } from './LeadBadge';
+import { LeadBadge, LeadDimensions, type LeadDimensionsData } from './LeadBadge';
 
 export interface ConsultationDetailData {
   id: string;
@@ -24,6 +24,7 @@ export interface ConsultationDetailData {
   status: string;
   assigned_to: string | null;
   lead_score: number;
+  lead_dimensions: LeadDimensionsData | null;
   memo: string | null;
   callback_time: string | null;
   consult_result: string | null;
@@ -121,7 +122,7 @@ export function ConsultationDetail({
     client
       .from('consultations')
       .select(
-        'id, name, phone, car_brand, car_model, trim, contract_months, annual_km, deposit, prepayment_pct, monthly_budget, estimated_min, estimated_max, status, assigned_to, lead_score, memo, callback_time, consult_result, utm_source, referrer, inflow_page, device_type, created_at'
+        'id, name, phone, car_brand, car_model, trim, contract_months, annual_km, deposit, prepayment_pct, monthly_budget, estimated_min, estimated_max, status, assigned_to, lead_score, lead_dimensions, memo, callback_time, consult_result, utm_source, referrer, inflow_page, device_type, created_at'
       )
       .eq('id', consultationId)
       .single()
@@ -377,14 +378,21 @@ export function ConsultationDetail({
             </div>
           </div>
 
-          {/* [리드 점수] */}
-          <div className="rounded-xl bg-gray-100 p-4 flex items-center justify-between">
-            <span className="text-sm font-bold text-gray-700">리드 점수</span>
-            <div className="flex items-center gap-2">
-              <span className="text-lg font-bold text-primary">{consultation.lead_score}점</span>
-              <LeadBadge score={consultation.lead_score} />
+          {/* [리드 점수 분석] */}
+          {consultation.lead_dimensions ? (
+            <LeadDimensions
+              dimensions={consultation.lead_dimensions}
+              score={consultation.lead_score}
+            />
+          ) : (
+            <div className="rounded-xl bg-gray-100 p-4 flex items-center justify-between">
+              <span className="text-sm font-bold text-gray-700">리드 점수</span>
+              <div className="flex items-center gap-2">
+                <span className="text-lg font-bold text-primary">{consultation.lead_score}점</span>
+                <LeadBadge score={consultation.lead_score} />
+              </div>
             </div>
-          </div>
+          )}
 
           {/* [CRM — 상담 메모] */}
           <div className="rounded-xl bg-gray-100 p-4">

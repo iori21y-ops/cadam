@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import crypto from 'crypto';
 import { rateLimiter } from '@/lib/rateLimit';
-import { calculateLeadScore } from '@/lib/leadScore';
+import { calculateLeadScore, type LeadDimensions } from '@/lib/leadScore';
 import {
   sendConsultationNotification,
   sendCustomerReport,
@@ -111,9 +111,10 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 5단계 - Lead Score 계산
+    // 5단계 - Lead Score 계산 (다차원)
     const inflowPage = request.cookies.get('inflow_page')?.value ?? null;
-    const leadScore = calculateLeadScore({
+    const utmSourceCookie = request.cookies.get('utm_source')?.value ?? null;
+    const { total: leadScore, dimensions: leadDimensions } = calculateLeadScore({
       stepCompleted: input.stepCompleted ?? 5,
       carModel: input.carModel ?? null,
       contractMonths: input.contractMonths ?? null,
@@ -124,6 +125,7 @@ export async function POST(request: NextRequest) {
       vehicleAnswers: input.vehicleAnswers ?? null,
       financeAnswers: input.financeAnswers ?? null,
       inflowPage,
+      utmSource: utmSourceCookie,
     });
 
     // 6단계 - Cookie 파싱
@@ -158,6 +160,7 @@ export async function POST(request: NextRequest) {
         referrer: referrer,
         inflow_page: inflowPageCookie,
         lead_score: leadScore,
+        lead_dimensions: leadDimensions as unknown as Record<string, unknown>,
         ip_hash: ipHash,
       })
       .select('id')
@@ -233,6 +236,7 @@ export async function POST(request: NextRequest) {
       referrer: referrer ?? '',
       vehicleAnswers: input.vehicleAnswers ?? null,
       financeAnswers: input.financeAnswers ?? null,
+      leadDimensions,
     };
 
     try {

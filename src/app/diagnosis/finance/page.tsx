@@ -91,7 +91,7 @@ function FinResult({ answers, questions, mode, restart, toDetail, onHome }: {
   ].join('');
 
   const [copied, setCopied] = useState(false);
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(true);
   const shareUrl = buildShareUrl('/diagnosis/finance', mode, answers);
 
   const handleCopy = async () => {
@@ -249,9 +249,10 @@ function FinResult({ answers, questions, mode, restart, toDetail, onHome }: {
           {ranking.length > 1 && (
             <button
               onClick={() => setExpanded(!expanded)}
-              className="w-full py-3 border-t border-border text-xs font-semibold text-primary hover:bg-primary/[0.03] transition-colors"
+              className="w-full py-4 border-t-2 border-border text-sm font-bold text-primary bg-primary/[0.04] hover:bg-primary/[0.08] active:bg-primary/[0.12] transition-colors flex items-center justify-center gap-2"
             >
-              {expanded ? `접기 ▲` : `2·3순위 보기 ▼`}
+              <span className="text-base">{expanded ? '▲' : '▼'}</span>
+              {expanded ? '접기' : '2·3순위 결과 보기'}
             </button>
           )}
         </motion.div>
