@@ -114,11 +114,15 @@ export async function POST(request: NextRequest) {
     // 5단계 - Lead Score 계산
     const inflowPage = request.cookies.get('inflow_page')?.value ?? null;
     const leadScore = calculateLeadScore({
-      stepCompleted: input.stepCompleted ?? 6,
+      stepCompleted: input.stepCompleted ?? 5,
       carModel: input.carModel ?? null,
       contractMonths: input.contractMonths ?? null,
       deposit: input.deposit ?? null,
-      monthlyBudget: input.monthlyBudget ?? null,
+      annualKm: input.annualKm ?? null,
+      contactMethod: input.contactMethod ?? 'phone',
+      financeSummary: input.financeSummary ?? null,
+      vehicleAnswers: input.vehicleAnswers ?? null,
+      financeAnswers: input.financeAnswers ?? null,
       inflowPage,
     });
 

@@ -225,6 +225,7 @@ export async function sendConsultationNotification(
 export async function sendCustomerReport(
   data: CustomerReportData
 ): Promise<{ success: boolean; error?: string }> {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || `https://${BRAND.domain}`;
   const carDisplay = [data.carBrand, data.carModel, data.trim].filter(Boolean).join(' ') || '미정';
   const financeProduct = data.financeSummary?.split(' ')[0] || '';
   const financePct = data.financeSummary?.match(/(\d+)%/)?.[1] || '';
@@ -367,6 +368,14 @@ export async function sendCustomerReport(
           <li>금융사별 최저가 견적을 비교합니다</li>
           <li>고객님께 맞춤 견적서를 전달드립니다</li>
         </ol>
+      </div>
+
+      <!-- 결과 페이지 링크 -->
+      <div style="text-align:center;margin-top:20px;">
+        <a href="${siteUrl}" style="display:inline-block;background:#2563EB;color:#fff;padding:14px 28px;border-radius:12px;text-decoration:none;font-weight:700;font-size:15px;">
+          내 진단 결과 다시 보기 →
+        </a>
+        <p style="font-size:11px;color:#AEAEB2;margin-top:10px;">위 링크에서 시뮬레이션을 조절하며 다양한 조건을 비교할 수 있습니다</p>
       </div>
     </div>
 
