@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import { Footer } from '@/components/Footer';
 import { usePageTransitionStore } from '@/store/pageTransitionStore';
 import { BRAND } from '@/constants/brand';
-import { loadProgress, DEFAULT_PROGRESS } from '@/lib/mission-progress';
+import { loadProgress, restoreFromServer, DEFAULT_PROGRESS } from '@/lib/mission-progress';
 import type { MissionProgress } from '@/lib/mission-progress';
 
 const STEPS = [
@@ -43,7 +43,9 @@ export default function HomePage() {
   const [progress, setProgress] = useState<MissionProgress>(DEFAULT_PROGRESS);
 
   useEffect(() => {
-    setProgress(loadProgress());
+    // 서버에서 복원 시도 후 로컬과 병합
+    restoreFromServer().then((p) => setProgress(p));
+
     const handler = () => setProgress(loadProgress());
     window.addEventListener('mission-update', handler);
     window.addEventListener('storage', handler);
