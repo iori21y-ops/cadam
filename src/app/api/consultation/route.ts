@@ -13,7 +13,7 @@ const consultationSchema = z.object({
   name: z.string().min(1).max(50),
   phone: z.string().regex(/^01[016789]\d{3,4}\d{4}$/),
   privacyAgreed: z.literal(true),
-  selectionPath: z.enum(['car', 'budget']),
+  selectionPath: z.enum(['car', 'budget']).nullish(),
   carBrand: z.string().nullish(),
   carModel: z.string().nullish(),
   trim: z.string().nullish(),
@@ -162,9 +162,8 @@ export async function POST(request: NextRequest) {
     let estimatedMin: number | null = null;
     let estimatedMax: number | null = null;
 
-    // 8단계 - 가격 매칭
+    // 가격 매칭 (차종 정보가 있을 때)
     if (
-      input.selectionPath === 'car' &&
       input.carBrand &&
       input.carModel &&
       input.contractMonths &&

@@ -12,6 +12,9 @@ import { useQuoteStore } from '@/store/quoteStore';
 import { useToast } from '@/hooks/useToast';
 import { gtag } from '@/lib/gtag';
 import { Button } from '@/components/ui/Button';
+import { loadProgress } from '@/lib/mission-progress';
+import { VEHICLES } from '@/data/diagnosis-vehicles';
+import type { Brand } from '@/constants/vehicles';
 
 export function Step6Contact() {
   const router = useRouter();
@@ -66,10 +69,30 @@ export function Step6Contact() {
     setIsSubmitting(true);
 
     const state = useQuoteStore.getState();
+
+    // 진단 결과에서 차종 정보 보충
+    let carBrand: Brand | null = state.carBrand;
+    let carModel: string | null = state.carModel;
+    if (!carBrand || !carModel) {
+      const progress = loadProgress();
+      if (progress.vehicle.done && progress.vehicle.summary) {
+        const parts = progress.vehicle.summary.split(' ');
+        if (parts.length >= 2) {
+          const brand = parts[0];
+          const name = parts.slice(1).join(' ');
+          const found = VEHICLES.find((v) => v.brand === brand && v.name === name);
+          if (found) {
+            carBrand = found.brand as Brand;
+            carModel = found.name;
+          }
+        }
+      }
+    }
+
     const body = {
-      selectionPath: state.selectionPath,
-      carBrand: state.carBrand,
-      carModel: state.carModel,
+      selectionPath: state.selectionPath ?? null,
+      carBrand,
+      carModel,
       trim: state.trim,
       contractMonths: state.contractMonths,
       annualKm: state.annualKm,
