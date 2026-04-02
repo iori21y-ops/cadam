@@ -26,15 +26,16 @@ export const FINANCE_BASIC: FinanceQuestion[] = [
     { label: '일부는 도움 받고 싶다', value: 'partial', scores: { installment: 2, lease: 3, rent: 1, cash: 1 }, nextQ: '' },
     { label: '전부 포함되면 좋겠다', value: 'full', scores: { installment: 0, lease: 1, rent: 3, cash: 0 }, nextQ: '' },
   ]},
-  { id: 'mileage', question: '연간 예상 주행거리는?', subtitle: '리스·렌트는 주행거리 제한이 있습니다', weight: 1.5, skipIf: [], options: [
-    { label: '1만km 이하', value: 'low', scores: { installment: 1, lease: 3, rent: 3, cash: 1 }, nextQ: '' },
-    { label: '1~2만km', value: 'mid', scores: { installment: 2, lease: 2, rent: 2, cash: 2 }, nextQ: '' },
-    { label: '2만km 이상', value: 'high', scores: { installment: 3, lease: 1, rent: 1, cash: 3 }, nextQ: '' },
+  { id: 'mileage', question: '연간 예상 주행거리는?', subtitle: '리스·렌트는 주행거리 제한이 있습니다. 견적에도 반영됩니다', weight: 1.5, skipIf: [], options: [
+    { label: '연 1만km (주말 위주)', value: '10000', scores: { installment: 1, lease: 3, rent: 3, cash: 1 }, nextQ: '' },
+    { label: '연 2만km (출퇴근 기본)', value: '20000', scores: { installment: 2, lease: 2, rent: 2, cash: 2 }, nextQ: '' },
+    { label: '연 3만km (업무 겸용)', value: '30000', scores: { installment: 3, lease: 1, rent: 1, cash: 2 }, nextQ: '' },
+    { label: '연 4만km 이상 (장거리)', value: '40000', scores: { installment: 3, lease: 0, rent: 0, cash: 3 }, nextQ: '' },
   ]},
-  { id: 'payment', question: '월 납입금에 대한 생각은?', subtitle: '매달 고정 지출 선호도', weight: 2.0, skipIf: [], options: [
-    { label: '월 납입금 없는 게 좋다', value: 'none', scores: { installment: 0, lease: 0, rent: 0, cash: 3 }, nextQ: '' },
-    { label: '적당한 월 납입 괜찮다', value: 'ok', scores: { installment: 3, lease: 2, rent: 2, cash: 0 }, nextQ: '' },
-    { label: '보험·정비 포함이면 좋겠다', value: 'allin', scores: { installment: 0, lease: 1, rent: 3, cash: 0 }, nextQ: '' },
+  { id: 'contract_flexibility', question: '계약 기간 중\n상황 변화 가능성은?', subtitle: '이직, 해외 발령, 가족 변화 등', weight: 1.5, skipIf: [], options: [
+    { label: '변화 없이 안정적', value: 'stable', scores: { installment: 2, lease: 3, rent: 1, cash: 3 }, nextQ: '' },
+    { label: '변할 수 있지만 크지 않음', value: 'moderate', scores: { installment: 2, lease: 2, rent: 2, cash: 2 }, nextQ: '' },
+    { label: '변동 가능성 높음', value: 'flexible', scores: { installment: 1, lease: 0, rent: 3, cash: 1 }, nextQ: '' },
   ]},
 ];
 
@@ -95,8 +96,9 @@ export const QUESTION_REASON_MAP: Record<string, Record<string, Partial<Record<'
     full: { rent: '보험·정비·세금이 모두 포함되어 관리가 편합니다' },
   },
   mileage: {
-    high: { installment: '주행거리 제한 없이 마음껏 탈 수 있습니다', cash: '주행거리 걱정 없는 완전 소유입니다' },
-    low: { lease: '적은 주행거리로 리스 조건이 유리합니다', rent: '주행거리 제한 내에서 합리적인 비용입니다' },
+    '40000': { installment: '주행거리 제한 없이 마음껏 탈 수 있습니다', cash: '주행거리 걱정 없는 완전 소유입니다' },
+    '30000': { installment: '주행거리 제한 없이 자유롭게 탈 수 있습니다' },
+    '10000': { lease: '적은 주행거리로 리스 조건이 유리합니다', rent: '주행거리 제한 내에서 합리적인 비용입니다' },
   },
   credit: {
     excellent: { lease: '우수 신용으로 유리한 리스 금리를 받을 수 있습니다', installment: '낮은 할부 금리로 이자 부담이 적습니다' },
@@ -106,8 +108,8 @@ export const QUESTION_REASON_MAP: Record<string, Record<string, Partial<Record<'
     some: { lease: '리스료를 비용처리하여 절세 효과가 있습니다', rent: '렌트 비용 전액 비용처리가 가능합니다' },
     priority: { lease: '부가세 환급 + 비용처리로 최대 절세 효과', rent: '렌트비 전액 비용처리로 절세 효과가 큽니다' },
   },
-  payment: {
-    none: { cash: '월 납입금 없이 한 번에 해결할 수 있습니다' },
-    allin: { rent: '보험·정비까지 포함된 월 고정 비용으로 관리가 편합니다' },
+  contract_flexibility: {
+    stable: { lease: '안정적 상황에서 리스 계약이 유리합니다', installment: '장기 보유 계획에 할부가 적합합니다' },
+    flexible: { rent: '중도해지 부담이 적은 장기렌트가 유리합니다' },
   },
 };

@@ -54,22 +54,22 @@ export function SelectionSummary({ currentStep }: { currentStep: number }) {
     });
   }
 
-  // Step 2: 주행거리
-  if (annualKm !== null && currentStep >= 3) {
+  // 주행거리 (자동 매핑, 스텝 없음)
+  if (annualKm !== null && currentStep >= 2) {
     items.push({
-      step: 2,
+      step: 0,
       label: '주행거리',
-      value: MILEAGE_LABELS[annualKm],
+      value: MILEAGE_LABELS[annualKm] + ' (진단 연동)',
     });
   }
 
-  // Step 3: 보증금·선납금 (있을 때만)
-  if ((deposit !== null || prepaymentPct !== null) && currentStep >= 4) {
+  // Step 2: 보증금·선납금 (있을 때만)
+  if ((deposit !== null || prepaymentPct !== null) && currentStep >= 3) {
     const parts: string[] = [];
     if (deposit !== null) parts.push(`보증금 ${DEPOSIT_RATIO_LABELS[deposit]}`);
     if (prepaymentPct !== null) parts.push(`선납 ${PREPAYMENT_LABELS[prepaymentPct]}`);
     items.push({
-      step: 3,
+      step: 2,
       label: '보증금·선납',
       value: parts.join(', '),
     });
@@ -80,7 +80,7 @@ export function SelectionSummary({ currentStep }: { currentStep: number }) {
   const [needsSliding, setNeedsSliding] = useState(false);
 
   // 마지막 스텝(연락처)에서만 expanded
-  const isExpanded = currentStep >= 3 && items.length > 0;
+  const isExpanded = currentStep >= 2 && items.length > 0;
 
   useLayoutEffect(() => {
     if (isExpanded || items.length === 0) return;

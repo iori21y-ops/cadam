@@ -10,9 +10,8 @@ import { Button } from '@/components/ui/Button';
 
 const STEP_NAMES: Record<number, string> = {
   1: '계약 기간',
-  2: '주행거리',
-  3: '결제 방식',
-  4: '연락처 입력',
+  2: '결제 방식',
+  3: '연락처 입력',
 };
 
 interface StepLayoutProps {
