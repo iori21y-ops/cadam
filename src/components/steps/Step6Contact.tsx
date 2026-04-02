@@ -103,6 +103,7 @@ export function Step6Contact() {
       phone: submitMethod === 'phone' ? removePhoneHyphens(phoneValue) : '',
       email: submitMethod === 'email' ? emailValue : '',
       contactMethod: submitMethod,
+      financeSummary: loadProgress().finance.summary ?? null,
       privacyAgreed: true,
       stepCompleted: 5,
     };

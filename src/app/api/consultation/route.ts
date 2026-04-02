@@ -5,6 +5,7 @@ import { rateLimiter } from '@/lib/rateLimit';
 import { calculateLeadScore } from '@/lib/leadScore';
 import {
   sendConsultationNotification,
+  sendCustomerReport,
   type ConsultationEmailData,
 } from '@/lib/notification';
 import { createServiceRoleSupabaseClient } from '@/lib/supabase-server';
@@ -32,6 +33,7 @@ const consultationSchema = z.object({
   deposit: z.number().nullish(),
   prepaymentPct: z.number().nullish(),
   monthlyBudget: z.number().nullish(),
+  financeSummary: z.string().nullish(),
   stepCompleted: z.number().optional(),
 });
 
@@ -240,7 +242,38 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // 10단계 - 응답
+    // 10단계 - 고객에게 결과 리포트 이메일 발송 (이메일 방식일 때)
+    if (input.contactMethod === 'email' && input.email) {
+      try {
+        const reportResult = await sendCustomerReport({
+          email: input.email,
+          name: input.name,
+          carBrand: input.carBrand ?? null,
+          carModel: input.carModel ?? null,
+          trim: input.trim ?? null,
+          contractMonths: input.contractMonths ?? null,
+          annualKm: input.annualKm ?? null,
+          deposit: input.deposit ?? null,
+          prepaymentPct: input.prepaymentPct ?? null,
+          estimatedMin,
+          estimatedMax,
+          financeSummary: input.financeSummary ?? null,
+        });
+        if (!reportResult.success) {
+          console.error('[Consultation] Customer report email failed:', reportResult.error);
+        }
+        await supabase.from('notification_log').insert({
+          consultation_id: consultation.id,
+          channel: 'customer_email',
+          status: reportResult.success ? 'sent' : 'failed',
+          error_message: reportResult.error ?? null,
+        });
+      } catch (reportErr) {
+        console.error('[Consultation] Customer report error:', reportErr);
+      }
+    }
+
+    // 11단계 - 응답
     return NextResponse.json({
       success: true,
       estimatedMin,
