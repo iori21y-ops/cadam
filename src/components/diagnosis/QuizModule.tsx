@@ -1,6 +1,6 @@
 'use client';
 
-import { useLayoutEffect, useRef, useState, ReactNode } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, ReactNode } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import type { DiagnosisQuestion, DiagnosisAnswer } from '@/types/diagnosis';
 import { shouldSkip, findNextIndex } from '@/lib/flow-engine';
@@ -166,6 +166,29 @@ export function QuizModule({ basicQs, detailQs, color, onHome, savedResult, rend
     setSelected(null);
     setSelectedMode(null);
   };
+
+  // ─── 브라우저 뒤로가기 방지: quiz 화면에서 popstate → handleBack ───
+  const handleBackRef = useRef(handleBack);
+  handleBackRef.current = handleBack;
+  const screenRef = useRef(screen);
+  screenRef.current = screen;
+
+  useEffect(() => {
+    if (screen !== 'quiz') return;
+
+    // 히스토리 항목 추가 (트랩)
+    window.history.pushState({ cadamQuiz: true }, '', window.location.pathname + window.location.search);
+
+    const onPopState = (e: PopStateEvent) => {
+      if (screenRef.current !== 'quiz') return;
+      // 뒤로가기 취소 → 다시 pushState로 현재 유지
+      window.history.pushState({ cadamQuiz: true }, '', window.location.pathname + window.location.search);
+      handleBackRef.current();
+    };
+
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+  }, [screen]);
 
   // Continue detail test from where basic left off
   const toDetail = () => {

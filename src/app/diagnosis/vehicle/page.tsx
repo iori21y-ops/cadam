@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { QuizModule } from '@/components/diagnosis/QuizModule';
 import { ParkAI } from '@/components/diagnosis/ParkAI';
@@ -9,6 +10,7 @@ import { DEFAULT_VEHICLE_BASIC, DEFAULT_VEHICLE_DETAIL } from '@/data/diagnosis-
 import { VEHICLES, TRIMS } from '@/data/diagnosis-vehicles';
 import { DEFAULT_PRODUCTS, PRODUCT_KEYS } from '@/data/diagnosis-products';
 import { scoreByTags } from '@/lib/flow-engine';
+import { calcMonthly, conditionLabel, DEFAULT_PERIOD, DEFAULT_MILEAGE, DEFAULT_DOWN_RATE } from '@/lib/calc-monthly';
 import { VEHICLE_LIST } from '@/constants/vehicles';
 import { createBrowserSupabaseClient } from '@/lib/supabase';
 import type { DiagnosisAnswer, DiagnosisVehicle, VehicleOption } from '@/types/diagnosis';
@@ -18,8 +20,7 @@ import { NextMission } from '@/components/diagnosis/NextMission';
 import { buildShareUrl, copyShareUrl, shareToKakao, nativeShare } from '@/lib/diagnosis-share';
 import { Button } from '@/components/ui/Button';
 import { saveMissionStep, loadProgress } from '@/lib/mission-progress';
-
-const CONFIG_ID = 'diagnosis_data_v1';
+import { useQuoteStore } from '@/store/quoteStore';
 
 const COLOR = '#2563EB';
 
@@ -89,8 +90,18 @@ function VehResult({ answers, mode, restart, toDetail, onHome, vehicles }: {
   };
 
   const [copied, setCopied] = useState(false);
-  const [expanded, setExpanded] = useState(true);
+  const [expanded, setExpanded] = useState(false);
   const shareUrl = buildShareUrl('/diagnosis/vehicle', mode, answers);
+  const prefillFromDiagnosis = useQuoteStore((s) => s.prefillFromDiagnosis);
+
+  // 이용방법 진단 결과 (있으면 CTA에 함께 표시)
+  const financeProgress = loadProgress().finance;
+  const financeSummary = financeProgress.done ? financeProgress.summary : null;
+
+  const handleQuoteNav = () => {
+    prefillFromDiagnosis();
+    router.push('/quote');
+  };
 
   const handleCopy = async () => {
     const ok = await copyShareUrl(shareUrl);
@@ -180,7 +191,20 @@ function VehResult({ answers, mode, restart, toDetail, onHome, vehicles }: {
                 <div className="flex items-center gap-3 mb-3">
                   <div className="flex flex-col items-center gap-1">
                     <RankBadge rank={i} />
-                    <span className="text-2xl">{v.img}</span>
+                    {v.imageKey ? (
+                      <div className="w-16 h-10 relative">
+                        <Image
+                          src={`/cars/${v.imageKey}.webp`}
+                          alt={`${v.brand} ${v.name}`}
+                          fill
+                          sizes="64px"
+                          className="object-contain"
+                          onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).parentElement!.innerHTML = `<span class="text-2xl">${v.img}</span>`; }}
+                        />
+                      </div>
+                    ) : (
+                      <span className="text-2xl">{v.img}</span>
+                    )}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-0.5">
@@ -198,17 +222,18 @@ function VehResult({ answers, mode, restart, toDetail, onHome, vehicles }: {
                   )}
                 </div>
 
-                {/* 상품별 월 비용 */}
-                <div className="grid grid-cols-4 gap-1.5 mb-3">
+                {/* 상품별 월 비용 (동적 계산) */}
+                <div className="grid grid-cols-4 gap-1.5 mb-1.5">
                   {PRODUCT_KEYS.map((key) => (
                     <div key={key} className="text-center py-2 rounded-xl" style={{ backgroundColor: DEFAULT_PRODUCTS[key].lightBg }}>
                       <p className="text-[10px] text-text-muted">{DEFAULT_PRODUCTS[key].name}</p>
                       <p className="text-xs font-bold" style={{ color: DEFAULT_PRODUCTS[key].color }}>
-                        {key === 'cash' ? '일시불' : `${v.monthly[key]}만`}
+                        {key === 'cash' ? '일시불' : `${calcMonthly(v.price, key, DEFAULT_PERIOD, DEFAULT_DOWN_RATE, DEFAULT_MILEAGE)}만`}
                       </p>
                     </div>
                   ))}
                 </div>
+                <p className="text-[9px] text-text-muted mb-3">{conditionLabel()} (참고용)</p>
 
                 {/* 추천 트림 (옵션 태그가 있을 때) */}
                 {vBestTrim && (
@@ -267,6 +292,25 @@ function VehResult({ answers, mode, restart, toDetail, onHome, vehicles }: {
           </div>
         </div>
       </div>
+
+      {/* 하단 고정 CTA 바 */}
+      <div className="fixed bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-sm border-t border-border-solid shadow-[0_-2px_12px_rgba(0,0,0,0.06)]">
+        <div className="max-w-lg mx-auto px-5 py-3 flex items-center gap-3">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <span className="text-xs font-bold text-text">🚗 {best.brand} {best.name}</span>
+              {financeSummary && <span className="text-xs text-text-sub">· 🎯 {financeSummary}</span>}
+            </div>
+            <p className="text-[10px] text-text-muted mt-0.5">진단 결과가 자동 반영됩니다</p>
+          </div>
+          <button
+            onClick={handleQuoteNav}
+            className="shrink-0 px-5 py-2.5 rounded-xl bg-primary text-white text-sm font-bold hover:opacity-90 active:scale-[0.97] transition-all"
+          >
+            상담 신청 →
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
@@ -279,11 +323,24 @@ export default function VehiclePage() {
 
   useEffect(() => {
     const supabase = createBrowserSupabaseClient();
-    supabase.from('diagnosis_config').select('data').eq('id', CONFIG_ID).single()
+    supabase.from('vehicles')
+      .select('name, manufacturer, diagnosis_class, base_price, diagnosis_tags, img_emoji, image_key, parent_name')
+      .eq('is_active', true)
+      .eq('is_diagnosis', true)
+      .order('display_order')
       .then(({ data }) => {
-        const v = (data as { data?: { vehicles?: unknown } } | null)?.data?.vehicles;
-        if (Array.isArray(v) && v.length > 0) {
-          setVehicles(v as DiagnosisVehicle[]);
+        if (data && data.length > 0) {
+          const mapped: DiagnosisVehicle[] = data.map((v) => ({
+            name: v.name,
+            brand: v.manufacturer,
+            class: v.diagnosis_class ?? '',
+            price: v.base_price ?? 0,
+            tags: v.diagnosis_tags ?? [],
+            img: v.img_emoji ?? '🚗',
+            imageKey: v.image_key ?? undefined,
+            parentName: v.parent_name ?? undefined,
+          }));
+          setVehicles(mapped);
         }
       });
   }, []);

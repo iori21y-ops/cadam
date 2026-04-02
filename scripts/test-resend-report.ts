@@ -33,7 +33,7 @@ async function main() {
     o_budget: { value: 'mid', label: '적당히 (100~500만원)' },
     o_safety: { value: 'full', label: '최신 ADAS 풀옵션 원함' },
     v_parking: { value: 'apt', label: '아파트 지하주차장' },
-    v_brand: { value: 'domestic', label: '국산차가 좋다' },
+    v_brand: { value: 'domestic', label: '현대·기아가 좋아요' },
   };
 
   const financeAnswers: Record<string, { value: string; label: string }> = {

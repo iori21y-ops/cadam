@@ -120,9 +120,10 @@ export interface DiagnosisVehicle {
   brand: string;
   class: string;
   price: number;
-  monthly: FinanceScores;
   tags: string[];
   img: string;
+  imageKey?: string;
+  parentName?: string;
 }
 
 // ─── 트림 ───

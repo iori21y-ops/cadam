@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { Brand } from '@/constants/vehicles';
+import { loadProgress } from '@/lib/mission-progress';
+import { VEHICLES } from '@/data/diagnosis-vehicles';
 
 export type SelectionPath = 'car' | 'budget' | null;
 
@@ -44,6 +46,8 @@ interface QuoteActions {
   setPhone: (phone: string) => void;
   setPrivacyAgreed: (agreed: boolean) => void;
   resetAll: () => void;
+  /** 진단 결과를 quoteStore에 자동 세팅 */
+  prefillFromDiagnosis: () => boolean;
 }
 
 const initialState: QuoteState = {
@@ -89,6 +93,47 @@ export const useQuoteStore = create<QuoteState & QuoteActions>()(
       setPrivacyAgreed: (agreed: boolean) => set({ privacyAgreed: agreed }),
 
       resetAll: () => set(initialState),
+
+      prefillFromDiagnosis: () => {
+        const progress = loadProgress();
+        const updates: Partial<QuoteState> = {};
+        let prefilled = false;
+
+        // 차종 진단 결과 → carBrand, carModel
+        if (progress.vehicle.done && progress.vehicle.summary) {
+          const parts = progress.vehicle.summary.split(' ');
+          if (parts.length >= 2) {
+            const brand = parts[0];
+            const name = parts.slice(1).join(' ');
+            const found = VEHICLES.find((v) => v.brand === brand && v.name === name);
+            if (found) {
+              updates.carBrand = found.brand as Brand;
+              updates.carModel = found.name;
+              updates.selectionPath = 'car';
+              prefilled = true;
+            }
+          }
+        }
+
+        // 이용방법 진단 결과 → annualKm
+        const mileageVal = progress.finance.answers?.mileage?.value;
+        if (mileageVal) {
+          const km = Number(mileageVal);
+          if ([10000, 20000, 30000, 40000].includes(km)) {
+            updates.annualKm = km as AnnualKm;
+          }
+        }
+
+        // 초기 단계로 설정
+        if (prefilled) {
+          updates.currentStep = 1;
+        }
+
+        if (Object.keys(updates).length > 0) {
+          set(updates);
+        }
+        return prefilled;
+      },
     }),
     {
       name: 'cadam-quote-store',

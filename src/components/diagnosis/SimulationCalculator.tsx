@@ -2,17 +2,15 @@
 
 import { useState, useMemo } from 'react';
 import { DEFAULT_PRODUCTS, PRODUCT_KEYS } from '@/data/diagnosis-products';
+import { calcMonthly, RATES, RENT_INSURANCE_RATE } from '@/lib/calc-monthly';
 import type { ProductKey } from '@/types/diagnosis';
 
 interface SimulationCalculatorProps {
   carPrice: number; // 만원 단위
   carName: string;
   recommendedProduct?: ProductKey;
-  /** 초기 계약기간 (견적 연동) */
   initialPeriod?: number;
-  /** 초기 연간 주행거리 (진단 연동) */
   initialMileage?: number;
-  /** 초기 선납금/보증금 비율 (견적 연동) */
   initialDownRate?: number;
 }
 
@@ -25,42 +23,6 @@ const MILEAGE_LABELS: Record<number, string> = {
   40000: '4만km',
 };
 const DOWN_RATES = [0, 10, 20, 30] as const;
-
-function calcMonthly(
-  carPrice: number,
-  product: ProductKey,
-  period: number,
-  downRate: number,
-  mileage: number
-): number {
-  const principal = carPrice * (1 - downRate / 100);
-
-  switch (product) {
-    case 'installment': {
-      const rate = 0.055 / 12;
-      if (rate === 0) return Math.round(principal / period);
-      const payment = principal * (rate * Math.pow(1 + rate, period)) / (Math.pow(1 + rate, period) - 1);
-      return Math.round(payment);
-    }
-    case 'lease': {
-      const residual = carPrice * 0.3;
-      const leaseBase = principal - residual;
-      const rate = 0.045 / 12;
-      const payment = leaseBase * (rate * Math.pow(1 + rate, period)) / (Math.pow(1 + rate, period) - 1) + residual * rate;
-      return Math.round(payment);
-    }
-    case 'rent': {
-      const residual = carPrice * 0.25;
-      const rentBase = principal - residual;
-      const rate = 0.05 / 12;
-      const base = rentBase * (rate * Math.pow(1 + rate, period)) / (Math.pow(1 + rate, period) - 1) + residual * rate;
-      const mileageFactor = mileage > 20000 ? 1.05 : 1.0;
-      return Math.round(base * 1.2 * mileageFactor);
-    }
-    case 'cash':
-      return 0;
-  }
-}
 
 export function SimulationCalculator({
   carPrice,
@@ -202,8 +164,8 @@ export function SimulationCalculator({
       </div>
 
       <p className="text-[10px] text-text-muted mt-3 leading-relaxed">
-        * 참고용 예상 금액입니다. 실제 금액은 신용등급, 금융사, 프로모션에 따라 달라집니다.
-        정확한 견적은 전문 상담사에게 문의해주세요.
+        * 할부 {(RATES.installment * 100).toFixed(1)}%, 리스 {(RATES.lease * 100).toFixed(1)}%, 렌트 {(RATES.rent * 100).toFixed(1)}%+관리비 {Math.round(RENT_INSURANCE_RATE * 100)}% 기준 참고용 예상 금액입니다.
+        실제 금액은 신용등급, 금융사, 프로모션에 따라 달라집니다.
       </p>
     </div>
   );

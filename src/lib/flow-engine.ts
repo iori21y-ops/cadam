@@ -143,12 +143,12 @@ export function getKeyFactors(
 /**
  * Score vehicles by tag matching.
  */
-export function scoreByTags<T extends { tags?: string[]; quizTags?: string[]; class?: string }>(
+export function scoreByTags<T extends { tags?: string[]; quizTags?: string[]; class?: string; name?: string; parentName?: string }>(
   items: T[],
   answerTags: string[],
   topN: number = 4
 ): (T & { score: number })[] {
-  return items
+  const scored = items
     .map((item) => {
       let score = 0;
       const itemTags = item.quizTags || item.tags || [];
@@ -158,6 +158,21 @@ export function scoreByTags<T extends { tags?: string[]; quizTags?: string[]; cl
       });
       return { ...item, score };
     })
-    .sort((a, b) => b.score - a.score)
-    .slice(0, topN);
+    .sort((a, b) => b.score - a.score);
+
+  // parentName 그룹핑: 같은 차종 그룹에서 최고 점수만 유지
+  // 예: "투싼"(5점)과 "투싼 하이브리드"(6점) → "투싼 하이브리드"만 남김
+  const seen = new Set<string>();
+  const deduped: (T & { score: number })[] = [];
+  for (const item of scored) {
+    const groupKey = item.parentName || item.name || '';
+    if (!groupKey || !seen.has(groupKey)) {
+      // 파생 모델이면 부모 이름으로, 원본이면 자기 이름으로 그룹 키 등록
+      if (item.parentName) seen.add(item.parentName);
+      if (item.name) seen.add(item.name);
+      deduped.push(item);
+    }
+  }
+
+  return deduped.slice(0, topN);
 }

@@ -7,6 +7,7 @@ import { OPTION_QUESTIONS } from '@/data/diagnosis-option';
 import { TRIMS, VEHICLES } from '@/data/diagnosis-vehicles';
 import { DEFAULT_PRODUCTS, PRODUCT_KEYS } from '@/data/diagnosis-products';
 import { scoreByTags } from '@/lib/flow-engine';
+import { calcMonthly } from '@/lib/calc-monthly';
 import type { OptionOption } from '@/types/diagnosis';
 import { Button } from '@/components/ui/Button';
 import { SelectCard } from '@/components/ui/SelectCard';
@@ -105,7 +106,7 @@ function OptionPageInner() {
                     <div key={key} className="text-center py-2 rounded-xl" style={{ backgroundColor: DEFAULT_PRODUCTS[key].lightBg }}>
                       <p className="text-[10px] text-text-muted">{DEFAULT_PRODUCTS[key].name}</p>
                       <p className="text-xs font-bold" style={{ color: DEFAULT_PRODUCTS[key].color }}>
-                        {key === 'cash' ? '일시불' : `${vehicle.monthly[key]}만`}
+                        {key === 'cash' ? '일시불' : `${calcMonthly(vehicle.price, key)}만`}
                       </p>
                     </div>
                   ))}

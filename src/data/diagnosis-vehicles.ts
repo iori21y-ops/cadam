@@ -1,31 +1,34 @@
 import type { TrimData } from "@/types/diagnosis";
-import type { FinanceScores } from "@/types/diagnosis";
 
 interface Vehicle {
   name: string;
   brand: string;
   class: string;
   price: number;
-  monthly: FinanceScores;
   tags: string[];
   img: string;
+  imageKey?: string;
 }
 
 export const VEHICLES: Vehicle[] = [
-  { name: "캐스퍼", brand: "현대", class: "경차", price: 1500, monthly: { installment: 22, lease: 25, rent: 32, cash: 0 }, tags: ["경차"], img: "🚗" },
-  { name: "모닝", brand: "기아", class: "경차", price: 1300, monthly: { installment: 19, lease: 22, rent: 28, cash: 0 }, tags: ["경차"], img: "🚗" },
-  { name: "아반떼", brand: "현대", class: "소형세단", price: 2200, monthly: { installment: 32, lease: 35, rent: 42, cash: 0 }, tags: ["소형세단", "하이브리드"], img: "🚙" },
-  { name: "쏘나타", brand: "현대", class: "중형세단", price: 3300, monthly: { installment: 48, lease: 50, rent: 58, cash: 0 }, tags: ["중형세단", "하이브리드"], img: "🚘" },
-  { name: "K5", brand: "기아", class: "중형세단", price: 3100, monthly: { installment: 45, lease: 47, rent: 55, cash: 0 }, tags: ["중형세단", "하이브리드"], img: "🚘" },
-  { name: "그랜저", brand: "현대", class: "대형세단", price: 4500, monthly: { installment: 65, lease: 62, rent: 72, cash: 0 }, tags: ["대형세단", "하이브리드"], img: "🏎️" },
-  { name: "코나", brand: "현대", class: "소형SUV", price: 2600, monthly: { installment: 38, lease: 40, rent: 48, cash: 0 }, tags: ["소형SUV", "전기차", "하이브리드"], img: "🚙" },
-  { name: "셀토스", brand: "기아", class: "소형SUV", price: 2500, monthly: { installment: 36, lease: 38, rent: 46, cash: 0 }, tags: ["소형SUV"], img: "🚙" },
-  { name: "투싼", brand: "현대", class: "중형SUV", price: 3500, monthly: { installment: 51, lease: 52, rent: 60, cash: 0 }, tags: ["중형SUV", "하이브리드"], img: "🚙" },
-  { name: "스포티지", brand: "기아", class: "중형SUV", price: 3400, monthly: { installment: 49, lease: 50, rent: 58, cash: 0 }, tags: ["중형SUV", "하이브리드"], img: "🚙" },
-  { name: "팰리세이드", brand: "현대", class: "대형SUV", price: 5200, monthly: { installment: 75, lease: 70, rent: 82, cash: 0 }, tags: ["대형SUV"], img: "🚐" },
-  { name: "카니발", brand: "기아", class: "미니밴", price: 4100, monthly: { installment: 59, lease: 56, rent: 66, cash: 0 }, tags: ["미니밴"], img: "🚐" },
-  { name: "아이오닉5", brand: "현대", class: "전기SUV", price: 5000, monthly: { installment: 72, lease: 68, rent: 78, cash: 0 }, tags: ["전기차", "중형SUV"], img: "⚡" },
-  { name: "EV6", brand: "기아", class: "전기SUV", price: 5200, monthly: { installment: 75, lease: 70, rent: 80, cash: 0 }, tags: ["전기차", "중형SUV", "스포츠"], img: "⚡" },
+  { name: "캐스퍼", brand: "현대", class: "경차", price: 1500, tags: ["경차"], img: "🚗", imageKey: "hyundai-casper" },
+  { name: "모닝", brand: "기아", class: "경차", price: 1300, tags: ["경차"], img: "🚗", imageKey: "kia-morning" },
+  { name: "아반떼", brand: "현대", class: "소형세단", price: 2200, tags: ["소형세단", "하이브리드"], img: "🚙", imageKey: "hyundai-avante" },
+  { name: "쏘나타", brand: "현대", class: "중형세단", price: 3300, tags: ["중형세단", "하이브리드"], img: "🚘", imageKey: "hyundai-sonata" },
+  { name: "K5", brand: "기아", class: "중형세단", price: 3100, tags: ["중형세단", "하이브리드"], img: "🚘", imageKey: "kia-k5" },
+  { name: "그랜저", brand: "현대", class: "대형세단", price: 4500, tags: ["대형세단", "하이브리드"], img: "🏎️", imageKey: "hyundai-grandeur" },
+  { name: "코나", brand: "현대", class: "소형SUV", price: 2600, tags: ["소형SUV", "전기차", "하이브리드"], img: "🚙", imageKey: "hyundai-kona" },
+  { name: "셀토스", brand: "기아", class: "소형SUV", price: 2500, tags: ["소형SUV"], img: "🚙", imageKey: "kia-seltos" },
+  { name: "투싼", brand: "현대", class: "중형SUV", price: 3500, tags: ["중형SUV", "하이브리드"], img: "🚙", imageKey: "hyundai-tucson" },
+  { name: "스포티지", brand: "기아", class: "중형SUV", price: 3400, tags: ["중형SUV", "하이브리드"], img: "🚙", imageKey: "kia-sportage" },
+  { name: "팰리세이드", brand: "현대", class: "대형SUV", price: 5200, tags: ["대형SUV"], img: "🚐", imageKey: "hyundai-palisade" },
+  { name: "카니발", brand: "기아", class: "미니밴", price: 4100, tags: ["미니밴"], img: "🚐", imageKey: "kia-carnival" },
+  { name: "아이오닉5", brand: "현대", class: "전기SUV", price: 5000, tags: ["전기차", "중형SUV"], img: "⚡", imageKey: "hyundai-ioniq5" },
+  { name: "EV6", brand: "기아", class: "전기SUV", price: 5200, tags: ["전기차", "중형SUV", "스포츠"], img: "⚡", imageKey: "kia-ev6" },
+  // 제네시스 (프리미엄 3종)
+  { name: "GV70", brand: "제네시스", class: "중형SUV", price: 5500, tags: ["중형SUV", "스포츠"], img: "🏎️", imageKey: "genesis-gv70" },
+  { name: "G80", brand: "제네시스", class: "대형세단", price: 6500, tags: ["대형세단"], img: "🏎️", imageKey: "genesis-g80" },
+  { name: "GV80", brand: "제네시스", class: "대형SUV", price: 7500, tags: ["대형SUV"], img: "🏎️", imageKey: "genesis-gv80" },
 ];
 
 export const TRIMS: TrimData = {

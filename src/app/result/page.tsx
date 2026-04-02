@@ -14,6 +14,7 @@ import { VEHICLES, TRIMS } from '@/data/diagnosis-vehicles';
 import { DEFAULT_PRODUCTS, PRODUCT_KEYS } from '@/data/diagnosis-products';
 import { BRAND } from '@/constants/brand';
 import type { ProductKey } from '@/types/diagnosis';
+import { calcMonthly, conditionLabel, DEFAULT_PERIOD, DEFAULT_MILEAGE, DEFAULT_DOWN_RATE } from '@/lib/calc-monthly';
 import { Footer } from '@/components/Footer';
 
 const PERIOD_LABELS: Record<number, string> = { 36: '36개월', 48: '48개월', 60: '60개월' };
@@ -39,7 +40,6 @@ function extractVehicleInfo(progress: MissionProgress) {
     brand: vehicle.brand,
     price: vehicle.price,
     class: vehicle.class,
-    monthly: vehicle.monthly,
     trim: bestTrim,
     trimPrice: bestTrim?.price ?? vehicle.price,
   };
@@ -186,24 +186,23 @@ export default function ResultPage() {
                     </div>
                   </div>
                 )}
-                {/* 상품별 월 비용 */}
-                {vehicleInfo.monthly && (
-                  <div className="grid grid-cols-4 gap-1.5 mt-3">
-                    {PRODUCT_KEYS.map((key) => {
-                      const isRecommended = key === financeInfo?.key;
-                      return (
-                        <div key={key} className={`text-center py-2 rounded-xl ${isRecommended ? 'ring-2 ring-primary' : ''}`}
-                          style={{ backgroundColor: DEFAULT_PRODUCTS[key].lightBg }}>
-                          <p className="text-[9px] text-text-muted">{DEFAULT_PRODUCTS[key].name}</p>
-                          <p className="text-xs font-bold" style={{ color: DEFAULT_PRODUCTS[key].color }}>
-                            {key === 'cash' ? '일시불' : `${vehicleInfo.monthly![key]}만`}
-                          </p>
-                          {isRecommended && <p className="text-[8px] text-primary font-bold">추천</p>}
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
+                {/* 상품별 월 비용 (동적 계산) */}
+                <div className="grid grid-cols-4 gap-1.5 mt-3">
+                  {PRODUCT_KEYS.map((key) => {
+                    const isRecommended = key === financeInfo?.key;
+                    return (
+                      <div key={key} className={`text-center py-2 rounded-xl ${isRecommended ? 'ring-2 ring-primary' : ''}`}
+                        style={{ backgroundColor: DEFAULT_PRODUCTS[key].lightBg }}>
+                        <p className="text-[9px] text-text-muted">{DEFAULT_PRODUCTS[key].name}</p>
+                        <p className="text-xs font-bold" style={{ color: DEFAULT_PRODUCTS[key].color }}>
+                          {key === 'cash' ? '일시불' : `${calcMonthly(vehicleInfo.price, key)}만`}
+                        </p>
+                        {isRecommended && <p className="text-[8px] text-primary font-bold">추천</p>}
+                      </div>
+                    );
+                  })}
+                </div>
+                <p className="text-[9px] text-text-muted mt-1">{conditionLabel()} (참고용)</p>
               </div>
             )}
 

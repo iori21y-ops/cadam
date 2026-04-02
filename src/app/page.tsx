@@ -8,6 +8,7 @@ import { usePageTransitionStore } from '@/store/pageTransitionStore';
 import { BRAND } from '@/constants/brand';
 import { loadProgress, restoreFromServer, DEFAULT_PROGRESS } from '@/lib/mission-progress';
 import type { MissionProgress } from '@/lib/mission-progress';
+import { useQuoteStore } from '@/store/quoteStore';
 
 const STEPS = [
   {
@@ -58,9 +59,17 @@ export default function HomePage() {
   const doneCount = [progress.vehicle.done, progress.finance.done].filter(Boolean).length;
   const allDone = doneCount === 2;
 
+  const prefillFromDiagnosis = useQuoteStore((s) => s.prefillFromDiagnosis);
+
   const handleNav = (href: string) => {
     triggerPageTransition();
     router.push(href);
+  };
+
+  const handleQuoteNav = () => {
+    prefillFromDiagnosis();
+    triggerPageTransition();
+    router.push('/quote');
   };
 
   return (
@@ -222,7 +231,7 @@ export default function HomePage() {
         >
           {allDone ? (
             <button
-              onClick={() => handleNav('/quote')}
+              onClick={handleQuoteNav}
               className="w-full rounded-2xl p-6 text-center text-white transition-all hover:shadow-lg active:scale-[0.98]"
               style={{ background: 'linear-gradient(135deg, #F59E0B, #FBBF24)' }}
             >
@@ -235,12 +244,31 @@ export default function HomePage() {
                 맞춤 상담 신청 →
               </span>
             </button>
+          ) : doneCount >= 1 ? (
+            <div className="rounded-2xl overflow-hidden border border-border-solid">
+              <button
+                onClick={handleQuoteNav}
+                className="w-full p-5 text-center text-white transition-all hover:shadow-lg active:scale-[0.98]"
+                style={{ background: 'linear-gradient(135deg, #2563EB, #60A5FA)' }}
+              >
+                <p className="text-[15px] font-bold mb-1">지금 바로 상담 신청도 가능해요</p>
+                <p className="text-xs text-white/80 mb-3">진단 결과가 자동으로 반영됩니다</p>
+                <span className="inline-block px-4 py-2 rounded-xl bg-white text-primary font-bold text-sm">
+                  상담 신청 →
+                </span>
+              </button>
+              <div className="px-5 py-3 bg-surface text-center">
+                <p className="text-[11px] text-text-sub">
+                  💡 나머지 1단계를 완료하면 더 정확한 맞춤 상담이 가능해요
+                </p>
+              </div>
+            </div>
           ) : (
             <div className="rounded-2xl p-5 text-center bg-surface border border-border-solid">
               <span className="text-xl block mb-1.5">🔒</span>
               <p className="text-sm font-bold text-text-muted mb-1">맞춤 상담</p>
               <p className="text-xs text-text-muted">
-                {2 - doneCount}단계를 더 완료하면 최적의 맞춤 상담을 받을 수 있어요
+                진단을 완료하면 최적의 맞춤 상담을 받을 수 있어요
               </p>
             </div>
           )}

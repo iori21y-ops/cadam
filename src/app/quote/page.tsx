@@ -16,49 +16,30 @@ const LeaveModal = dynamic(
   { ssr: false }
 );
 
-// 이용방법 진단에서 주행거리 자동 매핑
-const MILEAGE_MAP: Record<string, 10000 | 20000 | 30000 | 40000> = {
-  '10000': 10000,
-  '20000': 20000,
-  '30000': 30000,
-  '40000': 40000,
-};
-
 function needsPaymentStep(): boolean {
   const progress = loadProgress();
   const summary = progress.finance.summary ?? '';
   return summary.includes('렌트') || summary.includes('리스');
 }
 
-function getAutoMileage(): 10000 | 20000 | 30000 | 40000 | null {
-  const progress = loadProgress();
-  const mileageAnswer = progress.finance.answers?.mileage;
-  if (mileageAnswer) {
-    return MILEAGE_MAP[mileageAnswer.value] ?? null;
-  }
-  return null;
-}
-
-// 플로우:
-// 렌트/리스: Step1 계약기간 → Step2 결제방식 → Step3 연락처
-// 할부/현금: Step1 계약기간 → Step2 연락처
-// 주행거리는 이용방법 진단에서 자동 매핑
-
 export default function QuotePage() {
   const hydrated = useHydrated();
   const currentStep = useQuoteStore((s) => s.currentStep);
   const setCurrentStep = useQuoteStore((s) => s.setCurrentStep);
-  const setAnnualKm = useQuoteStore((s) => s.setAnnualKm);
+  const carBrand = useQuoteStore((s) => s.carBrand);
+  const carModel = useQuoteStore((s) => s.carModel);
+  const prefillFromDiagnosis = useQuoteStore((s) => s.prefillFromDiagnosis);
   const [paymentNeeded, setPaymentNeeded] = useState(true);
   const [step2Complete, setStep2Complete] = useState(false);
   const [showLeaveModal, setShowLeaveModal] = useState(false);
+  const [diagnosisPrefilled, setDiagnosisPrefilled] = useState(false);
 
   useEffect(() => {
     setPaymentNeeded(needsPaymentStep());
-    // 주행거리 자동 매핑
-    const autoKm = getAutoMileage();
-    if (autoKm) setAnnualKm(autoKm);
-  }, [setAnnualKm]);
+    // 진단 결과 자동 세팅
+    const ok = prefillFromDiagnosis();
+    setDiagnosisPrefilled(ok);
+  }, [prefillFromDiagnosis]);
 
   const totalSteps = paymentNeeded ? 3 : 2;
 
@@ -84,6 +65,11 @@ export default function QuotePage() {
     );
   }
 
+  // 진단 결과 요약 배너
+  const progress = loadProgress();
+  const financeSummary = progress.finance.summary;
+  const hasDiagnosisInfo = diagnosisPrefilled || (carBrand && carModel);
+
   return (
     <>
       <StepLayout
@@ -92,6 +78,26 @@ export default function QuotePage() {
         isNextDisabled={isNextDisabled}
         onNext={onNext}
       >
+        {/* 진단 결과 요약 배너 */}
+        {hasDiagnosisInfo && currentStep === 1 && (
+          <div className="mx-5 mb-4 p-4 rounded-2xl bg-primary/5 border border-primary/15">
+            <p className="text-[11px] font-semibold text-primary mb-2">AI 진단 결과 반영</p>
+            <div className="flex items-center gap-2 flex-wrap">
+              {carBrand && carModel && (
+                <span className="text-xs font-bold text-text bg-white px-3 py-1.5 rounded-full border border-border-solid">
+                  🚗 {carBrand} {carModel}
+                </span>
+              )}
+              {financeSummary && (
+                <span className="text-xs font-bold text-text bg-white px-3 py-1.5 rounded-full border border-border-solid">
+                  🎯 {financeSummary}
+                </span>
+              )}
+            </div>
+            <p className="text-[10px] text-text-sub mt-2">아래에서 계약 조건을 선택하면 맞춤 견적을 받을 수 있어요</p>
+          </div>
+        )}
+
         {currentStep === 1 && <Step3Period />}
         {paymentNeeded && currentStep === 2 && (
           <Step5Payment onCompleteChange={setStep2Complete} />

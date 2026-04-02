@@ -1,76 +1,76 @@
 import type { FinanceQuestion } from '@/types/diagnosis';
 
 export const FINANCE_BASIC: FinanceQuestion[] = [
-  { id: 'business', question: '사업자이신가요?', subtitle: '사업자 여부에 따라 세제 혜택이 달라집니다', weight: 3.0, skipIf: [], options: [
-    { label: '개인 (비사업자)', value: 'personal', scores: { installment: 2, lease: 0, rent: 1, cash: 2 }, nextQ: '' },
-    { label: '개인사업자', value: 'sole', scores: { installment: 1, lease: 3, rent: 3, cash: 1 }, nextQ: '' },
-    { label: '법인사업자', value: 'corp', scores: { installment: 0, lease: 3, rent: 3, cash: 1 }, nextQ: '' },
+  { id: 'business', question: '차량을 어떤 용도로\n사용하시나요?', subtitle: '사업자 여부에 따라 세금 혜택이 크게 달라져요', weight: 2.5, skipIf: [], options: [
+    { label: '개인 (출퇴근·일상)', value: 'personal', scores: { installment: 2, lease: 0, rent: 1, cash: 2 }, nextQ: '' },
+    { label: '개인사업자 (업무 겸용)', value: 'sole', scores: { installment: 1, lease: 3, rent: 3, cash: 1 }, nextQ: '' },
+    { label: '법인사업자 (사업용)', value: 'corp', scores: { installment: 0, lease: 3, rent: 3, cash: 1 }, nextQ: '' },
   ]},
-  { id: 'ownership', question: '차량 소유에 대한\n생각은 어떠세요?', subtitle: '내 명의 소유 vs 편한 사용', weight: 2.5, skipIf: [], options: [
-    { label: '반드시 내 명의로 소유', value: 'must_own', scores: { installment: 3, lease: 0, rent: 0, cash: 3 }, nextQ: 'budget' },
-    { label: '소유도 좋지만 필수는 아님', value: 'flexible', scores: { installment: 2, lease: 2, rent: 2, cash: 1 }, nextQ: '' },
-    { label: '편하게 사용하는 게 좋다', value: 'use_only', scores: { installment: 0, lease: 3, rent: 3, cash: 0 }, nextQ: '' },
+  { id: 'ownership', question: '내 이름으로 된 차,\n꼭 필요하세요?', subtitle: '소유의 만족감 vs 매달 편하게 타는 자유', weight: 2.5, skipIf: [], options: [
+    { label: '당연하죠, 내 차는 내 명의!', value: 'must_own', scores: { installment: 3, lease: 0, rent: 0, cash: 3 }, nextQ: '' },
+    { label: '있으면 좋지만 필수는 아니에요', value: 'flexible', scores: { installment: 2, lease: 2, rent: 2, cash: 1 }, nextQ: '' },
+    { label: '편하게 타는 게 더 좋아요', value: 'use_only', scores: { installment: 0, lease: 3, rent: 3, cash: 0 }, nextQ: '' },
   ]},
-  { id: 'cycle', question: '차량 교체 주기는?', subtitle: '새 차로 바꾸는 주기', weight: 1.5, skipIf: [{ qId: 'ownership', values: ['must_own'] }], options: [
-    { label: '2~3년마다 새 차로', value: 'short', scores: { installment: 0, lease: 3, rent: 3, cash: 0 }, nextQ: '' },
+  { id: 'cycle', question: '한 차를 얼마나 오래\n타실 계획인가요?', subtitle: '교체 주기에 따라 추천 상품이 달라져요', weight: 2.0, skipIf: [], options: [
+    { label: '2~3년, 자주 새 차로!', value: 'short', scores: { installment: 0, lease: 3, rent: 3, cash: 0 }, nextQ: '' },
     { label: '4~5년 정도 타고 교체', value: 'medium', scores: { installment: 3, lease: 2, rent: 1, cash: 2 }, nextQ: '' },
-    { label: '6년 이상 오래 타는 편', value: 'long', scores: { installment: 2, lease: 0, rent: 0, cash: 3 }, nextQ: '' },
+    { label: '6년 이상 오래오래', value: 'long', scores: { installment: 2, lease: 0, rent: 0, cash: 3 }, nextQ: '' },
   ]},
-  { id: 'budget', question: '초기 자금 여유는?', subtitle: '차량 구매 시 한 번에 쓸 수 있는 금액', weight: 2.5, skipIf: [], options: [
-    { label: '여유 자금이 충분하다', value: 'rich', scores: { installment: 1, lease: 1, rent: 0, cash: 3 }, nextQ: '' },
-    { label: '있지만 나눠 내고 싶다', value: 'moderate', scores: { installment: 3, lease: 2, rent: 2, cash: 1 }, nextQ: '' },
-    { label: '목돈 지출은 부담스럽다', value: 'tight', scores: { installment: 2, lease: 2, rent: 3, cash: 0 }, nextQ: 'payment' },
+  { id: 'budget', question: '초기 자금은\n어느 정도 여유가 있으세요?', subtitle: '목돈 부담 정도에 따라 방법이 달라요', weight: 2.5, skipIf: [], options: [
+    { label: '여유 있어요, 한 번에 가능', value: 'rich', scores: { installment: 1, lease: 1, rent: 0, cash: 3 }, nextQ: '' },
+    { label: '있지만 나눠 내고 싶어요', value: 'moderate', scores: { installment: 3, lease: 2, rent: 2, cash: 1 }, nextQ: '' },
+    { label: '목돈 지출은 좀 부담돼요', value: 'tight', scores: { installment: 2, lease: 2, rent: 3, cash: 0 }, nextQ: '' },
   ]},
-  { id: 'maintenance', question: '차량 관리는 어떻게?', subtitle: '보험·정비 관리 방식', weight: 2.0, skipIf: [{ qId: 'budget', values: ['tight'] }], options: [
-    { label: '직접 알아보고 관리', value: 'self', scores: { installment: 3, lease: 2, rent: 0, cash: 3 }, nextQ: '' },
-    { label: '일부는 도움 받고 싶다', value: 'partial', scores: { installment: 2, lease: 3, rent: 1, cash: 1 }, nextQ: '' },
-    { label: '전부 포함되면 좋겠다', value: 'full', scores: { installment: 0, lease: 1, rent: 3, cash: 0 }, nextQ: '' },
+  { id: 'maintenance', question: '보험·정비 같은 관리,\n어떻게 하고 싶으세요?', subtitle: '직접 관리하면 절약, 포함하면 편해요', weight: 2.0, skipIf: [], options: [
+    { label: '내가 직접 알아볼게요', value: 'self', scores: { installment: 3, lease: 2, rent: 0, cash: 3 }, nextQ: '' },
+    { label: '일부는 도움 받고 싶어요', value: 'partial', scores: { installment: 2, lease: 3, rent: 1, cash: 1 }, nextQ: '' },
+    { label: '전부 포함이면 좋겠어요', value: 'full', scores: { installment: 0, lease: 1, rent: 3, cash: 0 }, nextQ: '' },
   ]},
-  { id: 'mileage', question: '연간 예상 주행거리는?', subtitle: '리스·렌트는 주행거리 제한이 있습니다. 견적에도 반영됩니다', weight: 1.5, skipIf: [], options: [
-    { label: '연 1만km (주말 위주)', value: '10000', scores: { installment: 1, lease: 3, rent: 3, cash: 1 }, nextQ: '' },
-    { label: '연 2만km (출퇴근 기본)', value: '20000', scores: { installment: 2, lease: 2, rent: 2, cash: 2 }, nextQ: '' },
-    { label: '연 3만km (업무 겸용)', value: '30000', scores: { installment: 3, lease: 1, rent: 1, cash: 2 }, nextQ: '' },
-    { label: '연 4만km 이상 (장거리)', value: '40000', scores: { installment: 3, lease: 0, rent: 0, cash: 3 }, nextQ: '' },
+  { id: 'mileage', question: '1년에 얼마나\n운전하시나요?', subtitle: '알려주시면 딱 맞는 조건을 찾아드릴게요', weight: 1.5, skipIf: [], options: [
+    { label: '주말 장보기·나들이 위주 (연 ~1만km)', value: '10000', scores: { installment: 1, lease: 3, rent: 3, cash: 1 }, nextQ: '' },
+    { label: '매일 출퇴근 기본 (연 ~2만km)', value: '20000', scores: { installment: 2, lease: 2, rent: 2, cash: 2 }, nextQ: '' },
+    { label: '출퇴근 + 업무까지 (연 ~3만km)', value: '30000', scores: { installment: 3, lease: 1, rent: 1, cash: 2 }, nextQ: '' },
+    { label: '거의 매일 장거리 (연 4만km 이상)', value: '40000', scores: { installment: 3, lease: 0, rent: 0, cash: 3 }, nextQ: '' },
   ]},
-  { id: 'contract_flexibility', question: '계약 기간 중\n상황 변화 가능성은?', subtitle: '이직, 해외 발령, 가족 변화 등', weight: 1.5, skipIf: [], options: [
-    { label: '변화 없이 안정적', value: 'stable', scores: { installment: 2, lease: 3, rent: 1, cash: 3 }, nextQ: '' },
-    { label: '변할 수 있지만 크지 않음', value: 'moderate', scores: { installment: 2, lease: 2, rent: 2, cash: 2 }, nextQ: '' },
-    { label: '변동 가능성 높음', value: 'flexible', scores: { installment: 1, lease: 0, rent: 3, cash: 1 }, nextQ: '' },
+  { id: 'contract_flexibility', question: '앞으로 몇 년간\n생활이 바뀔 가능성이 있나요?', subtitle: '결혼, 이사, 이직 등 큰 변화 예정이 있는지', weight: 1.5, skipIf: [], options: [
+    { label: '큰 변화 없이 안정적이에요', value: 'stable', scores: { installment: 2, lease: 3, rent: 1, cash: 3 }, nextQ: '' },
+    { label: '바뀔 수 있지만 크진 않아요', value: 'moderate', scores: { installment: 2, lease: 2, rent: 2, cash: 2 }, nextQ: '' },
+    { label: '변화 가능성이 꽤 있어요', value: 'flexible', scores: { installment: 1, lease: 0, rent: 3, cash: 1 }, nextQ: '' },
   ]},
 ];
 
 export const FINANCE_DETAIL: FinanceQuestion[] = [
-  { id: 'price_range', question: '구매 예정 차량의\n가격대는?', subtitle: '고가 차량일수록 차이가 큽니다', weight: 2.0, skipIf: [], options: [
+  { id: 'price_range', question: '어느 가격대의\n차량을 생각하고 계세요?', subtitle: '가격대에 따라 금융 상품 효과가 달라져요', weight: 2.0, skipIf: [], options: [
     { label: '3,000만원 이하', value: 'low', scores: { installment: 2, lease: 1, rent: 2, cash: 3 }, nextQ: '' },
     { label: '3,000~6,000만원', value: 'mid', scores: { installment: 3, lease: 2, rent: 2, cash: 2 }, nextQ: '' },
     { label: '6,000만원~1억원', value: 'high', scores: { installment: 1, lease: 3, rent: 2, cash: 1 }, nextQ: '' },
     { label: '1억원 이상', value: 'premium', scores: { installment: 0, lease: 3, rent: 3, cash: 1 }, nextQ: '' },
   ]},
-  { id: 'credit', question: '현재 신용 상태는?', subtitle: '금융 승인과 금리에 영향', weight: 2.5, skipIf: [], options: [
-    { label: '우수 (1~3등급)', value: 'excellent', scores: { installment: 3, lease: 3, rent: 1, cash: 1 }, nextQ: '' },
-    { label: '보통 (4~6등급)', value: 'average', scores: { installment: 2, lease: 2, rent: 2, cash: 1 }, nextQ: '' },
-    { label: '관리 필요 (7등급 이하)', value: 'low', scores: { installment: 0, lease: 0, rent: 3, cash: 2 }, nextQ: 'insurance' },
-    { label: '잘 모르겠다', value: 'unknown', scores: { installment: 1, lease: 1, rent: 2, cash: 1 }, nextQ: '' },
+  { id: 'credit', question: '현재 신용등급은\n어느 정도인가요?', subtitle: '대략적으로 괜찮아요, 맞는 상품을 찾아드릴게요', weight: 2.5, skipIf: [], options: [
+    { label: '우수한 편 (1~3등급)', value: 'excellent', scores: { installment: 3, lease: 3, rent: 1, cash: 1 }, nextQ: '' },
+    { label: '보통이에요 (4~6등급)', value: 'average', scores: { installment: 2, lease: 2, rent: 2, cash: 1 }, nextQ: '' },
+    { label: '조금 아쉬운 편이에요', value: 'low', scores: { installment: 0, lease: 0, rent: 3, cash: 2 }, nextQ: 'insurance' },
+    { label: '잘 모르겠어요', value: 'unknown', scores: { installment: 1, lease: 1, rent: 2, cash: 1 }, nextQ: '' },
   ]},
-  { id: 'depreciation', question: '차량 감가상각이\n신경 쓰이시나요?', subtitle: '시간이 지나면 가치가 하락합니다', weight: 1.5, skipIf: [{ qId: 'ownership', values: ['must_own'] }], options: [
-    { label: '매우 신경 쓰인다', value: 'concern', scores: { installment: 0, lease: 3, rent: 3, cash: 0 }, nextQ: '' },
-    { label: '어느 정도 감안', value: 'moderate', scores: { installment: 2, lease: 2, rent: 2, cash: 2 }, nextQ: '' },
-    { label: '신경 쓰지 않는다', value: 'none', scores: { installment: 3, lease: 0, rent: 0, cash: 3 }, nextQ: '' },
+  { id: 'depreciation', question: '몇 년 뒤 차 가치가\n떨어지는 거, 신경 쓰이세요?', subtitle: '감가상각 걱정을 줄이는 방법도 있어요', weight: 1.5, skipIf: [], options: [
+    { label: '네, 꽤 신경 쓰여요', value: 'concern', scores: { installment: 0, lease: 3, rent: 3, cash: 0 }, nextQ: '' },
+    { label: '어느 정도는 감안해요', value: 'moderate', scores: { installment: 2, lease: 2, rent: 2, cash: 2 }, nextQ: '' },
+    { label: '별로 신경 안 써요', value: 'none', scores: { installment: 3, lease: 0, rent: 0, cash: 3 }, nextQ: '' },
   ]},
-  { id: 'insurance', question: '자동차 보험은?', subtitle: '보험 가입 방식', weight: 1.5, skipIf: [], options: [
+  { id: 'insurance', question: '자동차 보험은\n어떻게 하고 싶으세요?', subtitle: '직접 가입하면 절약, 포함하면 간편해요', weight: 1.5, skipIf: [], options: [
     { label: '직접 비교해서 저렴하게', value: 'self', scores: { installment: 3, lease: 2, rent: 0, cash: 3 }, nextQ: '' },
-    { label: '알아서 해주면 좋겠다', value: 'easy', scores: { installment: 1, lease: 2, rent: 3, cash: 0 }, nextQ: '' },
-    { label: '월 비용에 포함', value: 'included', scores: { installment: 0, lease: 1, rent: 3, cash: 0 }, nextQ: '' },
+    { label: '알아서 해주면 좋겠어요', value: 'easy', scores: { installment: 1, lease: 2, rent: 3, cash: 0 }, nextQ: '' },
+    { label: '월 비용에 다 포함해주세요', value: 'included', scores: { installment: 0, lease: 1, rent: 3, cash: 0 }, nextQ: '' },
   ]},
-  { id: 'tax', question: '세금 처리는?', subtitle: '사업자 비용처리 방식', weight: 2.5, skipIf: [{ qId: 'business', values: ['personal'] }], options: [
-    { label: '세금 혜택 기대 안 함', value: 'none', scores: { installment: 2, lease: 0, rent: 0, cash: 3 }, nextQ: '' },
-    { label: '가능하면 비용처리', value: 'some', scores: { installment: 1, lease: 3, rent: 3, cash: 0 }, nextQ: '' },
-    { label: '절세가 가장 중요', value: 'priority', scores: { installment: 0, lease: 3, rent: 3, cash: 0 }, nextQ: '' },
+  { id: 'tax', question: '세금 혜택,\n얼마나 중요하세요?', subtitle: '사업자라면 비용처리로 절세 효과를 볼 수 있어요', weight: 2.0, skipIf: [{ qId: 'business', values: ['personal'] }], options: [
+    { label: '크게 기대 안 해요', value: 'none', scores: { installment: 2, lease: 0, rent: 0, cash: 3 }, nextQ: '' },
+    { label: '가능하면 비용처리 하고 싶어요', value: 'some', scores: { installment: 1, lease: 3, rent: 3, cash: 0 }, nextQ: '' },
+    { label: '절세가 가장 중요해요!', value: 'priority', scores: { installment: 0, lease: 3, rent: 3, cash: 0 }, nextQ: '' },
   ]},
-  { id: 'cancel', question: '중도 계약 변경\n가능성이 있나요?', subtitle: '중도해지나 차량 변경 가능성', weight: 1.0, skipIf: [], options: [
-    { label: '끝까지 유지', value: 'keep', scores: { installment: 2, lease: 3, rent: 2, cash: 2 }, nextQ: '' },
-    { label: '바꿀 수도 있다', value: 'maybe', scores: { installment: 2, lease: 1, rent: 2, cash: 2 }, nextQ: '' },
-    { label: '변경 가능성 높다', value: 'likely', scores: { installment: 1, lease: 0, rent: 3, cash: 3 }, nextQ: '' },
+  { id: 'cancel', question: '계약 중간에 차를\n바꾸거나 해지할 수도 있나요?', subtitle: '중도해지 조건이 상품마다 크게 달라요', weight: 2.0, skipIf: [], options: [
+    { label: '아니요, 끝까지 탈 거예요', value: 'keep', scores: { installment: 2, lease: 3, rent: 2, cash: 2 }, nextQ: '' },
+    { label: '혹시 모르죠, 바꿀 수도...', value: 'maybe', scores: { installment: 2, lease: 1, rent: 2, cash: 2 }, nextQ: '' },
+    { label: '네, 변경할 가능성이 높아요', value: 'likely', scores: { installment: 1, lease: 0, rent: 3, cash: 3 }, nextQ: '' },
   ]},
 ];
 

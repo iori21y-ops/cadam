@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { VEHICLES } from '@/data/diagnosis-vehicles';
 import { DEFAULT_PRODUCTS, PRODUCT_KEYS } from '@/data/diagnosis-products';
+import { calcMonthly, RATES, RENT_INSURANCE_RATE } from '@/lib/calc-monthly';
 import type { ProductKey } from '@/types/diagnosis';
 import { Button } from '@/components/ui/Button';
 import { SelectCard } from '@/components/ui/SelectCard';
@@ -25,14 +26,6 @@ const resultTextByKey: Record<ProductKey, string> = {
   cash: 'text-warning',
 };
 
-function calcMonthly(price: number, rate: number, months: number, downPct: number) {
-  const down = price * 10000 * (downPct / 100);
-  const principal = price * 10000 - down;
-  const monthlyRate = rate / 12 / 100;
-  if (monthlyRate === 0) return Math.round(principal / months / 10000);
-  return Math.round((principal * monthlyRate * Math.pow(1 + monthlyRate, months)) / (Math.pow(1 + monthlyRate, months) - 1) / 10000);
-}
-
 export default function CalculatorPage() {
   const router = useRouter();
   const [selectedCar, setSelectedCar] = useState(FEATURED_VEHICLES[0]);
@@ -40,9 +33,9 @@ export default function CalculatorPage() {
   const [downPct, setDownPct] = useState(20);
 
   const results = {
-    installment: calcMonthly(selectedCar.price, 4.5, months, downPct),
-    lease: calcMonthly(selectedCar.price, 3.5, months, downPct),
-    rent: calcMonthly(selectedCar.price, 6.0, months, downPct) + 8,
+    installment: calcMonthly(selectedCar.price, 'installment', months, downPct),
+    lease: calcMonthly(selectedCar.price, 'lease', months, downPct),
+    rent: calcMonthly(selectedCar.price, 'rent', months, downPct),
     cash: 0,
   };
 
@@ -122,7 +115,7 @@ export default function CalculatorPage() {
                   <span className="text-[22px] shrink-0">{DEFAULT_PRODUCTS[key].emoji}</span>
                   <div className="flex-1">
                     <p className="text-sm font-semibold text-text">{DEFAULT_PRODUCTS[key].name}</p>
-                    <p className="text-[11px] text-text-muted">{key === 'installment' ? '이자 4.5%' : key === 'lease' ? '리스 3.5%' : key === 'rent' ? '보험·정비 포함' : '일시불'}</p>
+                    <p className="text-[11px] text-text-muted">{key === 'installment' ? `이자 ${(RATES.installment * 100).toFixed(1)}%` : key === 'lease' ? `리스 ${(RATES.lease * 100).toFixed(1)}%` : key === 'rent' ? '보험·정비 포함' : '일시불'}</p>
                   </div>
                   <div className="text-right">
                     {key === 'cash' ? (
@@ -144,7 +137,7 @@ export default function CalculatorPage() {
               );
             })}
           </div>
-          <p className="text-[10px] text-text-muted mt-3">* 할부 4.5%, 리스 3.5%, 렌트 6%+보험비 8만원 기준 / 실제 조건에 따라 다를 수 있습니다.</p>
+          <p className="text-[10px] text-text-muted mt-3">* 할부 {(RATES.installment * 100).toFixed(1)}%, 리스 {(RATES.lease * 100).toFixed(1)}%, 렌트 {(RATES.rent * 100).toFixed(1)}%+관리비 {Math.round(RENT_INSURANCE_RATE * 100)}% 기준 / 실제 조건에 따라 다를 수 있습니다.</p>
         </div>
 
         {/* 상담 CTA */}

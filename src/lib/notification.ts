@@ -292,6 +292,7 @@ function buildTalkingPoints(data: ConsultationEmailData): TalkingPointSections {
     else if (vPurpose === 'family') { p.push('가족 여행·레저'); a.push('안전 사양 + 넓은 공간 SUV/미니밴 중심 안내'); }
     else if (vPurpose === 'commute') { p.push('출퇴근·도심 이동'); }
     else if (vPurpose === 'hobby') { p.push('주말 드라이브·취미'); }
+    else if (vPurpose === 'first_car') { p.push('첫 차 구매'); a.push('유지비 적고 운전 쉬운 차종 위주로 안내 — 보험·관리 방법도 함께 설명'); }
     if (p.length || a.length) rows.push({ category: '차량 용도', profiles: p, actions: a });
   }
 

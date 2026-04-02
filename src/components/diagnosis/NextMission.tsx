@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { loadProgress } from '@/lib/mission-progress';
+import { useQuoteStore } from '@/store/quoteStore';
 import type { MissionProgress } from '@/lib/mission-progress';
 
 interface NextMissionProps {
@@ -29,16 +30,15 @@ const MISSION_ORDER: ('vehicle' | 'finance')[] = ['vehicle', 'finance'];
 export function NextMission({ current }: NextMissionProps) {
   const router = useRouter();
   const [progress, setProgress] = useState<MissionProgress | null>(null);
+  const prefillFromDiagnosis = useQuoteStore((s) => s.prefillFromDiagnosis);
 
   useEffect(() => {
-    // 약간의 딜레이로 saveMissionStep 이후 최신 상태 읽기
     const timer = setTimeout(() => setProgress(loadProgress()), 100);
     return () => clearTimeout(timer);
   }, []);
 
   if (!progress) return null;
 
-  // 현재 진단은 방금 완료했으므로 done으로 간주
   const effectiveProgress = {
     ...progress,
     [current]: { ...progress[current], done: true },
@@ -46,15 +46,18 @@ export function NextMission({ current }: NextMissionProps) {
 
   const doneCount = [effectiveProgress.vehicle.done, effectiveProgress.finance.done].filter(Boolean).length;
   const allDone = doneCount === 2;
-
-  // 다음 미완료 미션 찾기 (현재 스텝 제외)
   const nextStep = MISSION_ORDER.find((key) => key !== current && !effectiveProgress[key].done);
 
-  // 모든 미션 완료 → 맞춤 상담으로
+  const handleQuoteNav = () => {
+    prefillFromDiagnosis();
+    router.push('/quote');
+  };
+
+  // 모든 미션 완료 → 맞춤 상담
   if (allDone) {
     return (
       <button
-        onClick={() => router.push('/quote')}
+        onClick={handleQuoteNav}
         className="w-full rounded-2xl p-5 text-center text-white transition-all hover:shadow-lg active:scale-[0.98]"
         style={{ background: 'linear-gradient(135deg, #F59E0B, #FBBF24)' }}
       >
@@ -68,9 +71,81 @@ export function NextMission({ current }: NextMissionProps) {
     );
   }
 
-  // 다음 미션이 없으면 (현재 것만 남은 경우) → 상담 유도
-  if (!nextStep) {
+  // 1개 완료, 1개 남음 → 다음 미션 + 바로 상담 신청 둘 다 표시
+  if (nextStep) {
+    const next = MISSION_INFO[nextStep];
     return (
+      <div className="space-y-3">
+        {/* 바로 상담 신청 CTA */}
+        <button
+          onClick={handleQuoteNav}
+          className="w-full rounded-2xl p-4 text-center text-white transition-all hover:shadow-lg active:scale-[0.98]"
+          style={{ background: 'linear-gradient(135deg, #2563EB, #60A5FA)' }}
+        >
+          <p className="text-[14px] font-bold mb-1">이 결과로 바로 상담 신청</p>
+          <p className="text-[11px] text-white/80">진단 결과가 자동으로 반영됩니다</p>
+        </button>
+
+        {/* 다음 미션 카드 */}
+        <div className="rounded-2xl bg-surface shadow-sm overflow-hidden">
+          <div className="px-5 pt-4 pb-3 flex items-center justify-between">
+            <p className="text-xs font-semibold text-text-sub">미션 진행률</p>
+            <div className="flex items-center gap-1.5">
+              {MISSION_ORDER.map((key, i) => {
+                const done = effectiveProgress[key].done;
+                return (
+                  <div key={key} className="flex items-center gap-1.5">
+                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                      done
+                        ? 'bg-primary text-white'
+                        : key === nextStep
+                        ? 'bg-primary/10 text-primary border-2 border-primary'
+                        : 'bg-surface-secondary text-text-muted'
+                    }`}>
+                      {done ? '✓' : i + 1}
+                    </div>
+                    {i < 1 && (
+                      <div className={`w-4 h-0.5 rounded-full ${done ? 'bg-primary' : 'bg-border-solid'}`} />
+                    )}
+                  </div>
+                );
+              })}
+              <span className="text-[11px] text-text-muted ml-1">{doneCount}/2</span>
+            </div>
+          </div>
+
+          <button
+            onClick={() => router.push(next.href)}
+            className="w-full px-5 py-4 flex items-center gap-3 border-t border-border transition-colors hover:bg-surface-secondary/50 active:bg-surface-secondary"
+          >
+            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+              <span className="text-lg">{next.emoji}</span>
+            </div>
+            <div className="flex-1 min-w-0 text-left">
+              <p className="text-[13px] text-primary font-semibold mb-0.5">
+                더 정확한 결과: {next.title}
+              </p>
+              <p className="text-[11px] text-text-sub">{next.desc}</p>
+            </div>
+            <span className="text-xs font-bold text-primary shrink-0">시작 →</span>
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // 다음 미션이 없는 경우 (현재 것만 남은 경우)
+  return (
+    <div className="space-y-3">
+      <button
+        onClick={handleQuoteNav}
+        className="w-full rounded-2xl p-4 text-center text-white transition-all hover:shadow-lg active:scale-[0.98]"
+        style={{ background: 'linear-gradient(135deg, #2563EB, #60A5FA)' }}
+      >
+        <p className="text-[14px] font-bold mb-1">이 결과로 바로 상담 신청</p>
+        <p className="text-[11px] text-white/80">진단 결과가 자동으로 반영됩니다</p>
+      </button>
+
       <div className="rounded-2xl bg-surface shadow-sm overflow-hidden">
         <div className="px-5 py-4 flex items-center justify-between">
           <p className="text-xs font-semibold text-text-sub">미션 진행률</p>
@@ -93,70 +168,7 @@ export function NextMission({ current }: NextMissionProps) {
             <span className="text-[11px] text-text-muted ml-1">{doneCount}/2</span>
           </div>
         </div>
-        <button
-          onClick={() => router.push('/quote')}
-          className="w-full px-5 py-4 flex items-center gap-3 border-t border-border transition-colors hover:bg-surface-secondary/50"
-        >
-          <div className="w-10 h-10 rounded-full bg-success/10 flex items-center justify-center shrink-0">
-            <span className="text-lg">📋</span>
-          </div>
-          <div className="flex-1 min-w-0 text-left">
-            <p className="text-[13px] text-success font-semibold mb-0.5">바로 견적 받기</p>
-            <p className="text-[11px] text-text-sub">진단 없이도 견적을 받을 수 있어요</p>
-          </div>
-          <span className="text-xs font-bold text-success shrink-0">시작 →</span>
-        </button>
       </div>
-    );
-  }
-
-  const next = MISSION_INFO[nextStep];
-
-  return (
-    <div className="rounded-2xl bg-surface shadow-sm overflow-hidden">
-      {/* 진행률 */}
-      <div className="px-5 pt-4 pb-3 flex items-center justify-between">
-        <p className="text-xs font-semibold text-text-sub">미션 진행률</p>
-        <div className="flex items-center gap-1.5">
-          {MISSION_ORDER.map((key, i) => {
-            const done = progress[key].done;
-            return (
-              <div key={key} className="flex items-center gap-1.5">
-                <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold ${
-                  done
-                    ? 'bg-primary text-white'
-                    : key === nextStep
-                    ? 'bg-primary/10 text-primary border-2 border-primary'
-                    : 'bg-surface-secondary text-text-muted'
-                }`}>
-                  {done ? '✓' : i + 1}
-                </div>
-                {i < 1 && (
-                  <div className={`w-4 h-0.5 rounded-full ${done ? 'bg-primary' : 'bg-border-solid'}`} />
-                )}
-              </div>
-            );
-          })}
-          <span className="text-[11px] text-text-muted ml-1">{doneCount}/2</span>
-        </div>
-      </div>
-
-      {/* 다음 미션 CTA */}
-      <button
-        onClick={() => router.push(next.href)}
-        className="w-full px-5 py-4 flex items-center gap-3 border-t border-border transition-colors hover:bg-surface-secondary/50 active:bg-surface-secondary"
-      >
-        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-          <span className="text-lg">{next.emoji}</span>
-        </div>
-        <div className="flex-1 min-w-0 text-left">
-          <p className="text-[13px] text-primary font-semibold mb-0.5">
-            다음 단계: {next.title}
-          </p>
-          <p className="text-[11px] text-text-sub">{next.desc}</p>
-        </div>
-        <span className="text-xs font-bold text-primary shrink-0">시작 →</span>
-      </button>
     </div>
   );
 }

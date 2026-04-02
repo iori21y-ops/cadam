@@ -61,11 +61,58 @@ export function Step6Contact() {
       return;
     }
 
-    // 카카오
+    // 카카오 — API 저장 + 진단 결과 요약 메시지 포함하여 채널 이동
     if (submitMethod === 'kakao') {
-      setName(nameValue.trim() || '고객');
+      const trimmedKakaoName = nameValue.trim() || '고객';
+      setName(trimmedKakaoName);
       setPhone('kakao');
-      window.open(KAKAO_URL, '_blank');
+      setIsSubmitting(true);
+
+      // 1) consultation INSERT + 이메일 발송 (phone/email과 동일)
+      const state = useQuoteStore.getState();
+      const carInfo = (state.carBrand && state.carModel) ? null : getCarFromDiagnosis();
+      const progress = loadProgress();
+
+      try {
+        await fetch('/api/consultation', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            selectionPath: state.selectionPath ?? null,
+            carBrand: state.carBrand ?? carInfo?.brand ?? null,
+            carModel: state.carModel ?? carInfo?.model ?? null,
+            trim: state.trim,
+            contractMonths: state.contractMonths,
+            annualKm: state.annualKm,
+            deposit: state.deposit,
+            prepaymentPct: state.prepaymentPct,
+            monthlyBudget: state.monthlyBudget,
+            name: trimmedKakaoName,
+            phone: '',
+            email: '',
+            contactMethod: 'kakao',
+            financeSummary: progress.finance.summary ?? null,
+            vehicleAnswers: progress.vehicle.answers ?? null,
+            financeAnswers: progress.finance.answers ?? null,
+            privacyAgreed: true,
+            stepCompleted: 5,
+          }),
+        });
+      } catch {
+        // API 실패해도 카카오 채널은 이동
+      }
+
+      // 2) 진단 결과 요약 메시지 생성 → 카카오 채널 채팅 URL에 포함
+      const lines = ['[카담 AI 진단 결과]'];
+      if (progress.vehicle.done && progress.vehicle.summary) lines.push(`추천 차종: ${progress.vehicle.summary}`);
+      if (progress.finance.done && progress.finance.summary) lines.push(`추천 이용방법: ${progress.finance.summary}`);
+      if (trimmedKakaoName !== '고객') lines.push(`이름: ${trimmedKakaoName}`);
+      lines.push('', '위 결과를 바탕으로 맞춤 상담 부탁드립니다.');
+      const chatText = encodeURIComponent(lines.join('\n'));
+      const chatUrl = KAKAO_URL.replace(/\/?\s*$/, '') + `/chat?text=${chatText}`;
+
+      window.open(chatUrl, '_blank');
+      setIsSubmitting(false);
       router.push('/result');
       return;
     }
@@ -87,7 +134,8 @@ export function Step6Contact() {
     setIsSubmitting(true);
 
     const state = useQuoteStore.getState();
-    const carInfo = getCarFromDiagnosis();
+    // quoteStore에 이미 차종이 있으면 (prefillFromDiagnosis로 세팅됨) 그대로 사용
+    const carInfo = (state.carBrand && state.carModel) ? null : getCarFromDiagnosis();
 
     const progress = loadProgress();
 

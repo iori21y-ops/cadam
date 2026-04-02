@@ -15,6 +15,7 @@ import { NextMission } from '@/components/diagnosis/NextMission';
 import { buildShareUrl, copyShareUrl, shareToKakao, nativeShare } from '@/lib/diagnosis-share';
 import { Button } from '@/components/ui/Button';
 import { saveMissionStep, loadProgress } from '@/lib/mission-progress';
+import { useQuoteStore } from '@/store/quoteStore';
 
 const COLOR = '#2563EB';
 
@@ -62,6 +63,7 @@ function FinResult({ answers, questions, mode, restart, toDetail, onHome }: {
   toDetail: () => void;
   onHome: () => void;
 }) {
+  const router = useRouter();
   const allQs = mode === 'detail' ? [...FINANCE_BASIC, ...FINANCE_DETAIL] : FINANCE_BASIC;
   const ranking = rankFinanceProducts(answers, allQs);
   const best = ranking[0];
@@ -91,8 +93,18 @@ function FinResult({ answers, questions, mode, restart, toDetail, onHome }: {
   ].join('');
 
   const [copied, setCopied] = useState(false);
-  const [expanded, setExpanded] = useState(true);
+  const [expanded, setExpanded] = useState(false);
   const shareUrl = buildShareUrl('/diagnosis/finance', mode, answers);
+  const prefillFromDiagnosis = useQuoteStore((s) => s.prefillFromDiagnosis);
+
+  // 차종 진단 결과 (있으면 CTA에 함께 표시)
+  const vehicleProgress = loadProgress().vehicle;
+  const vehicleSummary = vehicleProgress.done ? vehicleProgress.summary : null;
+
+  const handleQuoteNav = () => {
+    prefillFromDiagnosis();
+    router.push('/quote');
+  };
 
   const handleCopy = async () => {
     const ok = await copyShareUrl(shareUrl);
@@ -289,6 +301,25 @@ function FinResult({ answers, questions, mode, restart, toDetail, onHome }: {
             <Button variant="surface" className="flex-1 text-primary font-semibold" onClick={toDetail}>상세 테스트 →</Button>
           )}
           <Button variant="surface" className="flex-1" onClick={onHome}>홈으로</Button>
+        </div>
+      </div>
+
+      {/* 하단 고정 CTA 바 */}
+      <div className="fixed bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-sm border-t border-border-solid shadow-[0_-2px_12px_rgba(0,0,0,0.06)]">
+        <div className="max-w-lg mx-auto px-5 py-3 flex items-center gap-3">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <span className="text-xs font-bold text-text">🎯 {bestProduct.name} {best.pct}%</span>
+              {vehicleSummary && <span className="text-xs text-text-sub">· 🚗 {vehicleSummary}</span>}
+            </div>
+            <p className="text-[10px] text-text-muted mt-0.5">진단 결과가 자동 반영됩니다</p>
+          </div>
+          <button
+            onClick={handleQuoteNav}
+            className="shrink-0 px-5 py-2.5 rounded-xl bg-primary text-white text-sm font-bold hover:opacity-90 active:scale-[0.97] transition-all"
+          >
+            상담 신청 →
+          </button>
         </div>
       </div>
     </div>

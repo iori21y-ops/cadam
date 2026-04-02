@@ -9,6 +9,7 @@ import { ALL_VEHICLE_TAGS, DEFAULT_VEHICLE_BASIC, DEFAULT_VEHICLE_DETAIL } from 
 import { DEFAULT_PRODUCTS, PRODUCT_KEYS, PRODUCT_LABELS } from '@/data/diagnosis-products';
 import { DEFAULT_AI_CONFIG } from '@/data/diagnosis-ai';
 import { VEHICLES } from '@/data/diagnosis-vehicles';
+import { calcMonthly } from '@/lib/calc-monthly';
 import type {
   AIConfig,
   DiagnosisData,
@@ -712,7 +713,7 @@ function VehiclesEditor({
   const addVehicle = () => {
     const next: DiagnosisVehicle[] = [
       ...vehicles,
-      { name: '새 차종', brand: '브랜드', class: '차급', price: 0, monthly: { installment: 0, lease: 0, rent: 0, cash: 0 }, tags: [], img: '🚗' },
+      { name: '새 차종', brand: '브랜드', class: '차급', price: 0, tags: [], img: '🚗' },
     ];
     setVehicles(next);
     setOpenIdx(next.length - 1);
@@ -740,12 +741,6 @@ function VehiclesEditor({
     setVehicles(next);
   };
 
-  const updateMonthly = (idx: number, key: keyof DiagnosisVehicle['monthly'], value: number) => {
-    const next = deepClone(vehicles);
-    next[idx].monthly[key] = Math.max(0, Number.isFinite(value) ? value : 0);
-    setVehicles(next);
-  };
-
   const toggleTag = (idx: number, tag: string) => {
     const next = deepClone(vehicles);
     const tags = next[idx].tags;
@@ -755,12 +750,7 @@ function VehiclesEditor({
     setVehicles(next);
   };
 
-  const MONTHLY_LABELS: Record<keyof DiagnosisVehicle['monthly'], string> = {
-    installment: '할부',
-    lease: '리스',
-    rent: '렌트',
-    cash: '현금',
-  };
+  // monthly 필드 제거됨 — 가격은 calcMonthly(price)로 자동 계산
 
   return (
     <div>
@@ -794,7 +784,7 @@ function VehiclesEditor({
               <span className="text-xl shrink-0">{v.img}</span>
               <div className="flex-1 min-w-0">
                 <div className="text-sm font-semibold text-text">{v.brand} {v.name}</div>
-                <div className="text-[10px] text-text-muted mt-0.5">{v.class} · {v.price}만원~ · 렌트 {v.monthly.rent}만</div>
+                <div className="text-[10px] text-text-muted mt-0.5">{v.class} · {v.price}만원~ · 렌트 {calcMonthly(v.price, 'rent')}만</div>
               </div>
               <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
                 <button type="button" onClick={() => moveVehicle(vi, -1)} className="bg-surface-secondary rounded-lg w-[30px] h-[30px] text-[13px]">↑</button>
@@ -830,21 +820,18 @@ function VehiclesEditor({
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-semibold text-text-sub mb-2">월 예상금 (만원)</label>
+                    <label className="block text-[11px] font-semibold text-text-sub mb-2">월 예상금 (자동 계산)</label>
                     <div className="grid grid-cols-4 gap-1.5">
-                      {(Object.keys(MONTHLY_LABELS) as (keyof DiagnosisVehicle['monthly'])[]).map((key) => (
-                        <div key={key} className="text-center">
-                          <div className="text-[9px] font-semibold text-text-muted mb-1">{MONTHLY_LABELS[key]}</div>
-                          <input
-                            type="number"
-                            min={0}
-                            value={v.monthly[key]}
-                            onChange={(e) => updateMonthly(vi, key, Number(e.target.value))}
-                            className="bg-surface-secondary border border-border-solid rounded-[10px] outline-none w-full px-1 py-1.5 text-sm font-bold text-center"
-                          />
+                      {PRODUCT_KEYS.map((key) => (
+                        <div key={key} className="text-center py-1.5 rounded-lg bg-surface-secondary">
+                          <div className="text-[9px] font-semibold text-text-muted mb-0.5">{DEFAULT_PRODUCTS[key].name}</div>
+                          <div className="text-sm font-bold text-text">
+                            {key === 'cash' ? '일시불' : `${calcMonthly(v.price, key)}만`}
+                          </div>
                         </div>
                       ))}
                     </div>
+                    <p className="text-[9px] text-text-muted mt-1">기본가격 기준 48개월 · 연 2만km · 선납금 0%</p>
                   </div>
 
                   <div>
