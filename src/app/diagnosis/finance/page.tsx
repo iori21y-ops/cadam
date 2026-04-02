@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { QuizModule } from '@/components/diagnosis/QuizModule';
@@ -12,8 +12,10 @@ import type { DiagnosisAnswer, FinanceQuestion, ProductKey } from '@/types/diagn
 import { SimulationCalculator } from '@/components/diagnosis/SimulationCalculator';
 import { BRAND } from '@/constants/brand';
 import { FeedbackWidget } from '@/components/diagnosis/FeedbackWidget';
+import { NextMission } from '@/components/diagnosis/NextMission';
 import { buildShareUrl, copyShareUrl, shareToKakao, nativeShare } from '@/lib/diagnosis-share';
 import { Button } from '@/components/ui/Button';
+import { saveMissionStep, loadProgress } from '@/lib/mission-progress';
 
 const COLOR = '#2563EB';
 
@@ -75,6 +77,15 @@ function FinResult({ answers, questions, mode, restart, toDetail, onHome }: {
   const bestProduct = DEFAULT_PRODUCTS[best.key];
   const keyFactors = getKeyFactors(answers, allQs, best.key);
   const answerCount = Object.keys(answers).length;
+
+  // 미션 완료 저장 (답변 포함 — 결과 복원용)
+  useEffect(() => {
+    const serialized: Record<string, { value: string; label: string }> = {};
+    for (const [k, v] of Object.entries(answers)) {
+      serialized[k] = { value: v.value, label: v.label };
+    }
+    saveMissionStep('finance', `${bestProduct.name} ${best.pct}%`, serialized, mode);
+  }, [answers, bestProduct.name, best.pct, mode]);
 
   // AI에 보낼 상세 컨텍스트
   const aiContext = [
@@ -319,11 +330,21 @@ function FinResult({ answers, questions, mode, restart, toDetail, onHome }: {
           </div>
         </motion.div>
 
-        {/* 피드백 */}
+        {/* 다음 미션 유도 */}
         <motion.div
           initial={{ opacity: 0, x: 40 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.5, duration: 0.35, ease: 'easeOut' }}
+          className="mb-4"
+        >
+          <NextMission current="finance" />
+        </motion.div>
+
+        {/* 피드백 */}
+        <motion.div
+          initial={{ opacity: 0, x: 40 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.55, duration: 0.35, ease: 'easeOut' }}
           className="mb-4"
         >
           <FeedbackWidget
@@ -349,12 +370,29 @@ function FinResult({ answers, questions, mode, restart, toDetail, onHome }: {
 
 export default function FinancePage() {
   const router = useRouter();
+  const [saved, setSaved] = useState<{ answers: Record<string, { value: string; label: string }>; mode: 'basic' | 'detail' } | null>(null);
+  const [checked, setChecked] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('restore') === '1') {
+      const progress = loadProgress();
+      if (progress.finance.done && progress.finance.answers) {
+        setSaved({ answers: progress.finance.answers, mode: progress.finance.mode ?? 'basic' });
+      }
+    }
+    setChecked(true);
+  }, []);
+
+  if (!checked) return null;
+
   return (
     <QuizModule
       basicQs={FINANCE_BASIC}
       detailQs={FINANCE_DETAIL}
       color={COLOR}
-      onHome={() => router.push('/diagnosis')}
+      onHome={() => router.push('/')}
+      savedResult={saved}
       renderResult={(props) => (
         <FinResult
           {...props}

@@ -32,9 +32,9 @@ export function Step3Period() {
       const opt = OPTIONS.find((o) => o.value === value);
       setSelectedValue(value);
       setContractMonths(value);
-      gtag.stepComplete(3, opt?.label ?? String(value));
+      gtag.stepComplete(2, opt?.label ?? String(value));
       setTimeout(() => {
-        setCurrentStep(4);
+        setCurrentStep(3);
       }, TRANSITION_DELAY_MS);
     },
     [selectedValue, setContractMonths, setCurrentStep]

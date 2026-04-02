@@ -45,11 +45,7 @@ interface SummaryItem {
 }
 
 export function SelectionSummary({ currentStep }: { currentStep: number }) {
-  const isExpanded = currentStep === 6;
-  const selectionPath = useQuoteStore((s) => s.selectionPath);
-  const carBrand = useQuoteStore((s) => s.carBrand);
-  const carModel = useQuoteStore((s) => s.carModel);
-  const trim = useQuoteStore((s) => s.trim);
+  const isExpanded = currentStep === 5;
   const monthlyBudget = useQuoteStore((s) => s.monthlyBudget);
   const contractMonths = useQuoteStore((s) => s.contractMonths);
   const annualKm = useQuoteStore((s) => s.annualKm);
@@ -59,57 +55,40 @@ export function SelectionSummary({ currentStep }: { currentStep: number }) {
 
   const items: SummaryItem[] = [];
 
-  // Step 1: 선택 경로
-  if (selectionPath && currentStep >= 2) {
+  // Step 1: 월 예산
+  if (monthlyBudget !== null && currentStep >= 2) {
     items.push({
       step: 1,
-      label: selectionPath === 'car' ? '선택 경로' : '선택 경로',
-      value: selectionPath === 'car' ? '차종 먼저 선택' : '월 예산 먼저 선택',
+      label: '월 예산',
+      value: BUDGET_LABELS[monthlyBudget] ?? `${(monthlyBudget / 10000).toFixed(0)}만원`,
     });
   }
 
-  // Step 2: 차종 또는 예산
-  if (currentStep >= 3) {
-    if (selectionPath === 'car' && carBrand && carModel && trim) {
-      items.push({
-        step: 2,
-        label: '차종',
-        value: `${carBrand} ${carModel} ${trim}`,
-      });
-    } else if (selectionPath === 'budget' && monthlyBudget !== null) {
-      items.push({
-        step: 2,
-        label: '월 예산',
-        value: BUDGET_LABELS[monthlyBudget] ?? `${(monthlyBudget / 10000).toFixed(0)}만원`,
-      });
-    }
-  }
-
-  // Step 3: 계약 기간
-  if (contractMonths !== null && currentStep >= 4) {
+  // Step 2: 계약 기간
+  if (contractMonths !== null && currentStep >= 3) {
     items.push({
-      step: 3,
+      step: 2,
       label: '계약 기간',
       value: PERIOD_LABELS[contractMonths],
     });
   }
 
-  // Step 4: 주행거리
-  if (annualKm !== null && currentStep >= 5) {
+  // Step 3: 주행거리
+  if (annualKm !== null && currentStep >= 4) {
     items.push({
-      step: 4,
+      step: 3,
       label: '주행거리',
       value: MILEAGE_LABELS[annualKm],
     });
   }
 
-  // Step 5: 보증금·선납금 (하나라도 선택 시 표시)
-  if ((deposit !== null || prepaymentPct !== null) && currentStep >= 6) {
+  // Step 4: 보증금·선납금
+  if ((deposit !== null || prepaymentPct !== null) && currentStep >= 5) {
     const parts: string[] = [];
     if (deposit !== null) parts.push(`보증금 ${DEPOSIT_RATIO_LABELS[deposit]}`);
     if (prepaymentPct !== null) parts.push(`선납 ${PREPAYMENT_LABELS[prepaymentPct]}`);
     items.push({
-      step: 5,
+      step: 4,
       label: '보증금·선납',
       value: parts.join(', '),
     });

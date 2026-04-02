@@ -6,8 +6,6 @@ import { useHydrated } from '@/hooks/useHydrated';
 import { useQuoteStore } from '@/store/quoteStore';
 import { useLeaveIntent } from '@/hooks/useLeaveIntent';
 import { StepLayout } from '@/components/steps/StepLayout';
-import { Step1Branch } from '@/components/steps/Step1Branch';
-import { Step2Car } from '@/components/steps/Step2Car';
 import { Step2Budget } from '@/components/steps/Step2Budget';
 import { Step3Period } from '@/components/steps/Step3Period';
 import { Step4Mileage } from '@/components/steps/Step4Mileage';
@@ -19,12 +17,18 @@ const LeaveModal = dynamic(
   { ssr: false }
 );
 
+// 새 플로우: 5단계
+// Step 1: 월 예산 (Step2Budget)
+// Step 2: 계약 기간 (Step3Period)
+// Step 3: 주행거리 (Step4Mileage)
+// Step 4: 결제 방식 (Step5Payment)
+// Step 5: 연락처 (Step6Contact)
+
 export default function QuotePage() {
   const hydrated = useHydrated();
   const currentStep = useQuoteStore((s) => s.currentStep);
-  const selectionPath = useQuoteStore((s) => s.selectionPath);
   const setCurrentStep = useQuoteStore((s) => s.setCurrentStep);
-  const [step5Complete, setStep5Complete] = useState(false);
+  const [step4Complete, setStep4Complete] = useState(false);
   const [showLeaveModal, setShowLeaveModal] = useState(false);
 
   const handleLeaveIntent = useCallback(() => {
@@ -45,25 +49,21 @@ export default function QuotePage() {
     <>
       <StepLayout
         currentStep={currentStep}
-        isNextDisabled={
-          currentStep === 1 ? true : currentStep === 5 ? !step5Complete : false
-        }
+        totalSteps={5}
+        isNextDisabled={currentStep === 4 ? !step4Complete : false}
         onNext={
-          currentStep === 5 && step5Complete
-            ? () => setCurrentStep(6)
+          currentStep === 4 && step4Complete
+            ? () => setCurrentStep(5)
             : undefined
         }
       >
-        {currentStep === 1 && <Step1Branch />}
-        {currentStep === 2 && selectionPath === 'car' && <Step2Car />}
-        {currentStep === 2 && selectionPath === 'budget' && <Step2Budget />}
-        {currentStep === 2 && !selectionPath && <Step1Branch />}
-        {currentStep === 3 && <Step3Period />}
-        {currentStep === 4 && <Step4Mileage />}
-        {currentStep === 5 && (
-          <Step5Payment onCompleteChange={setStep5Complete} />
+        {currentStep === 1 && <Step2Budget />}
+        {currentStep === 2 && <Step3Period />}
+        {currentStep === 3 && <Step4Mileage />}
+        {currentStep === 4 && (
+          <Step5Payment onCompleteChange={setStep4Complete} />
         )}
-        {currentStep === 6 && <Step6Contact />}
+        {currentStep === 5 && <Step6Contact />}
       </StepLayout>
       <LeaveModal
         isOpen={showLeaveModal}

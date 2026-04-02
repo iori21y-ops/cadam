@@ -101,6 +101,7 @@ export default function ResultPage() {
     }
   }, [hydrated, isStoreEmpty, router]);
 
+
   if (!hydrated) {
     return (
       <div className="min-h-[100dvh] flex items-center justify-center bg-surface-secondary">

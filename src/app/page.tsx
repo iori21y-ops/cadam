@@ -1,166 +1,265 @@
- 'use client';
+'use client';
 
-import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { usePathname } from 'next/navigation';
 import { useRouter } from 'next/navigation';
-import { useRef, useState } from 'react';
-import { SelectCard } from '@/components/ui/SelectCard';
+import { useEffect, useState } from 'react';
 import { Footer } from '@/components/Footer';
-import { getVehicleBySlug } from '@/constants/vehicles';
 import { usePageTransitionStore } from '@/store/pageTransitionStore';
 import { BRAND } from '@/constants/brand';
+import { loadProgress, DEFAULT_PROGRESS } from '@/lib/mission-progress';
+import type { MissionProgress } from '@/lib/mission-progress';
 
-const POPULAR_SLUGS = ['avante', 'tucson', 'k5', 'sportage', 'sorento', 'ioniq5'] as const;
-
-const MAIN_CARDS = [
+const STEPS = [
   {
-    id: 'quote',
-    href: '/quote',
-    emoji: '📋',
-    title: '무료 견적 받기',
-    description: '차종·예산·기간을 선택하면 맞춤 월 납부금을 바로 확인할 수 있어요.',
-    cta: '견적 시작하기',
-    color: 'bg-primary/10',
-  },
-  {
-    id: 'diagnosis',
-    href: '/diagnosis',
-    emoji: '🎯',
-    title: '내게 맞는 상품 진단',
-    description: '금융상품·차종·옵션을 1분 진단으로 추천받으세요.',
-    cta: '진단 시작하기',
-    color: 'bg-vehicle/8',
-  },
-  {
-    id: 'popular',
-    href: '/popular-estimates',
+    key: 'vehicle' as const,
+    num: 1,
+    href: '/diagnosis/vehicle',
     emoji: '🚗',
-    title: '인기차종 견적 미리보기',
-    description: '아반떼·투싼·K5 등 인기 차종의 월 납부금을 한눈에 비교해 보세요.',
-    cta: '견적 미리보기',
-    color: 'bg-success/8',
+    title: '차종 진단',
+    subtitle: '나에게 맞는 차종 찾기',
+    desc: '라이프스타일, 예산, 주행 환경 등을 분석해서 45종 차량 중 가장 적합한 차종을 AI가 추천합니다.',
+    features: ['용도·예산·인원 기반 분석', 'TOP 4 차종 추천 + 비교', '트림·옵션까지 맞춤 제안'],
+    time: '약 1분',
+    activeGradient: 'linear-gradient(135deg, #7C3AED, #A78BFA)',
   },
   {
-    id: 'info',
-    href: '/info',
-    emoji: '📚',
-    title: '장기렌터카 정보',
-    description: '장기렌트 vs 구매 비교, 세금 처리, 인기 차종 정보를 한눈에.',
-    cta: '정보 보기',
-    color: 'bg-warning/8',
-  },
-  {
-    id: 'promotions',
-    href: '/promotions',
-    emoji: '🎁',
-    title: '이달의 프로모션',
-    description: '카담에서 진행 중인 특별 혜택을 확인하세요.',
-    cta: '혜택 확인하기',
-    color: 'bg-danger/8',
+    key: 'finance' as const,
+    num: 2,
+    href: '/diagnosis/finance',
+    emoji: '🎯',
+    title: '이용방법 진단',
+    subtitle: '할부·리스·렌트·현금 최적 매칭',
+    desc: '사업자 여부, 초기 자금, 소유 의향 등을 분석해서 4가지 금융상품 중 가장 유리한 방법을 찾아드립니다.',
+    features: ['할부·리스·렌트·현금 비교', 'TOP 3 추천 + 적합도 %', '월 납입금 시뮬레이션'],
+    time: '약 1분',
+    activeGradient: 'linear-gradient(135deg, #2563EB, #60A5FA)',
   },
 ];
 
 export default function HomePage() {
-  const pathname = usePathname();
   const router = useRouter();
-  const [clickedHref, setClickedHref] = useState<string | null>(null);
-  const clickedRef = useRef<string | null>(null);
-  const NAV_DELAY_MS = 300;
-
   const triggerPageTransition = usePageTransitionStore((s) => s.trigger);
 
-  const handleCardClick = (href: string) => {
-    if (clickedRef.current) return;
-    clickedRef.current = href;
-    setClickedHref(href);
-    // selected 효과를 보여준 뒤 PageTransition으로 넘김
-    window.setTimeout(() => {
-      triggerPageTransition();
-      router.push(href);
-    }, NAV_DELAY_MS);
+  const [progress, setProgress] = useState<MissionProgress>(DEFAULT_PROGRESS);
+
+  useEffect(() => {
+    setProgress(loadProgress());
+    const handler = () => setProgress(loadProgress());
+    window.addEventListener('mission-update', handler);
+    window.addEventListener('storage', handler);
+    return () => {
+      window.removeEventListener('mission-update', handler);
+      window.removeEventListener('storage', handler);
+    };
+  }, []);
+
+  const doneCount = [progress.vehicle.done, progress.finance.done].filter(Boolean).length;
+  const allDone = doneCount === 2;
+
+  const handleNav = (href: string) => {
+    triggerPageTransition();
+    router.push(href);
   };
 
   return (
     <div className="min-h-screen flex flex-col bg-surface-secondary">
-      {/* 메인 카드 목록 */}
-      <section className="px-5 pt-10 pb-10 flex-1">
-        <h2 className="text-xl font-bold text-text mb-6 text-center">
-          {BRAND.mainHeading.replace('\n', ' ')}
-        </h2>
-        <div
-          className="flex flex-col gap-4 max-w-lg mx-auto"
+      {/* ━━━ 히어로 ━━━ */}
+      <section className="px-5 pt-12 pb-4 max-w-lg mx-auto w-full">
+        <motion.h1
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: 'easeOut' }}
+          className="text-center font-bold text-text leading-tight mb-2 whitespace-pre-line"
+          style={{ fontSize: 'clamp(28px, 6vw, 36px)' }}
         >
-          {MAIN_CARDS.map((card, idx) => {
-            const isSel = pathname?.startsWith(card.href);
-            const isActive = isSel || clickedHref === card.href;
-            const isDimmed = clickedHref !== null && !isActive;
+          {BRAND.mainHeading}
+        </motion.h1>
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.15, duration: 0.4 }}
+          className="text-center text-sm text-text-sub mb-8"
+        >
+          2단계 진단을 완료하면 최적의 맞춤 상담을 받을 수 있어요
+        </motion.p>
+
+        {/* 프로그레스 인디케이터 */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2, duration: 0.4 }}
+          className="flex items-center justify-center gap-2 mb-8"
+        >
+          {[0, 1].map((i) => {
+            const done = [progress.vehicle.done, progress.finance.done][i];
+            return (
+              <div key={i} className="flex items-center gap-2">
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-500 ${
+                  done
+                    ? 'bg-primary text-white'
+                    : 'bg-surface-secondary border-2 border-border-solid text-text-muted'
+                }`}>
+                  {done ? '✓' : i + 1}
+                </div>
+                {i < 1 && (
+                  <div className={`w-8 h-0.5 rounded-full transition-all duration-500 ${
+                    done ? 'bg-primary' : 'bg-border-solid'
+                  }`} />
+                )}
+              </div>
+            );
+          })}
+          <span className="text-xs text-text-muted ml-2">{doneCount}/2</span>
+        </motion.div>
+      </section>
+
+      {/* ━━━ 미션 스텝 카드 (대형) ━━━ */}
+      <section className="px-5 pb-6 max-w-lg mx-auto w-full flex-1">
+        <div className="flex flex-col gap-4">
+          {STEPS.map((step, i) => {
+            const stepProgress = progress[step.key];
+            const isDone = stepProgress.done;
+            const summary = 'summary' in stepProgress ? stepProgress.summary : undefined;
+
             return (
               <motion.div
-                key={card.id}
-                initial={{ opacity: 0, x: 40 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: idx * 0.08, duration: 0.35, ease: 'easeOut' }}
+                key={step.key}
+                initial={{ opacity: 0, y: 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.25 + i * 0.1, duration: 0.4, ease: 'easeOut' }}
               >
-                <SelectCard
-                  selected={isActive}
-                  dimmed={isDimmed}
-                  disabled={!!clickedHref && !isActive}
-                  color="#2563EB"
-                  onClick={() => handleCardClick(card.href)}
+                <button
+                  onClick={() => handleNav(isDone ? `${step.href}?restore=1` : step.href)}
+                  className="w-full text-left rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-lg active:scale-[0.98]"
+                  style={{
+                    background: isDone ? step.activeGradient : '#FFFFFF',
+                    boxShadow: isDone ? 'none' : '0 2px 8px rgba(0,0,0,0.06)',
+                  }}
                 >
-                  <span className={`text-3xl shrink-0 w-14 h-14 flex items-center justify-center rounded-2xl ${card.color}`}>
-                    {card.emoji}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <h3
-                      className={`text-[16px] font-medium mb-0.5 ${
-                        isActive ? 'text-white' : 'text-text'
-                      }`}
-                    >
-                      {card.title}
-                    </h3>
-                    <p
-                      className={`text-sm leading-relaxed ${
-                        isActive ? 'text-white/70' : 'text-text-sub'
-                      }`}
-                    >
-                      {card.description}
-                    </p>
+                  {/* 헤더 */}
+                  <div className="flex items-center gap-3 px-5 pt-5 pb-3">
+                    <div className={`w-11 h-11 rounded-full flex items-center justify-center shrink-0 ${
+                      isDone ? 'bg-white/20' : 'bg-surface-secondary'
+                    }`}>
+                      {isDone ? (
+                        <span className="text-white font-bold text-sm">✓</span>
+                      ) : (
+                        <span className="text-text-muted font-bold text-sm">{step.num}</span>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xl">{step.emoji}</span>
+                        <p className={`text-[17px] font-bold ${isDone ? 'text-white' : 'text-text'}`}>
+                          {step.title}
+                        </p>
+                      </div>
+                      <p className={`text-[13px] mt-0.5 ${isDone ? 'text-white/70' : 'text-text-sub'}`}>
+                        {step.subtitle}
+                      </p>
+                    </div>
+                    <div className="shrink-0">
+                      {isDone ? (
+                        <span className="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-white/20 text-white">
+                          완료
+                        </span>
+                      ) : (
+                        <span className={`text-[11px] font-semibold px-2.5 py-1 rounded-lg ${
+                          i === 0 ? 'bg-violet-500/10 text-violet-600' : 'bg-primary/10 text-primary'
+                        }`}>
+                          {step.time}
+                        </span>
+                      )}
+                    </div>
                   </div>
-                </SelectCard>
+
+                  {/* 상세 설명 */}
+                  {isDone && summary ? (
+                    <div className="px-5 pb-5">
+                      <div className="bg-white/10 rounded-xl px-4 py-3">
+                        <p className="text-sm text-white/90 font-medium">결과: {summary}</p>
+                        <p className="text-xs text-white/60 mt-1">다시 진단하려면 탭하세요</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="px-5 pb-5">
+                      <p className={`text-[13px] leading-relaxed mb-3 ${isDone ? 'text-white/70' : 'text-text-sub'}`}>
+                        {step.desc}
+                      </p>
+                      <div className="flex flex-col gap-1.5">
+                        {step.features.map((feat) => (
+                          <div key={feat} className="flex items-center gap-2">
+                            <span className={`text-[11px] ${isDone ? 'text-white/50' : 'text-primary'}`}>✓</span>
+                            <span className={`text-[12px] ${isDone ? 'text-white/70' : 'text-text-sub'}`}>{feat}</span>
+                          </div>
+                        ))}
+                      </div>
+                      <div className={`mt-4 text-center py-2.5 rounded-xl font-semibold text-sm ${
+                        isDone
+                          ? 'bg-white/20 text-white'
+                          : i === 0
+                          ? 'bg-violet-500/10 text-violet-600'
+                          : 'bg-primary/10 text-primary'
+                      }`}>
+                        {isDone ? '다시 진단하기' : '무료 진단 시작 →'}
+                      </div>
+                    </div>
+                  )}
+                </button>
               </motion.div>
             );
           })}
         </div>
+
+        {/* ━━━ 맞춤 상담 카드 ━━━ */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5, duration: 0.4, ease: 'easeOut' }}
+          className="mt-4"
+        >
+          {allDone ? (
+            <button
+              onClick={() => handleNav('/quote')}
+              className="w-full rounded-2xl p-6 text-center text-white transition-all hover:shadow-lg active:scale-[0.98]"
+              style={{ background: 'linear-gradient(135deg, #F59E0B, #FBBF24)' }}
+            >
+              <span className="text-2xl block mb-2">🏆</span>
+              <p className="text-lg font-bold mb-1">진단 완료! 맞춤 상담 준비됐어요</p>
+              <p className="text-sm text-white/80 mb-3">
+                진단 결과를 바탕으로 최적의 견적과 상담을 받으실 수 있습니다
+              </p>
+              <span className="inline-block px-5 py-2.5 rounded-xl bg-white text-amber-600 font-bold text-sm shadow-sm">
+                맞춤 상담 신청 →
+              </span>
+            </button>
+          ) : (
+            <div className="rounded-2xl p-5 text-center bg-surface border border-border-solid">
+              <span className="text-xl block mb-1.5">🔒</span>
+              <p className="text-sm font-bold text-text-muted mb-1">맞춤 상담</p>
+              <p className="text-xs text-text-muted">
+                {2 - doneCount}단계를 더 완료하면 최적의 맞춤 상담을 받을 수 있어요
+              </p>
+            </div>
+          )}
+        </motion.div>
       </section>
 
-      {/* 인기 차종 바로가기 */}
-      <section className="px-5 py-10">
-        <h2 className="text-xl font-bold text-text mb-6 text-center">
-          인기 차종
-        </h2>
-        <div className="flex flex-wrap gap-3 justify-center max-w-lg mx-auto">
-          {POPULAR_SLUGS.map((slug) => {
-            const vehicle = getVehicleBySlug(slug);
-            if (!vehicle) return null;
-            const isSel = pathname?.startsWith(`/cars/${slug}`);
-            return (
-              <Link
-                key={slug}
-                href={`/cars/${slug}`}
-                className={`px-4 py-2.5 rounded-full border font-semibold transition-all duration-300 focus:outline-none focus-visible:outline-none ${
-                  isSel
-                    ? 'bg-primary border-primary text-white pointer-events-none cursor-default'
-                    : 'bg-white border-border-solid text-text-sub hover:border-primary hover:text-primary'
-                }`}
-              >
-                {vehicle.model}
-              </Link>
-            );
-          })}
+      {/* DEV: 임시 초기화 버튼 — 나중에 제거 */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className="px-5 pb-4 max-w-lg mx-auto w-full">
+          <button
+            onClick={() => {
+              localStorage.removeItem('cadam-mission-progress');
+              localStorage.removeItem('cadam-quote-store');
+              setProgress(DEFAULT_PROGRESS);
+            }}
+            className="w-full py-2 text-xs text-text-muted border border-dashed border-border-solid rounded-xl hover:text-danger hover:border-danger transition-colors"
+          >
+            [DEV] 미션 진행률 초기화
+          </button>
         </div>
-      </section>
+      )}
 
       <Footer />
     </div>

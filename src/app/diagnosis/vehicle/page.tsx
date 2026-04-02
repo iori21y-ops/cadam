@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { QuizModule } from '@/components/diagnosis/QuizModule';
@@ -15,8 +15,10 @@ import type { DiagnosisAnswer, DiagnosisVehicle, VehicleOption } from '@/types/d
 import { SimulationCalculator } from '@/components/diagnosis/SimulationCalculator';
 import { BRAND } from '@/constants/brand';
 import { FeedbackWidget } from '@/components/diagnosis/FeedbackWidget';
+import { NextMission } from '@/components/diagnosis/NextMission';
 import { buildShareUrl, copyShareUrl, shareToKakao, nativeShare } from '@/lib/diagnosis-share';
 import { Button } from '@/components/ui/Button';
+import { saveMissionStep, loadProgress } from '@/lib/mission-progress';
 
 const CONFIG_ID = 'diagnosis_data_v1';
 
@@ -39,6 +41,15 @@ function VehResult({ answers, mode, restart, toDetail, onHome, vehicles }: {
   const scored = scoreByTags(vehicles, answerTags, 4);
   const best = scored[0];
   const answerCount = Object.keys(answers).length;
+
+  // 미션 완료 저장 (답변 포함 — 결과 복원용)
+  useEffect(() => {
+    const serialized: Record<string, { value: string; label: string }> = {};
+    for (const [k, v] of Object.entries(answers)) {
+      serialized[k] = { value: v.value, label: v.label };
+    }
+    saveMissionStep('vehicle', `${best.brand} ${best.name}`, serialized, mode);
+  }, [answers, best.brand, best.name, mode]);
 
   // vehicles.ts에서 slug 찾기
   const matchSlug = (name: string) => {
@@ -188,6 +199,9 @@ function VehResult({ answers, mode, restart, toDetail, onHome, vehicles }: {
             <Button variant="surface" className="flex-1" onClick={handleShare}>{copied ? '복사됨!' : '링크 공유'}</Button>
           </div>
           <div className="mb-3">
+            <NextMission current="vehicle" />
+          </div>
+          <div className="mb-3">
             <FeedbackWidget
               type="vehicle"
               mode={mode}
@@ -211,6 +225,8 @@ function VehResult({ answers, mode, restart, toDetail, onHome, vehicles }: {
 export default function VehiclePage() {
   const router = useRouter();
   const [vehicles, setVehicles] = useState<DiagnosisVehicle[]>(VEHICLES);
+  const [saved, setSaved] = useState<{ answers: Record<string, { value: string; label: string }>; mode: 'basic' | 'detail' } | null>(null);
+  const [checked, setChecked] = useState(false);
 
   useEffect(() => {
     const supabase = createBrowserSupabaseClient();
@@ -223,12 +239,26 @@ export default function VehiclePage() {
       });
   }, []);
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('restore') === '1') {
+      const progress = loadProgress();
+      if (progress.vehicle.done && progress.vehicle.answers) {
+        setSaved({ answers: progress.vehicle.answers, mode: progress.vehicle.mode ?? 'basic' });
+      }
+    }
+    setChecked(true);
+  }, []);
+
+  if (!checked) return null;
+
   return (
     <QuizModule
       basicQs={DEFAULT_VEHICLE_BASIC}
       detailQs={DEFAULT_VEHICLE_DETAIL}
       color={COLOR}
-      onHome={() => router.push('/diagnosis')}
+      onHome={() => router.push('/')}
+      savedResult={saved}
       renderResult={(props) => <VehResult {...props} vehicles={vehicles} />}
     />
   );

@@ -33,9 +33,9 @@ export function Step4Mileage() {
       const opt = OPTIONS.find((o) => o.value === value);
       setSelectedValue(value);
       setAnnualKm(value);
-      gtag.stepComplete(4, opt?.label ?? String(value));
+      gtag.stepComplete(3, opt?.label ?? String(value));
       setTimeout(() => {
-        setCurrentStep(5);
+        setCurrentStep(4);
       }, TRANSITION_DELAY_MS);
     },
     [selectedValue, setAnnualKm, setCurrentStep]

@@ -31,9 +31,9 @@ export function Step2Budget() {
       const opt = OPTIONS.find((o) => o.value === value);
       setSelectedValue(value);
       setMonthlyBudget(value);
-      gtag.stepComplete(2, opt?.label ?? String(value));
+      gtag.stepComplete(1, opt?.label ?? String(value));
       setTimeout(() => {
-        setCurrentStep(3);
+        setCurrentStep(2);
       }, TRANSITION_DELAY_MS);
     },
     [selectedValue, setMonthlyBudget, setCurrentStep]

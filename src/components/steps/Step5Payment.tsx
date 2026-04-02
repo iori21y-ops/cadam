@@ -52,13 +52,13 @@ export function Step5Payment({ onCompleteChange }: Step5PaymentProps) {
     if (selectedType === 'deposit') {
       setDeposit(RATIO_TO_DEPOSIT[value]);
       setPrepaymentPct(null);
-      gtag.stepComplete(5, `보증금 ${opt?.label ?? value}%`);
+      gtag.stepComplete(4, `보증금 ${opt?.label ?? value}%`);
     } else {
       setPrepaymentPct(value);
       setDeposit(null);
-      gtag.stepComplete(5, `선납금 ${opt?.label ?? value}%`);
+      gtag.stepComplete(4, `선납금 ${opt?.label ?? value}%`);
     }
-    setTimeout(() => setCurrentStep(6), 0);
+    setTimeout(() => setCurrentStep(5), 0);
   };
 
   return (

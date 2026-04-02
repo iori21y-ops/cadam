@@ -7,11 +7,18 @@ import { shouldSkip, findNextIndex } from '@/lib/flow-engine';
 import { SelectCard } from '@/components/ui/SelectCard';
 import { Button } from '@/components/ui/Button';
 
+interface SavedResult {
+  answers: Record<string, { value: string; label: string }>;
+  mode: 'basic' | 'detail';
+}
+
 interface QuizModuleProps {
   basicQs: DiagnosisQuestion[];
   detailQs: DiagnosisQuestion[];
   color: string;
   onHome: () => void;
+  /** 저장된 결과가 있으면 바로 result 화면으로 시작 */
+  savedResult?: SavedResult | null;
   renderResult: (props: {
     answers: Record<string, DiagnosisAnswer>;
     questions: DiagnosisQuestion[];
@@ -24,12 +31,42 @@ interface QuizModuleProps {
 
 type Screen = 'mode' | 'quiz' | 'result';
 
-export function QuizModule({ basicQs, detailQs, color, onHome, renderResult }: QuizModuleProps) {
-  const [screen, setScreen] = useState<Screen>('mode');
-  const [mode, setMode] = useState<'basic' | 'detail'>('basic');
-  const [questions, setQuestions] = useState<DiagnosisQuestion[]>([]);
+/**
+ * 저장된 {value, label} 답변을 원래 DiagnosisAnswer로 복원
+ */
+function restoreAnswers(
+  saved: Record<string, { value: string; label: string }>,
+  questions: DiagnosisQuestion[]
+): Record<string, DiagnosisAnswer> {
+  const restored: Record<string, DiagnosisAnswer> = {};
+  for (const [qId, { value }] of Object.entries(saved)) {
+    const q = questions.find((qq) => qq.id === qId);
+    if (q) {
+      const opt = q.options.find((o) => o.value === value);
+      if (opt) restored[qId] = opt;
+    }
+  }
+  return restored;
+}
+
+export function QuizModule({ basicQs, detailQs, color, onHome, savedResult, renderResult }: QuizModuleProps) {
+  const hasRestoredRef = useRef(false);
+  const initialScreen: Screen = savedResult ? 'result' : 'mode';
+  const initialMode: 'basic' | 'detail' = savedResult?.mode ?? 'basic';
+
+  const [screen, setScreen] = useState<Screen>(initialScreen);
+  const [mode, setMode] = useState<'basic' | 'detail'>(initialMode);
+  // savedResult가 있으면 questions/answers 초기화
+  const initialQs = savedResult
+    ? (savedResult.mode === 'detail' ? [...basicQs, ...detailQs] : basicQs)
+    : [];
+  const initialAnswers = savedResult
+    ? restoreAnswers(savedResult.answers, savedResult.mode === 'detail' ? [...basicQs, ...detailQs] : basicQs)
+    : {};
+
+  const [questions, setQuestions] = useState<DiagnosisQuestion[]>(initialQs);
   const [currentIdx, setCurrentIdx] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, DiagnosisAnswer>>({});
+  const [answers, setAnswers] = useState<Record<string, DiagnosisAnswer>>(initialAnswers);
   const [history, setHistory] = useState<number[]>([]);
   const [selected, setSelected] = useState<DiagnosisAnswer | null>(null);
   const [selectedMode, setSelectedMode] = useState<'basic' | 'detail' | null>(null);

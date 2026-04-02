@@ -79,7 +79,7 @@ export function Step6Contact() {
       name: trimmedName,
       phone: removePhoneHyphens(phone),
       privacyAgreed: true,
-      stepCompleted: 6,
+      stepCompleted: 5,
     };
 
     try {

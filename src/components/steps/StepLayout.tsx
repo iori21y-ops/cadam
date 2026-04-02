@@ -9,17 +9,17 @@ import { gtag } from '@/lib/gtag';
 import { Button } from '@/components/ui/Button';
 
 const STEP_NAMES: Record<number, string> = {
-  1: '브랜치 선택',
-  2: '차량/예산 선택',
-  3: '렌트 기간',
-  4: '월 주행거리',
-  5: '결제 방식',
-  6: '연락처 입력',
+  1: '월 예산',
+  2: '계약 기간',
+  3: '주행거리',
+  4: '결제 방식',
+  5: '연락처 입력',
 };
 
 interface StepLayoutProps {
   children: ReactNode;
   currentStep: number;
+  totalSteps?: number;
   isNextDisabled?: boolean;
   onNext?: () => void;
 }
@@ -27,6 +27,7 @@ interface StepLayoutProps {
 export function StepLayout({
   children,
   currentStep,
+  totalSteps = 5,
   isNextDisabled = false,
   onNext,
 }: StepLayoutProps) {
@@ -61,15 +62,15 @@ export function StepLayout({
 
   const handleNext = () => {
     if (onNext) onNext();
-    else if (currentStep < 6) setCurrentStep(currentStep + 1);
+    else if (currentStep < totalSteps) setCurrentStep(currentStep + 1);
   };
 
   const showPrev = currentStep > 1;
-  const showNext = currentStep < 6;
+  const showNext = currentStep < totalSteps;
 
   return (
     <div className="flex flex-col h-[calc(100dvh-49px)] overflow-hidden bg-surface-secondary">
-      <ProgressBar currentStep={currentStep} />
+      <ProgressBar currentStep={currentStep} totalSteps={totalSteps} />
       <div className="flex-1 min-h-0 overflow-y-auto scrollbar-hide">
         <AnimatePresence mode="wait" initial={true}>
           <motion.div
@@ -85,7 +86,7 @@ export function StepLayout({
         </AnimatePresence>
       </div>
       <div className="shrink-0 bg-surface-secondary">
-        {currentStep === 6 && <SelectionSummary currentStep={currentStep} />}
+        {currentStep === totalSteps && <SelectionSummary currentStep={currentStep} />}
         <div className="px-5 pb-5 pt-3">
           <div className="bg-white rounded-2xl p-4 shadow-[0_6px_18px_rgba(0,0,0,0.06)]">
             <div className="flex gap-3">
