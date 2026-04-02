@@ -12,7 +12,6 @@ import { scoreByTags } from '@/lib/flow-engine';
 import { VEHICLE_LIST } from '@/constants/vehicles';
 import { createBrowserSupabaseClient } from '@/lib/supabase';
 import type { DiagnosisAnswer, DiagnosisVehicle, VehicleOption } from '@/types/diagnosis';
-import { SimulationCalculator } from '@/components/diagnosis/SimulationCalculator';
 import { BRAND } from '@/constants/brand';
 import { FeedbackWidget } from '@/components/diagnosis/FeedbackWidget';
 import { NextMission } from '@/components/diagnosis/NextMission';
@@ -244,20 +243,6 @@ function VehResult({ answers, mode, restart, toDetail, onHome, vehicles }: {
             </button>
           )}
         </motion.div>
-
-        {/* 1순위 시뮬레이션 */}
-        <motion.div
-          initial={{ opacity: 0, x: 40 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.32, duration: 0.35, ease: 'easeOut' }}
-          className="mb-4"
-        >
-          <SimulationCalculator
-            carPrice={bestTrim ? bestTrim.price : best.price}
-            carName={`${best.brand} ${best.name}${bestTrim ? ` ${bestTrim.name}` : ''}`}
-          />
-        </motion.div>
-
 
         {/* 하단 버튼 */}
         <div className="flex flex-col gap-3">

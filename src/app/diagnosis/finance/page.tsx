@@ -9,7 +9,6 @@ import { FINANCE_BASIC, FINANCE_DETAIL } from '@/data/diagnosis-finance';
 import { DEFAULT_PRODUCTS, PRODUCT_KEYS } from '@/data/diagnosis-products';
 import { rankFinanceProducts, getKeyFactors } from '@/lib/flow-engine';
 import type { DiagnosisAnswer, FinanceQuestion, ProductKey } from '@/types/diagnosis';
-import { SimulationCalculator } from '@/components/diagnosis/SimulationCalculator';
 import { BRAND } from '@/constants/brand';
 import { FeedbackWidget } from '@/components/diagnosis/FeedbackWidget';
 import { NextMission } from '@/components/diagnosis/NextMission';
@@ -19,13 +18,6 @@ import { saveMissionStep, loadProgress } from '@/lib/mission-progress';
 
 const COLOR = '#2563EB';
 
-// 가격대 답변 → 대표 차량가격(만원)
-const PRICE_MAP: Record<string, number> = {
-  low: 2500,
-  mid: 4500,
-  high: 7500,
-  premium: 12000,
-};
 
 function ScoreRing({ pct, color, size = 72 }: { pct: number; color: string; size?: number }) {
   const r = size * 0.39;
@@ -247,20 +239,6 @@ function FinResult({ answers, questions, mode, restart, toDetail, onHome }: {
               {expanded ? `접기 ▲` : `2·3순위 보기 ▼`}
             </button>
           )}
-        </motion.div>
-
-        {/* ━━━ 월 납입금 시뮬레이션 ━━━ */}
-        <motion.div
-          initial={{ opacity: 0, x: 40 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.35, duration: 0.35, ease: 'easeOut' }}
-          className="mb-4"
-        >
-          <SimulationCalculator
-            carPrice={PRICE_MAP[answers['price_range']?.value ?? ''] ?? 3500}
-            carName={answers['price_range'] ? `${answers['price_range'].label} 차량` : '3,500만원 차량'}
-            recommendedProduct={best.key}
-          />
         </motion.div>
 
         {/* CTA */}
