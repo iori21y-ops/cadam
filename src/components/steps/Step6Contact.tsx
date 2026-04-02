@@ -215,8 +215,8 @@ export function Step6Contact() {
   if (method === 'phone') {
     return (
       <div className="px-5 py-4">
-        <button onClick={() => setMethod(null)} className="text-xs text-text-sub mb-4 hover:text-primary">
-          ← 다른 방식 선택
+        <button onClick={() => setMethod(null)} className="flex items-center gap-1.5 text-sm font-semibold text-primary mb-5 hover:opacity-80 transition-opacity">
+          <span>←</span> 다른 방식 선택
         </button>
 
         <div className="mb-4">
@@ -265,8 +265,8 @@ export function Step6Contact() {
   if (method === 'email') {
     return (
       <div className="px-5 py-4">
-        <button onClick={() => setMethod(null)} className="text-xs text-text-sub mb-4 hover:text-primary">
-          ← 다른 방식 선택
+        <button onClick={() => setMethod(null)} className="flex items-center gap-1.5 text-sm font-semibold text-primary mb-5 hover:opacity-80 transition-opacity">
+          <span>←</span> 다른 방식 선택
         </button>
 
         <div className="mb-4">
@@ -315,8 +315,8 @@ export function Step6Contact() {
   if (method === 'kakao') {
     return (
       <div className="px-5 py-4">
-        <button onClick={() => setMethod(null)} className="text-xs text-text-sub mb-4 hover:text-primary">
-          ← 다른 방식 선택
+        <button onClick={() => setMethod(null)} className="flex items-center gap-1.5 text-sm font-semibold text-primary mb-5 hover:opacity-80 transition-opacity">
+          <span>←</span> 다른 방식 선택
         </button>
 
         <div className="mb-4">
