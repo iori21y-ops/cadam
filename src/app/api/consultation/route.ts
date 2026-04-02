@@ -206,6 +206,9 @@ export async function POST(request: NextRequest) {
     const leadGrade = getLeadGrade(leadScore);
     const emailData: ConsultationEmailData = {
       name: input.name,
+      phone: input.phone ?? '',
+      email: input.email ?? '',
+      contactMethod: input.contactMethod ?? 'phone',
       carBrand: input.carBrand ?? null,
       carModel: input.carModel ?? null,
       trim: input.trim ?? null,
@@ -218,6 +221,10 @@ export async function POST(request: NextRequest) {
       estimatedMax,
       leadScore,
       leadGrade,
+      financeSummary: input.financeSummary ?? null,
+      deviceType: deviceType ?? 'unknown',
+      utmSource: utmSource ?? '',
+      referrer: referrer ?? '',
     };
 
     try {
