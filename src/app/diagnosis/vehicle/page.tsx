@@ -253,8 +253,8 @@ function VehResult({ answers, mode, restart, toDetail, onHome, vehicles }: {
           className="mb-4"
         >
           <SimulationCalculator
-            carPrice={best.price}
-            carName={`${best.brand} ${best.name}`}
+            carPrice={bestTrim ? bestTrim.price : best.price}
+            carName={`${best.brand} ${best.name}${bestTrim ? ` ${bestTrim.name}` : ''}`}
           />
         </motion.div>
 
