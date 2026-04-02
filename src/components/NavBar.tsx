@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useDragScroll } from '@/hooks/useDragScroll';
+import { BRAND } from '@/constants/brand';
 
 const NAV_ITEMS = [
   { href: '/diagnosis', label: 'AI 진단' },
@@ -24,7 +25,7 @@ export function NavBar() {
           href="/"
           className="text-[15px] font-bold text-text shrink-0 hover:text-primary transition-colors"
         >
-          🚘 카담
+          {BRAND.navLogo}
         </Link>
         <div
           ref={dragScroll.ref}

@@ -15,7 +15,7 @@ const CONFIG_ID = 'diagnosis_data_v1';
 const SERVICES = [
   {
     href: '/diagnosis/finance',
-    accent: '#007AFF',
+    accent: '#2563EB',
     emoji: '📊',
     title: '금융상품 진단',
     description: '할부·리스·렌트·현금 중 나에게 맞는 금융 방식을 1분 만에 알아보세요.',
@@ -50,7 +50,7 @@ const BADGES = [
 
 export default function DiagnosisPage() {
   const pathname = usePathname();
-  const ACCENT = '#007AFF';
+  const ACCENT = '#2563EB';
   const router = useRouter();
   const [clickedHref, setClickedHref] = useState<string | null>(null);
   const clickedRef = useRef<string | null>(null);
@@ -85,7 +85,7 @@ export default function DiagnosisPage() {
 
   return (
     <div className="min-h-screen bg-surface-secondary pb-10">
-      {/* 박대표AI 코멘트 */}
+      {/* AI 캐릭터 인사말 */}
       <section className="px-5 pt-6 pb-0 max-w-lg mx-auto">
         <ParkAI
           ctx=""

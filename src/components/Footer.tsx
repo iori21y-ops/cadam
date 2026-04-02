@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { BRAND } from '@/constants/brand';
 
 const PHONE = process.env.NEXT_PUBLIC_PHONE_NUMBER ?? '02-0000-0000';
 const KAKAO_URL = process.env.NEXT_PUBLIC_KAKAO_CHANNEL_URL ?? '#';
@@ -38,7 +39,7 @@ export function Footer() {
           개인정보 처리방침
         </Link>
       </p>
-      <p className="text-[13px] text-text-muted">© 카담(CADAM)</p>
+      <p className="text-[13px] text-text-muted">{BRAND.footerCopy}</p>
     </footer>
   );
 }

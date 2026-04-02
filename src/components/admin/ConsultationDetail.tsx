@@ -274,7 +274,7 @@ export function ConsultationDetail({
             <>
           {/* 고객 기본 정보 */}
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-full bg-[#007AFF1A] flex items-center justify-center text-xl font-bold text-primary">
+            <div className="w-12 h-12 rounded-full bg-[#2563EB1A] flex items-center justify-center text-xl font-bold text-primary">
               {consultation.name.charAt(0)}
             </div>
             <div>

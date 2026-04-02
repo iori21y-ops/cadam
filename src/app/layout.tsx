@@ -6,6 +6,7 @@ import { NavBar } from '@/components/NavBar';
 import { GAPageView } from '@/components/GAPageView';
 import { DynamicToast } from '@/components/DynamicToast';
 import { PageTransition } from '@/components/PageTransition';
+import { BRAND } from '@/constants/brand';
 
 const pretendard = localFont({
   src: './fonts/PretendardVariable.woff2',
@@ -17,8 +18,8 @@ const pretendard = localFont({
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
 
 export const metadata: Metadata = {
-  title: '카담(CADAM) | 장기렌터카 맞춤 견적',
-  description: '장기렌터카 맞춤 상담 DB 확보. 현대, 기아, 제네시스 45종 최저가 견적을 비교해 보세요.',
+  title: BRAND.title,
+  description: BRAND.description,
 };
 
 export default function RootLayout({

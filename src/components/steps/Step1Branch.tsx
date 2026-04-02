@@ -30,7 +30,7 @@ const STEP_OPTIONS: StepOption[] = [
 ];
 
 const TRANSITION_DELAY_MS = 300;
-const COLOR = '#007AFF';
+const COLOR = '#2563EB';
 
 export function Step1Branch() {
   const [selectedPath, setSelectedPath] = useState<SelectionPath | null>(null);

@@ -10,11 +10,12 @@ import { DEFAULT_PRODUCTS, PRODUCT_KEYS } from '@/data/diagnosis-products';
 import { rankFinanceProducts, getKeyFactors } from '@/lib/flow-engine';
 import type { DiagnosisAnswer, FinanceQuestion, ProductKey } from '@/types/diagnosis';
 import { SimulationCalculator } from '@/components/diagnosis/SimulationCalculator';
+import { BRAND } from '@/constants/brand';
 import { FeedbackWidget } from '@/components/diagnosis/FeedbackWidget';
 import { buildShareUrl, copyShareUrl, shareToKakao, nativeShare } from '@/lib/diagnosis-share';
 import { Button } from '@/components/ui/Button';
 
-const COLOR = '#007AFF';
+const COLOR = '#2563EB';
 
 // 가격대 답변 → 대표 차량가격(만원)
 const PRICE_MAP: Record<string, number> = {
@@ -48,7 +49,7 @@ function ScoreRing({ pct, color, size = 72 }: { pct: number; color: string; size
 
 function RankBadge({ rank }: { rank: number }) {
   const badges = ['1st', '2nd', '3rd'];
-  const colors = ['#FF3B30', '#FF9500', '#8E8E93'];
+  const colors = ['#EF4444', '#F59E0B', '#8E8E93'];
   return (
     <span
       className="text-[10px] font-bold px-2 py-0.5 rounded-full text-white"
@@ -100,7 +101,7 @@ function FinResult({ answers, questions, mode, restart, toDetail, onHome }: {
 
   const handleShare = async () => {
     const shared = await nativeShare({
-      title: `CADAM 금융진단 결과: ${bestProduct.name} 추천`,
+      title: `${BRAND.sharePrefix} 금융진단 결과: ${bestProduct.name} 추천`,
       text: `나에게 맞는 금융상품은 ${bestProduct.name}! (적합도 ${best.pct}%) 당신도 진단해보세요.`,
       url: shareUrl,
     });
@@ -109,7 +110,7 @@ function FinResult({ answers, questions, mode, restart, toDetail, onHome }: {
 
   const handleKakaoShare = () => {
     shareToKakao({
-      title: `CADAM 금융진단 결과: ${bestProduct.name} 추천`,
+      title: `${BRAND.sharePrefix} 금융진단 결과: ${bestProduct.name} 추천`,
       description: `나에게 맞는 금융상품은 ${bestProduct.name}! (적합도 ${best.pct}%)`,
       url: shareUrl,
     });
@@ -239,7 +240,7 @@ function FinResult({ answers, questions, mode, restart, toDetail, onHome }: {
               {keyFactors.map((f, i) => (
                 <div key={i} className="flex items-center gap-2 py-2 px-3 rounded-xl bg-surface-secondary">
                   <span className="text-xs font-bold px-2 py-0.5 rounded-md text-white"
-                    style={{ backgroundColor: f.impact === '매우 유리' ? '#34C759' : '#007AFF' }}>
+                    style={{ backgroundColor: f.impact === '매우 유리' ? '#10B981' : '#2563EB' }}>
                     {f.impact}
                   </span>
                   <span className="text-sm text-text">{f.label}</span>

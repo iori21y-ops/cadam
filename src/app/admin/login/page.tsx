@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createBrowserSupabaseClient } from '@/lib/supabase';
+import { BRAND } from '@/constants/brand';
 
 const AUTH_ERROR_MESSAGE = '이메일 또는 비밀번호가 올바르지 않습니다';
 
@@ -41,7 +42,7 @@ export default function AdminLoginPage() {
     <div className="min-h-[100dvh] flex items-center justify-center bg-surface-secondary px-5">
       <div className="w-full max-w-[400px] bg-white rounded-2xl border border-border-solid p-8 shadow-sm">
         <h1 className="text-xl font-bold text-text mb-6 text-center tracking-tight">
-          카담 관리자 로그인
+          {BRAND.adminLogin}
         </h1>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div>

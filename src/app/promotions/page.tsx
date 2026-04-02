@@ -2,6 +2,7 @@ import Image from 'next/image';
 import { Footer } from '@/components/Footer';
 import { ButtonLink } from '@/components/ui/Button';
 import { createServerSupabaseClient } from '@/lib/supabase-server';
+import { BRAND } from '@/constants/brand';
 
 export const revalidate = 3600;
 
@@ -69,7 +70,7 @@ export default async function PromotionsPage() {
             이달의 프로모션
           </h1>
           <p className="text-base sm:text-lg text-text-sub mb-6">
-            카담에서 진행 중인 특별 혜택을 확인하세요
+            {BRAND.name}에서 진행 중인 특별 혜택을 확인하세요
           </p>
           <ButtonLink href="/quote" variant="primary" size="lg">
             무료 견적 받기

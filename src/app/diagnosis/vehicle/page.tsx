@@ -13,13 +13,14 @@ import { VEHICLE_LIST } from '@/constants/vehicles';
 import { createBrowserSupabaseClient } from '@/lib/supabase';
 import type { DiagnosisAnswer, DiagnosisVehicle, VehicleOption } from '@/types/diagnosis';
 import { SimulationCalculator } from '@/components/diagnosis/SimulationCalculator';
+import { BRAND } from '@/constants/brand';
 import { FeedbackWidget } from '@/components/diagnosis/FeedbackWidget';
 import { buildShareUrl, copyShareUrl, shareToKakao, nativeShare } from '@/lib/diagnosis-share';
 import { Button } from '@/components/ui/Button';
 
 const CONFIG_ID = 'diagnosis_data_v1';
 
-const COLOR = '#007AFF';
+const COLOR = '#2563EB';
 
 function VehResult({ answers, mode, restart, toDetail, onHome, vehicles }: {
   answers: Record<string, DiagnosisAnswer>;
@@ -60,7 +61,7 @@ function VehResult({ answers, mode, restart, toDetail, onHome, vehicles }: {
 
   const handleShare = async () => {
     const shared = await nativeShare({
-      title: `CADAM 차종추천 결과: ${best.brand} ${best.name}`,
+      title: `${BRAND.sharePrefix} 차종추천 결과: ${best.brand} ${best.name}`,
       text: `나에게 맞는 차종은 ${best.brand} ${best.name}! 당신도 추천받아 보세요.`,
       url: shareUrl,
     });
@@ -69,7 +70,7 @@ function VehResult({ answers, mode, restart, toDetail, onHome, vehicles }: {
 
   const handleKakaoShare = () => {
     shareToKakao({
-      title: `CADAM 차종추천 결과: ${best.brand} ${best.name}`,
+      title: `${BRAND.sharePrefix} 차종추천 결과: ${best.brand} ${best.name}`,
       description: `나에게 맞는 차종은 ${best.brand} ${best.name}! (${best.class}, ${best.price}만원~)`,
       url: shareUrl,
     });
@@ -167,7 +168,7 @@ function VehResult({ answers, mode, restart, toDetail, onHome, vehicles }: {
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.35, duration: 0.35, ease: 'easeOut' }}
           className="p-6 rounded-2xl mb-4 text-center"
-          style={{ background: 'linear-gradient(135deg, #007AFF, #3395FF)' }}
+          style={{ background: 'linear-gradient(135deg, #2563EB, #3395FF)' }}
         >
           <p className="text-[17px] font-bold text-white mb-1.5">{best.name}의 최적 옵션은?</p>
           <p className="text-[13px] mb-4" style={{ color: 'rgba(255,255,255,0.7)' }}>5개 질문으로 딱 맞는 트림과 옵션을 추천해드립니다</p>

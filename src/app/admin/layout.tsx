@@ -5,6 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { createBrowserSupabaseClient } from '@/lib/supabase';
 import { useDragScroll } from '@/hooks/useDragScroll';
+import { BRAND } from '@/constants/brand';
 
 const NAV_ITEMS = [
   { href: '/admin', label: '대시보드' },
@@ -78,7 +79,7 @@ export default function AdminLayout({
             href="/admin"
             className="text-base font-extrabold text-text shrink-0"
           >
-            카담 Admin
+            {BRAND.adminTitle}
           </Link>
           <div
             ref={dragScroll.ref}

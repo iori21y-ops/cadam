@@ -113,7 +113,7 @@ export default function AdminAIPage() {
               <span className="text-2xl">🤖</span> AI 설정
             </h1>
             <p className="text-sm text-text-sub mt-1">
-              박대표AI 캐릭터 및 코멘트 설정을 관리합니다.
+              AI 캐릭터 및 코멘트 설정을 관리합니다.
             </p>
             {error && <p className="text-sm text-danger font-semibold mt-2">{error}</p>}
           </div>
@@ -133,7 +133,7 @@ export default function AdminAIPage() {
             <div className="flex items-start gap-3">
               <div
                 className="w-11 h-11 rounded-full flex items-center justify-center text-xl shrink-0"
-                style={{ backgroundColor: cfg.bgColor || '#007AFF' }}
+                style={{ backgroundColor: cfg.bgColor || '#2563EB' }}
               >
                 {cfg.charEmoji}
               </div>
@@ -148,13 +148,13 @@ export default function AdminAIPage() {
           {/* 진단 페이지 상단 코멘트 */}
           <div className="bg-white rounded-2xl p-5">
             <div className="text-sm font-bold text-text mb-1">진단 페이지 상단 코멘트</div>
-            <div className="text-[11px] text-text-sub mb-3">AI 진단 탭 상단에 표시되는 박대표 인삿말입니다.</div>
+            <div className="text-[11px] text-text-sub mb-3">AI 진단 탭 상단에 표시되는 AI 캐릭터 인삿말입니다.</div>
             <textarea
               value={cfg.introComment ?? ''}
               onChange={(e) => setCfg({ ...cfg, introComment: e.target.value })}
               className="w-full bg-surface-secondary border border-border-solid rounded-[10px] px-[14px] py-[10px] text-[13px] text-text outline-none resize-y"
               rows={3}
-              placeholder="예: 사장님, 차량 이용방법 고민되시죠? 제가 1분 만에 딱 맞는 방법 찾아드릴게요! 🚗"
+              placeholder="예: 고객님, 어떤 자동차 이용방법이 좋을지 고민되시나요? AI 진단으로 최적의 방법을 찾아드리겠습니다! 🚗"
             />
           </div>
 
@@ -229,7 +229,7 @@ export default function AdminAIPage() {
                       <div className={`text-sm font-semibold ${active ? 'text-white' : 'text-text'}`}>
                         {m.name}
                         {m.badge && (
-                          <span className={`ml-2 text-[10px] font-bold px-1.5 py-0.5 rounded ${active ? 'bg-white/20 text-white' : 'bg-[#007AFF1A] text-primary'}`}>
+                          <span className={`ml-2 text-[10px] font-bold px-1.5 py-0.5 rounded ${active ? 'bg-white/20 text-white' : 'bg-[#2563EB1A] text-primary'}`}>
                             {m.badge}
                           </span>
                         )}
@@ -347,7 +347,7 @@ export default function AdminAIPage() {
                 <div className="flex items-start gap-3">
                   <div
                     className="w-11 h-11 rounded-full flex items-center justify-center text-xl shrink-0"
-                    style={{ backgroundColor: cfg.bgColor || '#007AFF' }}
+                    style={{ backgroundColor: cfg.bgColor || '#2563EB' }}
                   >
                     {cfg.charEmoji}
                   </div>

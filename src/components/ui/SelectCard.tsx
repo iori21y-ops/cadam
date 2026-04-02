@@ -6,7 +6,7 @@ interface SelectCardProps extends React.ButtonHTMLAttributes<HTMLButtonElement> 
   selected?: boolean;
   dimmed?: boolean;
   compact?: boolean;
-  /** 선택 시 색상 (기본값: #007AFF) */
+  /** 선택 시 색상 (기본값: #2563EB) */
   color?: string;
 }
 
@@ -14,7 +14,7 @@ export function SelectCard({
   selected = false,
   dimmed = false,
   compact = false,
-  color = '#007AFF',
+  color = '#2563EB',
   className = '',
   children,
   style,

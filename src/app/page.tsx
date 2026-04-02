@@ -9,6 +9,7 @@ import { SelectCard } from '@/components/ui/SelectCard';
 import { Footer } from '@/components/Footer';
 import { getVehicleBySlug } from '@/constants/vehicles';
 import { usePageTransitionStore } from '@/store/pageTransitionStore';
+import { BRAND } from '@/constants/brand';
 
 const POPULAR_SLUGS = ['avante', 'tucson', 'k5', 'sportage', 'sorento', 'ioniq5'] as const;
 
@@ -85,7 +86,7 @@ export default function HomePage() {
       {/* 메인 카드 목록 */}
       <section className="px-5 pt-10 pb-10 flex-1">
         <h2 className="text-xl font-bold text-text mb-6 text-center">
-          카담과 함께하기
+          {BRAND.mainHeading.replace('\n', ' ')}
         </h2>
         <div
           className="flex flex-col gap-4 max-w-lg mx-auto"
@@ -105,7 +106,7 @@ export default function HomePage() {
                   selected={isActive}
                   dimmed={isDimmed}
                   disabled={!!clickedHref && !isActive}
-                  color="#007AFF"
+                  color="#2563EB"
                   onClick={() => handleCardClick(card.href)}
                 >
                   <span className={`text-3xl shrink-0 w-14 h-14 flex items-center justify-center rounded-2xl ${card.color}`}>

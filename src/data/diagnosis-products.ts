@@ -12,7 +12,7 @@ export const PRODUCT_LABELS: Record<ProductKey, string> = {
 export const DEFAULT_PRODUCTS: Products = {
   installment: {
     name: "할부",
-    color: "#007AFF",
+    color: "#2563EB",
     lightBg: "rgba(0,122,255,0.08)",
     emoji: "📋",
     tagline: "내 차를 내 이름으로",
@@ -23,7 +23,7 @@ export const DEFAULT_PRODUCTS: Products = {
   },
   lease: {
     name: "리스",
-    color: "#5856D6",
+    color: "#7C3AED",
     lightBg: "rgba(88,86,214,0.08)",
     emoji: "📝",
     tagline: "스마트한 비용 처리",
@@ -34,7 +34,7 @@ export const DEFAULT_PRODUCTS: Products = {
   },
   rent: {
     name: "장기렌트",
-    color: "#34C759",
+    color: "#10B981",
     lightBg: "rgba(52,199,89,0.08)",
     emoji: "🚙",
     tagline: "관리 걱정 없이 편하게",
@@ -45,7 +45,7 @@ export const DEFAULT_PRODUCTS: Products = {
   },
   cash: {
     name: "현금구매",
-    color: "#FF9500",
+    color: "#F59E0B",
     lightBg: "rgba(255,149,0,0.08)",
     emoji: "💰",
     tagline: "이자 없이 온전한 내 차",

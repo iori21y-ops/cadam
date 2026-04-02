@@ -31,7 +31,7 @@ const TYPE_FILTERS = [
 type ContentType = typeof TYPE_FILTERS[number]['value'];
 
 const TYPE_META: Record<'blog' | 'youtube' | 'shorts', { label: string; color: string }> = {
-  blog: { label: '블로그', color: '#007AFF' },
+  blog: { label: '블로그', color: '#2563EB' },
   youtube: { label: '영상', color: '#FF3B30' },
   shorts: { label: '쇼츠', color: '#FF2D55' },
 };
@@ -75,7 +75,7 @@ const ArticleSlide = memo(function ArticleSlide({
             className="absolute inset-0"
             style={{
               background: type === 'blog'
-                ? 'linear-gradient(135deg, #007AFF 0%, #5856D6 100%)'
+                ? 'linear-gradient(135deg, #2563EB 0%, #7C3AED 100%)'
                 : 'linear-gradient(135deg, #FF3B30 0%, #FF9500 100%)',
             }}
           />

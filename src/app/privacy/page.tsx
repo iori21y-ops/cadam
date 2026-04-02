@@ -1,9 +1,10 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { BRAND } from '@/constants/brand';
 
 export const metadata: Metadata = {
-  title: '개인정보 처리방침 | 카담(CADAM)',
-  description: '카담 장기렌터카 서비스의 개인정보 수집 및 이용에 관한 안내입니다.',
+  title: BRAND.privacy.title,
+  description: BRAND.privacy.description,
 };
 
 export default function PrivacyPage() {
@@ -15,7 +16,7 @@ export default function PrivacyPage() {
         </h1>
 
         <p className="text-sm text-gray-600 mb-10 leading-relaxed">
-          카담(CADAM)은 「개인정보 보호법」에 따라 이용자의 개인정보를 보호하고
+          {BRAND.nameWithEn}은 「개인정보 보호법」에 따라 이용자의 개인정보를 보호하고
           이와 관련한 고충을 신속하고 원활하게 처리할 수 있도록 하기 위하여
           다음과 같이 개인정보 처리방침을 수립·공개합니다.
         </p>
