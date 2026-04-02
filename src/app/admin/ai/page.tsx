@@ -129,17 +129,20 @@ export default function AdminAIPage() {
 
         <div className="flex flex-col gap-3">
           {/* 미리보기 */}
-          <div className="rounded-2xl p-5 text-white bg-[linear-gradient(135deg,#1D1D1F,#2C2C2E)]">
-            <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-full flex items-center justify-center text-xl bg-primary">
+          <div className="rounded-2xl p-5 text-white" style={{ background: 'linear-gradient(135deg, #1D1D1F, #2C2C2E)' }}>
+            <div className="flex items-start gap-3">
+              <div
+                className="w-11 h-11 rounded-full flex items-center justify-center text-xl shrink-0"
+                style={{ backgroundColor: cfg.bgColor || '#007AFF' }}
+              >
                 {cfg.charEmoji}
               </div>
-              <div>
-                <p className="text-sm font-bold">{cfg.charTitle}</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-bold text-white">{cfg.charTitle}</p>
                 <p className="text-xs text-white/60">{cfg.charSubtitle}</p>
+                {testResult && <p className="mt-2 text-sm text-white/85 leading-relaxed">{testResult}</p>}
               </div>
             </div>
-            {testResult && <p className="mt-3 text-sm text-white/85">{testResult}</p>}
           </div>
 
           {/* 진단 페이지 상단 코멘트 */}
@@ -340,12 +343,20 @@ export default function AdminAIPage() {
             </div>
             <div className="text-[11px] text-text-sub mb-2">샘플 데이터로 실제 API를 호출합니다</div>
             {testResult && (
-              <div className="rounded-xl p-4 bg-[linear-gradient(135deg,#1D1D1F,#2C2C2E)]">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-base">{cfg.charEmoji}</span>
-                  <span className="text-sm font-semibold text-white">{cfg.charName}</span>
+              <div className="rounded-2xl p-5 text-white" style={{ background: 'linear-gradient(135deg, #1D1D1F, #2C2C2E)' }}>
+                <div className="flex items-start gap-3">
+                  <div
+                    className="w-11 h-11 rounded-full flex items-center justify-center text-xl shrink-0"
+                    style={{ backgroundColor: cfg.bgColor || '#007AFF' }}
+                  >
+                    {cfg.charEmoji}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold text-white">{cfg.charTitle}</p>
+                    <p className="text-xs text-white/60">{cfg.charSubtitle}</p>
+                    <p className="mt-2 text-sm text-white/85 leading-relaxed">{testResult}</p>
+                  </div>
                 </div>
-                <div className="text-sm text-white/85 leading-relaxed">{testResult}</div>
               </div>
             )}
           </div>

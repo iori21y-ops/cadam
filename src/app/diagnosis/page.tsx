@@ -86,10 +86,13 @@ export default function DiagnosisPage() {
     <div className="min-h-screen bg-surface-secondary pb-10">
       {/* 박대표AI 코멘트 */}
       <section className="px-5 pt-6 pb-4 max-w-lg mx-auto">
-        <div className="flex gap-3 items-start p-4 rounded-2xl bg-primary/5 border border-primary/[0.12]">
-          <span className="text-3xl shrink-0">{aiConfig.charEmoji}</span>
-          <div className="min-w-0">
-            <p className="text-xs font-bold text-primary mb-1">{aiConfig.charTitle}</p>
+        <div className="flex gap-3 items-start p-5 rounded-2xl bg-primary/5 border border-primary/[0.12]">
+          <div className="w-11 h-11 rounded-full flex items-center justify-center text-xl shrink-0 bg-primary/10">
+            {aiConfig.charEmoji}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-bold text-primary">{aiConfig.charTitle}</p>
+            <p className="text-xs text-text-sub mb-1">{aiConfig.charSubtitle}</p>
             <p className="text-sm text-text leading-relaxed">{aiConfig.introComment}</p>
           </div>
         </div>
