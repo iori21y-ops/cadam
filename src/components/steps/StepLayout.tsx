@@ -9,11 +9,10 @@ import { gtag } from '@/lib/gtag';
 import { Button } from '@/components/ui/Button';
 
 const STEP_NAMES: Record<number, string> = {
-  1: '월 예산',
-  2: '계약 기간',
-  3: '주행거리',
-  4: '결제 방식',
-  5: '연락처 입력',
+  1: '계약 기간',
+  2: '주행거리',
+  3: '결제 방식',
+  4: '연락처 입력',
 };
 
 interface StepLayoutProps {

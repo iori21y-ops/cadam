@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import { QuizModule } from '@/components/diagnosis/QuizModule';
 import { ParkAI } from '@/components/diagnosis/ParkAI';
 import { DEFAULT_VEHICLE_BASIC, DEFAULT_VEHICLE_DETAIL } from '@/data/diagnosis-vehicle';
-import { VEHICLES } from '@/data/diagnosis-vehicles';
+import { VEHICLES, TRIMS } from '@/data/diagnosis-vehicles';
 import { DEFAULT_PRODUCTS, PRODUCT_KEYS } from '@/data/diagnosis-products';
 import { scoreByTags } from '@/lib/flow-engine';
 import { VEHICLE_LIST } from '@/constants/vehicles';
@@ -34,13 +34,30 @@ function VehResult({ answers, mode, restart, toDetail, onHome, vehicles }: {
 }) {
   const router = useRouter();
 
-  const answerTags = Object.values(answers).flatMap((a) =>
-    'tags' in a ? (a as VehicleOption).tags : []
-  );
+  // 차종 태그와 옵션 태그 분리
+  const vehicleTags: string[] = [];
+  const optionTags: string[] = [];
+  for (const [qId, ans] of Object.entries(answers)) {
+    if ('tags' in ans) {
+      const tags = (ans as VehicleOption).tags;
+      if (qId.startsWith('o_')) {
+        optionTags.push(...tags);
+      } else {
+        vehicleTags.push(...tags);
+      }
+    }
+  }
 
-  const scored = scoreByTags(vehicles, answerTags, 4);
+  const scored = scoreByTags(vehicles, vehicleTags, 4);
   const best = scored[0];
   const answerCount = Object.keys(answers).length;
+
+  // 1순위 차종의 트림 추천
+  const bestTrims = TRIMS[best.name] ?? [];
+  const scoredTrims = optionTags.length > 0
+    ? scoreByTags(bestTrims, optionTags, 3)
+    : [];
+  const bestTrim = scoredTrims[0];
 
   // 미션 완료 저장 (답변 포함 — 결과 복원용)
   useEffect(() => {
@@ -173,24 +190,51 @@ function VehResult({ answers, mode, restart, toDetail, onHome, vehicles }: {
           />
         </motion.div>
 
-        {/* 옵션 추천 CTA */}
-        <motion.div
-          initial={{ opacity: 0, x: 40 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.35, duration: 0.35, ease: 'easeOut' }}
-          className="p-6 rounded-2xl mb-4 text-center"
-          style={{ background: 'linear-gradient(135deg, #2563EB, #3395FF)' }}
-        >
-          <p className="text-[17px] font-bold text-white mb-1.5">{best.name}의 최적 옵션은?</p>
-          <p className="text-[13px] mb-4" style={{ color: 'rgba(255,255,255,0.7)' }}>5개 질문으로 딱 맞는 트림과 옵션을 추천해드립니다</p>
-          <button
-            onClick={() => router.push(`/diagnosis/vehicle/option?car=${encodeURIComponent(best.name)}`)}
-            className="py-3.5 px-8 rounded-2xl text-sm font-semibold"
-            style={{ background: '#FFF', color: COLOR }}
+        {/* 추천 트림 */}
+        {bestTrim && (
+          <motion.div
+            initial={{ opacity: 0, x: 40 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.35, duration: 0.35, ease: 'easeOut' }}
+            className="p-5 rounded-2xl bg-surface shadow-sm mb-4"
           >
-            🎯 옵션 추천받기
-          </button>
-        </motion.div>
+            <p className="text-sm font-bold text-text mb-3">{best.name} 추천 트림</p>
+
+            {/* 1순위 트림 */}
+            <div className="p-4 rounded-xl mb-3 border-2" style={{ borderColor: COLOR }}>
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full text-white" style={{ backgroundColor: COLOR }}>BEST</span>
+                  <p className="font-bold text-text">{bestTrim.name}</p>
+                </div>
+                <p className="text-sm font-bold text-text">{bestTrim.price.toLocaleString()}만원</p>
+              </div>
+              {bestTrim.add > 0 && (
+                <p className="text-xs text-text-muted mb-2">기본 대비 +{bestTrim.add.toLocaleString()}만원</p>
+              )}
+              <div className="flex flex-wrap gap-1.5">
+                {bestTrim.feats.map((f) => (
+                  <span key={f} className="text-xs px-2 py-1 rounded-full bg-surface-secondary text-text-sub">{f}</span>
+                ))}
+              </div>
+            </div>
+
+            {/* 나머지 트림 */}
+            {scoredTrims.length > 1 && (
+              <div className="flex flex-col gap-2">
+                {scoredTrims.slice(1).map((t) => (
+                  <div key={t.name} className="flex items-center justify-between p-3 rounded-xl bg-surface-secondary">
+                    <div>
+                      <p className="text-sm font-semibold text-text">{t.name}</p>
+                      <p className="text-xs text-text-muted">{t.feats.slice(0, 2).join(', ')}</p>
+                    </div>
+                    <p className="text-sm font-bold text-text">{t.price.toLocaleString()}만원</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </motion.div>
+        )}
 
         {/* 공유 + 하단 버튼 */}
         <div className="flex flex-col gap-3">

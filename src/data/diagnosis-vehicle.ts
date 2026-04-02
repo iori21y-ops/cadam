@@ -5,6 +5,8 @@ export const ALL_VEHICLE_TAGS = [
   "대형세단", "대형SUV", "미니밴", "스포츠", "하이브리드", "전기차", "일반",
 ];
 
+export const ALL_OPTION_TAGS = ["경제", "기본", "편의", "안전", "풀옵", "프리미엄", "스포티"];
+
 export const DEFAULT_VEHICLE_BASIC: VehicleQuestion[] = [
   { id: "v_purpose", question: "차량의 주요 용도는?", subtitle: "가장 자주 사용하는 상황", skipIf: [], options: [
     { label: "출퇴근·도심 이동", value: "commute", tags: ["경차", "소형세단", "소형SUV"], nextQ: "" },
@@ -34,6 +36,17 @@ export const DEFAULT_VEHICLE_BASIC: VehicleQuestion[] = [
     { label: "하이브리드", value: "hybrid", tags: ["하이브리드"], nextQ: "" },
     { label: "전기차", value: "ev", tags: ["전기차"], nextQ: "" },
     { label: "상관없음", value: "any", tags: ["일반", "하이브리드", "전기차"], nextQ: "" },
+  ]},
+  // ─── 옵션 질문 (간편 모드: 핵심 2개) ───
+  { id: "o_budget", question: "옵션에 추가로\n투자할 예산은?", subtitle: "기본 트림 대비 추가 비용", skipIf: [], options: [
+    { label: "최소한으로 (0~100만원)", value: "min", tags: ["경제", "기본"], nextQ: "" },
+    { label: "적당히 (100~500만원)", value: "mid", tags: ["편의", "안전"], nextQ: "" },
+    { label: "풀옵션 원한다 (500만원+)", value: "max", tags: ["풀옵", "프리미엄"], nextQ: "" },
+  ]},
+  { id: "o_safety", question: "안전 사양은\n얼마나 중요한가요?", subtitle: "주행 보조·충돌 방지 등", skipIf: [], options: [
+    { label: "기본 에어백이면 충분", value: "basic", tags: ["기본", "경제"], nextQ: "" },
+    { label: "전방충돌방지는 있어야", value: "moderate", tags: ["안전"], nextQ: "" },
+    { label: "최신 ADAS 풀옵션 원함", value: "full", tags: ["풀옵", "안전", "프리미엄"], nextQ: "" },
   ]},
 ];
 
@@ -68,5 +81,22 @@ export const DEFAULT_VEHICLE_DETAIL: VehicleQuestion[] = [
     { label: "30km 이하 (근거리)", value: "short", tags: ["경차", "소형세단", "전기차"], nextQ: "" },
     { label: "30~100km", value: "medium", tags: ["소형SUV", "중형세단", "하이브리드"], nextQ: "" },
     { label: "100km 이상 (장거리)", value: "long", tags: ["중형SUV", "대형세단", "하이브리드"], nextQ: "" },
+  ]},
+  // ─── 옵션 질문 (상세 모드: 나머지 3개) ───
+  { id: "o_comfort", question: "편의 사양 중\n가장 중요한 것은?", subtitle: "하나만 고른다면", skipIf: [], options: [
+    { label: "열선 시트·스티어링", value: "heated", tags: ["편의"], nextQ: "" },
+    { label: "내비·큰 디스플레이", value: "navi", tags: ["편의", "기본"], nextQ: "" },
+    { label: "가죽시트·전동시트", value: "leather", tags: ["프리미엄", "편의"], nextQ: "" },
+    { label: "특별히 없음", value: "none", tags: ["경제", "기본"], nextQ: "" },
+  ]},
+  { id: "o_tech", question: "첨단 기능에 대한\n관심은?", subtitle: "원격주차, 서라운드뷰, 헤드업디스플레이 등", skipIf: [], options: [
+    { label: "없어도 된다", value: "none", tags: ["기본", "경제"], nextQ: "" },
+    { label: "있으면 좋겠다", value: "nice", tags: ["편의"], nextQ: "" },
+    { label: "반드시 있어야 한다", value: "must", tags: ["풀옵", "프리미엄"], nextQ: "" },
+  ]},
+  { id: "o_sound", question: "사운드 시스템은\n중요한가요?", subtitle: "BOSE, 하만카돈, JBL 등 프리미엄 사운드", skipIf: [], options: [
+    { label: "기본으로 충분", value: "basic", tags: ["기본", "경제"], nextQ: "" },
+    { label: "좋으면 좋지만 필수 아님", value: "nice", tags: ["편의"], nextQ: "" },
+    { label: "프리미엄 사운드 원함", value: "premium", tags: ["프리미엄", "풀옵"], nextQ: "" },
   ]},
 ];

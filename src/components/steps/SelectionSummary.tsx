@@ -3,14 +3,6 @@
 import { useRef, useLayoutEffect, useState } from 'react';
 import { useQuoteStore, type Deposit } from '@/store/quoteStore';
 
-const BUDGET_LABELS: Record<number, string> = {
-  300000: '30만원 이하',
-  500000: '30~50만원',
-  700000: '50~70만원',
-  1000000: '70~100만원',
-  1500000: '100만원 이상',
-};
-
 const PERIOD_LABELS: Record<number, string> = {
   36: '36개월',
   48: '48개월',
@@ -45,8 +37,6 @@ interface SummaryItem {
 }
 
 export function SelectionSummary({ currentStep }: { currentStep: number }) {
-  const isExpanded = currentStep === 5;
-  const monthlyBudget = useQuoteStore((s) => s.monthlyBudget);
   const contractMonths = useQuoteStore((s) => s.contractMonths);
   const annualKm = useQuoteStore((s) => s.annualKm);
   const deposit = useQuoteStore((s) => s.deposit);
@@ -55,40 +45,31 @@ export function SelectionSummary({ currentStep }: { currentStep: number }) {
 
   const items: SummaryItem[] = [];
 
-  // Step 1: 월 예산
-  if (monthlyBudget !== null && currentStep >= 2) {
+  // Step 1: 계약 기간
+  if (contractMonths !== null && currentStep >= 2) {
     items.push({
       step: 1,
-      label: '월 예산',
-      value: BUDGET_LABELS[monthlyBudget] ?? `${(monthlyBudget / 10000).toFixed(0)}만원`,
-    });
-  }
-
-  // Step 2: 계약 기간
-  if (contractMonths !== null && currentStep >= 3) {
-    items.push({
-      step: 2,
       label: '계약 기간',
       value: PERIOD_LABELS[contractMonths],
     });
   }
 
-  // Step 3: 주행거리
-  if (annualKm !== null && currentStep >= 4) {
+  // Step 2: 주행거리
+  if (annualKm !== null && currentStep >= 3) {
     items.push({
-      step: 3,
+      step: 2,
       label: '주행거리',
       value: MILEAGE_LABELS[annualKm],
     });
   }
 
-  // Step 4: 보증금·선납금
-  if ((deposit !== null || prepaymentPct !== null) && currentStep >= 5) {
+  // Step 3: 보증금·선납금 (있을 때만)
+  if ((deposit !== null || prepaymentPct !== null) && currentStep >= 4) {
     const parts: string[] = [];
     if (deposit !== null) parts.push(`보증금 ${DEPOSIT_RATIO_LABELS[deposit]}`);
     if (prepaymentPct !== null) parts.push(`선납 ${PREPAYMENT_LABELS[prepaymentPct]}`);
     items.push({
-      step: 4,
+      step: 3,
       label: '보증금·선납',
       value: parts.join(', '),
     });
@@ -97,6 +78,9 @@ export function SelectionSummary({ currentStep }: { currentStep: number }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const measureRef = useRef<HTMLDivElement>(null);
   const [needsSliding, setNeedsSliding] = useState(false);
+
+  // 마지막 스텝(연락처)에서만 expanded
+  const isExpanded = currentStep >= 3 && items.length > 0;
 
   useLayoutEffect(() => {
     if (isExpanded || items.length === 0) return;
