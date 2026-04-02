@@ -24,6 +24,19 @@ const CONFIG_ID = 'diagnosis_data_v1';
 
 const COLOR = '#2563EB';
 
+function RankBadge({ rank }: { rank: number }) {
+  const badges = ['1st', '2nd', '3rd'];
+  const colors = ['#EF4444', '#F59E0B', '#8E8E93'];
+  return (
+    <span
+      className="text-[10px] font-bold px-2 py-0.5 rounded-full text-white"
+      style={{ backgroundColor: colors[rank] ?? '#8E8E93' }}
+    >
+      {badges[rank] ?? ''}
+    </span>
+  );
+}
+
 function VehResult({ answers, mode, restart, toDetail, onHome, vehicles }: {
   answers: Record<string, DiagnosisAnswer>;
   mode: 'basic' | 'detail';
@@ -48,7 +61,7 @@ function VehResult({ answers, mode, restart, toDetail, onHome, vehicles }: {
     }
   }
 
-  const scored = scoreByTags(vehicles, vehicleTags, 4);
+  const scored = scoreByTags(vehicles, vehicleTags, 3);
   const best = scored[0];
   const answerCount = Object.keys(answers).length;
 
@@ -77,6 +90,7 @@ function VehResult({ answers, mode, restart, toDetail, onHome, vehicles }: {
   };
 
   const [copied, setCopied] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const shareUrl = buildShareUrl('/diagnosis/vehicle', mode, answers);
 
   const handleCopy = async () => {
@@ -128,35 +142,51 @@ function VehResult({ answers, mode, restart, toDetail, onHome, vehicles }: {
           mode="report"
         />
 
-        {/* TOP 4 카드 */}
-        <div className="flex flex-col gap-3 mb-4">
+        {/* 추천 순위 (1순위 상세 + 접기/펼치기) */}
+        <motion.div
+          initial={{ opacity: 0, x: 40 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.1, duration: 0.35, ease: 'easeOut' }}
+          className="rounded-2xl bg-surface shadow-sm mb-4 overflow-hidden"
+        >
           {scored.map((v, i) => {
             const slug = matchSlug(v.name);
+            const isBest = i === 0;
+            if (!isBest && !expanded) return null;
+
+            // 해당 차종의 트림 추천
+            const vTrims = TRIMS[v.name] ?? [];
+            const vScoredTrims = optionTags.length > 0 ? scoreByTags(vTrims, optionTags, 1) : [];
+            const vBestTrim = vScoredTrims[0];
+
             return (
-              <motion.div
-                key={v.name}
-                initial={{ opacity: 0, x: 40 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: i * 0.08, duration: 0.35, ease: 'easeOut' }}
-                className="p-4 rounded-2xl bg-surface shadow-sm"
-              >
-                <div className="flex items-center gap-3 mb-2">
-                  <span className="text-2xl">{v.img}</span>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <p className="font-bold text-text text-sm">{v.brand} {v.name}</p>
-                      {i === 0 && (
-                        <span className="text-xs px-2 py-0.5 rounded-full text-white font-semibold" style={{ backgroundColor: COLOR }}>
-                          BEST
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-xs text-text-muted">{v.class} · {v.price}만원~</p>
+              <div key={v.name} className={`px-5 py-5 ${!isBest ? 'border-t border-border' : ''}`}>
+                {/* 헤더 */}
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="flex flex-col items-center gap-1">
+                    <RankBadge rank={i} />
+                    <span className="text-2xl">{v.img}</span>
                   </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <p className="font-bold text-text text-[17px]">{v.brand} {v.name}</p>
+                    </div>
+                    <p className="text-xs text-text-muted">{v.class} · {v.price.toLocaleString()}만원~</p>
+                  </div>
+                  {slug && (
+                    <button
+                      onClick={() => router.push(`/cars/${slug}`)}
+                      className="text-[11px] font-semibold px-2.5 py-1 rounded-lg text-vehicle border border-vehicle/20 hover:bg-vehicle/5 transition-colors shrink-0"
+                    >
+                      상세 →
+                    </button>
+                  )}
                 </div>
-                <div className="grid grid-cols-4 gap-1.5 mb-2">
+
+                {/* 상품별 월 비용 */}
+                <div className="grid grid-cols-4 gap-1.5 mb-3">
                   {PRODUCT_KEYS.map((key) => (
-                    <div key={key} className="text-center py-1.5 rounded-xl" style={{ backgroundColor: DEFAULT_PRODUCTS[key].lightBg }}>
+                    <div key={key} className="text-center py-2 rounded-xl" style={{ backgroundColor: DEFAULT_PRODUCTS[key].lightBg }}>
                       <p className="text-[10px] text-text-muted">{DEFAULT_PRODUCTS[key].name}</p>
                       <p className="text-xs font-bold" style={{ color: DEFAULT_PRODUCTS[key].color }}>
                         {key === 'cash' ? '일시불' : `${v.monthly[key]}만`}
@@ -164,18 +194,40 @@ function VehResult({ answers, mode, restart, toDetail, onHome, vehicles }: {
                     </div>
                   ))}
                 </div>
-                {i === 0 && slug && (
-                  <button
-                    onClick={() => router.push(`/cars/${slug}`)}
-                    className="w-full py-2 rounded-xl text-xs font-semibold text-vehicle border border-vehicle/20 hover:bg-vehicle/5 transition-colors"
-                  >
-                    {v.name} 상세 정보 보기 →
-                  </button>
+
+                {/* 추천 트림 (옵션 태그가 있을 때) */}
+                {vBestTrim && (
+                  <div className="p-3 rounded-xl bg-surface-secondary mb-2">
+                    <div className="flex items-center justify-between mb-1.5">
+                      <p className="text-xs font-semibold text-text">추천 트림: {vBestTrim.name}</p>
+                      <p className="text-xs font-bold text-text">{vBestTrim.price.toLocaleString()}만원</p>
+                    </div>
+                    <div className="flex flex-wrap gap-1">
+                      {vBestTrim.feats.map((f) => (
+                        <span key={f} className="text-[10px] px-1.5 py-0.5 rounded-md bg-white text-text-sub">{f}</span>
+                      ))}
+                    </div>
+                  </div>
                 )}
-              </motion.div>
+
+                {/* 1순위에만 추가 정보 */}
+                {isBest && (
+                  <p className="text-[11px] text-text-muted">고객님의 용도·예산·탑승 인원에 가장 적합한 차종입니다</p>
+                )}
+              </div>
             );
           })}
-        </div>
+
+          {/* 접기/펼치기 */}
+          {scored.length > 1 && (
+            <button
+              onClick={() => setExpanded(!expanded)}
+              className="w-full py-3 border-t border-border text-xs font-semibold text-primary hover:bg-primary/[0.03] transition-colors"
+            >
+              {expanded ? '접기 ▲' : '2·3순위 보기 ▼'}
+            </button>
+          )}
+        </motion.div>
 
         {/* 1순위 시뮬레이션 */}
         <motion.div
@@ -190,51 +242,6 @@ function VehResult({ answers, mode, restart, toDetail, onHome, vehicles }: {
           />
         </motion.div>
 
-        {/* 추천 트림 */}
-        {bestTrim && (
-          <motion.div
-            initial={{ opacity: 0, x: 40 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.35, duration: 0.35, ease: 'easeOut' }}
-            className="p-5 rounded-2xl bg-surface shadow-sm mb-4"
-          >
-            <p className="text-sm font-bold text-text mb-3">{best.name} 추천 트림</p>
-
-            {/* 1순위 트림 */}
-            <div className="p-4 rounded-xl mb-3 border-2" style={{ borderColor: COLOR }}>
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full text-white" style={{ backgroundColor: COLOR }}>BEST</span>
-                  <p className="font-bold text-text">{bestTrim.name}</p>
-                </div>
-                <p className="text-sm font-bold text-text">{bestTrim.price.toLocaleString()}만원</p>
-              </div>
-              {bestTrim.add > 0 && (
-                <p className="text-xs text-text-muted mb-2">기본 대비 +{bestTrim.add.toLocaleString()}만원</p>
-              )}
-              <div className="flex flex-wrap gap-1.5">
-                {bestTrim.feats.map((f) => (
-                  <span key={f} className="text-xs px-2 py-1 rounded-full bg-surface-secondary text-text-sub">{f}</span>
-                ))}
-              </div>
-            </div>
-
-            {/* 나머지 트림 */}
-            {scoredTrims.length > 1 && (
-              <div className="flex flex-col gap-2">
-                {scoredTrims.slice(1).map((t) => (
-                  <div key={t.name} className="flex items-center justify-between p-3 rounded-xl bg-surface-secondary">
-                    <div>
-                      <p className="text-sm font-semibold text-text">{t.name}</p>
-                      <p className="text-xs text-text-muted">{t.feats.slice(0, 2).join(', ')}</p>
-                    </div>
-                    <p className="text-sm font-bold text-text">{t.price.toLocaleString()}만원</p>
-                  </div>
-                ))}
-              </div>
-            )}
-          </motion.div>
-        )}
 
         {/* 공유 + 하단 버튼 */}
         <div className="flex flex-col gap-3">
