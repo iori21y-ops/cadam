@@ -62,7 +62,6 @@ function FinResult({ answers, questions, mode, restart, toDetail, onHome }: {
   toDetail: () => void;
   onHome: () => void;
 }) {
-  const router = useRouter();
   const allQs = mode === 'detail' ? [...FINANCE_BASIC, ...FINANCE_DETAIL] : FINANCE_BASIC;
   const ranking = rankFinanceProducts(answers, allQs);
   const best = ranking[0];
@@ -123,11 +122,27 @@ function FinResult({ answers, questions, mode, restart, toDetail, onHome }: {
   return (
     <div className="min-h-screen bg-surface-secondary pb-16">
       <div className="px-5 pt-10 max-w-lg mx-auto">
-        {/* 모드 배지 */}
-        <div className="flex items-center gap-2 mb-5">
+        {/* 모드 배지 + 공유 */}
+        <div className="flex items-center justify-between mb-5">
           <span className="text-xs px-3 py-1 rounded-full bg-finance/8 text-finance font-semibold">
             {mode === 'basic' ? '간편 진단' : '상세 진단'} · {answerCount}개 응답
           </span>
+          <div className="flex gap-1.5">
+            <button
+              onClick={handleKakaoShare}
+              className="w-8 h-8 rounded-lg bg-surface flex items-center justify-center text-sm border border-border-solid hover:border-primary transition-colors"
+              title="카카오톡 공유"
+            >
+              💬
+            </button>
+            <button
+              onClick={handleShare}
+              className="w-8 h-8 rounded-lg bg-surface flex items-center justify-center text-sm border border-border-solid hover:border-primary transition-colors"
+              title="링크 복사"
+            >
+              {copied ? '✓' : '🔗'}
+            </button>
+          </div>
         </div>
 
         {/* 헤드라인 */}
@@ -239,26 +254,6 @@ function FinResult({ answers, questions, mode, restart, toDetail, onHome }: {
               {expanded ? `접기 ▲` : `2·3순위 보기 ▼`}
             </button>
           )}
-        </motion.div>
-
-        {/* CTA */}
-        <motion.div
-          initial={{ opacity: 0, x: 40 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.4, duration: 0.35, ease: 'easeOut' }}
-          className="flex flex-col gap-3 mb-4"
-        >
-          <Button variant="primary" size="lg" fullWidth className="shadow-lg shadow-primary/20 font-bold" onClick={() => router.push('/quote')}>
-            견적 받기 →
-          </Button>
-          <div className="flex gap-2">
-            <Button variant="surface" className="flex-1" onClick={handleKakaoShare}>
-              카카오톡 공유
-            </Button>
-            <Button variant="surface" className="flex-1" onClick={handleShare}>
-              {copied ? '복사됨!' : '링크 공유'}
-            </Button>
-          </div>
         </motion.div>
 
         {/* 다음 미션 유도 */}
