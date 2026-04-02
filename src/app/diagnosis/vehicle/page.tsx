@@ -121,11 +121,27 @@ function VehResult({ answers, mode, restart, toDetail, onHome, vehicles }: {
   return (
     <div className="min-h-screen bg-surface-secondary pb-16">
       <div className="px-5 pt-10 max-w-lg mx-auto">
-        {/* 모드 배지 */}
-        <div className="flex items-center gap-2 mb-5">
+        {/* 모드 배지 + 공유 */}
+        <div className="flex items-center justify-between mb-5">
           <span className="text-xs px-3 py-1 rounded-full bg-vehicle/8 text-vehicle font-semibold">
             {mode === 'basic' ? '간편 진단' : '상세 진단'} · {answerCount}개 응답
           </span>
+          <div className="flex gap-1.5">
+            <button
+              onClick={handleKakaoShare}
+              className="w-8 h-8 rounded-lg bg-surface flex items-center justify-center text-sm border border-border-solid hover:border-primary transition-colors"
+              title="카카오톡 공유"
+            >
+              💬
+            </button>
+            <button
+              onClick={handleShare}
+              className="w-8 h-8 rounded-lg bg-surface flex items-center justify-center text-sm border border-border-solid hover:border-primary transition-colors"
+              title="링크 복사"
+            >
+              {copied ? '✓' : '🔗'}
+            </button>
+          </div>
         </div>
 
         {/* 헤드라인 */}
@@ -136,27 +152,11 @@ function VehResult({ answers, mode, restart, toDetail, onHome, vehicles }: {
           </h1>
         </motion.div>
 
-        {/* ParkAI + 공유 버튼 */}
-        <div className="relative">
-          <div className="absolute top-3 right-3 flex gap-1.5 z-10">
-            <button
-              onClick={handleKakaoShare}
-              className="px-2 py-1 rounded-lg bg-white/15 text-[10px] font-semibold text-white/70 hover:bg-white/25 transition-colors"
-            >
-              카카오
-            </button>
-            <button
-              onClick={handleShare}
-              className="px-2 py-1 rounded-lg bg-white/15 text-[10px] font-semibold text-white/70 hover:bg-white/25 transition-colors"
-            >
-              {copied ? '복사됨!' : '링크'}
-            </button>
-          </div>
-          <ParkAI
-            ctx={`차종추천결과: TOP3 - ${scored.slice(0, 3).map(v => `${v.name}(${v.score}점)`).join(', ')}. 응답수: ${answerCount}개. 모드: ${mode}. 1순위: ${best.brand} ${best.name} (${best.class}, ${best.price}만원~). 용도: ${answers['v_purpose']?.label ?? '미응답'}. 예산: ${answers['v_budget']?.label ?? '미응답'}.`}
-            mode="report"
-          />
-        </div>
+        {/* ParkAI */}
+        <ParkAI
+          ctx={`차종추천결과: TOP3 - ${scored.slice(0, 3).map(v => `${v.name}(${v.score}점)`).join(', ')}. 응답수: ${answerCount}개. 모드: ${mode}. 1순위: ${best.brand} ${best.name} (${best.class}, ${best.price}만원~). 용도: ${answers['v_purpose']?.label ?? '미응답'}. 예산: ${answers['v_budget']?.label ?? '미응답'}.`}
+          mode="report"
+        />
 
         {/* 추천 순위 (1순위 상세 + 접기/펼치기) */}
         <motion.div
