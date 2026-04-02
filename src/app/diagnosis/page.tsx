@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { usePathname, useRouter } from 'next/navigation';
 import { useRef, useState, useEffect } from 'react';
 import { SelectCard } from '@/components/ui/SelectCard';
+import { ParkAI } from '@/components/diagnosis/ParkAI';
 import { usePageTransitionStore } from '@/store/pageTransitionStore';
 import { createBrowserSupabaseClient } from '@/lib/supabase';
 import { DEFAULT_AI_CONFIG } from '@/data/diagnosis-ai';
@@ -85,17 +86,13 @@ export default function DiagnosisPage() {
   return (
     <div className="min-h-screen bg-surface-secondary pb-10">
       {/* 박대표AI 코멘트 */}
-      <section className="px-5 pt-6 pb-4 max-w-lg mx-auto">
-        <div className="flex gap-3 items-start p-5 rounded-2xl bg-primary/5 border border-primary/[0.12]">
-          <div className="w-11 h-11 rounded-full flex items-center justify-center text-xl shrink-0 bg-primary/10">
-            {aiConfig.charEmoji}
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-bold text-primary">{aiConfig.charTitle}</p>
-            <p className="text-xs text-text-sub mb-1">{aiConfig.charSubtitle}</p>
-            <p className="text-sm text-text leading-relaxed">{aiConfig.introComment}</p>
-          </div>
-        </div>
+      <section className="px-5 pt-6 pb-0 max-w-lg mx-auto">
+        <ParkAI
+          ctx=""
+          cfg={aiConfig}
+          variant="light"
+          staticText={aiConfig.introComment}
+        />
       </section>
 
       {/* 서비스 카드 */}
