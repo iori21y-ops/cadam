@@ -100,6 +100,7 @@ function FinResult({ answers, questions, mode, restart, toDetail, onHome }: {
   ].join('');
 
   const [copied, setCopied] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const shareUrl = buildShareUrl('/diagnosis/finance', mode, answers);
 
   const handleCopy = async () => {
@@ -149,152 +150,104 @@ function FinResult({ answers, questions, mode, restart, toDetail, onHome }: {
         {/* ParkAI */}
         <ParkAI ctx={aiContext} mode="report" />
 
-        {/* ━━━ TOP 3 추천 상품 카드 ━━━ */}
+        {/* ━━━ 추천 순위 (1순위 상세 + 접기/펼치기) ━━━ */}
         <motion.div
           initial={{ opacity: 0, x: 40 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.1, duration: 0.35, ease: 'easeOut' }}
           className="rounded-2xl bg-surface shadow-sm mb-4 overflow-hidden"
         >
-          <div className="p-5 pb-3">
-            <p className="text-sm font-bold text-text mb-4">추천 순위</p>
-          </div>
-
           {ranking.map((item, i) => {
             const product = DEFAULT_PRODUCTS[item.key];
             const isBest = i === 0;
+            // 1순위는 항상 표시, 나머지는 expanded일 때만
+            if (!isBest && !expanded) return null;
+
             return (
               <div
                 key={item.key}
-                className={`px-5 py-4 ${isBest ? 'bg-primary/[0.04]' : ''} ${i < ranking.length - 1 ? 'border-b border-border' : ''}`}
+                className={`px-5 py-5 ${isBest ? '' : 'border-t border-border'}`}
               >
-                <div className="flex items-center gap-3">
-                  {/* 순위 + 링 */}
+                {/* 헤더: 순위 + 링 + 이름 */}
+                <div className="flex items-center gap-3 mb-3">
                   <div className="flex flex-col items-center gap-1">
                     <RankBadge rank={i} />
                     <ScoreRing pct={item.pct} color={product.color} size={56} />
                   </div>
-
-                  {/* 상품 정보 */}
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-lg">{product.emoji}</span>
-                      <p className="font-bold text-text text-[15px]">{product.name}</p>
-                      <span className="text-xs text-text-muted">적합도 {item.pct}%</span>
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <span className="text-xl">{product.emoji}</span>
+                      <p className="font-bold text-text text-[17px]">{product.name}</p>
                     </div>
-                    <p className="text-xs text-text-sub mb-1.5">{product.tagline}</p>
-
-                    {/* 추천 이유 */}
-                    {item.reasons.length > 0 && (
-                      <div className="flex flex-col gap-0.5">
-                        {item.reasons.slice(0, 2).map((reason, ri) => (
-                          <p key={ri} className="text-[11px] text-text-muted leading-tight">
-                            <span className="text-success mr-1">✓</span>{reason}
-                          </p>
-                        ))}
-                      </div>
-                    )}
+                    <p className="text-xs text-text-sub">{product.tagline}</p>
                   </div>
+                  <span className="text-sm font-bold" style={{ color: product.color }}>
+                    {item.pct}%
+                  </span>
+                </div>
+
+                {/* 설명 */}
+                <p className="text-[13px] text-text-sub leading-relaxed mb-3">{product.description}</p>
+
+                {/* 추천 이유 */}
+                {item.reasons.length > 0 && (
+                  <div className="flex flex-col gap-1 mb-3">
+                    {item.reasons.map((reason, ri) => (
+                      <p key={ri} className="text-xs text-text-sub">
+                        <span className="text-success mr-1">✓</span>{reason}
+                      </p>
+                    ))}
+                  </div>
+                )}
+
+                {/* 장점 / 유의사항 */}
+                <div className="grid grid-cols-2 gap-3 mb-3">
+                  <div>
+                    <p className="text-[11px] font-semibold text-success mb-1">장점</p>
+                    {product.pros.map((p) => (
+                      <p key={p} className="text-[11px] text-text-sub mb-0.5">✓ {p}</p>
+                    ))}
+                  </div>
+                  <div>
+                    <p className="text-[11px] font-semibold text-danger mb-1">유의사항</p>
+                    {product.cons.map((c) => (
+                      <p key={c} className="text-[11px] text-text-sub mb-0.5">· {c}</p>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 핵심 근거 (1순위만) */}
+                {isBest && keyFactors.length > 0 && (
+                  <div className="pt-3 border-t border-border">
+                    <p className="text-[11px] font-semibold text-text-sub mb-2">핵심 판단 근거</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {keyFactors.map((f, fi) => (
+                        <span key={fi} className="text-[11px] font-semibold px-2 py-1 rounded-lg text-white"
+                          style={{ backgroundColor: f.impact === '매우 유리' ? '#10B981' : '#2563EB' }}>
+                          {f.label}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="pt-2">
+                  <p className="text-[11px] text-text-muted">이런 분께 최적: {product.bestFor}</p>
                 </div>
               </div>
             );
           })}
+
+          {/* 접기/펼치기 버튼 */}
+          {ranking.length > 1 && (
+            <button
+              onClick={() => setExpanded(!expanded)}
+              className="w-full py-3 border-t border-border text-xs font-semibold text-primary hover:bg-primary/[0.03] transition-colors"
+            >
+              {expanded ? `접기 ▲` : `2·3순위 보기 ▼`}
+            </button>
+          )}
         </motion.div>
-
-        {/* ━━━ 1순위 상세 카드 ━━━ */}
-        <motion.div
-          initial={{ opacity: 0, x: 40 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.15, duration: 0.35, ease: 'easeOut' }}
-          className="p-5 rounded-2xl bg-surface shadow-sm mb-4"
-        >
-          <div className="flex items-center gap-2 mb-3">
-            <span className="text-2xl">{bestProduct.emoji}</span>
-            <div>
-              <p className="font-bold text-text text-base">{bestProduct.name}</p>
-              <p className="text-xs text-text-sub">{bestProduct.tagline}</p>
-            </div>
-          </div>
-          <p className="text-sm text-text-sub mb-4 leading-relaxed">{bestProduct.description}</p>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <p className="text-xs font-semibold text-success mb-1.5">장점</p>
-              {bestProduct.pros.map((p) => (
-                <p key={p} className="text-xs text-text-sub mb-1">✓ {p}</p>
-              ))}
-            </div>
-            <div>
-              <p className="text-xs font-semibold text-danger mb-1.5">유의사항</p>
-              {bestProduct.cons.map((c) => (
-                <p key={c} className="text-xs text-text-sub mb-1">· {c}</p>
-              ))}
-            </div>
-          </div>
-          <div className="mt-3 pt-3 border-t border-border">
-            <p className="text-xs text-text-muted">이런 분께 최적: {bestProduct.bestFor}</p>
-          </div>
-        </motion.div>
-
-        {/* ━━━ 핵심 판단 근거 ━━━ */}
-        {keyFactors.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, x: 40 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.2, duration: 0.35, ease: 'easeOut' }}
-            className="p-5 rounded-2xl bg-surface shadow-sm mb-4"
-          >
-            <p className="text-sm font-bold text-text mb-3">
-              {bestProduct.name}을(를) 추천한 핵심 근거
-            </p>
-            <div className="flex flex-col gap-2">
-              {keyFactors.map((f, i) => (
-                <div key={i} className="flex items-center gap-2 py-2 px-3 rounded-xl bg-surface-secondary">
-                  <span className="text-xs font-bold px-2 py-0.5 rounded-md text-white"
-                    style={{ backgroundColor: f.impact === '매우 유리' ? '#10B981' : '#2563EB' }}>
-                    {f.impact}
-                  </span>
-                  <span className="text-sm text-text">{f.label}</span>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-        )}
-
-        {/* ━━━ 1순위 vs 2순위 비교 ━━━ */}
-        {ranking.length >= 2 && (
-          <motion.div
-            initial={{ opacity: 0, x: 40 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.25, duration: 0.35, ease: 'easeOut' }}
-            className="p-5 rounded-2xl bg-surface shadow-sm mb-4"
-          >
-            <p className="text-sm font-bold text-text mb-3">
-              {DEFAULT_PRODUCTS[ranking[0].key].name} vs {DEFAULT_PRODUCTS[ranking[1].key].name}
-            </p>
-            <div className="grid grid-cols-2 gap-3">
-              {ranking.slice(0, 2).map((item, i) => {
-                const product = DEFAULT_PRODUCTS[item.key];
-                return (
-                  <div key={item.key} className="p-3 rounded-xl" style={{ backgroundColor: product.lightBg }}>
-                    <div className="flex items-center gap-1.5 mb-2">
-                      <span className="text-base">{product.emoji}</span>
-                      <p className="text-xs font-bold" style={{ color: product.color }}>{product.name}</p>
-                    </div>
-                    <div className="flex flex-col gap-1">
-                      {product.pros.slice(0, 3).map((p) => (
-                        <p key={p} className="text-[11px] text-text-sub">✓ {p}</p>
-                      ))}
-                    </div>
-                    <div className="mt-2 pt-2 border-t border-black/5">
-                      <p className="text-[11px] text-text-muted">{product.bestFor}</p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </motion.div>
-        )}
 
         {/* ━━━ 월 납입금 시뮬레이션 ━━━ */}
         <motion.div
