@@ -10,7 +10,6 @@ const NAV_ITEMS = [
   { href: '/popular-estimates', label: '인기차종' },
   { href: '/info', label: '정보' },
   { href: '/promotions', label: '프로모션' },
-  { href: '/diagnosis/calculator', label: '월비용계산기' },
 ] as const;
 
 export function NavBar() {
