@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import { QuizModule } from '@/components/diagnosis/QuizModule';
 import { ParkAI } from '@/components/diagnosis/ParkAI';
 import { FINANCE_BASIC, FINANCE_DETAIL } from '@/data/diagnosis-finance';
-import { DEFAULT_PRODUCTS, PRODUCT_KEYS } from '@/data/diagnosis-products';
+import { DEFAULT_PRODUCTS } from '@/data/diagnosis-products';
 import { rankFinanceProducts, getKeyFactors } from '@/lib/flow-engine';
 import type { DiagnosisAnswer, FinanceQuestion, ProductKey } from '@/types/diagnosis';
 import { BRAND } from '@/constants/brand';
