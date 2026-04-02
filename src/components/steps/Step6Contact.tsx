@@ -89,6 +89,8 @@ export function Step6Contact() {
     const state = useQuoteStore.getState();
     const carInfo = getCarFromDiagnosis();
 
+    const progress = loadProgress();
+
     const body = {
       selectionPath: state.selectionPath ?? null,
       carBrand: state.carBrand ?? carInfo?.brand ?? null,
@@ -103,7 +105,9 @@ export function Step6Contact() {
       phone: submitMethod === 'phone' ? removePhoneHyphens(phoneValue) : '',
       email: submitMethod === 'email' ? emailValue : '',
       contactMethod: submitMethod,
-      financeSummary: loadProgress().finance.summary ?? null,
+      financeSummary: progress.finance.summary ?? null,
+      vehicleAnswers: progress.vehicle.answers ?? null,
+      financeAnswers: progress.finance.answers ?? null,
       privacyAgreed: true,
       stepCompleted: 5,
     };

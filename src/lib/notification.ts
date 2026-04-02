@@ -25,6 +25,10 @@ export interface ConsultationEmailData {
   deviceType: string;
   utmSource: string;
   referrer: string;
+  /** 차종 진단 답변: { questionId: { value, label } } */
+  vehicleAnswers: Record<string, { value: string; label: string }> | null;
+  /** 이용방법 진단 답변 */
+  financeAnswers: Record<string, { value: string; label: string }> | null;
 }
 
 export interface CustomerReportData {
@@ -52,6 +56,23 @@ function getLeadGrade(score: number): string {
 function formatMoney(value: number | null): string {
   if (value === null) return '—';
   return `${(value / 10000).toLocaleString()}만원`;
+}
+
+const QUESTION_LABELS: Record<string, string> = {
+  // 차종 진단
+  v_purpose: '차량 용도', v_budget: '월 예산', v_people: '탑승 인원', v_priority: '우선순위',
+  v_fuel: '선호 연료', v_parking: '주차 환경', v_brand: '브랜드 선호', v_drive: '주행 느낌',
+  v_tech: '편의·기술 사양', v_resale: '중고 매각 가치',
+  o_budget: '옵션 예산', o_safety: '안전 사양', o_comfort: '편의 옵션', o_sound: '사운드',
+  // 이용방법 진단
+  business: '사업자 여부', ownership: '소유 의향', cycle: '교체 주기', budget: '초기 자금',
+  maintenance: '차량 관리', mileage: '연간 주행거리', contract_flexibility: '계약 유연성',
+  price_range: '차량 가격대', credit: '신용 상태', depreciation: '감가상각',
+  insurance: '보험 방식', tax: '세금 처리', cancel: '계약 변경',
+};
+
+function getQuestionLabel(qId: string): string {
+  return QUESTION_LABELS[qId] || qId;
 }
 
 function escapeHtml(text: string): string {
@@ -167,6 +188,20 @@ export async function sendConsultationNotification(
       <div class="row"><span class="label">유입 경로</span><span class="value">${escapeHtml(data.utmSource || '직접 방문')}</span></div>
       ${data.referrer ? `<div class="row"><span class="label">리퍼러</span><span class="value">${escapeHtml(data.referrer)}</span></div>` : ''}
     </div>
+
+    ${data.vehicleAnswers && Object.keys(data.vehicleAnswers).length > 0 ? `
+    <div class="section">
+      <div class="section-title">🚗 차종 진단 — 전체 응답</div>
+      ${Object.entries(data.vehicleAnswers).map(([qId, ans]) => `<div class="row"><span class="label">${escapeHtml(getQuestionLabel(qId))}</span><span class="value">${escapeHtml(ans.label)}</span></div>`).join('')}
+    </div>
+    ` : ''}
+
+    ${data.financeAnswers && Object.keys(data.financeAnswers).length > 0 ? `
+    <div class="section">
+      <div class="section-title">🎯 이용방법 진단 — 전체 응답</div>
+      ${Object.entries(data.financeAnswers).map(([qId, ans]) => `<div class="row"><span class="label">${escapeHtml(getQuestionLabel(qId))}</span><span class="value">${escapeHtml(ans.label)}</span></div>`).join('')}
+    </div>
+    ` : ''}
   </div>
 </body>
 </html>

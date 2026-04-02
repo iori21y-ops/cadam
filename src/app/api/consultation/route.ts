@@ -34,6 +34,8 @@ const consultationSchema = z.object({
   prepaymentPct: z.number().nullish(),
   monthlyBudget: z.number().nullish(),
   financeSummary: z.string().nullish(),
+  vehicleAnswers: z.record(z.string(), z.object({ value: z.string(), label: z.string() })).nullish(),
+  financeAnswers: z.record(z.string(), z.object({ value: z.string(), label: z.string() })).nullish(),
   stepCompleted: z.number().optional(),
 });
 
@@ -225,6 +227,8 @@ export async function POST(request: NextRequest) {
       deviceType: deviceType ?? 'unknown',
       utmSource: utmSource ?? '',
       referrer: referrer ?? '',
+      vehicleAnswers: input.vehicleAnswers ?? null,
+      financeAnswers: input.financeAnswers ?? null,
     };
 
     try {
