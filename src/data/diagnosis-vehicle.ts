@@ -66,21 +66,16 @@ export const DEFAULT_VEHICLE_DETAIL: VehicleQuestion[] = [
     { label: "스포티하고 다이나믹하게", value: "sporty", tags: ["스포츠", "소형SUV"], nextQ: "" },
     { label: "높은 시야·안정감", value: "suv", tags: ["중형SUV", "대형SUV"], nextQ: "" },
   ]},
-  { id: "v_tech", question: "가장 중요한\n편의 사양은?", subtitle: "최근 차량 기술 트렌드를 반영합니다", skipIf: [], options: [
-    { label: "주행보조 (ADAS·자율주행)", value: "adas", tags: ["중형세단", "중형SUV", "대형SUV", "전기차"], nextQ: "" },
-    { label: "인포테인먼트 (큰 화면·음향)", value: "infotain", tags: ["대형세단", "대형SUV", "스포츠"], nextQ: "" },
-    { label: "실용성 (적재공간·시트배열)", value: "practical", tags: ["미니밴", "대형SUV", "중형SUV"], nextQ: "" },
-    { label: "특별히 중요하지 않다", value: "none", tags: [], nextQ: "" },
+  { id: "v_tech", question: "가장 중요한\n편의·기술 사양은?", subtitle: "차종 추천과 트림 선택에 모두 반영됩니다", skipIf: [], options: [
+    { label: "주행보조 (ADAS·자율주행)", value: "adas", tags: ["중형세단", "중형SUV", "대형SUV", "전기차", "안전", "풀옵"], nextQ: "" },
+    { label: "인포테인먼트 (큰 화면·음향)", value: "infotain", tags: ["대형세단", "대형SUV", "스포츠", "편의", "프리미엄"], nextQ: "" },
+    { label: "실용성 (적재공간·시트배열)", value: "practical", tags: ["미니밴", "대형SUV", "중형SUV", "기본", "편의"], nextQ: "" },
+    { label: "특별히 중요하지 않다", value: "none", tags: ["경제", "기본"], nextQ: "" },
   ]},
   { id: "v_resale", question: "중고 매각 가치가\n중요한가요?", subtitle: "리세일 밸류를 고려합니다", skipIf: [{ qId: "v_budget", values: ["low"] }], options: [
     { label: "매우 중요하다", value: "important", tags: ["중형SUV", "대형SUV", "하이브리드"], nextQ: "" },
     { label: "어느 정도 고려", value: "moderate", tags: ["중형세단", "소형SUV"], nextQ: "" },
     { label: "상관없다", value: "none", tags: [], nextQ: "" },
-  ]},
-  { id: "v_range", question: "주로 달리는\n거리는?", subtitle: "일 평균 주행 거리", skipIf: [], options: [
-    { label: "30km 이하 (근거리)", value: "short", tags: ["경차", "소형세단", "전기차"], nextQ: "" },
-    { label: "30~100km", value: "medium", tags: ["소형SUV", "중형세단", "하이브리드"], nextQ: "" },
-    { label: "100km 이상 (장거리)", value: "long", tags: ["중형SUV", "대형세단", "하이브리드"], nextQ: "" },
   ]},
   // ─── 옵션 질문 (상세 모드: 나머지 3개) ───
   { id: "o_comfort", question: "편의 사양 중\n가장 중요한 것은?", subtitle: "하나만 고른다면", skipIf: [], options: [
@@ -88,11 +83,6 @@ export const DEFAULT_VEHICLE_DETAIL: VehicleQuestion[] = [
     { label: "내비·큰 디스플레이", value: "navi", tags: ["편의", "기본"], nextQ: "" },
     { label: "가죽시트·전동시트", value: "leather", tags: ["프리미엄", "편의"], nextQ: "" },
     { label: "특별히 없음", value: "none", tags: ["경제", "기본"], nextQ: "" },
-  ]},
-  { id: "o_tech", question: "첨단 기능에 대한\n관심은?", subtitle: "원격주차, 서라운드뷰, 헤드업디스플레이 등", skipIf: [], options: [
-    { label: "없어도 된다", value: "none", tags: ["기본", "경제"], nextQ: "" },
-    { label: "있으면 좋겠다", value: "nice", tags: ["편의"], nextQ: "" },
-    { label: "반드시 있어야 한다", value: "must", tags: ["풀옵", "프리미엄"], nextQ: "" },
   ]},
   { id: "o_sound", question: "사운드 시스템은\n중요한가요?", subtitle: "BOSE, 하만카돈, JBL 등 프리미엄 사운드", skipIf: [], options: [
     { label: "기본으로 충분", value: "basic", tags: ["기본", "경제"], nextQ: "" },

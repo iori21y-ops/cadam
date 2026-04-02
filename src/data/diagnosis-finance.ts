@@ -51,12 +51,6 @@ export const FINANCE_DETAIL: FinanceQuestion[] = [
     { label: '관리 필요 (7등급 이하)', value: 'low', scores: { installment: 0, lease: 0, rent: 3, cash: 2 }, nextQ: 'insurance' },
     { label: '잘 모르겠다', value: 'unknown', scores: { installment: 1, lease: 1, rent: 2, cash: 1 }, nextQ: '' },
   ]},
-  { id: 'purpose', question: '차량의 주요 용도는?', subtitle: '용도에 따라 유리한 상품이 다릅니다', weight: 1.5, skipIf: [], options: [
-    { label: '출퇴근·일상 이동', value: 'commute', scores: { installment: 2, lease: 1, rent: 2, cash: 2 }, nextQ: '' },
-    { label: '영업·업무용', value: 'business', scores: { installment: 0, lease: 3, rent: 3, cash: 0 }, nextQ: 'tax' },
-    { label: '가족 여가·장거리', value: 'family', scores: { installment: 3, lease: 1, rent: 1, cash: 3 }, nextQ: '' },
-    { label: '법인 임직원용', value: 'corporate', scores: { installment: 0, lease: 3, rent: 3, cash: 0 }, nextQ: 'tax' },
-  ]},
   { id: 'depreciation', question: '차량 감가상각이\n신경 쓰이시나요?', subtitle: '시간이 지나면 가치가 하락합니다', weight: 1.5, skipIf: [{ qId: 'ownership', values: ['must_own'] }], options: [
     { label: '매우 신경 쓰인다', value: 'concern', scores: { installment: 0, lease: 3, rent: 3, cash: 0 }, nextQ: '' },
     { label: '어느 정도 감안', value: 'moderate', scores: { installment: 2, lease: 2, rent: 2, cash: 2 }, nextQ: '' },
