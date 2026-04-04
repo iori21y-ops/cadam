@@ -69,11 +69,11 @@ function getAnswerValue(
 
 // ─── 이용방법 진단 기본 질문 ID 목록 ───
 const FINANCE_BASIC_IDS = ['business', 'ownership', 'cycle', 'budget', 'maintenance', 'mileage', 'contract_flexibility'];
-const FINANCE_DETAIL_IDS = ['price_range', 'credit', 'depreciation', 'insurance', 'tax', 'cancel'];
+const FINANCE_DETAIL_IDS = ['price_range', 'credit', 'depreciation', 'tax'];
 
 // ─── 차종 진단 기본/상세 질문 ID 목록 ───
 const VEHICLE_BASIC_IDS = ['v_purpose', 'v_budget', 'v_people', 'v_priority', 'v_fuel', 'o_budget', 'o_safety'];
-const VEHICLE_DETAIL_IDS = ['v_parking', 'v_brand', 'v_drive', 'v_tech', 'v_resale', 'o_comfort', 'o_sound'];
+const VEHICLE_DETAIL_IDS = ['v_parking', 'v_brand', 'v_drive', 'v_tech', 'v_resale', 'o_comfort'];
 
 // ────────────────────────────────────────────────────────────
 // 1. 참여도 (Engagement) — 최대 20점

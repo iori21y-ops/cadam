@@ -23,8 +23,8 @@ export const VEHICLES: Vehicle[] = [
   { name: "스포티지", brand: "기아", class: "중형SUV", price: 3400, tags: ["중형SUV", "하이브리드"], img: "🚙", imageKey: "kia-sportage" },
   { name: "팰리세이드", brand: "현대", class: "대형SUV", price: 5200, tags: ["대형SUV"], img: "🚐", imageKey: "hyundai-palisade" },
   { name: "카니발", brand: "기아", class: "미니밴", price: 4100, tags: ["미니밴"], img: "🚐", imageKey: "kia-carnival" },
-  { name: "아이오닉5", brand: "현대", class: "전기SUV", price: 5000, tags: ["전기차", "중형SUV"], img: "⚡", imageKey: "hyundai-ioniq5" },
-  { name: "EV6", brand: "기아", class: "전기SUV", price: 5200, tags: ["전기차", "중형SUV", "스포츠"], img: "⚡", imageKey: "kia-ev6" },
+  { name: "아이오닉5", brand: "현대", class: "중형SUV", price: 5000, tags: ["전기차", "중형SUV"], img: "⚡", imageKey: "hyundai-ioniq5" },
+  { name: "EV6", brand: "기아", class: "중형SUV", price: 5200, tags: ["전기차", "중형SUV", "스포츠"], img: "⚡", imageKey: "kia-ev6" },
   // 제네시스 (프리미엄 3종)
   { name: "GV70", brand: "제네시스", class: "중형SUV", price: 5500, tags: ["중형SUV", "스포츠"], img: "🏎️", imageKey: "genesis-gv70" },
   { name: "G80", brand: "제네시스", class: "대형세단", price: 6500, tags: ["대형세단"], img: "🏎️", imageKey: "genesis-g80" },

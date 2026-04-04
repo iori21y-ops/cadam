@@ -85,9 +85,4 @@ export const DEFAULT_VEHICLE_DETAIL: VehicleQuestion[] = [
     { label: "가죽시트·전동시트", value: "leather", tags: ["프리미엄", "편의"], nextQ: "" },
     { label: "특별히 없어요", value: "none", tags: ["경제", "기본"], nextQ: "" },
   ]},
-  { id: "o_sound", question: "사운드 시스템,\n중요하세요?", subtitle: "BOSE, 하만카돈 같은 프리미엄 사운드", skipIf: [], options: [
-    { label: "기본으로 충분해요", value: "basic", tags: ["기본", "경제"], nextQ: "" },
-    { label: "좋으면 좋지만 필수는 아녜요", value: "nice", tags: ["편의"], nextQ: "" },
-    { label: "프리미엄 사운드 원해요", value: "premium", tags: ["프리미엄", "풀옵"], nextQ: "" },
-  ]},
 ];

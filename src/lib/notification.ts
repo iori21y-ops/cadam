@@ -66,12 +66,12 @@ const QUESTION_LABELS: Record<string, string> = {
   v_purpose: '차량 용도', v_budget: '월 예산', v_people: '탑승 인원', v_priority: '우선순위',
   v_fuel: '선호 연료', v_parking: '주차 환경', v_brand: '브랜드 선호', v_drive: '주행 느낌',
   v_tech: '편의·기술 사양', v_resale: '중고 매각 가치',
-  o_budget: '옵션 예산', o_safety: '안전 사양', o_comfort: '편의 옵션', o_sound: '사운드',
+  o_budget: '옵션 예산', o_safety: '안전 사양', o_comfort: '편의 옵션',
   // 이용방법 진단
   business: '사업자 여부', ownership: '소유 의향', cycle: '교체 주기', budget: '초기 자금',
   maintenance: '차량 관리', mileage: '연간 주행거리', contract_flexibility: '계약 유연성',
   price_range: '차량 가격대', credit: '신용 상태', depreciation: '감가상각',
-  insurance: '보험 방식', tax: '세금 처리', cancel: '계약 변경',
+  tax: '세금 처리',
 };
 
 function getQuestionLabel(qId: string): string {
@@ -231,13 +231,12 @@ function buildTalkingPoints(data: ConsultationEmailData): TalkingPointSections {
   // ─── 관리·보험 ───
   {
     const maintenance = getAns(fa, 'maintenance');
-    const insurance = getAns(fa, 'insurance');
     const p: string[] = [];
     const a: string[] = [];
-    if (maintenance === 'full' || insurance === 'included') {
+    if (maintenance === 'full') {
       p.push('올인원 관리 희망');
       a.push('렌트 올인원 패키지 적극 추천');
-    } else if (maintenance === 'self' && insurance === 'self') {
+    } else if (maintenance === 'self') {
       p.push('직접 관리 선호');
       a.push('할부/현금으로 보험·정비처 자유 선택 장점 안내');
     }
@@ -255,8 +254,7 @@ function buildTalkingPoints(data: ConsultationEmailData): TalkingPointSections {
   // ─── 유연성·해지 ───
   {
     const flexibility = getAns(fa, 'contract_flexibility');
-    const cancel = getAns(fa, 'cancel');
-    if (flexibility === 'flexible' || cancel === 'likely') {
+    if (flexibility === 'flexible') {
       rows.push({ category: '유연성·해지', profiles: ['중도 해지 가능성 있음'], actions: ['중도해지 수수료 낮은 상품 우선 추천'] });
     }
   }

@@ -22,11 +22,6 @@ export const OPTION_QUESTIONS: OptionQuestion[] = [
     { label: "있으면 좋겠다", value: "nice", tags: ["편의"] },
     { label: "반드시 있어야 한다", value: "must", tags: ["풀옵", "프리미엄"] },
   ]},
-  { id: "o_sound", question: "사운드 시스템은\n중요한가요?", subtitle: "BOSE, 하만카돈, JBL 등 프리미엄 사운드", options: [
-    { label: "기본으로 충분", value: "basic", tags: ["기본", "경제"] },
-    { label: "좋으면 좋지만 필수 아님", value: "nice", tags: ["편의"] },
-    { label: "프리미엄 사운드 원함", value: "premium", tags: ["프리미엄", "풀옵"] },
-  ]},
 ];
 
 /** All available option tags for admin UI */

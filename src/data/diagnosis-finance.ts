@@ -23,7 +23,7 @@ export const FINANCE_BASIC: FinanceQuestion[] = [
   ]},
   { id: 'maintenance', question: '보험·정비 같은 관리,\n어떻게 하고 싶으세요?', subtitle: '직접 관리하면 절약, 포함하면 편해요', weight: 2.0, skipIf: [], options: [
     { label: '내가 직접 알아볼게요', value: 'self', scores: { installment: 3, lease: 2, rent: 0, cash: 3 }, nextQ: '' },
-    { label: '일부는 도움 받고 싶어요', value: 'partial', scores: { installment: 2, lease: 3, rent: 1, cash: 1 }, nextQ: '' },
+    { label: '일부는 도움 받고 싶어요', value: 'partial', scores: { installment: 2, lease: 2, rent: 2, cash: 1 }, nextQ: '' },
     { label: '전부 포함이면 좋겠어요', value: 'full', scores: { installment: 0, lease: 1, rent: 3, cash: 0 }, nextQ: '' },
   ]},
   { id: 'mileage', question: '1년에 얼마나\n운전하시나요?', subtitle: '알려주시면 딱 맞는 조건을 찾아드릴게요', weight: 1.5, skipIf: [], options: [
@@ -49,7 +49,7 @@ export const FINANCE_DETAIL: FinanceQuestion[] = [
   { id: 'credit', question: '현재 신용등급은\n어느 정도인가요?', subtitle: '대략적으로 괜찮아요, 맞는 상품을 찾아드릴게요', weight: 2.5, skipIf: [], options: [
     { label: '우수한 편 (1~3등급)', value: 'excellent', scores: { installment: 3, lease: 3, rent: 1, cash: 1 }, nextQ: '' },
     { label: '보통이에요 (4~6등급)', value: 'average', scores: { installment: 2, lease: 2, rent: 2, cash: 1 }, nextQ: '' },
-    { label: '조금 아쉬운 편이에요', value: 'low', scores: { installment: 0, lease: 0, rent: 3, cash: 2 }, nextQ: 'insurance' },
+    { label: '조금 아쉬운 편이에요', value: 'low', scores: { installment: 0, lease: 0, rent: 3, cash: 2 }, nextQ: '' },
     { label: '잘 모르겠어요', value: 'unknown', scores: { installment: 1, lease: 1, rent: 2, cash: 1 }, nextQ: '' },
   ]},
   { id: 'depreciation', question: '몇 년 뒤 차 가치가\n떨어지는 거, 신경 쓰이세요?', subtitle: '감가상각 걱정을 줄이는 방법도 있어요', weight: 1.5, skipIf: [], options: [
@@ -57,20 +57,10 @@ export const FINANCE_DETAIL: FinanceQuestion[] = [
     { label: '어느 정도는 감안해요', value: 'moderate', scores: { installment: 2, lease: 2, rent: 2, cash: 2 }, nextQ: '' },
     { label: '별로 신경 안 써요', value: 'none', scores: { installment: 3, lease: 0, rent: 0, cash: 3 }, nextQ: '' },
   ]},
-  { id: 'insurance', question: '자동차 보험은\n어떻게 하고 싶으세요?', subtitle: '직접 가입하면 절약, 포함하면 간편해요', weight: 1.5, skipIf: [], options: [
-    { label: '직접 비교해서 저렴하게', value: 'self', scores: { installment: 3, lease: 2, rent: 0, cash: 3 }, nextQ: '' },
-    { label: '알아서 해주면 좋겠어요', value: 'easy', scores: { installment: 1, lease: 2, rent: 3, cash: 0 }, nextQ: '' },
-    { label: '월 비용에 다 포함해주세요', value: 'included', scores: { installment: 0, lease: 1, rent: 3, cash: 0 }, nextQ: '' },
-  ]},
   { id: 'tax', question: '세금 혜택,\n얼마나 중요하세요?', subtitle: '사업자라면 비용처리로 절세 효과를 볼 수 있어요', weight: 2.0, skipIf: [{ qId: 'business', values: ['personal'] }], options: [
     { label: '크게 기대 안 해요', value: 'none', scores: { installment: 2, lease: 0, rent: 0, cash: 3 }, nextQ: '' },
     { label: '가능하면 비용처리 하고 싶어요', value: 'some', scores: { installment: 1, lease: 3, rent: 3, cash: 0 }, nextQ: '' },
     { label: '절세가 가장 중요해요!', value: 'priority', scores: { installment: 0, lease: 3, rent: 3, cash: 0 }, nextQ: '' },
-  ]},
-  { id: 'cancel', question: '계약 중간에 차를\n바꾸거나 해지할 수도 있나요?', subtitle: '중도해지 조건이 상품마다 크게 달라요', weight: 2.0, skipIf: [], options: [
-    { label: '아니요, 끝까지 탈 거예요', value: 'keep', scores: { installment: 2, lease: 3, rent: 2, cash: 2 }, nextQ: '' },
-    { label: '혹시 모르죠, 바꿀 수도...', value: 'maybe', scores: { installment: 2, lease: 1, rent: 2, cash: 2 }, nextQ: '' },
-    { label: '네, 변경할 가능성이 높아요', value: 'likely', scores: { installment: 1, lease: 0, rent: 3, cash: 3 }, nextQ: '' },
   ]},
 ];
 
@@ -111,5 +101,20 @@ export const QUESTION_REASON_MAP: Record<string, Record<string, Partial<Record<'
   contract_flexibility: {
     stable: { lease: '안정적 상황에서 리스 계약이 유리합니다', installment: '장기 보유 계획에 할부가 적합합니다' },
     flexible: { rent: '중도해지 부담이 적은 장기렌트가 유리합니다' },
+  },
+  cycle: {
+    short: { lease: '2~3년 단기 이용 후 새 차 교체에 리스가 유리합니다', rent: '짧은 주기로 차를 바꾸기에 장기렌트가 편리합니다' },
+    medium: { installment: '4~5년 보유 시 할부로 총 비용을 줄일 수 있습니다', lease: '적당한 기간 후 인수 여부를 선택할 수 있습니다' },
+    long: { cash: '오래 탈수록 이자 없는 현금구매가 경제적입니다', installment: '장기 보유 시 할부 완납 후 유지비만 남습니다' },
+  },
+  price_range: {
+    low: { cash: '3,000만원 이하는 현금구매로 이자 부담을 없앨 수 있습니다', installment: '소액 할부로 월 부담이 적습니다' },
+    mid: { installment: '중간 가격대에서 할부 이자 부담이 적정합니다', lease: '리스로 초기 비용을 줄이면서 이용 가능합니다' },
+    high: { lease: '고가 차량은 리스로 초기 부담을 크게 줄일 수 있습니다', rent: '고가 차량의 감가 위험을 렌트로 회피할 수 있습니다' },
+    premium: { lease: '1억 이상 차량은 리스의 세제 혜택이 극대화됩니다', rent: '초고가 차량의 관리 부담을 렌트로 해결할 수 있습니다' },
+  },
+  depreciation: {
+    concern: { lease: '리스는 잔존가 설정으로 감가 위험을 줄일 수 있습니다', rent: '렌트는 감가상각 걱정 없이 반납하면 됩니다' },
+    none: { installment: '감가를 신경 쓰지 않으면 소유의 자유를 누릴 수 있습니다', cash: '오래 타면 감가 영향이 줄어들어 현금구매가 유리합니다' },
   },
 };
