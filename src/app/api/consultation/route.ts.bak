@@ -6,7 +6,6 @@ import { calculateLeadScore, type LeadDimensions } from '@/lib/leadScore';
 import {
   sendConsultationNotification,
   sendCustomerReport,
-  sendTelegramNotification,
   type ConsultationEmailData,
 } from '@/lib/notification';
 import { createServiceRoleSupabaseClient } from '@/lib/supabase-server';
@@ -293,14 +292,6 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 텔레그램 알림
-    try {
-      const tgResult = await sendTelegramNotification(emailData);
-      if (!tgResult.success) console.error("[Consultation] Telegram failed:", tgResult.error);
-      await supabase.from("notification_log").insert({ consultation_id: consultation.id, channel: "telegram", status: tgResult.success ? "sent" : "failed", error_message: tgResult.error ?? null });
-    } catch (tgErr) {
-      console.error("[Consultation] Telegram send error:", tgErr);
-    }
     // 11단계 - 응답
     return NextResponse.json({
       success: true,
