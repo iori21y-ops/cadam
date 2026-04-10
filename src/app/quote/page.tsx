@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import { useHydrated } from '@/hooks/useHydrated';
 import { useQuoteStore } from '@/store/quoteStore';
@@ -24,6 +24,22 @@ function needsPaymentStep(): boolean {
   return summary.includes('렌트') || summary.includes('리스');
 }
 
+/*
+ * 외부 유입(directAccess) 시 스텝 매핑 문제 해결:
+ *
+ * 기존 컴포넌트들은 선택 완료 시 하드코딩된 스텝 번호로 이동함:
+ *   Step2Car → setCurrentStep(3)
+ *   Step3Period → setCurrentStep(2)
+ *   Step4Mileage → setCurrentStep(3)
+ *   Step5Payment → setCurrentStep(3)
+ *
+ * 외부 유입 플로우 (5 스텝):
+ *   1:Car → 2:Period → 3:Mileage → 4:Payment → 5:Contact
+ *
+ * 해결: 각 컴포넌트가 setCurrentStep을 호출하면,
+ * useEffect에서 감지하여 올바른 스텝으로 재매핑함.
+ */
+
 export default function QuotePage() {
   const hydrated = useHydrated();
   const currentStep = useQuoteStore((s) => s.currentStep);
@@ -38,6 +54,9 @@ export default function QuotePage() {
   const [diagnosisPrefilled, setDiagnosisPrefilled] = useState(false);
   const [directAccess, setDirectAccess] = useState(false);
 
+  // 어떤 스텝에서 자동 이동이 발생했는지 추적
+  const expectedStepRef = useRef<number>(1);
+
   useEffect(() => {
     setPaymentNeeded(needsPaymentStep());
     const ok = prefillFromDiagnosis();
@@ -47,8 +66,34 @@ export default function QuotePage() {
       resetAll();
       setCurrentStep(1);
       setPaymentNeeded(true);
+      expectedStepRef.current = 1;
     }
   }, [prefillFromDiagnosis, resetAll, setCurrentStep]);
+
+  // 외부 유입 모드에서 하드코딩 스텝 이동을 가로채서 올바른 스텝으로 매핑
+  useEffect(() => {
+    if (!directAccess) return;
+    
+    const expected = expectedStepRef.current;
+    
+    // 컴포넌트가 하드코딩된 값으로 점프한 경우 → 올바른 다음 스텝으로 교정
+    if (currentStep !== expected) {
+      // 현재 어떤 스텝에 있었는지에 따라 다음 스텝 결정
+      const nextStep = expected + 1;
+      const totalSteps = paymentNeeded ? 5 : 4;
+      
+      if (nextStep <= totalSteps && currentStep !== nextStep) {
+        expectedStepRef.current = nextStep;
+        setCurrentStep(nextStep);
+        return;
+      }
+    }
+  }, [currentStep, directAccess, paymentNeeded, setCurrentStep]);
+
+  // expectedStepRef를 현재 스텝에 동기화 (이전 버튼, 정상 이동 시)
+  useEffect(() => {
+    expectedStepRef.current = currentStep;
+  }, [currentStep]);
 
   const steps = directAccess
     ? ['car', 'period', 'mileage', ...(paymentNeeded ? ['payment'] : []), 'contact']
@@ -63,11 +108,17 @@ export default function QuotePage() {
 
   useLeaveIntent(currentStep, handleLeaveIntent);
 
-  const paymentStepIndex = steps.indexOf('payment');
-  const paymentStepNum = paymentStepIndex >= 0 ? paymentStepIndex + 1 : -1;
-  const isNextDisabled = paymentStepNum > 0 && currentStep === paymentStepNum ? !step2Complete : false;
-  const onNext = paymentStepNum > 0 && currentStep === paymentStepNum && step2Complete
-    ? () => setCurrentStep(currentStep + 1)
+  // StepLayout의 "다음" 버튼은 contact 스텝에서는 숨김 (Step6Contact가 자체 제출)
+  // payment 스텝에서는 완료 후 다음으로 이동
+  const isContactStep = currentStepName === 'contact';
+  const isPaymentStep = currentStepName === 'payment';
+  const isNextDisabled = isPaymentStep ? !step2Complete : false;
+  const onNext = isPaymentStep && step2Complete
+    ? () => {
+        const nextIdx = steps.indexOf('contact') + 1;
+        expectedStepRef.current = nextIdx;
+        setCurrentStep(nextIdx);
+      }
     : undefined;
 
   if (!hydrated) {
