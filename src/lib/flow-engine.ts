@@ -1,8 +1,9 @@
 import type {
   DiagnosisQuestion, DiagnosisAnswer, SkipCondition,
   FinanceScores, FinanceQuestion, FinanceRankedProduct, ProductKey,
+  RentFitResult,
 } from '@/types/diagnosis';
-import { QUESTION_REASON_MAP } from '@/data/diagnosis-finance';
+import { QUESTION_REASON_MAP, RENT_REASON_MAP } from '@/data/diagnosis-finance';
 import { PRODUCT_KEYS } from '@/data/diagnosis-products';
 
 /**
@@ -138,6 +139,73 @@ export function getKeyFactors(
     .sort((a, b) => b.score - a.score)
     .slice(0, 4)
     .map(({ questionId, label, impact }) => ({ questionId, label, impact }));
+}
+
+/**
+ * 장기렌트 적합도 점수 계산 — 기존 scores.rent 값만 추출
+ */
+export function calculateRentFitScore(
+  answers: Record<string, DiagnosisAnswer>,
+  questions?: FinanceQuestion[]
+): { rentTotal: number; maxPossible: number } {
+  let rentTotal = 0;
+  let maxPossible = 0;
+  Object.entries(answers).forEach(([qId, answer]) => {
+    if ('scores' in answer) {
+      const q = questions?.find((qq) => qq.id === qId);
+      const weight = q?.weight ?? 1.0;
+      rentTotal += answer.scores.rent * weight;
+      maxPossible += 3 * weight;
+    }
+  });
+  return { rentTotal, maxPossible };
+}
+
+/**
+ * 장기렌트 적합도 결과 반환
+ */
+export function calculateRentFit(
+  answers: Record<string, DiagnosisAnswer>,
+  questions: FinanceQuestion[]
+): RentFitResult {
+  const { rentTotal, maxPossible } = calculateRentFitScore(answers, questions);
+  const score = maxPossible > 0 ? Math.round((rentTotal / maxPossible) * 100) : 0;
+  const tier = score >= 70 ? 'high' : score >= 40 ? 'mid' : 'low';
+
+  const reasons: string[] = [];
+  const savingPoints: string[] = [];
+  const sortedQs = [...questions].filter(q => answers[q.id]).sort((a, b) => (b.weight ?? 1) - (a.weight ?? 1));
+
+  for (const q of sortedQs) {
+    const ans = answers[q.id];
+    if (!ans || !('scores' in ans)) continue;
+    const map = RENT_REASON_MAP[q.id]?.[ans.value];
+    if (map?.positive) { savingPoints.push(map.positive); }
+    if (map?.negative) { reasons.push(map.negative); }
+    if (savingPoints.length >= 4 && reasons.length >= 3) break;
+  }
+
+  return { score, tier, reasons: reasons.slice(0, 3), savingPoints: savingPoints.slice(0, 4) };
+}
+
+/**
+ * 장기렌트 핵심 판단 근거
+ */
+export function getRentKeyFactors(
+  answers: Record<string, DiagnosisAnswer>,
+  questions: FinanceQuestion[]
+): { questionId: string; label: string; impact: string }[] {
+  const factors: { questionId: string; label: string; impact: string; weight: number; score: number }[] = [];
+  for (const q of questions) {
+    const ans = answers[q.id];
+    if (!ans || !('scores' in ans)) continue;
+    const score = ans.scores.rent;
+    const weight = q.weight ?? 1;
+    if (score >= 2) {
+      factors.push({ questionId: q.id, label: ans.label, impact: score === 3 ? '매우 유리' : '유리', weight, score: score * weight });
+    }
+  }
+  return factors.sort((a, b) => b.score - a.score).slice(0, 4).map(({ questionId, label, impact }) => ({ questionId, label, impact }));
 }
 
 /**

@@ -64,7 +64,72 @@ export const FINANCE_DETAIL: FinanceQuestion[] = [
   ]},
 ];
 
-// 질문별 추천 이유 매핑 (핵심 질문 기반 근거 생성용)
+// 장기렌트 적합도 진단용 이유 매핑
+export const RENT_REASON_MAP: Record<string, Record<string, { positive?: string; negative?: string }>> = {
+  business: {
+    personal: { negative: '개인 용도는 세제 혜택이 제한적입니다' },
+    sole: { positive: '사업자 비용처리로 절세 효과를 볼 수 있습니다' },
+    corp: { positive: '법인 비용처리와 관리 편의성이 뛰어납니다' },
+  },
+  ownership: {
+    must_own: { negative: '장기렌트는 소유권이 없어 내 명의가 아닙니다' },
+    flexible: { positive: '소유에 유연하면 렌트의 편의성을 최대로 누릴 수 있습니다' },
+    use_only: { positive: '소유 부담 없이 편하게 이용할 수 있습니다' },
+  },
+  cycle: {
+    short: { positive: '2~3년 단기 이용 후 새 차로 교체하기 편리합니다' },
+    medium: {},
+    long: { negative: '6년 이상 장기 보유 시 총 비용이 높아질 수 있습니다' },
+  },
+  budget: {
+    rich: { negative: '여유 자금이 있으면 현금·할부가 더 경제적일 수 있습니다' },
+    moderate: { positive: '초기 비용을 줄이면서 월 납입으로 부담을 분산할 수 있습니다' },
+    tight: { positive: '목돈 없이 월 납입만으로 신차를 탈 수 있습니다' },
+  },
+  maintenance: {
+    self: { negative: '직접 관리하면 렌트 포함 비용이 아까울 수 있습니다' },
+    partial: { positive: '일부 관리 포함으로 편의성과 비용의 균형을 맞출 수 있습니다' },
+    full: { positive: '보험·정비·세금이 모두 포함되어 관리가 매우 편합니다' },
+  },
+  mileage: {
+    '10000': { positive: '적은 주행거리로 렌트 조건이 유리합니다' },
+    '20000': {},
+    '30000': { negative: '주행거리가 많으면 초과 비용이 발생할 수 있습니다' },
+    '40000': { negative: '장거리 운행은 주행거리 초과 위험이 높습니다' },
+  },
+  contract_flexibility: {
+    stable: {},
+    moderate: { positive: '중도해지 부담이 적은 장기렌트가 변화에 대응하기 좋습니다' },
+    flexible: { positive: '생활 변화에 유연하게 대응할 수 있습니다' },
+  },
+  price_range: {
+    low: {},
+    mid: { positive: '중간 가격대에서 렌트 월 비용이 합리적입니다' },
+    high: { positive: '고가 차량의 감가 위험을 렌트로 회피할 수 있습니다' },
+    premium: { positive: '초고가 차량의 관리·감가 부담을 렌트로 해결할 수 있습니다' },
+  },
+  credit: {
+    excellent: {},
+    average: { positive: '보통 신용에서도 렌트는 심사가 유연합니다' },
+    low: { positive: '신용 영향이 적은 장기렌트가 유리합니다' },
+    unknown: { positive: '신용등급을 몰라도 렌트 심사는 비교적 유연합니다' },
+  },
+  depreciation: {
+    concern: { positive: '렌트는 감가상각 걱정 없이 반납하면 됩니다' },
+    moderate: {},
+    none: { negative: '감가를 신경 쓰지 않으면 소유가 더 유리할 수 있습니다' },
+  },
+  tax: {
+    none: { negative: '세제 혜택을 원하지 않으면 렌트의 장점이 줄어듭니다' },
+    some: { positive: '렌트 비용 전액 비용처리가 가능합니다' },
+    priority: { positive: '렌트비 전액 비용처리로 최대 절세 효과를 볼 수 있습니다' },
+  },
+};
+
+// 하위호환용 alias
+export const QUESTION_REASON_MAP_LEGACY = RENT_REASON_MAP;
+
+// 질문별 추천 이유 매핑 (핵심 질문 기반 근거 생성용 - 기존 4상품 랭킹용)
 export const QUESTION_REASON_MAP: Record<string, Record<string, Partial<Record<'installment' | 'lease' | 'rent' | 'cash', string>>>> = {
   business: {
     personal: { installment: '개인 고객에게 할부는 소유권 확보에 유리합니다', cash: '비사업자는 현금구매로 이자 부담을 없앨 수 있습니다' },

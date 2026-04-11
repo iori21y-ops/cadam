@@ -6,7 +6,7 @@ import { createBrowserSupabaseClient } from '@/lib/supabase';
 import { useToastStore } from '@/store/toastStore';
 import { FINANCE_BASIC, FINANCE_DETAIL } from '@/data/diagnosis-finance';
 import { ALL_VEHICLE_TAGS, DEFAULT_VEHICLE_BASIC, DEFAULT_VEHICLE_DETAIL } from '@/data/diagnosis-vehicle';
-import { DEFAULT_PRODUCTS, PRODUCT_KEYS, PRODUCT_LABELS } from '@/data/diagnosis-products';
+import { DEFAULT_PRODUCTS, PRODUCT_KEYS, PRODUCT_LABELS, RENT_FIT_TIERS } from '@/data/diagnosis-products';
 import { DEFAULT_AI_CONFIG } from '@/data/diagnosis-ai';
 import { VEHICLES } from '@/data/diagnosis-vehicles';
 import { calcMonthly } from '@/lib/calc-monthly';
@@ -18,6 +18,8 @@ import type {
   FinanceQuestion,
   Product,
   ProductKey,
+  RentFitTierKey,
+  RentFitTierData,
   SkipCondition,
   VehicleOption,
   VehicleQuestion,
@@ -25,7 +27,7 @@ import type {
 
 const CONFIG_ID = 'diagnosis_data_v1';
 
-const TABS = ['금융 간편', '금융 상세', '차종 간편', '차종 상세', '상품결과', '차종결과'] as const;
+const TABS = ['금융 간편', '금융 상세', '차종 간편', '차종 상세', '렌트적합도', '차종결과'] as const;
 type Tab = (typeof TABS)[number];
 
 function deepClone<T>(v: T): T {
@@ -40,6 +42,7 @@ function buildDefaultData(): DiagnosisData {
     vehBasic: DEFAULT_VEHICLE_BASIC,
     vehDetail: DEFAULT_VEHICLE_DETAIL,
     products: DEFAULT_PRODUCTS,
+    rentFitTiers: RENT_FIT_TIERS,
     aiConfig: DEFAULT_AI_CONFIG,
     vehicles: VEHICLES,
   };
@@ -77,6 +80,9 @@ function normalizeDiagnosisData(input: unknown): DiagnosisData {
     products: isRecord(input.products)
       ? ({ ...base.products, ...(input.products as Partial<DiagnosisData['products']>) } as DiagnosisData['products'])
       : base.products,
+    rentFitTiers: isRecord(input.rentFitTiers)
+      ? ({ ...base.rentFitTiers, ...(input.rentFitTiers as Partial<DiagnosisData['rentFitTiers']>) } as DiagnosisData['rentFitTiers'])
+      : base.rentFitTiers,
     aiConfig: isRecord(input.aiConfig)
       ? ({ ...base.aiConfig, ...(input.aiConfig as Partial<AIConfig>) } as AIConfig)
       : base.aiConfig,
@@ -89,6 +95,11 @@ function normalizeDiagnosisData(input: unknown): DiagnosisData {
   // Ensure product keys exist
   (['installment', 'lease', 'rent', 'cash'] as const).forEach((k) => {
     out.products[k] = { ...base.products[k], ...(out.products[k] ?? {}) };
+  });
+
+  // Ensure rentFitTiers keys exist
+  (['high', 'mid', 'low'] as const).forEach((k) => {
+    out.rentFitTiers[k] = { ...base.rentFitTiers[k], ...(out.rentFitTiers[k] ?? {}) };
   });
 
   // Ensure aiConfig arrays exist
@@ -214,7 +225,7 @@ function AdminTabBar({
     { key: '금융 상세', label: '금융상세' },
     { key: '차종 간편', label: '차종간편' },
     { key: '차종 상세', label: '차종상세' },
-    { key: '상품결과', label: '상품결과' },
+    { key: '렌트적합도', label: '렌트적합도' },
     { key: '차종결과', label: '차종결과' },
   ];
   return (
@@ -862,6 +873,86 @@ function VehiclesEditor({
   );
 }
 
+const TIER_KEYS: RentFitTierKey[] = ['high', 'mid', 'low'];
+const TIER_LABELS: Record<RentFitTierKey, string> = { high: '높음 (70%+)', mid: '보통 (40~69%)', low: '낮음 (~39%)' };
+const TIER_COLORS: Record<RentFitTierKey, string> = { high: '#10B981', mid: '#F59E0B', low: '#8E8E93' };
+
+function RentFitTierEditor({
+  tiers,
+  setTiers,
+}: {
+  tiers: Record<RentFitTierKey, RentFitTierData>;
+  setTiers: (next: Record<RentFitTierKey, RentFitTierData>) => void;
+}) {
+  type TierTextField = 'emoji' | 'title' | 'message' | 'cta' | 'description';
+
+  const updateField = (key: RentFitTierKey, field: TierTextField, value: string) => {
+    const next = deepClone(tiers);
+    next[key][field] = value;
+    setTiers(next);
+  };
+
+  const fieldWrap = 'bg-white rounded-2xl p-5 mb-3';
+  const labelCls = 'block text-[11px] font-semibold text-text-sub mb-1';
+  const inpCls =
+    'w-full bg-surface-secondary border border-border-solid rounded-[10px] px-[14px] py-[10px] text-sm text-text outline-none';
+  const taCls =
+    'w-full bg-surface-secondary border border-border-solid rounded-[10px] px-[14px] py-[10px] text-sm text-text outline-none resize-y';
+
+  return (
+    <div className="flex flex-col gap-4">
+      <p className="text-sm text-text-sub">장기렌트 적합도 구간별 메시지를 편집합니다.</p>
+      {TIER_KEYS.map((key) => {
+        const t = tiers[key];
+        return (
+          <div key={key} className={fieldWrap}>
+            <div className="flex items-center gap-3 mb-4">
+              <div
+                className="w-10 h-10 rounded-xl flex items-center justify-center text-xl"
+                style={{ backgroundColor: `${TIER_COLORS[key]}15` }}
+              >
+                {t.emoji}
+              </div>
+              <div>
+                <div className="text-[16px] font-bold text-text">{TIER_LABELS[key]}</div>
+                <div className="text-[11px] font-semibold" style={{ color: TIER_COLORS[key] }}>{t.title}</div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+              <div>
+                <label className={labelCls}>이모지</label>
+                <input className={inpCls} value={t.emoji} onChange={(e) => updateField(key, 'emoji', e.target.value)} />
+              </div>
+              <div>
+                <label className={labelCls}>타이틀</label>
+                <input className={inpCls} value={t.title} onChange={(e) => updateField(key, 'title', e.target.value)} />
+              </div>
+            </div>
+
+            <div className="mb-3">
+              <label className={labelCls}>메시지</label>
+              <textarea className={taCls} rows={2} value={t.message} onChange={(e) => updateField(key, 'message', e.target.value)} />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+              <div>
+                <label className={labelCls}>CTA 버튼 텍스트</label>
+                <input className={inpCls} value={t.cta} onChange={(e) => updateField(key, 'cta', e.target.value)} />
+              </div>
+            </div>
+
+            <div className="mb-3">
+              <label className={labelCls}>설명</label>
+              <textarea className={taCls} rows={2} value={t.description} onChange={(e) => updateField(key, 'description', e.target.value)} />
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 function ProductsEditor({
   products,
   setProducts,
@@ -1081,10 +1172,10 @@ export default function DiagnosisAdminPage() {
           allQuestionsForSkipRef={allVehicleQuestions}
         />
       ),
-      '상품결과': (
-        <ProductsEditor
-          products={data.products}
-          setProducts={(next) => setData((p) => ({ ...p, products: next }))}
+      '렌트적합도': (
+        <RentFitTierEditor
+          tiers={data.rentFitTiers}
+          setTiers={(next) => setData((p) => ({ ...p, rentFitTiers: next }))}
         />
       ),
       '차종결과': (

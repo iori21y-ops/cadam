@@ -1,4 +1,4 @@
-import type { Products, ProductKey } from "@/types/diagnosis";
+import type { Products, ProductKey, RentFitTierKey, RentFitTierData } from "@/types/diagnosis";
 
 export const PRODUCT_KEYS: ProductKey[] = ["installment", "lease", "rent", "cash"];
 
@@ -7,6 +7,30 @@ export const PRODUCT_LABELS: Record<ProductKey, string> = {
   lease: "리스",
   rent: "렌트",
   cash: "현금",
+};
+
+export const RENT_FIT_TIERS: Record<RentFitTierKey, RentFitTierData> = {
+  high: {
+    emoji: '🎯',
+    title: '장기렌트 강력 추천!',
+    message: '고객님의 상황에 장기렌트가 매우 잘 맞습니다. 절약 포인트를 최대한 활용해보세요.',
+    cta: '맞춤 견적 받기 →',
+    description: '보험·정비·세금 올인원 포함으로 관리 부담 없이 편하게 탈 수 있습니다.',
+  },
+  mid: {
+    emoji: '🤔',
+    title: '장기렌트 고려해볼 만합니다',
+    message: '상황에 따라 장기렌트가 유리할 수 있습니다. 상담을 통해 정확한 비교를 해보세요.',
+    cta: '무료 상담 신청 →',
+    description: '조건에 따라 할부·리스와 비교해보는 것이 좋습니다.',
+  },
+  low: {
+    emoji: '💡',
+    title: '다른 방법이 더 유리할 수 있어요',
+    message: '고객님의 상황에서는 할부나 현금구매가 더 경제적일 수 있습니다. 그래도 궁금하시면 상담해보세요.',
+    cta: '비교 상담 받기 →',
+    description: '소유권이 중요하거나 장기 보유 계획이라면 다른 방법을 먼저 검토해보세요.',
+  },
 };
 
 export const DEFAULT_PRODUCTS: Products = {

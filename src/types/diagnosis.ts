@@ -166,6 +166,25 @@ export interface AIConfig {
   introComment: string;
 }
 
+// ─── 장기렌트 적합도 결과 ───
+
+export type RentFitTierKey = 'high' | 'mid' | 'low';
+
+export interface RentFitTierData {
+  emoji: string;
+  title: string;
+  message: string;
+  cta: string;
+  description: string;
+}
+
+export interface RentFitResult {
+  score: number;       // 0~100
+  tier: RentFitTierKey;
+  reasons: string[];       // 불리한 점 (최대 3개)
+  savingPoints: string[];  // 절약 포인트 (최대 4개)
+}
+
 // ─── 관리 / 저장 ───
 
 export interface DiagnosisData {
@@ -174,6 +193,7 @@ export interface DiagnosisData {
   vehBasic: VehicleQuestion[];
   vehDetail: VehicleQuestion[];
   products: Products;
+  rentFitTiers: Record<RentFitTierKey, RentFitTierData>;
   aiConfig: AIConfig;
   vehicles: DiagnosisVehicle[];
 }

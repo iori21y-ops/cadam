@@ -19,9 +19,9 @@ const MISSION_INFO = {
   },
   finance: {
     emoji: '🎯',
-    title: '이용방법 진단',
+    title: '장기렌트 절약 진단',
     href: '/diagnosis/finance',
-    desc: '할부·리스·렌트 중 최적의 이용방법을 찾아보세요',
+    desc: '장기렌트 적합도를 분석해 절약 포인트를 알아보세요',
   },
 } as const;
 

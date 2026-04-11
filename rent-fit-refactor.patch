@@ -1,0 +1,770 @@
+diff --git a/src/app/admin/diagnosis/page.tsx b/src/app/admin/diagnosis/page.tsx
+index 3dc1eb1..fb60441 100644
+--- a/src/app/admin/diagnosis/page.tsx
++++ b/src/app/admin/diagnosis/page.tsx
+@@ -6,7 +6,7 @@ import { createBrowserSupabaseClient } from '@/lib/supabase';
+ import { useToastStore } from '@/store/toastStore';
+ import { FINANCE_BASIC, FINANCE_DETAIL } from '@/data/diagnosis-finance';
+ import { ALL_VEHICLE_TAGS, DEFAULT_VEHICLE_BASIC, DEFAULT_VEHICLE_DETAIL } from '@/data/diagnosis-vehicle';
+-import { DEFAULT_PRODUCTS, PRODUCT_KEYS, PRODUCT_LABELS } from '@/data/diagnosis-products';
++import { DEFAULT_PRODUCTS, PRODUCT_KEYS, PRODUCT_LABELS, RENT_FIT_TIERS } from '@/data/diagnosis-products';
+ import { DEFAULT_AI_CONFIG } from '@/data/diagnosis-ai';
+ import { VEHICLES } from '@/data/diagnosis-vehicles';
+ import { calcMonthly } from '@/lib/calc-monthly';
+@@ -18,6 +18,8 @@ import type {
+   FinanceQuestion,
+   Product,
+   ProductKey,
++  RentFitTierKey,
++  RentFitTierData,
+   SkipCondition,
+   VehicleOption,
+   VehicleQuestion,
+@@ -25,7 +27,7 @@ import type {
+ 
+ const CONFIG_ID = 'diagnosis_data_v1';
+ 
+-const TABS = ['금융 간편', '금융 상세', '차종 간편', '차종 상세', '상품결과', '차종결과'] as const;
++const TABS = ['금융 간편', '금융 상세', '차종 간편', '차종 상세', '렌트적합도', '차종결과'] as const;
+ type Tab = (typeof TABS)[number];
+ 
+ function deepClone<T>(v: T): T {
+@@ -40,6 +42,7 @@ function buildDefaultData(): DiagnosisData {
+     vehBasic: DEFAULT_VEHICLE_BASIC,
+     vehDetail: DEFAULT_VEHICLE_DETAIL,
+     products: DEFAULT_PRODUCTS,
++    rentFitTiers: RENT_FIT_TIERS,
+     aiConfig: DEFAULT_AI_CONFIG,
+     vehicles: VEHICLES,
+   };
+@@ -77,6 +80,9 @@ function normalizeDiagnosisData(input: unknown): DiagnosisData {
+     products: isRecord(input.products)
+       ? ({ ...base.products, ...(input.products as Partial<DiagnosisData['products']>) } as DiagnosisData['products'])
+       : base.products,
++    rentFitTiers: isRecord(input.rentFitTiers)
++      ? ({ ...base.rentFitTiers, ...(input.rentFitTiers as Partial<DiagnosisData['rentFitTiers']>) } as DiagnosisData['rentFitTiers'])
++      : base.rentFitTiers,
+     aiConfig: isRecord(input.aiConfig)
+       ? ({ ...base.aiConfig, ...(input.aiConfig as Partial<AIConfig>) } as AIConfig)
+       : base.aiConfig,
+@@ -91,6 +97,11 @@ function normalizeDiagnosisData(input: unknown): DiagnosisData {
+     out.products[k] = { ...base.products[k], ...(out.products[k] ?? {}) };
+   });
+ 
++  // Ensure rentFitTiers keys exist
++  (['high', 'mid', 'low'] as const).forEach((k) => {
++    out.rentFitTiers[k] = { ...base.rentFitTiers[k], ...(out.rentFitTiers[k] ?? {}) };
++  });
++
+   // Ensure aiConfig arrays exist
+   out.aiConfig.tonePresets = Array.isArray(out.aiConfig.tonePresets)
+     ? out.aiConfig.tonePresets
+@@ -214,7 +225,7 @@ function AdminTabBar({
+     { key: '금융 상세', label: '금융상세' },
+     { key: '차종 간편', label: '차종간편' },
+     { key: '차종 상세', label: '차종상세' },
+-    { key: '상품결과', label: '상품결과' },
++    { key: '렌트적합도', label: '렌트적합도' },
+     { key: '차종결과', label: '차종결과' },
+   ];
+   return (
+@@ -862,6 +873,86 @@ function VehiclesEditor({
+   );
+ }
+ 
++const TIER_KEYS: RentFitTierKey[] = ['high', 'mid', 'low'];
++const TIER_LABELS: Record<RentFitTierKey, string> = { high: '높음 (70%+)', mid: '보통 (40~69%)', low: '낮음 (~39%)' };
++const TIER_COLORS: Record<RentFitTierKey, string> = { high: '#10B981', mid: '#F59E0B', low: '#8E8E93' };
++
++function RentFitTierEditor({
++  tiers,
++  setTiers,
++}: {
++  tiers: Record<RentFitTierKey, RentFitTierData>;
++  setTiers: (next: Record<RentFitTierKey, RentFitTierData>) => void;
++}) {
++  type TierTextField = 'emoji' | 'title' | 'message' | 'cta' | 'description';
++
++  const updateField = (key: RentFitTierKey, field: TierTextField, value: string) => {
++    const next = deepClone(tiers);
++    next[key][field] = value;
++    setTiers(next);
++  };
++
++  const fieldWrap = 'bg-white rounded-2xl p-5 mb-3';
++  const labelCls = 'block text-[11px] font-semibold text-text-sub mb-1';
++  const inpCls =
++    'w-full bg-surface-secondary border border-border-solid rounded-[10px] px-[14px] py-[10px] text-sm text-text outline-none';
++  const taCls =
++    'w-full bg-surface-secondary border border-border-solid rounded-[10px] px-[14px] py-[10px] text-sm text-text outline-none resize-y';
++
++  return (
++    <div className="flex flex-col gap-4">
++      <p className="text-sm text-text-sub">장기렌트 적합도 구간별 메시지를 편집합니다.</p>
++      {TIER_KEYS.map((key) => {
++        const t = tiers[key];
++        return (
++          <div key={key} className={fieldWrap}>
++            <div className="flex items-center gap-3 mb-4">
++              <div
++                className="w-10 h-10 rounded-xl flex items-center justify-center text-xl"
++                style={{ backgroundColor: `${TIER_COLORS[key]}15` }}
++              >
++                {t.emoji}
++              </div>
++              <div>
++                <div className="text-[16px] font-bold text-text">{TIER_LABELS[key]}</div>
++                <div className="text-[11px] font-semibold" style={{ color: TIER_COLORS[key] }}>{t.title}</div>
++              </div>
++            </div>
++
++            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
++              <div>
++                <label className={labelCls}>이모지</label>
++                <input className={inpCls} value={t.emoji} onChange={(e) => updateField(key, 'emoji', e.target.value)} />
++              </div>
++              <div>
++                <label className={labelCls}>타이틀</label>
++                <input className={inpCls} value={t.title} onChange={(e) => updateField(key, 'title', e.target.value)} />
++              </div>
++            </div>
++
++            <div className="mb-3">
++              <label className={labelCls}>메시지</label>
++              <textarea className={taCls} rows={2} value={t.message} onChange={(e) => updateField(key, 'message', e.target.value)} />
++            </div>
++
++            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
++              <div>
++                <label className={labelCls}>CTA 버튼 텍스트</label>
++                <input className={inpCls} value={t.cta} onChange={(e) => updateField(key, 'cta', e.target.value)} />
++              </div>
++            </div>
++
++            <div className="mb-3">
++              <label className={labelCls}>설명</label>
++              <textarea className={taCls} rows={2} value={t.description} onChange={(e) => updateField(key, 'description', e.target.value)} />
++            </div>
++          </div>
++        );
++      })}
++    </div>
++  );
++}
++
+ function ProductsEditor({
+   products,
+   setProducts,
+@@ -1081,10 +1172,10 @@ export default function DiagnosisAdminPage() {
+           allQuestionsForSkipRef={allVehicleQuestions}
+         />
+       ),
+-      '상품결과': (
+-        <ProductsEditor
+-          products={data.products}
+-          setProducts={(next) => setData((p) => ({ ...p, products: next }))}
++      '렌트적합도': (
++        <RentFitTierEditor
++          tiers={data.rentFitTiers}
++          setTiers={(next) => setData((p) => ({ ...p, rentFitTiers: next }))}
+         />
+       ),
+       '차종결과': (
+diff --git a/src/app/diagnosis/finance/page.tsx b/src/app/diagnosis/finance/page.tsx
+index 6458856..1d54d3e 100644
+--- a/src/app/diagnosis/finance/page.tsx
++++ b/src/app/diagnosis/finance/page.tsx
+@@ -6,9 +6,9 @@ import { motion } from 'framer-motion';
+ import { QuizModule } from '@/components/diagnosis/QuizModule';
+ import { ParkAI } from '@/components/diagnosis/ParkAI';
+ import { FINANCE_BASIC, FINANCE_DETAIL } from '@/data/diagnosis-finance';
+-import { DEFAULT_PRODUCTS } from '@/data/diagnosis-products';
+-import { rankFinanceProducts, getKeyFactors } from '@/lib/flow-engine';
+-import type { DiagnosisAnswer, FinanceQuestion, ProductKey } from '@/types/diagnosis';
++import { RENT_FIT_TIERS } from '@/data/diagnosis-products';
++import { calculateRentFit, getRentKeyFactors } from '@/lib/flow-engine';
++import type { DiagnosisAnswer, FinanceQuestion } from '@/types/diagnosis';
+ import { BRAND } from '@/constants/brand';
+ import { FeedbackWidget } from '@/components/diagnosis/FeedbackWidget';
+ import { NextMission } from '@/components/diagnosis/NextMission';
+@@ -17,7 +17,7 @@ import { Button } from '@/components/ui/Button';
+ import { saveMissionStep, loadProgress } from '@/lib/mission-progress';
+ import { useQuoteStore } from '@/store/quoteStore';
+ 
+-const COLOR = '#2563EB';
++const COLOR = '#10B981';
+ 
+ 
+ function ScoreRing({ pct, color, size = 72 }: { pct: number; color: string; size?: number }) {
+@@ -42,19 +42,6 @@ function ScoreRing({ pct, color, size = 72 }: { pct: number; color: string; size
+   );
+ }
+ 
+-function RankBadge({ rank }: { rank: number }) {
+-  const badges = ['1st', '2nd', '3rd'];
+-  const colors = ['#EF4444', '#F59E0B', '#8E8E93'];
+-  return (
+-    <span
+-      className="text-[10px] font-bold px-2 py-0.5 rounded-full text-white"
+-      style={{ backgroundColor: colors[rank] ?? '#8E8E93' }}
+-    >
+-      {badges[rank] ?? ''}
+-    </span>
+-  );
+-}
+-
+ function FinResult({ answers, questions, mode, restart, toDetail, onHome }: {
+   answers: Record<string, DiagnosisAnswer>;
+   questions: FinanceQuestion[];
+@@ -65,39 +52,36 @@ function FinResult({ answers, questions, mode, restart, toDetail, onHome }: {
+ }) {
+   const router = useRouter();
+   const allQs = mode === 'detail' ? [...FINANCE_BASIC, ...FINANCE_DETAIL] : FINANCE_BASIC;
+-  const ranking = rankFinanceProducts(answers, allQs);
+-  const best = ranking[0];
+-  const bestProduct = DEFAULT_PRODUCTS[best.key];
+-  const keyFactors = getKeyFactors(answers, allQs, best.key);
++  const result = calculateRentFit(answers, allQs);
++  const { score, tier, reasons, savingPoints } = result;
++  const tierData = RENT_FIT_TIERS[tier];
++  const keyFactors = getRentKeyFactors(answers, allQs);
+   const answerCount = Object.keys(answers).length;
+ 
+-  // 미션 완료 저장 (답변 포함 — 결과 복원용)
++  // 미션 완료 저장
+   useEffect(() => {
+     const serialized: Record<string, { value: string; label: string }> = {};
+     for (const [k, v] of Object.entries(answers)) {
+       serialized[k] = { value: v.value, label: v.label };
+     }
+-    saveMissionStep('finance', `${bestProduct.name} ${best.pct}%`, serialized, mode);
+-  }, [answers, bestProduct.name, best.pct, mode]);
++    saveMissionStep('finance', `장기렌트 ${score}%`, serialized, mode);
++  }, [answers, score, mode]);
+ 
+   // AI에 보낼 상세 컨텍스트
+   const aiContext = [
+-    `금융진단결과: 1순위 ${DEFAULT_PRODUCTS[best.key].name}(${best.pct}%)`,
+-    ranking[1] ? `, 2순위 ${DEFAULT_PRODUCTS[ranking[1].key].name}(${ranking[1].pct}%)` : '',
+-    ranking[2] ? `, 3순위 ${DEFAULT_PRODUCTS[ranking[2].key].name}(${ranking[2].pct}%)` : '',
+-    `. 응답수: ${answerCount}개. 모드: ${mode}.`,
+-    ` 핵심근거: ${best.reasons.slice(0, 2).join(', ')}.`,
++    `장기렌트 적합도: ${score}% (${tier}).`,
++    ` 응답수: ${answerCount}개. 모드: ${mode}.`,
++    savingPoints.length > 0 ? ` 절약포인트: ${savingPoints.slice(0, 2).join(', ')}.` : '',
++    reasons.length > 0 ? ` 불리한점: ${reasons.slice(0, 2).join(', ')}.` : '',
+     answers['business'] ? ` 사업자: ${answers['business'].label}.` : '',
+     answers['budget'] ? ` 초기자금: ${answers['budget'].label}.` : '',
+     answers['ownership'] ? ` 소유의향: ${answers['ownership'].label}.` : '',
+   ].join('');
+ 
+   const [copied, setCopied] = useState(false);
+-  const [expanded, setExpanded] = useState(false);
+   const shareUrl = buildShareUrl('/diagnosis/finance', mode, answers);
+   const prefillFromDiagnosis = useQuoteStore((s) => s.prefillFromDiagnosis);
+ 
+-  // 차종 진단 결과 (있으면 CTA에 함께 표시)
+   const vehicleProgress = loadProgress().vehicle;
+   const vehicleSummary = vehicleProgress.done ? vehicleProgress.summary : null;
+ 
+@@ -116,8 +100,8 @@ function FinResult({ answers, questions, mode, restart, toDetail, onHome }: {
+ 
+   const handleShare = async () => {
+     const shared = await nativeShare({
+-      title: `${BRAND.sharePrefix} 금융진단 결과: ${bestProduct.name} 추천`,
+-      text: `나에게 맞는 금융상품은 ${bestProduct.name}! (적합도 ${best.pct}%) 당신도 진단해보세요.`,
++      title: `${BRAND.sharePrefix} 장기렌트 적합도: ${score}%`,
++      text: `나의 장기렌트 적합도는 ${score}%! 당신도 진단해보세요.`,
+       url: shareUrl,
+     });
+     if (!shared) handleCopy();
+@@ -125,18 +109,20 @@ function FinResult({ answers, questions, mode, restart, toDetail, onHome }: {
+ 
+   const handleKakaoShare = () => {
+     shareToKakao({
+-      title: `${BRAND.sharePrefix} 금융진단 결과: ${bestProduct.name} 추천`,
+-      description: `나에게 맞는 금융상품은 ${bestProduct.name}! (적합도 ${best.pct}%)`,
++      title: `${BRAND.sharePrefix} 장기렌트 적합도: ${score}%`,
++      description: `나의 장기렌트 적합도는 ${score}%! ${tierData.title}`,
+       url: shareUrl,
+     });
+   };
+ 
++  const tierColor = tier === 'high' ? '#10B981' : tier === 'mid' ? '#F59E0B' : '#8E8E93';
++
+   return (
+     <div className="min-h-screen bg-surface-secondary pb-16">
+       <div className="px-5 pt-10 max-w-lg mx-auto">
+         {/* 모드 배지 + 공유 */}
+         <div className="flex items-center justify-between mb-5">
+-          <span className="text-xs px-3 py-1 rounded-full bg-finance/8 text-finance font-semibold">
++          <span className="text-xs px-3 py-1 rounded-full bg-[rgba(16,185,129,0.08)] text-[#10B981] font-semibold">
+             {mode === 'basic' ? '간편 진단' : '상세 진단'} · {answerCount}개 응답
+           </span>
+           <div className="flex gap-1.5">
+@@ -159,114 +145,84 @@ function FinResult({ answers, questions, mode, restart, toDetail, onHome }: {
+ 
+         {/* 헤드라인 */}
+         <motion.div initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.35, ease: 'easeOut' }}>
+-          <p className="text-sm text-text-sub mb-1">금융상품 진단 결과</p>
++          <p className="text-sm text-text-sub mb-1">장기렌트 적합도 진단 결과</p>
+           <h1 className="text-2xl font-bold text-text tracking-tight mb-4">
+-            고객님께는<br />
+-            <span style={{ color: bestProduct.color }}>{bestProduct.name}</span>을(를) 추천합니다
++            {tierData.emoji} {tierData.title}
+           </h1>
+         </motion.div>
+ 
+         {/* ParkAI */}
+         <ParkAI ctx={aiContext} mode="report" />
+ 
+-        {/* ━━━ 추천 순위 (1순위 상세 + 접기/펼치기) ━━━ */}
++        {/* ━━━ 적합도 스코어 카드 ━━━ */}
+         <motion.div
+           initial={{ opacity: 0, x: 40 }}
+           animate={{ opacity: 1, x: 0 }}
+           transition={{ delay: 0.1, duration: 0.35, ease: 'easeOut' }}
+           className="rounded-2xl bg-surface shadow-sm mb-4 overflow-hidden"
+         >
+-          {ranking.map((item, i) => {
+-            const product = DEFAULT_PRODUCTS[item.key];
+-            const isBest = i === 0;
+-            // 1순위는 항상 표시, 나머지는 expanded일 때만
+-            if (!isBest && !expanded) return null;
++          <div className="px-5 py-6">
++            {/* 스코어 링 (크게) */}
++            <div className="flex flex-col items-center mb-5">
++              <ScoreRing pct={score} color={tierColor} size={120} />
++              <p className="text-sm font-semibold mt-3" style={{ color: tierColor }}>
++                장기렌트 적합도
++              </p>
++            </div>
+ 
+-            return (
+-              <div
+-                key={item.key}
+-                className={`px-5 py-5 ${isBest ? '' : 'border-t border-border'}`}
+-              >
+-                {/* 헤더: 순위 + 링 + 이름 */}
+-                <div className="flex items-center gap-3 mb-3">
+-                  <div className="flex flex-col items-center gap-1">
+-                    <RankBadge rank={i} />
+-                    <ScoreRing pct={item.pct} color={product.color} size={56} />
+-                  </div>
+-                  <div className="flex-1 min-w-0">
+-                    <div className="flex items-center gap-2 mb-0.5">
+-                      <span className="text-xl">{product.emoji}</span>
+-                      <p className="font-bold text-text text-[17px]">{product.name}</p>
+-                    </div>
+-                    <p className="text-xs text-text-sub">{product.tagline}</p>
+-                  </div>
+-                  <span className="text-sm font-bold" style={{ color: product.color }}>
+-                    {item.pct}%
+-                  </span>
++            {/* tier 메시지 */}
++            <p className="text-[13px] text-text-sub leading-relaxed text-center mb-5">
++              {tierData.message}
++            </p>
++
++            {/* 절약 포인트 */}
++            {savingPoints.length > 0 && (
++              <div className="mb-4">
++                <p className="text-[12px] font-semibold text-success mb-2">✨ 절약 포인트</p>
++                <div className="flex flex-col gap-1.5">
++                  {savingPoints.map((point, i) => (
++                    <p key={i} className="text-[12px] text-text-sub pl-1">
++                      <span className="text-success mr-1.5">✓</span>{point}
++                    </p>
++                  ))}
+                 </div>
+-
+-                {/* 설명 */}
+-                <p className="text-[13px] text-text-sub leading-relaxed mb-3">{product.description}</p>
+-
+-                {/* 추천 이유 */}
+-                {item.reasons.length > 0 && (
+-                  <div className="flex flex-col gap-1 mb-3">
+-                    {item.reasons.map((reason, ri) => (
+-                      <p key={ri} className="text-xs text-text-sub">
+-                        <span className="text-success mr-1">✓</span>{reason}
+-                      </p>
+-                    ))}
+-                  </div>
+-                )}
+-
+-                {/* 장점 / 유의사항 */}
+-                <div className="grid grid-cols-2 gap-3 mb-3">
+-                  <div>
+-                    <p className="text-[11px] font-semibold text-success mb-1">장점</p>
+-                    {product.pros.map((p) => (
+-                      <p key={p} className="text-[11px] text-text-sub mb-0.5">✓ {p}</p>
+-                    ))}
+-                  </div>
+-                  <div>
+-                    <p className="text-[11px] font-semibold text-danger mb-1">유의사항</p>
+-                    {product.cons.map((c) => (
+-                      <p key={c} className="text-[11px] text-text-sub mb-0.5">· {c}</p>
+-                    ))}
+-                  </div>
++              </div>
++            )}
++
++            {/* 불리한 점 */}
++            {reasons.length > 0 && (
++              <div className="mb-4">
++                <p className="text-[12px] font-semibold text-danger mb-2">⚠️ 참고사항</p>
++                <div className="flex flex-col gap-1.5">
++                  {reasons.map((reason, i) => (
++                    <p key={i} className="text-[12px] text-text-sub pl-1">
++                      <span className="text-danger mr-1.5">·</span>{reason}
++                    </p>
++                  ))}
+                 </div>
+-
+-                {/* 핵심 근거 (1순위만) */}
+-                {isBest && keyFactors.length > 0 && (
+-                  <div className="pt-3 border-t border-border">
+-                    <p className="text-[11px] font-semibold text-text-sub mb-2">핵심 판단 근거</p>
+-                    <div className="flex flex-wrap gap-1.5">
+-                      {keyFactors.map((f, fi) => (
+-                        <span key={fi} className="text-[11px] font-semibold px-2 py-1 rounded-lg text-white"
+-                          style={{ backgroundColor: f.impact === '매우 유리' ? '#10B981' : '#2563EB' }}>
+-                          {f.label}
+-                        </span>
+-                      ))}
+-                    </div>
+-                  </div>
+-                )}
+-
+-                <div className="pt-2">
+-                  <p className="text-[11px] text-text-muted">이런 분께 최적: {product.bestFor}</p>
++              </div>
++            )}
++
++            {/* 핵심 판단 근거 */}
++            {keyFactors.length > 0 && (
++              <div className="pt-4 border-t border-border">
++                <p className="text-[11px] font-semibold text-text-sub mb-2">핵심 판단 근거</p>
++                <div className="flex flex-wrap gap-1.5">
++                  {keyFactors.map((f, fi) => (
++                    <span key={fi} className="text-[11px] font-semibold px-2 py-1 rounded-lg text-white"
++                      style={{ backgroundColor: f.impact === '매우 유리' ? '#10B981' : '#2563EB' }}>
++                      {f.label}
++                    </span>
++                  ))}
+                 </div>
+               </div>
+-            );
+-          })}
++            )}
+ 
+-          {/* 접기/펼치기 버튼 */}
+-          {ranking.length > 1 && (
+-            <button
+-              onClick={() => setExpanded(!expanded)}
+-              className="w-full py-4 border-t-2 border-border text-sm font-bold text-primary bg-primary/[0.04] hover:bg-primary/[0.08] active:bg-primary/[0.12] transition-colors flex items-center justify-center gap-2"
+-            >
+-              <span className="text-base">{expanded ? '▲' : '▼'}</span>
+-              {expanded ? '접기' : '2·3순위 결과 보기'}
+-            </button>
+-          )}
++            {/* tier 설명 */}
++            <div className="pt-3">
++              <p className="text-[11px] text-text-muted">{tierData.description}</p>
++            </div>
++          </div>
+         </motion.div>
+ 
+         {/* 다음 미션 유도 */}
+@@ -289,7 +245,7 @@ function FinResult({ answers, questions, mode, restart, toDetail, onHome }: {
+           <FeedbackWidget
+             type="finance"
+             mode={mode}
+-            result={{ best: best.key, pct: best.pct, ranking: ranking.map((r) => ({ key: r.key, pct: r.pct })) }}
++            result={{ best: 'rent', pct: score, ranking: [{ key: 'rent' as const, pct: score }] }}
+             answers={answers as Record<string, { value: string; label: string }>}
+           />
+         </motion.div>
+@@ -309,16 +265,17 @@ function FinResult({ answers, questions, mode, restart, toDetail, onHome }: {
+         <div className="max-w-lg mx-auto px-5 py-3 flex items-center gap-3">
+           <div className="flex-1 min-w-0">
+             <div className="flex items-center gap-1.5 flex-wrap">
+-              <span className="text-xs font-bold text-text">🎯 {bestProduct.name} {best.pct}%</span>
++              <span className="text-xs font-bold text-text">{tierData.emoji} 장기렌트 {score}%</span>
+               {vehicleSummary && <span className="text-xs text-text-sub">· 🚗 {vehicleSummary}</span>}
+             </div>
+             <p className="text-[10px] text-text-muted mt-0.5">진단 결과가 자동 반영됩니다</p>
+           </div>
+           <button
+             onClick={handleQuoteNav}
+-            className="shrink-0 px-5 py-2.5 rounded-xl bg-primary text-white text-sm font-bold hover:opacity-90 active:scale-[0.97] transition-all"
++            className="shrink-0 px-5 py-2.5 rounded-xl text-white text-sm font-bold hover:opacity-90 active:scale-[0.97] transition-all"
++            style={{ backgroundColor: tierColor }}
+           >
+-            상담 신청 →
++            {tierData.cta}
+           </button>
+         </div>
+       </div>
+diff --git a/src/components/diagnosis/NextMission.tsx b/src/components/diagnosis/NextMission.tsx
+index 390b298..d3ba9f9 100644
+--- a/src/components/diagnosis/NextMission.tsx
++++ b/src/components/diagnosis/NextMission.tsx
+@@ -19,9 +19,9 @@ const MISSION_INFO = {
+   },
+   finance: {
+     emoji: '🎯',
+-    title: '이용방법 진단',
++    title: '장기렌트 절약 진단',
+     href: '/diagnosis/finance',
+-    desc: '할부·리스·렌트 중 최적의 이용방법을 찾아보세요',
++    desc: '장기렌트 적합도를 분석해 절약 포인트를 알아보세요',
+   },
+ } as const;
+ 
+diff --git a/src/data/diagnosis-finance.ts b/src/data/diagnosis-finance.ts
+index b7c82ac..8b11402 100644
+--- a/src/data/diagnosis-finance.ts
++++ b/src/data/diagnosis-finance.ts
+@@ -64,7 +64,72 @@ export const FINANCE_DETAIL: FinanceQuestion[] = [
+   ]},
+ ];
+ 
+-// 질문별 추천 이유 매핑 (핵심 질문 기반 근거 생성용)
++// 장기렌트 적합도 진단용 이유 매핑
++export const RENT_REASON_MAP: Record<string, Record<string, { positive?: string; negative?: string }>> = {
++  business: {
++    personal: { negative: '개인 용도는 세제 혜택이 제한적입니다' },
++    sole: { positive: '사업자 비용처리로 절세 효과를 볼 수 있습니다' },
++    corp: { positive: '법인 비용처리와 관리 편의성이 뛰어납니다' },
++  },
++  ownership: {
++    must_own: { negative: '장기렌트는 소유권이 없어 내 명의가 아닙니다' },
++    flexible: { positive: '소유에 유연하면 렌트의 편의성을 최대로 누릴 수 있습니다' },
++    use_only: { positive: '소유 부담 없이 편하게 이용할 수 있습니다' },
++  },
++  cycle: {
++    short: { positive: '2~3년 단기 이용 후 새 차로 교체하기 편리합니다' },
++    medium: {},
++    long: { negative: '6년 이상 장기 보유 시 총 비용이 높아질 수 있습니다' },
++  },
++  budget: {
++    rich: { negative: '여유 자금이 있으면 현금·할부가 더 경제적일 수 있습니다' },
++    moderate: { positive: '초기 비용을 줄이면서 월 납입으로 부담을 분산할 수 있습니다' },
++    tight: { positive: '목돈 없이 월 납입만으로 신차를 탈 수 있습니다' },
++  },
++  maintenance: {
++    self: { negative: '직접 관리하면 렌트 포함 비용이 아까울 수 있습니다' },
++    partial: { positive: '일부 관리 포함으로 편의성과 비용의 균형을 맞출 수 있습니다' },
++    full: { positive: '보험·정비·세금이 모두 포함되어 관리가 매우 편합니다' },
++  },
++  mileage: {
++    '10000': { positive: '적은 주행거리로 렌트 조건이 유리합니다' },
++    '20000': {},
++    '30000': { negative: '주행거리가 많으면 초과 비용이 발생할 수 있습니다' },
++    '40000': { negative: '장거리 운행은 주행거리 초과 위험이 높습니다' },
++  },
++  contract_flexibility: {
++    stable: {},
++    moderate: { positive: '중도해지 부담이 적은 장기렌트가 변화에 대응하기 좋습니다' },
++    flexible: { positive: '생활 변화에 유연하게 대응할 수 있습니다' },
++  },
++  price_range: {
++    low: {},
++    mid: { positive: '중간 가격대에서 렌트 월 비용이 합리적입니다' },
++    high: { positive: '고가 차량의 감가 위험을 렌트로 회피할 수 있습니다' },
++    premium: { positive: '초고가 차량의 관리·감가 부담을 렌트로 해결할 수 있습니다' },
++  },
++  credit: {
++    excellent: {},
++    average: { positive: '보통 신용에서도 렌트는 심사가 유연합니다' },
++    low: { positive: '신용 영향이 적은 장기렌트가 유리합니다' },
++    unknown: { positive: '신용등급을 몰라도 렌트 심사는 비교적 유연합니다' },
++  },
++  depreciation: {
++    concern: { positive: '렌트는 감가상각 걱정 없이 반납하면 됩니다' },
++    moderate: {},
++    none: { negative: '감가를 신경 쓰지 않으면 소유가 더 유리할 수 있습니다' },
++  },
++  tax: {
++    none: { negative: '세제 혜택을 원하지 않으면 렌트의 장점이 줄어듭니다' },
++    some: { positive: '렌트 비용 전액 비용처리가 가능합니다' },
++    priority: { positive: '렌트비 전액 비용처리로 최대 절세 효과를 볼 수 있습니다' },
++  },
++};
++
++// 하위호환용 alias
++export const QUESTION_REASON_MAP_LEGACY = RENT_REASON_MAP;
++
++// 질문별 추천 이유 매핑 (핵심 질문 기반 근거 생성용 - 기존 4상품 랭킹용)
+ export const QUESTION_REASON_MAP: Record<string, Record<string, Partial<Record<'installment' | 'lease' | 'rent' | 'cash', string>>>> = {
+   business: {
+     personal: { installment: '개인 고객에게 할부는 소유권 확보에 유리합니다', cash: '비사업자는 현금구매로 이자 부담을 없앨 수 있습니다' },
+diff --git a/src/data/diagnosis-products.ts b/src/data/diagnosis-products.ts
+index e2667d3..7d6d4aa 100644
+--- a/src/data/diagnosis-products.ts
++++ b/src/data/diagnosis-products.ts
+@@ -1,4 +1,4 @@
+-import type { Products, ProductKey } from "@/types/diagnosis";
++import type { Products, ProductKey, RentFitTierKey, RentFitTierData } from "@/types/diagnosis";
+ 
+ export const PRODUCT_KEYS: ProductKey[] = ["installment", "lease", "rent", "cash"];
+ 
+@@ -9,6 +9,30 @@ export const PRODUCT_LABELS: Record<ProductKey, string> = {
+   cash: "현금",
+ };
+ 
++export const RENT_FIT_TIERS: Record<RentFitTierKey, RentFitTierData> = {
++  high: {
++    emoji: '🎯',
++    title: '장기렌트 강력 추천!',
++    message: '고객님의 상황에 장기렌트가 매우 잘 맞습니다. 절약 포인트를 최대한 활용해보세요.',
++    cta: '맞춤 견적 받기 →',
++    description: '보험·정비·세금 올인원 포함으로 관리 부담 없이 편하게 탈 수 있습니다.',
++  },
++  mid: {
++    emoji: '🤔',
++    title: '장기렌트 고려해볼 만합니다',
++    message: '상황에 따라 장기렌트가 유리할 수 있습니다. 상담을 통해 정확한 비교를 해보세요.',
++    cta: '무료 상담 신청 →',
++    description: '조건에 따라 할부·리스와 비교해보는 것이 좋습니다.',
++  },
++  low: {
++    emoji: '💡',
++    title: '다른 방법이 더 유리할 수 있어요',
++    message: '고객님의 상황에서는 할부나 현금구매가 더 경제적일 수 있습니다. 그래도 궁금하시면 상담해보세요.',
++    cta: '비교 상담 받기 →',
++    description: '소유권이 중요하거나 장기 보유 계획이라면 다른 방법을 먼저 검토해보세요.',
++  },
++};
++
+ export const DEFAULT_PRODUCTS: Products = {
+   installment: {
+     name: "할부",
+diff --git a/src/lib/flow-engine.ts b/src/lib/flow-engine.ts
+index d2769c9..9507cbd 100644
+--- a/src/lib/flow-engine.ts
++++ b/src/lib/flow-engine.ts
+@@ -1,8 +1,9 @@
+ import type {
+   DiagnosisQuestion, DiagnosisAnswer, SkipCondition,
+   FinanceScores, FinanceQuestion, FinanceRankedProduct, ProductKey,
++  RentFitResult,
+ } from '@/types/diagnosis';
+-import { QUESTION_REASON_MAP } from '@/data/diagnosis-finance';
++import { QUESTION_REASON_MAP, RENT_REASON_MAP } from '@/data/diagnosis-finance';
+ import { PRODUCT_KEYS } from '@/data/diagnosis-products';
+ 
+ /**
+@@ -140,6 +141,73 @@ export function getKeyFactors(
+     .map(({ questionId, label, impact }) => ({ questionId, label, impact }));
+ }
+ 
++/**
++ * 장기렌트 적합도 점수 계산 — 기존 scores.rent 값만 추출
++ */
++export function calculateRentFitScore(
++  answers: Record<string, DiagnosisAnswer>,
++  questions?: FinanceQuestion[]
++): { rentTotal: number; maxPossible: number } {
++  let rentTotal = 0;
++  let maxPossible = 0;
++  Object.entries(answers).forEach(([qId, answer]) => {
++    if ('scores' in answer) {
++      const q = questions?.find((qq) => qq.id === qId);
++      const weight = q?.weight ?? 1.0;
++      rentTotal += answer.scores.rent * weight;
++      maxPossible += 3 * weight;
++    }
++  });
++  return { rentTotal, maxPossible };
++}
++
++/**
++ * 장기렌트 적합도 결과 반환
++ */
++export function calculateRentFit(
++  answers: Record<string, DiagnosisAnswer>,
++  questions: FinanceQuestion[]
++): RentFitResult {
++  const { rentTotal, maxPossible } = calculateRentFitScore(answers, questions);
++  const score = maxPossible > 0 ? Math.round((rentTotal / maxPossible) * 100) : 0;
++  const tier = score >= 70 ? 'high' : score >= 40 ? 'mid' : 'low';
++
++  const reasons: string[] = [];
++  const savingPoints: string[] = [];
++  const sortedQs = [...questions].filter(q => answers[q.id]).sort((a, b) => (b.weight ?? 1) - (a.weight ?? 1));
++
++  for (const q of sortedQs) {
++    const ans = answers[q.id];
++    if (!ans || !('scores' in ans)) continue;
++    const map = RENT_REASON_MAP[q.id]?.[ans.value];
++    if (map?.positive) { savingPoints.push(map.positive); }
++    if (map?.negative) { reasons.push(map.negative); }
++    if (savingPoints.length >= 4 && reasons.length >= 3) break;
++  }
++
++  return { score, tier, reasons: reasons.slice(0, 3), savingPoints: savingPoints.slice(0, 4) };
++}
++
++/**
++ * 장기렌트 핵심 판단 근거
++ */
++export function getRentKeyFactors(
++  answers: Record<string, DiagnosisAnswer>,
++  questions: FinanceQuestion[]
++): { questionId: string; label: string; impact: string }[] {
++  const factors: { questionId: string; label: string; impact: string; weight: number; score: number }[] = [];
++  for (const q of questions) {
++    const ans = answers[q.id];
++    if (!ans || !('scores' in ans)) continue;
++    const score = ans.scores.rent;
++    const weight = q.weight ?? 1;
++    if (score >= 2) {
++      factors.push({ questionId: q.id, label: ans.label, impact: score === 3 ? '매우 유리' : '유리', weight, score: score * weight });
++    }
++  }
++  return factors.sort((a, b) => b.score - a.score).slice(0, 4).map(({ questionId, label, impact }) => ({ questionId, label, impact }));
++}
++
+ /**
+  * Score vehicles by tag matching.
+  */
+diff --git a/src/types/diagnosis.ts b/src/types/diagnosis.ts
+index 27b9352..6654bd0 100644
+--- a/src/types/diagnosis.ts
++++ b/src/types/diagnosis.ts
+@@ -166,6 +166,25 @@ export interface AIConfig {
+   introComment: string;
+ }
+ 
++// ─── 장기렌트 적합도 결과 ───
++
++export type RentFitTierKey = 'high' | 'mid' | 'low';
++
++export interface RentFitTierData {
++  emoji: string;
++  title: string;
++  message: string;
++  cta: string;
++  description: string;
++}
++
++export interface RentFitResult {
++  score: number;       // 0~100
++  tier: RentFitTierKey;
++  reasons: string[];       // 불리한 점 (최대 3개)
++  savingPoints: string[];  // 절약 포인트 (최대 4개)
++}
++
+ // ─── 관리 / 저장 ───
+ 
+ export interface DiagnosisData {
+@@ -174,6 +193,7 @@ export interface DiagnosisData {
+   vehBasic: VehicleQuestion[];
+   vehDetail: VehicleQuestion[];
+   products: Products;
++  rentFitTiers: Record<RentFitTierKey, RentFitTierData>;
+   aiConfig: AIConfig;
+   vehicles: DiagnosisVehicle[];
+ }
