@@ -77,3 +77,126 @@ body {
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
 }
+
+.wp-content {
+  font-size: 16px;
+  line-height: 1.75;
+  color: var(--color-text);
+  word-break: keep-all;
+}
+.wp-content > * + * {
+  margin-top: 1em;
+}
+.wp-content h2 {
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.35;
+  margin-top: 2em;
+  margin-bottom: 0.6em;
+}
+.wp-content h3 {
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.4;
+  margin-top: 1.6em;
+  margin-bottom: 0.5em;
+}
+.wp-content h4 {
+  font-size: 16px;
+  font-weight: 700;
+  margin-top: 1.4em;
+  margin-bottom: 0.4em;
+}
+.wp-content p {
+  color: var(--color-text);
+}
+.wp-content a {
+  color: var(--color-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.wp-content strong {
+  font-weight: 700;
+}
+.wp-content ul,
+.wp-content ol {
+  padding-left: 1.25em;
+}
+.wp-content ul {
+  list-style: disc;
+}
+.wp-content ol {
+  list-style: decimal;
+}
+.wp-content li + li {
+  margin-top: 0.4em;
+}
+.wp-content blockquote {
+  border-left: 3px solid var(--color-border-solid);
+  padding: 0.25em 0 0.25em 1em;
+  color: var(--color-text-sub);
+  font-style: italic;
+}
+.wp-content img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border-radius: 12px;
+  margin: 1.25em auto;
+}
+.wp-content figure {
+  margin: 1.25em 0;
+}
+.wp-content figcaption {
+  text-align: center;
+  font-size: 13px;
+  color: var(--color-text-muted);
+  margin-top: 0.5em;
+}
+.wp-content hr {
+  border: 0;
+  border-top: 1px solid var(--color-border-solid);
+  margin: 2em 0;
+}
+.wp-content code {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-solid);
+  border-radius: 4px;
+  padding: 0.1em 0.4em;
+  font-size: 0.9em;
+  font-family: var(--font-mono);
+}
+.wp-content pre {
+  background: #1d1d1f;
+  color: #f5f5f7;
+  padding: 1em 1.2em;
+  border-radius: 12px;
+  overflow-x: auto;
+  font-size: 13px;
+}
+.wp-content pre code {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  color: inherit;
+}
+.wp-content table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.wp-content th,
+.wp-content td {
+  border: 1px solid var(--color-border-solid);
+  padding: 0.5em 0.75em;
+  text-align: left;
+}
+.wp-content th {
+  background: var(--color-surface-secondary);
+  font-weight: 600;
+}
+.wp-content iframe {
+  max-width: 100%;
+  border-radius: 12px;
+  margin: 1.25em 0;
+}

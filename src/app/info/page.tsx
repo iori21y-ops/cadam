@@ -1,7 +1,8 @@
 import { InfoArticles } from '@/components/info/InfoArticles';
 import { createServerSupabaseClient } from '@/lib/supabase-server';
+import { fetchWpPosts, type InfoArticleShape } from '@/lib/wp-client';
 
-export const revalidate = 3600;
+export const revalidate = 60;
 
 async function getCategories(): Promise<{ value: string; label: string }[]> {
   try {
@@ -16,7 +17,7 @@ async function getCategories(): Promise<{ value: string; label: string }[]> {
   }
 }
 
-async function getArticles() {
+async function getArticles(): Promise<InfoArticleShape[]> {
   try {
     const supabase = await createServerSupabaseClient();
     const { data, error } = await supabase
@@ -54,7 +55,19 @@ async function getArticles() {
   }
 }
 
+function mergeArticles(supabaseArticles: InfoArticleShape[], wpArticles: InfoArticleShape[]): InfoArticleShape[] {
+  return [...wpArticles, ...supabaseArticles].sort((a, b) => {
+    const ta = a.publishedAt ? Date.parse(a.publishedAt) : 0;
+    const tb = b.publishedAt ? Date.parse(b.publishedAt) : 0;
+    return tb - ta;
+  });
+}
+
 export default async function InfoPage() {
-  const [articles, categories] = await Promise.all([getArticles(), getCategories()]);
-  return <InfoArticles initialArticles={articles} categories={categories} />;
+  const [articles, categories, wpArticles] = await Promise.all([
+    getArticles(),
+    getCategories(),
+    fetchWpPosts(),
+  ]);
+  return <InfoArticles initialArticles={mergeArticles(articles, wpArticles)} categories={categories} />;
 }

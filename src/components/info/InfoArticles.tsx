@@ -1,6 +1,7 @@
 'use client';
 
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import Link from 'next/link';
+import { memo, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { FilterPill } from '@/components/ui/FilterPill';
 
 interface Article {
@@ -36,6 +37,30 @@ const TYPE_META: Record<'blog' | 'youtube' | 'shorts', { label: string; color: s
   shorts: { label: '쇼츠', color: '#FF2D55' },
 };
 
+function CardLink({
+  href,
+  className,
+  children,
+}: {
+  href: string;
+  className: string;
+  children: ReactNode;
+}) {
+  const isInternal = href.startsWith('/');
+  if (isInternal) {
+    return (
+      <Link href={href} className={className}>
+        {children}
+      </Link>
+    );
+  }
+  return (
+    <a href={href} target="_blank" rel="noopener noreferrer" className={className}>
+      {children}
+    </a>
+  );
+}
+
 const ArticleSlide = memo(function ArticleSlide({
   article,
   index,
@@ -50,10 +75,8 @@ const ArticleSlide = memo(function ArticleSlide({
 
   return (
     <div className="h-full flex flex-col py-3">
-      <a
+      <CardLink
         href={article.linkUrl}
-        target="_blank"
-        rel="noopener noreferrer"
         className="flex-1 relative rounded-3xl overflow-hidden block min-h-0 group bg-[#1C1C1E]"
       >
         {/* 배경 이미지 또는 그라디언트 */}
@@ -119,7 +142,7 @@ const ArticleSlide = memo(function ArticleSlide({
             </p>
           )}
         </div>
-      </a>
+      </CardLink>
 
       {/* 다음 컨텐츠 인디케이터 */}
       {index < total - 1 && (
