@@ -20,6 +20,9 @@ const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
 export const metadata: Metadata = {
   title: BRAND.title,
   description: BRAND.description,
+  verification: {
+    google: 'p9FqEFlhxN6FsGGk26lnjwpAn6qKbctYTx48IkXZL4A',
+  },
 };
 
 export default function RootLayout({
