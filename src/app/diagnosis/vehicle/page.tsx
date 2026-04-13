@@ -22,7 +22,7 @@ import { Button } from '@/components/ui/Button';
 import { saveMissionStep, loadProgress } from '@/lib/mission-progress';
 import { useQuoteStore } from '@/store/quoteStore';
 
-const COLOR = '#2563EB';
+const COLOR = '#C9A84C';
 
 function VehicleImage({ imageKey, brand, name, emoji }: { imageKey?: string; brand: string; name: string; emoji: string }) {
   const [failed, setFailed] = useState(false);

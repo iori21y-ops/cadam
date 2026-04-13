@@ -210,7 +210,7 @@ function FinResult({ answers, questions, mode, restart, toDetail, onHome }: {
                 <div className="flex flex-wrap gap-1.5">
                   {keyFactors.map((f, fi) => (
                     <span key={fi} className="text-[11px] font-semibold px-2 py-1 rounded-lg text-white"
-                      style={{ backgroundColor: f.impact === '매우 유리' ? '#10B981' : '#2563EB' }}>
+                      style={{ backgroundColor: f.impact === '매우 유리' ? '#10B981' : '#C9A84C' }}>
                       {f.label}
                     </span>
                   ))}

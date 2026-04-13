@@ -141,7 +141,7 @@ export default function CalculatorPage() {
         </div>
 
         {/* 상담 CTA */}
-        <div className="p-5 rounded-2xl bg-[#2563EB1A] mb-4">
+        <div className="p-5 rounded-2xl bg-accent/10 mb-4">
           <p className="text-sm font-bold text-text mb-1">더 정확한 견적이 필요하신가요?</p>
           <p className="text-xs text-text-sub mb-3">전문 상담사가 실제 조건으로 최저가를 찾아드립니다.</p>
           <Button variant="primary" fullWidth className="shadow-lg shadow-primary/20 font-bold" onClick={() => router.push('/quote')}>
