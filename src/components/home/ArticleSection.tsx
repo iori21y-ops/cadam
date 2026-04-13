@@ -1,11 +1,57 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { fetchWpPosts } from '@/lib/wp-client';
+import { fetchWpPosts, type InfoArticleShape } from '@/lib/wp-client';
+
+const FALLBACK_ARTICLES: InfoArticleShape[] = [
+  {
+    id: 'fallback-1',
+    title: '장기렌트 vs 리스 vs 할부, 뭐가 다를까?',
+    excerpt: '자동차 금융상품의 차이를 한눈에 비교해드립니다',
+    linkUrl: '/blog/rent-vs-lease',
+    thumbnailUrl: null,
+    sourceType: 'blog',
+    publishedAt: null,
+    category: 'rental',
+    vehicleSlug: null,
+  },
+  {
+    id: 'fallback-2',
+    title: '장기렌트 보험, 이것만 알면 됩니다',
+    excerpt: '보험료 포함 여부부터 사고 처리까지 핵심 정리',
+    linkUrl: '/blog/rent-insurance-guide',
+    thumbnailUrl: null,
+    sourceType: 'blog',
+    publishedAt: null,
+    category: 'rental',
+    vehicleSlug: null,
+  },
+  {
+    id: 'fallback-3',
+    title: '하허호 번호판, 정말 신경 쓰여야 할까?',
+    excerpt: '렌트 번호판에 대한 오해와 진실',
+    linkUrl: '/blog/license-plate-myth',
+    thumbnailUrl: null,
+    sourceType: 'blog',
+    publishedAt: null,
+    category: 'rental',
+    vehicleSlug: null,
+  },
+  {
+    id: 'fallback-4',
+    title: '신차 장기렌트, 선납금 얼마가 적당할까?',
+    excerpt: '선납금 비율에 따른 월 렌트료 변화 분석',
+    linkUrl: '/blog/deposit-guide',
+    thumbnailUrl: null,
+    sourceType: 'blog',
+    publishedAt: null,
+    category: 'rental',
+    vehicleSlug: null,
+  },
+];
 
 export async function ArticleSection() {
-  const articles = await fetchWpPosts({ perPage: 4 });
-
-  if (articles.length === 0) return null;
+  const wpArticles = await fetchWpPosts({ perPage: 4 });
+  const articles = wpArticles.length > 0 ? wpArticles : FALLBACK_ARTICLES;
 
   return (
     <section className="bg-white py-12 px-5">
