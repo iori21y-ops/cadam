@@ -37,7 +37,7 @@ export async function GET() {
     { name: 'OpenClaw Gateway', port: 18789, active: false },
     { name: 'n8n 워크플로우', port: 5678, active: false },
     { name: 'cadam-naver 서버', port: 3100, active: false },
-    { name: 'CADAM 웹사이트', port: 3000, active: false },
+    { name: 'RenTailor 웹사이트', port: 3000, active: false },
     { name: 'Ollama', port: 11434, active: false },
   ]
   let heartbeatChecks: {name: string, type: string}[] = []
@@ -50,7 +50,7 @@ export async function GET() {
   } catch {}
 
   try {
-    blogCount = parseInt(execSync("grep -c '발행 완료' /Users/kim/cadam-naver/publish.log 2>/dev/null || echo 0").toString().trim())
+    blogCount = parseInt(execSync("grep -c '발행 완료' /Users/kim/projects/cadam/cadam-naver/publish.log 2>/dev/null || echo 0").toString().trim())
   } catch {}
 
   try {
@@ -85,7 +85,7 @@ export async function GET() {
   } catch {}
 
   try {
-    const log = execSync("grep '발행 완료' /Users/kim/cadam-naver/publish.log | tail -1").toString().trim()
+    const log = execSync("grep '발행 완료' /Users/kim/projects/cadam/cadam-naver/publish.log | tail -1").toString().trim()
     const match = log.match(/\[(.+?)\]/)
     if (match) lastBlog = match[1]
   } catch {}
@@ -96,7 +96,7 @@ export async function GET() {
   } catch {}
 
   try {
-    const stat = execSync("stat -f %m /Users/kim/cadam-naver/naver-cookies.json").toString().trim()
+    const stat = execSync("stat -f %m /Users/kim/projects/cadam/cadam-naver/naver-cookies.json").toString().trim()
     const modified = new Date(parseInt(stat) * 1000)
     const daysSince = Math.floor((Date.now() - modified.getTime()) / 1000 / 60 / 60 / 24)
     cookieStatus = {
@@ -217,7 +217,7 @@ export async function GET() {
       const descMap: {[key: string]: string} = {
         'watch_openclaw.sh': 'OpenClaw 프로세스 감시 · 죽으면 자동 재시작',
         'cleanup_logs.sh':   '오래된 로그 파일 정리',
-        'backup_cadam.sh':   'CADAM 전체 백업 실행',
+        'backup_cadam.sh':   'RenTailor 전체 백업 실행',
         'daily_report.sh':   '일일 운영 리포트 텔레그램 전송',
       }
       const desc = descMap[script] || ''
@@ -287,7 +287,7 @@ export async function GET() {
   let blogStats = { success: 0, fail: 0 }
   let nextPublish = 'N/A'
   try {
-    const plog = execSync('cat /Users/kim/cadam-naver/publish.log 2>/dev/null').toString()
+    const plog = execSync('cat /Users/kim/projects/cadam/cadam-naver/publish.log 2>/dev/null').toString()
     for (const l of plog.split('\n').filter(Boolean)) {
       if (l.includes('발행 완료')) blogStats.success++
       else if (l.includes('발행 실패') || l.includes('ERROR')) blogStats.fail++

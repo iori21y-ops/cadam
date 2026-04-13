@@ -177,12 +177,12 @@ export function QuizModule({ basicQs, detailQs, color, onHome, savedResult, rend
     if (screen !== 'quiz') return;
 
     // 히스토리 항목 추가 (트랩)
-    window.history.pushState({ cadamQuiz: true }, '', window.location.pathname + window.location.search);
+    window.history.pushState({ rentailorQuiz: true }, '', window.location.pathname + window.location.search);
 
     const onPopState = (e: PopStateEvent) => {
       if (screenRef.current !== 'quiz') return;
       // 뒤로가기 취소 → 다시 pushState로 현재 유지
-      window.history.pushState({ cadamQuiz: true }, '', window.location.pathname + window.location.search);
+      window.history.pushState({ rentailorQuiz: true }, '', window.location.pathname + window.location.search);
       handleBackRef.current();
     };
 

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 
-const LEAVE_INTENT_SESSION_KEY = 'cadam-leave-intent-shown';
+const LEAVE_INTENT_SESSION_KEY = 'rentailor-leave-intent-shown';
 
 /**
  * 이탈 감지 훅
@@ -28,7 +28,7 @@ export function useLeaveIntent(
     // Mobile: popstate를 받으려면 먼저 pushState로 히스토리 항목 추가
     if (!hasPushedState.current) {
       hasPushedState.current = true;
-      window.history.pushState({ cadamQuote: true }, '', window.location.pathname);
+      window.history.pushState({ rentailorQuote: true }, '', window.location.pathname);
     }
 
     const handleMouseLeave = (e: MouseEvent) => {
@@ -45,7 +45,7 @@ export function useLeaveIntent(
       hasTriggered.current = true;
       sessionStorage.setItem(LEAVE_INTENT_SESSION_KEY, '1');
       // 뒤로가기 취소: 다시 pushState하여 현재 페이지 유지
-      window.history.pushState({ cadamQuote: true }, '', window.location.pathname);
+      window.history.pushState({ rentailorQuote: true }, '', window.location.pathname);
       onLeaveIntent();
     };
 

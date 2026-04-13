@@ -280,8 +280,8 @@ export default function HomePage() {
         <div className="px-5 pb-4 max-w-lg mx-auto w-full">
           <button
             onClick={() => {
-              localStorage.removeItem('cadam-mission-progress');
-              localStorage.removeItem('cadam-quote-store');
+              localStorage.removeItem('rentailor-mission-progress');
+              localStorage.removeItem('rentailor-quote-store');
               setProgress(DEFAULT_PROGRESS);
             }}
             className="w-full py-2 text-xs text-text-muted border border-dashed border-border-solid rounded-xl hover:text-danger hover:border-danger transition-colors"

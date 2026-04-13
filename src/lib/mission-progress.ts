@@ -1,7 +1,7 @@
 import { createBrowserSupabaseClient } from '@/lib/supabase';
 
-const STORAGE_KEY = 'cadam-mission-progress';
-const VISITOR_KEY = 'cadam-visitor-id';
+const STORAGE_KEY = 'rentailor-mission-progress';
+const VISITOR_KEY = 'rentailor-visitor-id';
 
 export interface MissionStep {
   done: boolean;

@@ -46,7 +46,7 @@ export async function generateMetadata({
   const vehicle = getVehicleBySlug(slug);
   if (!vehicle) return { title: '차량을 찾을 수 없습니다' };
 
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://cadam.co.kr';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://rentailor.co.kr';
   const imageUrl = `${baseUrl}/cars/${vehicle.imageKey}.webp`;
 
   return {
@@ -155,7 +155,7 @@ export default async function CarPage({
   const vehicle = getVehicleBySlug(slug);
   if (!vehicle) notFound();
 
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://cadam.co.kr';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://rentailor.co.kr';
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Product',

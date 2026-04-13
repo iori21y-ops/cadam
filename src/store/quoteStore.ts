@@ -136,7 +136,7 @@ export const useQuoteStore = create<QuoteState & QuoteActions>()(
       },
     }),
     {
-      name: 'cadam-quote-store',
+      name: 'rentailor-quote-store',
       partialize: (state) => ({
         currentStep: state.currentStep,
         selectionPath: state.selectionPath,

@@ -5,7 +5,7 @@
 # 모든 규칙, 도구 접근법, 검증 기준, 에러 처리 절차를 정의한다.
 #
 # 최종 업데이트: 2026-03-27
-# 위치: /Users/kim/cadam-web/CLAUDE.md
+# 위치: /Users/kim/projects/cadam/cadam-web/CLAUDE.md
 # ════════════════════════════════════════════════════════════════
 
 
@@ -44,11 +44,11 @@
 - 호스트명: gimgyeongnyeon-ui-Macmini
 
 ### 2.1.2 프로젝트 디렉토리
-- cadam-web (메인 웹앱): /Users/kim/cadam-web
+- cadam-web (메인 웹앱): /Users/kim/projects/cadam/cadam-web
   - Next.js 15, Tailwind, Zustand, Supabase
   - Git 연결: https://github.com/iori21y-ops/cadam.git
-  - 환경변수: /Users/kim/cadam-web/.env.local
-- cadam-naver (네이버 블로그 자동발행): /Users/kim/cadam-naver
+  - 환경변수: /Users/kim/projects/cadam/cadam-web/.env.local
+- cadam-naver (네이버 블로그 자동발행): /Users/kim/projects/cadam/cadam-naver
   - Express.js + Playwright 기반 네이버 블로그 자동 포스팅 도구
   - 주요 파일: server.js, post-blog.js, config.json, naver-cookies.json
 
@@ -122,7 +122,7 @@
 - URL: https://xjceozajvggggzvpsrwo.supabase.co
 - Project ID (project_ref): xjceozajvggggzvpsrwo
 - 인증: MCP OAuth (브라우저 로그인) 또는 환경변수의 키 사용
-- 환경변수 위치: /Users/kim/cadam-web/.env.local
+- 환경변수 위치: /Users/kim/projects/cadam/cadam-web/.env.local
 - ⚠️ .env.local의 키 값을 절대 출력하거나 로그에 남기지 말 것
 
 ### 2.3.2 테이블 구조 (8개)
@@ -194,14 +194,14 @@ GET    $N8N_API_URL/executions?workflowId={id}    # 워크플로우별 이력
   - n8n WP 발행 노드 연동
 
 ### 2.5.2 네이버 블로그 (별도)
-- 도구: /Users/kim/cadam-naver/
+- 도구: /Users/kim/projects/cadam/cadam-naver/
 - 자동발행: server.js (Express) + post-blog.js (Playwright)
 - 쿠키: naver-cookies.json
 - n8n 워크플로우 연동: XmXKfg2T41mB4tCr
 
 ## 2.6 GitHub
 - 리포지토리: https://github.com/iori21y-ops/cadam.git
-- 로컬 클론: /Users/kim/cadam-web
+- 로컬 클론: /Users/kim/projects/cadam/cadam-web
 - 기본 브랜치: main (확인 필요 — git branch로 확인)
 - .gitignore에 포함되어야 할 것: .env.local, node_modules, .next
 

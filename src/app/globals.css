@@ -8,7 +8,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --color-primary: #2563EB;
+  --color-primary: #0D1B2A;
   --color-success: #10B981;
   --color-warning: #F59E0B;
   --color-danger: #EF4444;
@@ -20,11 +20,14 @@
   --color-surface-secondary: #F5F5F7;
   --color-border: rgba(0, 0, 0, 0.06);
   --color-border-solid: #E5E5EA;
-  --color-finance: #2563EB;
+  --color-finance: #0D1B2A;
   --color-vehicle: #7C3AED;
   --color-option: #E04DBF;
   --color-calculator: #F59E0B;
   --color-rent: #10B981;
+  --color-brand-navy: #0D1B2A;
+  --color-brand-gold: #C9A84C;
+  --color-brand-cream: #F5F0E8;
   --font-sans: var(--font-pretendard), -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: ui-monospace, monospace;
 }

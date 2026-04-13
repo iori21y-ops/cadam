@@ -73,7 +73,7 @@ export default function DirectPage() {
     <div className="min-h-screen bg-[#F5F5F7]">
       <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
         <div className="max-w-lg mx-auto px-4 py-3 flex items-center justify-between">
-          <span className="text-lg font-bold text-gray-900">카담</span>
+          <span className="text-lg font-bold text-gray-900">렌테일러</span>
           <span className="text-xs text-gray-400">장기렌트 간편 상담</span>
         </div>
       </header>

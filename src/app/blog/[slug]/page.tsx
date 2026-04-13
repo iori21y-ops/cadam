@@ -108,7 +108,7 @@ export default async function BlogPostPage({
             내 차에 맞는 장기렌트 조건이 궁금하다면?
           </p>
           <p className="mt-1 text-sm text-text-sub">
-            카담의 간편 진단으로 30초 안에 확인해보세요.
+            렌테일러의 간편 진단으로 30초 안에 확인해보세요.
           </p>
           <Link
             href="/diagnosis"

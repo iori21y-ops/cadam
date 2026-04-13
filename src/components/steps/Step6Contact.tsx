@@ -103,7 +103,7 @@ export function Step6Contact() {
       }
 
       // 2) 진단 결과 요약 메시지 생성 → 카카오 채널 채팅 URL에 포함
-      const lines = ['[카담 AI 진단 결과]'];
+      const lines = ['[렌테일러 AI 진단 결과]'];
       if (progress.vehicle.done && progress.vehicle.summary) lines.push(`추천 차종: ${progress.vehicle.summary}`);
       if (progress.finance.done && progress.finance.summary) lines.push(`추천 이용방법: ${progress.finance.summary}`);
       if (trimmedKakaoName !== '고객') lines.push(`이름: ${trimmedKakaoName}`);
