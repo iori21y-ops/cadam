@@ -36,7 +36,7 @@ export const RENT_FIT_TIERS: Record<RentFitTierKey, RentFitTierData> = {
 export const DEFAULT_PRODUCTS: Products = {
   installment: {
     name: "할부",
-    color: "#2563EB",
+    color: "#C9A84C",
     lightBg: "rgba(0,122,255,0.08)",
     emoji: "📋",
     tagline: "내 차를 내 이름으로",

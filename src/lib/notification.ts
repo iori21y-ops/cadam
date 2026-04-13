@@ -436,7 +436,7 @@ export async function sendConsultationNotification(
     .tip { background: #FFFBF0; border-left: 3px solid #F59E0B; padding: 10px 14px; margin: 6px 0; border-radius: 0 8px 8px 0; font-size: 12px; color: #92400E; line-height: 1.5; }
     .urgent { background: #FFF5F5; border-left: 3px solid #EF4444; }
     .info { background: #F0F7FF; border-left: 3px solid #3B82F6; color: #1E40AF; }
-    .estimate { background: #2563EB; color: #fff; padding: 16px; border-radius: 8px; text-align: center; margin: 12px 0; }
+    .estimate { background: #C9A84C; color: #fff; padding: 16px; border-radius: 8px; text-align: center; margin: 12px 0; }
     .estimate .amount { font-size: 22px; font-weight: 800; }
   </style>
 </head>
@@ -602,7 +602,7 @@ export async function sendCustomerReport(
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #F5F0E8; margin: 0; padding: 20px; }
     .container { max-width: 560px; margin: 0 auto; background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
-    .header { background: linear-gradient(135deg, #2563EB, #60A5FA); padding: 36px 24px; text-align: center; color: #fff; }
+    .header { background: linear-gradient(135deg, #C9A84C, #60A5FA); padding: 36px 24px; text-align: center; color: #fff; }
     .header h1 { margin: 0 0 8px; font-size: 22px; font-weight: 800; }
     .header p { margin: 0; font-size: 14px; opacity: 0.9; }
     .badge { display: inline-block; background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 20px; font-size: 12px; margin-top: 12px; }
@@ -615,7 +615,7 @@ export async function sendCustomerReport(
     .result-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
     .result-title { font-size: 11px; color: #4A5568; }
     .result-value { font-size: 16px; font-weight: 700; color: #0D1B2A; }
-    .result-pct { font-size: 12px; color: #2563EB; font-weight: 600; }
+    .result-pct { font-size: 12px; color: #C9A84C; font-weight: 600; }
     .result-desc { font-size: 13px; color: #4A5568; line-height: 1.5; margin-bottom: 12px; }
     .benefit-list { list-style: none; padding: 0; margin: 0; }
     .benefit-list li { font-size: 13px; color: #0D1B2A; padding: 4px 0; }
@@ -627,7 +627,7 @@ export async function sendCustomerReport(
     .row .label { font-size: 13px; color: #4A5568; }
     .row .value { font-size: 13px; font-weight: 600; color: #0D1B2A; }
     .next-step { background: #F0F7FF; border-radius: 12px; padding: 20px; margin-top: 24px; }
-    .next-step h3 { font-size: 14px; font-weight: 700; color: #2563EB; margin: 0 0 8px; }
+    .next-step h3 { font-size: 14px; font-weight: 700; color: #C9A84C; margin: 0 0 8px; }
     .next-step p { font-size: 13px; color: #4B5563; line-height: 1.6; margin: 0; }
     .next-step ol { font-size: 13px; color: #4B5563; line-height: 1.8; padding-left: 20px; margin: 8px 0 0; }
     .footer { padding: 20px 24px; text-align: center; font-size: 11px; color: #9CA3AF; line-height: 1.6; border-top: 1px solid #F0F0F0; }
@@ -665,7 +665,7 @@ export async function sendCustomerReport(
       ${info ? `
       <div class="result-card">
         <div class="result-header">
-          <div class="result-icon" style="background:linear-gradient(135deg,#2563EB,#60A5FA);color:#fff;">${info.emoji}</div>
+          <div class="result-icon" style="background:linear-gradient(135deg,#C9A84C,#60A5FA);color:#fff;">${info.emoji}</div>
           <div>
             <div class="result-title">추천 이용방법</div>
             <div class="result-value">${escapeHtml(financeProduct)} ${financePct ? `<span class="result-pct">적합도 ${financePct}%</span>` : ''}</div>
@@ -679,7 +679,7 @@ export async function sendCustomerReport(
       ` : data.financeSummary ? `
       <div class="result-card">
         <div class="result-header">
-          <div class="result-icon" style="background:linear-gradient(135deg,#2563EB,#60A5FA);color:#fff;">🎯</div>
+          <div class="result-icon" style="background:linear-gradient(135deg,#C9A84C,#60A5FA);color:#fff;">🎯</div>
           <div>
             <div class="result-title">추천 이용방법</div>
             <div class="result-value">${escapeHtml(data.financeSummary)}</div>
@@ -710,7 +710,7 @@ export async function sendCustomerReport(
 
       <!-- 결과 페이지 링크 -->
       <div style="text-align:center;margin-top:20px;">
-        <a href="${siteUrl}" style="display:inline-block;background:#2563EB;color:#fff;padding:14px 28px;border-radius:12px;text-decoration:none;font-weight:700;font-size:15px;">
+        <a href="${siteUrl}" style="display:inline-block;background:#C9A84C;color:#fff;padding:14px 28px;border-radius:12px;text-decoration:none;font-weight:700;font-size:15px;">
           내 진단 결과 다시 보기 →
         </a>
         <p style="font-size:11px;color:#9CA3AF;margin-top:10px;">위 링크에서 시뮬레이션을 조절하며 다양한 조건을 비교할 수 있습니다</p>
