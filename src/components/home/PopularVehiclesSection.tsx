@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { getVehicleBySlug } from '@/constants/vehicles';
+import type { Category } from '@/constants/vehicles';
 import { createServerSupabaseClient } from '@/lib/supabase-server';
 import { PopularVehiclesScroll } from './PopularVehiclesScroll';
 
@@ -73,17 +74,19 @@ export async function PopularVehiclesSection() {
     })
     .map((v) => ({
       slug: v.slug,
+      brand: v.brand,
       model: v.model,
+      category: v.category as Category,
       imageKey: v.imageKey,
       price: priceMap[`${v.brand}-${v.model}`] ?? null,
     }));
 
   return (
-    <section className="bg-background py-12 px-5">
+    <section className="bg-background py-12">
       <div className="max-w-2xl mx-auto">
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-6 px-5">
           <h2 className="text-primary font-bold text-xl">
-            렌테일러가 추천하는 차량
+            렌테일러 추천 차량
           </h2>
           <Link href="/popular-estimates" className="text-accent text-sm font-medium">
             전체보기 &rarr;
