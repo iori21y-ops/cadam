@@ -20,8 +20,8 @@ export function MobileTabBar() {
   if (pathname?.startsWith('/admin')) return null;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-100 md:hidden pb-[env(safe-area-inset-bottom)]">
-      <div className="flex items-center justify-around h-16">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white shadow-[0_-1px_3px_rgba(0,0,0,0.06)] md:hidden pb-[env(safe-area-inset-bottom)]">
+      <div className="flex">
         {TABS.map((tab) => {
           const isActive =
             tab.href === '/'
@@ -33,12 +33,16 @@ export function MobileTabBar() {
             <Link
               key={tab.href}
               href={tab.href}
-              className={`flex flex-col items-center justify-center gap-1 w-16 transition-colors ${
-                isActive ? 'text-accent' : 'text-gray-400'
+              className={`flex-1 flex flex-col items-center justify-center py-2 transition-colors ${
+                isActive ? 'text-accent' : 'text-gray-500'
               }`}
             >
-              <Icon className="w-5 h-5" strokeWidth={1.8} />
-              <span className="text-[11px] font-medium">{tab.label}</span>
+              <Icon
+                className="w-6 h-6"
+                strokeWidth={isActive ? 2.5 : 1.5}
+                fill={isActive ? 'currentColor' : 'none'}
+              />
+              <span className="text-[11px] font-medium mt-0.5">{tab.label}</span>
             </Link>
           );
         })}
