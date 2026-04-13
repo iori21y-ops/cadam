@@ -55,14 +55,14 @@ function ArticlesSkeleton() {
 
 export default function HomePage() {
   return (
-    <main className="pb-20">
+    <main className="pb-24">
       <HeroSection />
       <QuickAccessGrid />
+      <PromotionBanner />
       <Suspense fallback={<VehiclesSkeleton />}>
         <PopularVehiclesSection />
       </Suspense>
       <DiagnosisBanner />
-      <PromotionBanner />
       <Suspense fallback={<ArticlesSkeleton />}>
         <ArticleSection />
       </Suspense>
