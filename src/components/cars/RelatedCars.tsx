@@ -31,9 +31,6 @@ export function RelatedCars({ currentVehicle }: RelatedCarsProps) {
                 fill
                 sizes="140px"
                 className="object-contain p-2 group-hover:scale-105 transition-transform"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).style.display = 'none';
-                }}
               />
             </div>
             <div className="p-3 text-center">
