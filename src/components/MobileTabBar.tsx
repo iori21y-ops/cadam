@@ -19,7 +19,7 @@ export function MobileTabBar() {
   if (pathname?.startsWith('/admin')) return null;
 
   return (
-    <div className="flex-shrink-0 z-50 px-4 pb-1 pointer-events-none md:hidden">
+    <div className="fixed bottom-0 left-0 right-0 z-50 px-4 pb-1 pointer-events-none md:hidden">
       <nav className="bg-white rounded-2xl shadow-md shadow-black/8 border border-accent flex items-center justify-around py-2 pointer-events-auto">
         {TABS.map((tab) => {
           const isActive =
