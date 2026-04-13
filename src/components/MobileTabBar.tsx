@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Home, Car, Sparkles, BookOpen, MessageCircle } from 'lucide-react';
@@ -15,40 +14,13 @@ const TABS = [
 
 export function MobileTabBar() {
   const pathname = usePathname();
-  const navRef = useRef<HTMLDivElement>(null);
-  const [bottomOffset, setBottomOffset] = useState(0);
-
-  useEffect(() => {
-    const vv = window.visualViewport;
-    if (!vv) return;
-
-    const update = () => {
-      const offset = window.innerHeight - vv.height - vv.offsetTop;
-      setBottomOffset(Math.max(0, offset));
-    };
-
-    update();
-    vv.addEventListener('resize', update);
-    vv.addEventListener('scroll', update);
-    window.addEventListener('resize', update);
-
-    return () => {
-      vv.removeEventListener('resize', update);
-      vv.removeEventListener('scroll', update);
-      window.removeEventListener('resize', update);
-    };
-  }, []);
 
   // admin 페이지에서는 숨김
   if (pathname?.startsWith('/admin')) return null;
 
   return (
-    <div
-      ref={navRef}
-      className="fixed left-0 right-0 z-50 px-4 pointer-events-none md:hidden"
-      style={{ bottom: `${bottomOffset}px` }}
-    >
-      <nav className="bg-white rounded-2xl shadow-md shadow-black/8 border border-accent flex items-center justify-around py-2 pointer-events-auto">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 md:hidden">
+      <div className="flex items-center justify-around py-2">
         {TABS.map((tab) => {
           const isActive =
             tab.href === '/'
@@ -79,7 +51,7 @@ export function MobileTabBar() {
             </Link>
           );
         })}
-      </nav>
-    </div>
+      </div>
+    </nav>
   );
 }
