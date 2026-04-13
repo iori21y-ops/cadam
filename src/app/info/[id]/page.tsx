@@ -1,7 +1,7 @@
 import { notFound, redirect } from 'next/navigation';
 import Link from 'next/link';
 import type { Metadata } from 'next';
-import DOMPurify from 'isomorphic-dompurify';
+import { SafeHtml } from '@/components/SafeHtml';
 import { createServerSupabaseClient } from '@/lib/supabase-server';
 
 export const revalidate = 60;
@@ -72,9 +72,6 @@ export default async function InfoArticlePage({
   }
 
   const date = article.published_at ? formatDate(article.published_at) : '';
-  const cleanHtml = DOMPurify.sanitize(article.content, {
-    USE_PROFILES: { html: true },
-  });
 
   return (
     <article className="min-h-[100dvh] bg-surface-secondary pb-24">
@@ -106,10 +103,7 @@ export default async function InfoArticlePage({
           />
         )}
 
-        <div
-          className="wp-content mt-8 text-text"
-          dangerouslySetInnerHTML={{ __html: cleanHtml }}
-        />
+        <SafeHtml html={article.content} className="wp-content mt-8 text-text" />
 
         <div className="mt-12 rounded-3xl bg-white border border-border-solid p-6 text-center">
           <p className="text-base font-semibold text-text">

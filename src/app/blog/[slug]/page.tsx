@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import type { Metadata } from 'next';
-import DOMPurify from 'isomorphic-dompurify';
+import { SafeHtml } from '@/components/SafeHtml';
 import { fetchWpPostBySlug } from '@/lib/wp-client';
 
 export const revalidate = 60;
@@ -64,10 +64,6 @@ export default async function BlogPostPage({
   const title = decodeTitle(post.title.rendered);
   const date = formatDate(post.date);
   const featured = post._embedded?.['wp:featuredmedia']?.[0]?.source_url ?? null;
-  const cleanHtml = DOMPurify.sanitize(post.content.rendered, {
-    USE_PROFILES: { html: true },
-  });
-
   return (
     <article className="min-h-[100dvh] bg-surface-secondary pb-24">
       <div className="max-w-[720px] mx-auto px-5 pt-6">
@@ -98,10 +94,7 @@ export default async function BlogPostPage({
           />
         )}
 
-        <div
-          className="wp-content mt-8 text-text"
-          dangerouslySetInnerHTML={{ __html: cleanHtml }}
-        />
+        <SafeHtml html={post.content.rendered} className="wp-content mt-8 text-text" />
 
         <div className="mt-12 rounded-3xl bg-white border border-border-solid p-6 text-center">
           <p className="text-base font-semibold text-text">
