@@ -21,10 +21,10 @@ export function MobileTabBar() {
 
   return (
     <div
-      className="fixed bottom-0 left-0 right-0 z-50 pointer-events-none md:hidden"
-      style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+      className="fixed left-0 right-0 z-50 pointer-events-none md:hidden"
+      style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px))' }}
     >
-      <nav className="mx-4 mb-0 bg-white rounded-2xl shadow-md shadow-black/8 border border-accent flex items-center justify-around py-2 pointer-events-auto">
+      <nav className="mx-4 mb-1 bg-white rounded-2xl shadow-md shadow-black/8 border border-accent flex items-center justify-around py-2 pointer-events-auto">
         {TABS.map((tab) => {
           const isActive =
             tab.href === '/'
