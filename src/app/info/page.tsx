@@ -22,7 +22,7 @@ async function getArticles(): Promise<InfoArticleShape[]> {
     const supabase = await createServerSupabaseClient();
     const { data, error } = await supabase
       .from('info_articles')
-      .select('id, title, excerpt, link_url, thumbnail_url, source_type, published_at, category, vehicle_slug')
+      .select('id, title, excerpt, content, link_url, thumbnail_url, source_type, published_at, category, vehicle_slug')
       .eq('is_active', true)
       .order('display_order', { ascending: true })
       .order('published_at', { ascending: false, nullsFirst: false });
@@ -31,18 +31,18 @@ async function getArticles(): Promise<InfoArticleShape[]> {
 
     return data.map(
       ({
-        id, title, excerpt, link_url, thumbnail_url,
+        id, title, excerpt, content, link_url, thumbnail_url,
         source_type, published_at, category, vehicle_slug,
       }: {
         id: string; title: string; excerpt: string | null;
-        link_url: string; thumbnail_url: string | null;
+        content: string | null; link_url: string; thumbnail_url: string | null;
         source_type: string | null; published_at: string | null;
         category: string | null; vehicle_slug: string | null;
       }) => ({
         id,
         title,
         excerpt,
-        linkUrl: link_url,
+        linkUrl: content ? `/info/${id}` : link_url,
         thumbnailUrl: thumbnail_url,
         sourceType: source_type ?? 'blog',
         publishedAt: published_at,

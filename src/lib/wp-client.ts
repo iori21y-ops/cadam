@@ -6,6 +6,7 @@ export interface InfoArticleShape {
   id: string;
   title: string;
   excerpt: string | null;
+  content?: string | null;
   linkUrl: string;
   thumbnailUrl: string | null;
   sourceType: string;

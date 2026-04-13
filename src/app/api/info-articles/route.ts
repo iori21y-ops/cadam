@@ -6,6 +6,7 @@ interface ArticleRow {
   id: string;
   title: string;
   excerpt: string | null;
+  content: string | null;
   link_url: string;
   thumbnail_url: string | null;
   source_type: string | null;
@@ -21,7 +22,7 @@ export async function GET() {
     const [supabaseResult, wpArticles] = await Promise.all([
       supabase
         .from('info_articles')
-        .select('id, title, excerpt, link_url, thumbnail_url, source_type, published_at, category, vehicle_slug')
+        .select('id, title, excerpt, content, link_url, thumbnail_url, source_type, published_at, category, vehicle_slug')
         .eq('is_active', true)
         .order('display_order', { ascending: true })
         .order('published_at', { ascending: false, nullsFirst: false }),
@@ -35,11 +36,11 @@ export async function GET() {
     }
 
     const supabaseArticles: InfoArticleShape[] = (error ? [] : (data as ArticleRow[])).map(
-      ({ id, title, excerpt, link_url, thumbnail_url, source_type, published_at, category, vehicle_slug }) => ({
+      ({ id, title, excerpt, content, link_url, thumbnail_url, source_type, published_at, category, vehicle_slug }) => ({
         id,
         title,
         excerpt,
-        linkUrl: link_url,
+        linkUrl: content ? `/info/${id}` : link_url,
         thumbnailUrl: thumbnail_url,
         sourceType: source_type ?? 'blog',
         publishedAt: published_at,
