@@ -14,7 +14,7 @@ const NAV_ITEMS = [
 export function NavBar() {
   const pathname = usePathname();
   const dragScroll = useDragScroll();
-  if (pathname?.startsWith('/admin')) return null;
+  if (pathname === '/' || pathname?.startsWith('/admin')) return null;
 
   return (
     <nav className="sticky top-0 z-50 glass border-b border-border-solid overflow-hidden">
@@ -58,7 +58,7 @@ export function NavBar() {
         </div>
         <Link
           href="/admin"
-          className="shrink-0 px-3 py-1.5 rounded-full text-[12px] font-semibold text-text-muted hover:text-primary hover:bg-primary/5 transition-colors"
+          className="hidden shrink-0 px-3 py-1.5 rounded-full text-[12px] font-semibold text-text-muted hover:text-primary hover:bg-primary/5 transition-colors"
         >
           관리자
         </Link>
