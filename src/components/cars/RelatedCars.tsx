@@ -1,7 +1,7 @@
 import Link from 'next/link';
-import Image from 'next/image';
 import { VEHICLE_LIST } from '@/constants/vehicles';
 import type { Vehicle } from '@/constants/vehicles';
+import { CarImageFallback } from './CarImageFallback';
 
 interface RelatedCarsProps {
   currentVehicle: Vehicle;
@@ -25,10 +25,9 @@ export function RelatedCars({ currentVehicle }: RelatedCarsProps) {
             className="shrink-0 w-[140px] rounded-2xl border border-border-solid bg-white overflow-hidden hover:border-accent hover:shadow-md transition-all group"
           >
             <div className="relative w-full aspect-[4/3] bg-surface-secondary">
-              <Image
+              <CarImageFallback
                 src={`/cars/${v.imageKey}.webp`}
                 alt={v.model}
-                fill
                 sizes="140px"
                 className="object-contain p-2 group-hover:scale-105 transition-transform"
               />

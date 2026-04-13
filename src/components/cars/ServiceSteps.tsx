@@ -31,8 +31,8 @@ export function ServiceSteps() {
             key={step}
             className="flex flex-col items-center text-center p-4 rounded-2xl bg-white border border-border-solid"
           >
-            <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center mb-2.5">
-              <Icon size={20} className="text-accent" />
+            <div className="w-11 h-11 rounded-full bg-accent/15 flex items-center justify-center mb-2.5">
+              <Icon size={22} className="text-accent" strokeWidth={1.8} />
             </div>
             <span className="text-[11px] font-bold text-accent">{step}</span>
             <span className="text-sm font-bold text-text mt-1">{title}</span>

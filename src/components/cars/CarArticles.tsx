@@ -29,7 +29,7 @@ function ArticleThumb({
 
   if (!src) {
     return (
-      <div className="w-full h-full bg-primary flex items-center justify-center p-3">
+      <div className="w-full h-full bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center p-3">
         <p className="text-white text-xs font-bold line-clamp-4 leading-snug text-center">
           {title}
         </p>
@@ -62,14 +62,14 @@ const ArticleCard = memo(function ArticleCard({ article }: { article: Article })
       href={article.linkUrl}
       target="_blank"
       rel="noopener noreferrer"
-      className={`shrink-0 flex flex-col rounded-2xl bg-white border border-border-solid hover:border-primary hover:shadow-md transition-all overflow-hidden group ${
-        isShorts ? 'w-[120px]' : 'w-[180px]'
-      }`}
+      className={`shrink-0 flex flex-col rounded-2xl bg-white border border-border-solid hover:border-accent hover:shadow-md transition-all overflow-hidden group ${isShorts ? 'w-[120px]' : 'w-[180px]'}`}
     >
-      <div className={`w-full overflow-hidden relative ${isShorts ? 'aspect-[9/16]' : 'aspect-video'}`}>
+      <div
+        className={`w-full overflow-hidden relative ${isShorts ? 'aspect-[9/16]' : 'aspect-video'}`}
+      >
         <ArticleThumb thumbnailUrl={article.thumbnailUrl} title={article.title} isShorts={isShorts} />
       </div>
-      <div className="p-2">
+      <div className="p-2.5">
         <h3 className="text-[11px] font-semibold text-text line-clamp-2 leading-snug">
           {article.title}
         </h3>
@@ -83,9 +83,7 @@ export const CarArticles = memo(function CarArticles({ articles }: { articles: A
 
   return (
     <section className="py-8">
-      <h2 className="text-lg font-bold text-text mb-4 px-5">
-        관련 정보
-      </h2>
+      <h2 className="text-lg font-bold text-text mb-4 px-5">관련 정보</h2>
       <div className="overflow-x-auto">
         <div className="flex gap-3 px-5 pb-2" style={{ width: 'max-content' }}>
           {articles.map((article) => (
