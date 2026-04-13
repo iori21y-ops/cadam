@@ -1,6 +1,5 @@
 import { Suspense } from 'react';
 import { HeroSection } from '@/components/home/HeroSection';
-import { QuickAccessGrid } from '@/components/home/QuickAccessGrid';
 import { PopularVehiclesSection } from '@/components/home/PopularVehiclesSection';
 import { DiagnosisBanner } from '@/components/home/DiagnosisBanner';
 import { PromotionBanner } from '@/components/home/PromotionBanner';
@@ -57,7 +56,6 @@ export default function HomePage() {
   return (
     <main className="pb-24">
       <HeroSection />
-      <QuickAccessGrid />
       <PromotionBanner />
       <Suspense fallback={<VehiclesSkeleton />}>
         <PopularVehiclesSection />
