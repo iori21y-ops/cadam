@@ -3,6 +3,7 @@ import { HeroSection } from '@/components/home/HeroSection';
 import { QuickAccessGrid } from '@/components/home/QuickAccessGrid';
 import { PopularVehiclesSection } from '@/components/home/PopularVehiclesSection';
 import { DiagnosisBanner } from '@/components/home/DiagnosisBanner';
+import { PromotionBanner } from '@/components/home/PromotionBanner';
 import { ArticleSection } from '@/components/home/ArticleSection';
 import { TrustSection } from '@/components/home/TrustSection';
 import { Footer } from '@/components/Footer';
@@ -30,21 +31,23 @@ function VehiclesSkeleton() {
 
 function ArticlesSkeleton() {
   return (
-    <section className="bg-background py-12 px-5">
+    <section className="bg-white py-12 px-5">
       <div className="max-w-2xl mx-auto">
-        <div className="h-7 bg-surface rounded w-56 mb-6" />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="bg-surface rounded-2xl animate-pulse">
-              <div className="aspect-[16/9] bg-surface-secondary rounded-t-2xl" />
-              <div className="p-4 space-y-2">
-                <div className="h-4 bg-surface-secondary rounded w-20" />
-                <div className="h-4 bg-surface-secondary rounded w-full" />
-                <div className="h-3 bg-surface-secondary rounded w-1/4" />
-              </div>
+        <div className="h-7 bg-gray-100 rounded w-56 mb-2" />
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div
+            key={i}
+            className={`flex items-start gap-4 py-5 animate-pulse ${
+              i < 3 ? 'border-b border-gray-100' : ''
+            }`}
+          >
+            <div className="flex-1 space-y-2">
+              <div className="h-5 bg-gray-100 rounded w-3/4" />
+              <div className="h-4 bg-gray-100 rounded w-full" />
             </div>
-          ))}
-        </div>
+            <div className="w-24 h-24 shrink-0 rounded-xl bg-gray-100" />
+          </div>
+        ))}
       </div>
     </section>
   );
@@ -59,6 +62,7 @@ export default function HomePage() {
         <PopularVehiclesSection />
       </Suspense>
       <DiagnosisBanner />
+      <PromotionBanner />
       <Suspense fallback={<ArticlesSkeleton />}>
         <ArticleSection />
       </Suspense>
