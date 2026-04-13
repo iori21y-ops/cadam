@@ -84,7 +84,7 @@ export default function DiagnosisPage() {
   };
 
   return (
-    <div className="min-h-screen bg-surface-secondary pb-10">
+    <div className="min-h-screen bg-surface-secondary pb-24">
       {/* AI 캐릭터 인사말 */}
       <section className="px-5 pt-6 pb-0 max-w-lg mx-auto">
         <ParkAI

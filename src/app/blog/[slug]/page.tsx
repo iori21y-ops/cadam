@@ -69,7 +69,7 @@ export default async function BlogPostPage({
   });
 
   return (
-    <article className="min-h-[100dvh] bg-surface-secondary pb-20">
+    <article className="min-h-[100dvh] bg-surface-secondary pb-24">
       <div className="max-w-[720px] mx-auto px-5 pt-6">
         <Link
           href="/info"

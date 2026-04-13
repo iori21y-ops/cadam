@@ -209,7 +209,7 @@ export function InfoArticles({
   };
 
   return (
-    <div className="h-[100dvh] flex flex-col bg-surface-secondary pb-16">
+    <div className="h-[100dvh] flex flex-col bg-surface-secondary pb-24">
       {/* 필터 */}
       <div className="shrink-0 w-full max-w-lg mx-auto px-5 pt-4 pb-3">
         {/* 카테고리 필터 (동적, 오른쪽 fade) */}
