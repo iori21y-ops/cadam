@@ -4,7 +4,7 @@ import { Cormorant_Garamond, Outfit } from 'next/font/google';
 import Script from 'next/script';
 import './globals.css';
 import { NavBar } from '@/components/NavBar';
-import { MobileTabBar } from '@/components/MobileTabBar';
+import MobileTabBar from '@/components/MobileTabBar';
 import { GAPageView } from '@/components/GAPageView';
 import { DynamicToast } from '@/components/DynamicToast';
 import { PageTransition } from '@/components/PageTransition';

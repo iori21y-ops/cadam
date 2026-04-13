@@ -1,57 +1,65 @@
 'use client';
 
-import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Car, Sparkles, BookOpen, MessageCircle } from 'lucide-react';
+import Link from 'next/link';
+import {
+  Home,
+  Car,
+  Bot,
+  BookOpen,
+  MessageCircle,
+} from 'lucide-react';
 
-const TABS = [
-  { href: '/', label: '홈', icon: Home },
-  { href: '/popular-estimates', label: '차량', icon: Car },
-  { href: '/diagnosis', label: 'AI진단', icon: Sparkles },
-  { href: '/info', label: '정보', icon: BookOpen },
-  { href: '/quote', label: '상담', icon: MessageCircle },
+const tabs = [
+  { href: '/', label: '홈', Icon: Home },
+  { href: '/popular-estimates', label: '차량', Icon: Car },
+  { href: '/diagnosis', label: 'AI진단', Icon: Bot },
+  { href: '/info', label: '정보', Icon: BookOpen },
+  { href: '/quote', label: '상담', Icon: MessageCircle },
 ];
 
-export function MobileTabBar() {
+export default function MobileTabBar() {
   const pathname = usePathname();
 
-  // admin 페이지에서는 숨김
-  if (pathname?.startsWith('/admin')) return null;
+  if (pathname.startsWith('/admin')) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 px-4 pb-1 pointer-events-none md:hidden">
-      <nav className="bg-white rounded-2xl shadow-md shadow-black/8 border border-accent flex items-center justify-around py-2 pointer-events-auto">
-        {TABS.map((tab) => {
-          const isActive =
-            tab.href === '/'
-              ? pathname === '/'
-              : pathname?.startsWith(tab.href);
-          const Icon = tab.icon;
+    <>
+      <div className="h-20 md:hidden" aria-hidden="true" />
+      <div
+        className="fixed inset-0 pointer-events-none flex flex-col justify-end z-50 md:hidden"
+        style={{ willChange: 'transform' }}
+      >
+        <nav
+          className="pointer-events-auto mx-4 mb-2 rounded-2xl bg-white shadow-md border border-accent"
+        >
+          <div className="flex items-center justify-around h-16">
+            {tabs.map(({ href, label, Icon }) => {
+              const isActive =
+                href === '/'
+                  ? pathname === '/'
+                  : pathname.startsWith(href);
 
-          return (
-            <Link
-              key={tab.href}
-              href={tab.href}
-              className="flex-1 flex flex-col items-center justify-center gap-0.5 py-1"
-            >
-              <Icon
-                className={`w-6 h-6 transition-colors ${
-                  isActive ? 'text-accent' : 'text-gray-400'
-                }`}
-                strokeWidth={isActive ? 2 : 1.5}
-                fill={isActive ? 'currentColor' : 'none'}
-              />
-              <span
-                className={`text-[10px] font-medium ${
-                  isActive ? 'text-accent' : 'text-gray-400'
-                }`}
-              >
-                {tab.label}
-              </span>
-            </Link>
-          );
-        })}
-      </nav>
-    </div>
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  className={`flex flex-col items-center justify-center gap-0.5 flex-1 h-full transition-colors ${
+                    isActive ? 'text-accent' : 'text-gray-400'
+                  }`}
+                >
+                  <Icon
+                    size={22}
+                    fill={isActive ? 'currentColor' : 'none'}
+                    strokeWidth={isActive ? 2 : 1.5}
+                  />
+                  <span className="text-[10px] font-medium">{label}</span>
+                </Link>
+              );
+            })}
+          </div>
+        </nav>
+      </div>
+    </>
   );
 }
