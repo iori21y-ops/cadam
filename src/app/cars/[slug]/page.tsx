@@ -4,11 +4,14 @@ import { notFound } from 'next/navigation';
 import { VEHICLE_LIST, getVehicleBySlug } from '@/constants/vehicles';
 import { createServerSupabaseClient } from '@/lib/supabase-server';
 import { CarHero } from '@/components/cars/CarHero';
+import { EstimateConfigurator } from '@/components/cars/EstimateConfigurator';
 import { PriceCompareTable } from '@/components/cars/PriceCompareTable';
-import { RelatedCars } from '@/components/cars/RelatedCars';
-import { CarCtaSection } from '@/components/cars/CarCtaSection';
-import { CarSeoAnalytics } from '@/components/cars/CarSeoAnalytics';
+import { ServiceSteps } from '@/components/cars/ServiceSteps';
 import { CarArticles } from '@/components/cars/CarArticles';
+import { CarCtaSection } from '@/components/cars/CarCtaSection';
+import { CarFaq } from '@/components/cars/CarFaq';
+import { RelatedCars } from '@/components/cars/RelatedCars';
+import { CarSeoAnalytics } from '@/components/cars/CarSeoAnalytics';
 
 export const revalidate = 3600;
 
@@ -63,13 +66,15 @@ export async function generateMetadata({
   };
 }
 
-function PriceSkeleton() {
+function PageSkeleton() {
   return (
-    <div className="animate-pulse space-y-3 px-5 py-8">
-      <div className="h-5 bg-surface-secondary rounded w-1/3 mb-4" />
-      <div className="h-10 bg-surface-secondary rounded" />
-      <div className="h-10 bg-surface-secondary rounded" />
-      <div className="h-10 bg-surface-secondary rounded" />
+    <div className="animate-pulse">
+      <div className="w-full aspect-[4/3] bg-surface-secondary" />
+      <div className="px-5 py-6 space-y-3">
+        <div className="h-7 bg-surface-secondary rounded w-2/3" />
+        <div className="h-5 bg-surface-secondary rounded w-1/2" />
+        <div className="h-40 bg-surface-secondary rounded-2xl mt-4" />
+      </div>
     </div>
   );
 }
@@ -80,31 +85,30 @@ async function CarPageContent({ slug }: { slug: string }) {
 
   const supabase = await createServerSupabaseClient();
 
-  const [{ data: priceRanges, error }, { data: articleRows }, { data: vehicleDb }] = await Promise.all([
-    supabase
-      .from('pricing')
-      .select('contract_months, annual_km, min_monthly, max_monthly')
-      .eq('car_brand', vehicle.brand)
-      .eq('car_model', vehicle.model)
-      .eq('is_active', true),
-    supabase
-      .from('info_articles')
-      .select('id, title, link_url, thumbnail_url, source_type, display_order')
-      .eq('vehicle_slug', vehicle.slug)
-      .eq('is_active', true)
-      .order('display_order', { ascending: true }),
-    supabase
-      .from('vehicles')
-      .select('min_price, max_price')
-      .eq('slug', vehicle.slug)
-      .maybeSingle(),
-  ]);
+  const [{ data: priceRanges, error }, { data: articleRows }, { data: vehicleDb }] =
+    await Promise.all([
+      supabase
+        .from('pricing')
+        .select('contract_months, annual_km, min_monthly, max_monthly')
+        .eq('car_brand', vehicle.brand)
+        .eq('car_model', vehicle.model)
+        .eq('is_active', true),
+      supabase
+        .from('info_articles')
+        .select('id, title, link_url, thumbnail_url, source_type, display_order')
+        .eq('vehicle_slug', vehicle.slug)
+        .eq('is_active', true)
+        .order('display_order', { ascending: true }),
+      supabase
+        .from('vehicles')
+        .select('min_price, max_price')
+        .eq('slug', vehicle.slug)
+        .maybeSingle(),
+    ]);
 
   const priceRows: PriceRangeRow[] = error ? [] : (priceRanges ?? []);
   const minPrice =
-    priceRows.length > 0
-      ? Math.min(...priceRows.map((r) => r.min_monthly))
-      : null;
+    priceRows.length > 0 ? Math.min(...priceRows.map((r) => r.min_monthly)) : null;
 
   const vs = vehicleDb as VehicleDbRow | null;
   const minCarPrice = vs?.min_price ? vs.min_price * 10000 : null;
@@ -120,27 +124,38 @@ async function CarPageContent({ slug }: { slug: string }) {
 
   return (
     <div className="max-w-lg mx-auto">
-      <CarHero vehicle={vehicle} minPrice={minPrice} minCarPrice={minCarPrice} maxCarPrice={maxCarPrice} />
+      {/* 1. 히어로: 이미지 + 모델명 + 트림 */}
+      <CarHero vehicle={vehicle} />
 
-      <section className="px-5 py-8">
-        <h2 className="text-lg font-bold text-primary mb-4">
-          계약 조건별 월 납부금
-        </h2>
-        {priceRows.length > 0 ? (
+      {/* 2. 견적 조건 선택 + 가격 표시 */}
+      <EstimateConfigurator
+        vehicle={vehicle}
+        priceRanges={priceRows}
+        minCarPrice={minCarPrice}
+        maxCarPrice={maxCarPrice}
+      />
+
+      {/* 3. 이용 절차 */}
+      <ServiceSteps />
+
+      {/* 4. 조건별 가격 비교표 (데이터 있을 때만) */}
+      {priceRows.length > 0 && (
+        <section className="px-5 pb-8">
+          <h2 className="text-lg font-bold text-text mb-4">조건별 월 납입금 비교</h2>
           <PriceCompareTable priceRanges={priceRows} />
-        ) : (
-          <div className="py-8 text-center text-text-sub rounded-2xl border border-border-solid bg-white">
-            상담 문의
-          </div>
-        )}
-      </section>
+        </section>
+      )}
 
+      {/* 5. 관련 콘텐츠 */}
       <CarArticles articles={articles} />
 
-      <div className="px-5 pb-4">
-        <CarCtaSection vehicle={vehicle} />
-      </div>
+      {/* 6. FAQ */}
+      <CarFaq />
 
+      {/* 7. CTA */}
+      <CarCtaSection vehicle={vehicle} />
+
+      {/* 8. 비슷한 차종 */}
       <RelatedCars currentVehicle={vehicle} />
     </div>
   );
@@ -175,8 +190,8 @@ export default async function CarPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <div className="min-h-screen bg-surface-secondary pb-8">
-        <Suspense fallback={<PriceSkeleton />}>
+      <div className="min-h-screen bg-surface-secondary pb-24">
+        <Suspense fallback={<PageSkeleton />}>
           <CarPageContent slug={slug} />
         </Suspense>
       </div>

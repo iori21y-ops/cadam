@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useQuoteStore } from '@/store/quoteStore';
 import { gtag } from '@/lib/gtag';
 import type { Vehicle } from '@/constants/vehicles';
-import { Button, ButtonLink } from '@/components/ui/Button';
+import { Phone, MessageCircle } from 'lucide-react';
 
 interface CarCtaSectionProps {
   vehicle: Vehicle;
@@ -34,30 +34,36 @@ export function CarCtaSection({ vehicle }: CarCtaSectionProps) {
   const telHref = `tel:${PHONE.replace(/-/g, '')}`;
 
   return (
-    <div className="p-5 flex flex-col gap-3 bg-white rounded-2xl border border-border-solid">
-      <Button type="button" variant="primary" size="lg" fullWidth onClick={handleQuoteClick}>
-        이 차량으로 무료 견적 받기
-      </Button>
-      <ButtonLink
-        variant="kakao"
-        size="lg"
-        fullWidth
-        href={KAKAO_URL}
-        target="_blank"
-        rel="noopener noreferrer"
-        onClick={() => gtag.seoCtaClick(vehicle.slug, 'kakao')}
-      >
-        💬 카카오톡 상담
-      </ButtonLink>
-      <ButtonLink
-        variant="outline"
-        size="lg"
-        fullWidth
-        href={telHref}
-        onClick={() => gtag.seoCtaClick(vehicle.slug, 'call')}
-      >
-        📞 전화 상담
-      </ButtonLink>
-    </div>
+    <section className="px-5 py-6">
+      <div className="space-y-2.5">
+        <button
+          type="button"
+          onClick={handleQuoteClick}
+          className="w-full py-4 rounded-xl bg-primary text-white font-bold text-base hover:bg-primary/90 transition-colors active:scale-[0.98]"
+        >
+          이 차량으로 무료 견적 받기
+        </button>
+        <div className="grid grid-cols-2 gap-2.5">
+          <a
+            href={KAKAO_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => gtag.seoCtaClick(vehicle.slug, 'kakao')}
+            className="flex items-center justify-center gap-1.5 py-3 rounded-xl bg-[#FEE500] text-[#3C1E1E] font-semibold text-sm hover:brightness-95 transition-all"
+          >
+            <MessageCircle size={16} />
+            카카오톡
+          </a>
+          <a
+            href={telHref}
+            onClick={() => gtag.seoCtaClick(vehicle.slug, 'call')}
+            className="flex items-center justify-center gap-1.5 py-3 rounded-xl border border-border-solid bg-white text-text font-semibold text-sm hover:bg-surface-secondary transition-colors"
+          >
+            <Phone size={16} />
+            전화 상담
+          </a>
+        </div>
+      </div>
+    </section>
   );
 }
