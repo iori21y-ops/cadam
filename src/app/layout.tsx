@@ -73,14 +73,18 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko" className={`${pretendard.variable} ${cormorant.variable} ${outfit.variable}`}>
-      <body className={`${pretendard.className} antialiased bg-surface-secondary`}>
-        <div className="max-w-[1024px] mx-auto w-full min-w-0">
-          <GAPageView />
-          <NavBar />
-          <PageTransition>{children}</PageTransition>
+      <body className={`${pretendard.className} antialiased bg-surface-secondary h-dvh overflow-hidden`}>
+        <div className="flex flex-col h-dvh">
+          <div className="flex-1 overflow-y-auto overscroll-contain">
+            <div className="max-w-[1024px] mx-auto w-full min-w-0">
+              <GAPageView />
+              <NavBar />
+              <PageTransition>{children}</PageTransition>
+            </div>
+          </div>
+          <MobileTabBar />
+          <DynamicToast />
         </div>
-        <MobileTabBar />
-        <DynamicToast />
         {GA_ID && (
           <>
             <Script
