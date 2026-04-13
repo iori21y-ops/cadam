@@ -20,7 +20,7 @@ function rankColor(rank: number): string {
   if (rank === 1) return '#FFB800';
   if (rank === 2) return '#8E8E93';
   if (rank === 3) return '#CD7F32';
-  return '#AEAEB2';
+  return '#9CA3AF';
 }
 export const PopularEstimatesClient = memo(function PopularEstimatesClient({
   vehicles,

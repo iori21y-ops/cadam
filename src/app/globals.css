@@ -1,25 +1,28 @@
 @import "tailwindcss";
 
 :root {
-  --background: #F5F5F7;
-  --foreground: #1D1D1F;
+  --background: #F5F0E8;
+  --foreground: #0D1B2A;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-primary: #0D1B2A;
+  --color-primary-light: #1B2D45;
+  --color-accent: #C9A84C;
+  --color-accent-light: #D4B96A;
   --color-success: #10B981;
   --color-warning: #F59E0B;
   --color-danger: #EF4444;
   --color-kakao: #FEE500;
-  --color-text: #1D1D1F;
-  --color-text-sub: #86868B;
-  --color-text-muted: #AEAEB2;
+  --color-text: #0D1B2A;
+  --color-text-sub: #4A5568;
+  --color-text-muted: #9CA3AF;
   --color-surface: #FFFFFF;
-  --color-surface-secondary: #F5F5F7;
-  --color-border: rgba(0, 0, 0, 0.06);
-  --color-border-solid: #E5E5EA;
+  --color-surface-secondary: #F5F0E8;
+  --color-border: #E5E7EB;
+  --color-border-solid: #E5E7EB;
   --color-finance: #0D1B2A;
   --color-vehicle: #7C3AED;
   --color-option: #E04DBF;
@@ -28,6 +31,8 @@
   --color-brand-navy: #0D1B2A;
   --color-brand-gold: #C9A84C;
   --color-brand-cream: #F5F0E8;
+  --font-display: var(--font-cormorant), serif;
+  --font-body-en: var(--font-outfit), sans-serif;
   --font-sans: var(--font-pretendard), -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: ui-monospace, monospace;
 }
@@ -76,7 +81,7 @@ body {
 }
 
 .glass {
-  background: rgba(245, 245, 247, 0.95);
+  background: rgba(245, 240, 232, 0.95);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
 }

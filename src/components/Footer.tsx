@@ -10,36 +10,69 @@ export function Footer() {
   const telHref = `tel:${PHONE.replace(/-/g, '')}`;
 
   return (
-    <footer className="border-t border-border py-8 px-5 text-center">
-      <p className="text-[13px] text-text-muted mb-2">
-        운영시간: 평일 09:00 ~ 18:00 (주말/공휴일 휴무)
-      </p>
-      <p className="text-[13px] text-text-muted mb-2">
-        연락처:{' '}
-        <a
-          href={telHref}
-          className="text-primary font-semibold hover:underline"
-        >
-          {PHONE}
-        </a>
-      </p>
-      <p className="text-[13px] text-text-muted mb-2">
-        카카오톡:{' '}
-        <a
-          href={KAKAO_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-primary font-semibold hover:underline"
-        >
-          채널 링크
-        </a>
-      </p>
-      <p className="text-[13px] text-text-muted mb-2">
-        <Link href="/privacy" className="text-primary hover:underline">
-          개인정보 처리방침
-        </Link>
-      </p>
-      <p className="text-[13px] text-text-muted">{BRAND.footerCopy}</p>
+    <footer className="bg-primary text-white/80">
+      <div className="max-w-[1024px] mx-auto px-5 py-10">
+        {/* 상단: 로고 + 서비스 링크 */}
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-6 mb-8">
+          <div>
+            <p
+              className="text-lg font-semibold text-white mb-1"
+              style={{ fontFamily: 'var(--font-display), serif' }}
+            >
+              RenTailor
+            </p>
+            <p className="text-[13px] text-white/50">
+              당신에게 맞춘 렌트
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-x-6 gap-y-2 text-[13px]">
+            <Link href="/popular-estimates" className="hover:text-[#C9A84C] transition-colors">
+              인기차종
+            </Link>
+            <Link href="/diagnosis" className="hover:text-[#C9A84C] transition-colors">
+              AI 진단
+            </Link>
+            <Link href="/info" className="hover:text-[#C9A84C] transition-colors">
+              렌트 가이드
+            </Link>
+            <Link href="/quote" className="hover:text-[#C9A84C] transition-colors">
+              상담 신청
+            </Link>
+          </div>
+        </div>
+
+        {/* 구분선 */}
+        <div className="border-t border-white/10 pt-6" />
+
+        {/* 하단: 연락처 + 카피라이트 */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-[12px] text-white/40">
+          <div className="flex flex-wrap gap-x-4 gap-y-1">
+            <span>
+              운영시간: 평일 09:00 ~ 18:00
+            </span>
+            <a href={telHref} className="hover:text-[#C9A84C] transition-colors">
+              {PHONE}
+            </a>
+            <a
+              href={KAKAO_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-[#C9A84C] transition-colors"
+            >
+              카카오톡 상담
+            </a>
+          </div>
+          <div className="flex items-center gap-4">
+            <Link href="/privacy" className="hover:text-[#C9A84C] transition-colors">
+              개인정보 처리방침
+            </Link>
+            <span>{BRAND.footerCopy}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* 모바일 하단 탭바 여백 */}
+      <div className="h-16 md:hidden" />
     </footer>
   );
 }

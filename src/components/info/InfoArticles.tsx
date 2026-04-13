@@ -149,7 +149,7 @@ const ArticleSlide = memo(function ArticleSlide({
         <div className="shrink-0 flex justify-center items-center gap-1 py-2 text-text-muted">
           <span className="text-[11px]">다음</span>
           <svg width="12" height="8" viewBox="0 0 12 8" fill="none">
-            <path d="M1 1.5l5 5 5-5" stroke="#AEAEB2" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M1 1.5l5 5 5-5" stroke="#9CA3AF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </div>
       )}

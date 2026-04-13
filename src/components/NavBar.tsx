@@ -21,9 +21,15 @@ export function NavBar() {
       <div className="max-w-[1024px] mx-auto px-5 py-3 flex items-center gap-3 w-full min-w-0">
         <Link
           href="/"
-          className="text-[15px] font-bold text-text shrink-0 hover:text-primary transition-colors"
+          className="flex items-center gap-2 shrink-0 hover:opacity-80 transition-opacity"
         >
-          {BRAND.navLogo}
+          <img src="/rentailor-mark.svg" alt="" className="h-7 w-auto" />
+          <span
+            className="text-[17px] font-semibold text-text tracking-tight"
+            style={{ fontFamily: 'var(--font-display), serif' }}
+          >
+            RenTailor
+          </span>
         </Link>
         <div
           ref={dragScroll.ref}
@@ -42,7 +48,7 @@ export function NavBar() {
                 className={`px-4 py-2 rounded-full text-[13px] font-semibold transition-all whitespace-nowrap ${
                   isActive
                     ? 'bg-primary text-white'
-                    : 'text-text-sub hover:text-primary hover:bg-primary/5'
+                    : 'text-text-sub hover:text-accent hover:bg-accent/5'
                 }`}
               >
                 {item.label}

@@ -383,7 +383,7 @@ function buildDimensionHtml(dimensions: LeadDimensions): string {
 
   return `
     <div style="background:#F9FAFB;border-radius:8px;padding:12px 14px;">
-      <div style="font-size:11px;font-weight:700;color:#86868B;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">📊 리드 점수 분석</div>
+      <div style="font-size:11px;font-weight:700;color:#4A5568;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">📊 리드 점수 분석</div>
       <table cellpadding="0" cellspacing="0" style="width:100%;">
         ${rows}
       </table>
@@ -422,17 +422,17 @@ export async function sendConsultationNotification(
 <head>
   <meta charset="utf-8">
   <style>
-    body { font-family: -apple-system, sans-serif; background: #F5F5F7; margin: 0; padding: 16px; }
-    .card { max-width: 600px; margin: 0 auto; background: #fff; border-radius: 12px; overflow: hidden; border: 1px solid #E5E5EA; }
-    .header { padding: 20px 24px; border-bottom: 1px solid #E5E5EA; }
-    .header h2 { margin: 0 0 4px; font-size: 18px; color: #1D1D1F; }
+    body { font-family: -apple-system, sans-serif; background: #F5F0E8; margin: 0; padding: 16px; }
+    .card { max-width: 600px; margin: 0 auto; background: #fff; border-radius: 12px; overflow: hidden; border: 1px solid #E5E7EB; }
+    .header { padding: 20px 24px; border-bottom: 1px solid #E5E7EB; }
+    .header h2 { margin: 0 0 4px; font-size: 18px; color: #0D1B2A; }
     .header .grade { font-size: 14px; }
     .section { padding: 16px 24px; border-bottom: 1px solid #F0F0F0; }
     .section:last-child { border-bottom: none; }
-    .section-title { font-size: 11px; font-weight: 700; color: #86868B; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+    .section-title { font-size: 11px; font-weight: 700; color: #4A5568; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
     .row { display: flex; justify-content: space-between; padding: 6px 0; }
-    .label { font-size: 13px; color: #86868B; }
-    .value { font-size: 13px; font-weight: 600; color: #1D1D1F; }
+    .label { font-size: 13px; color: #4A5568; }
+    .value { font-size: 13px; font-weight: 600; color: #0D1B2A; }
     .tip { background: #FFFBF0; border-left: 3px solid #F59E0B; padding: 10px 14px; margin: 6px 0; border-radius: 0 8px 8px 0; font-size: 12px; color: #92400E; line-height: 1.5; }
     .urgent { background: #FFF5F5; border-left: 3px solid #EF4444; }
     .info { background: #F0F7FF; border-left: 3px solid #3B82F6; color: #1E40AF; }
@@ -491,11 +491,11 @@ export async function sendConsultationNotification(
     ${rows.length > 0 ? `
     <div class="section">
       <div class="section-title">👤 고객 분석 & 상담 전략</div>
-      <table cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;border:1px solid #E5E5EA;border-radius:8px;">
+      <table cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;border:1px solid #E5E7EB;border-radius:8px;">
         <tr style="background:#F3F4F6;">
-          <th style="font-size:11px;font-weight:700;color:#86868B;padding:8px 12px;text-align:left;border-bottom:2px solid #E5E5EA;width:20%;">항목</th>
-          <th style="font-size:11px;font-weight:700;color:#86868B;padding:8px 12px;text-align:left;border-bottom:2px solid #E5E5EA;border-left:1px solid #E5E5EA;width:35%;">파악된 특성</th>
-          <th style="font-size:11px;font-weight:700;color:#86868B;padding:8px 12px;text-align:left;border-bottom:2px solid #E5E5EA;border-left:1px solid #E5E5EA;width:45%;">상담 전략</th>
+          <th style="font-size:11px;font-weight:700;color:#4A5568;padding:8px 12px;text-align:left;border-bottom:2px solid #E5E7EB;width:20%;">항목</th>
+          <th style="font-size:11px;font-weight:700;color:#4A5568;padding:8px 12px;text-align:left;border-bottom:2px solid #E5E7EB;border-left:1px solid #E5E7EB;width:35%;">파악된 특성</th>
+          <th style="font-size:11px;font-weight:700;color:#4A5568;padding:8px 12px;text-align:left;border-bottom:2px solid #E5E7EB;border-left:1px solid #E5E7EB;width:45%;">상담 전략</th>
         </tr>
         ${rows.map((row, i) => {
           const isLast = i === rows.length - 1;
@@ -511,9 +511,9 @@ export async function sendConsultationNotification(
             : '<span style="color:#D1D5DB;font-size:11px;">—</span>';
           return `
         <tr>
-          <td style="padding:8px 12px;${borderBot}vertical-align:top;font-size:12px;font-weight:700;color:#1D1D1F;white-space:nowrap;">${row.category}</td>
-          <td style="padding:8px 10px;${borderBot}vertical-align:top;border-left:1px solid #E5E5EA;">${profileHtml}</td>
-          <td style="padding:8px 10px;${borderBot}vertical-align:top;border-left:1px solid #E5E5EA;">${actionHtml}</td>
+          <td style="padding:8px 12px;${borderBot}vertical-align:top;font-size:12px;font-weight:700;color:#0D1B2A;white-space:nowrap;">${row.category}</td>
+          <td style="padding:8px 10px;${borderBot}vertical-align:top;border-left:1px solid #E5E7EB;">${profileHtml}</td>
+          <td style="padding:8px 10px;${borderBot}vertical-align:top;border-left:1px solid #E5E7EB;">${actionHtml}</td>
         </tr>`;
         }).join('')}
       </table>
@@ -600,37 +600,37 @@ export async function sendCustomerReport(
 <head>
   <meta charset="utf-8">
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #F5F5F7; margin: 0; padding: 20px; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #F5F0E8; margin: 0; padding: 20px; }
     .container { max-width: 560px; margin: 0 auto; background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
     .header { background: linear-gradient(135deg, #2563EB, #60A5FA); padding: 36px 24px; text-align: center; color: #fff; }
     .header h1 { margin: 0 0 8px; font-size: 22px; font-weight: 800; }
     .header p { margin: 0; font-size: 14px; opacity: 0.9; }
     .badge { display: inline-block; background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 20px; font-size: 12px; margin-top: 12px; }
     .body { padding: 28px 24px; }
-    .estimate-card { background: linear-gradient(135deg, #1D1D1F, #2C2C2E); color: #fff; border-radius: 16px; padding: 24px; text-align: center; margin-bottom: 24px; }
+    .estimate-card { background: linear-gradient(135deg, #0D1B2A, #2C2C2E); color: #fff; border-radius: 16px; padding: 24px; text-align: center; margin-bottom: 24px; }
     .estimate-card .label { font-size: 12px; opacity: 0.7; margin-bottom: 8px; }
     .estimate-card .amount { font-size: 32px; font-weight: 800; letter-spacing: -0.5px; }
-    .result-card { border: 1px solid #E5E5EA; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+    .result-card { border: 1px solid #E5E7EB; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
     .result-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
     .result-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
-    .result-title { font-size: 11px; color: #86868B; }
-    .result-value { font-size: 16px; font-weight: 700; color: #1D1D1F; }
+    .result-title { font-size: 11px; color: #4A5568; }
+    .result-value { font-size: 16px; font-weight: 700; color: #0D1B2A; }
     .result-pct { font-size: 12px; color: #2563EB; font-weight: 600; }
-    .result-desc { font-size: 13px; color: #86868B; line-height: 1.5; margin-bottom: 12px; }
+    .result-desc { font-size: 13px; color: #4A5568; line-height: 1.5; margin-bottom: 12px; }
     .benefit-list { list-style: none; padding: 0; margin: 0; }
-    .benefit-list li { font-size: 13px; color: #1D1D1F; padding: 4px 0; }
+    .benefit-list li { font-size: 13px; color: #0D1B2A; padding: 4px 0; }
     .benefit-list li::before { content: '✓ '; color: #10B981; font-weight: 700; }
     .section { margin-bottom: 20px; }
-    .section-title { font-size: 12px; font-weight: 700; color: #86868B; margin-bottom: 10px; }
-    .row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #F5F5F7; }
+    .section-title { font-size: 12px; font-weight: 700; color: #4A5568; margin-bottom: 10px; }
+    .row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #F5F0E8; }
     .row:last-child { border-bottom: none; }
-    .row .label { font-size: 13px; color: #86868B; }
-    .row .value { font-size: 13px; font-weight: 600; color: #1D1D1F; }
+    .row .label { font-size: 13px; color: #4A5568; }
+    .row .value { font-size: 13px; font-weight: 600; color: #0D1B2A; }
     .next-step { background: #F0F7FF; border-radius: 12px; padding: 20px; margin-top: 24px; }
     .next-step h3 { font-size: 14px; font-weight: 700; color: #2563EB; margin: 0 0 8px; }
     .next-step p { font-size: 13px; color: #4B5563; line-height: 1.6; margin: 0; }
     .next-step ol { font-size: 13px; color: #4B5563; line-height: 1.8; padding-left: 20px; margin: 8px 0 0; }
-    .footer { padding: 20px 24px; text-align: center; font-size: 11px; color: #AEAEB2; line-height: 1.6; border-top: 1px solid #F0F0F0; }
+    .footer { padding: 20px 24px; text-align: center; font-size: 11px; color: #9CA3AF; line-height: 1.6; border-top: 1px solid #F0F0F0; }
   </style>
 </head>
 <body>
@@ -713,7 +713,7 @@ export async function sendCustomerReport(
         <a href="${siteUrl}" style="display:inline-block;background:#2563EB;color:#fff;padding:14px 28px;border-radius:12px;text-decoration:none;font-weight:700;font-size:15px;">
           내 진단 결과 다시 보기 →
         </a>
-        <p style="font-size:11px;color:#AEAEB2;margin-top:10px;">위 링크에서 시뮬레이션을 조절하며 다양한 조건을 비교할 수 있습니다</p>
+        <p style="font-size:11px;color:#9CA3AF;margin-top:10px;">위 링크에서 시뮬레이션을 조절하며 다양한 조건을 비교할 수 있습니다</p>
       </div>
     </div>
 

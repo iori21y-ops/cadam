@@ -1,8 +1,10 @@
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
+import { Cormorant_Garamond, Outfit } from 'next/font/google';
 import Script from 'next/script';
 import './globals.css';
 import { NavBar } from '@/components/NavBar';
+import { MobileTabBar } from '@/components/MobileTabBar';
 import { GAPageView } from '@/components/GAPageView';
 import { DynamicToast } from '@/components/DynamicToast';
 import { PageTransition } from '@/components/PageTransition';
@@ -13,6 +15,20 @@ const pretendard = localFont({
   display: 'swap',
   weight: '100 900',
   variable: '--font-pretendard',
+});
+
+const cormorant = Cormorant_Garamond({
+  subsets: ['latin'],
+  weight: ['400', '600', '700'],
+  variable: '--font-cormorant',
+  display: 'swap',
+});
+
+const outfit = Outfit({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600'],
+  variable: '--font-outfit',
+  display: 'swap',
 });
 
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
@@ -56,13 +72,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko" className={pretendard.variable}>
+    <html lang="ko" className={`${pretendard.variable} ${cormorant.variable} ${outfit.variable}`}>
       <body className={`${pretendard.className} antialiased bg-surface-secondary`}>
         <div className="max-w-[1024px] mx-auto w-full min-w-0">
           <GAPageView />
           <NavBar />
           <PageTransition>{children}</PageTransition>
         </div>
+        <MobileTabBar />
         <DynamicToast />
         {GA_ID && (
           <>
