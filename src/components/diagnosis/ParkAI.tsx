@@ -74,7 +74,7 @@ export function ParkAI({ ctx, cfg, mode = 'short', variant = 'dark', staticText 
     ? {
         bg: 'linear-gradient(135deg, #1D1D1F, #2C2C2E)',
         border: 'none',
-        iconBg: config.bgColor || '#2563EB',
+        iconBg: config.bgColor || '#C9A84C',
         title: 'text-white',
         subtitle: 'text-white/60',
         body: 'text-white/85',
@@ -88,9 +88,9 @@ export function ParkAI({ ctx, cfg, mode = 'short', variant = 'dark', staticText 
         collapsed: 'text-white/70',
       }
     : {
-        bg: `${config.bgColor || '#2563EB'}0D`, // 5% opacity
-        border: `1px solid ${config.bgColor || '#2563EB'}1F`, // 12% opacity
-        iconBg: `${config.bgColor || '#2563EB'}1A`, // 10% opacity
+        bg: `${config.bgColor || '#C9A84C'}0D`, // 5% opacity
+        border: `1px solid ${config.bgColor || '#C9A84C'}1F`, // 12% opacity
+        iconBg: `${config.bgColor || '#C9A84C'}1A`, // 10% opacity
         title: 'text-primary',
         subtitle: 'text-text-sub',
         body: 'text-text',

@@ -32,7 +32,7 @@ export function ProgressBar({
           className="h-full rounded-full"
           style={{
             width: `${progressPct}%`,
-            background: '#2563EB',
+            background: '#C9A84C',
             transition: 'width 0.5s ease',
           }}
         />

@@ -80,7 +80,7 @@ export function NextMission({ current }: NextMissionProps) {
         <button
           onClick={handleQuoteNav}
           className="w-full rounded-2xl p-4 text-center text-white transition-all hover:shadow-lg active:scale-[0.98]"
-          style={{ background: 'linear-gradient(135deg, #2563EB, #60A5FA)' }}
+          style={{ background: 'linear-gradient(135deg, #0D1B2A, #60A5FA)' }}
         >
           <p className="text-[14px] font-bold mb-1">이 결과로 바로 상담 신청</p>
           <p className="text-[11px] text-white/80">진단 결과가 자동으로 반영됩니다</p>
@@ -140,7 +140,7 @@ export function NextMission({ current }: NextMissionProps) {
       <button
         onClick={handleQuoteNav}
         className="w-full rounded-2xl p-4 text-center text-white transition-all hover:shadow-lg active:scale-[0.98]"
-        style={{ background: 'linear-gradient(135deg, #2563EB, #60A5FA)' }}
+        style={{ background: 'linear-gradient(135deg, #0D1B2A, #60A5FA)' }}
       >
         <p className="text-[14px] font-bold mb-1">이 결과로 바로 상담 신청</p>
         <p className="text-[11px] text-white/80">진단 결과가 자동으로 반영됩니다</p>

@@ -211,7 +211,7 @@ export default function ResultPage() {
               <div className="px-5 py-4 border-t border-border">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full flex items-center justify-center text-lg shrink-0"
-                    style={{ background: 'linear-gradient(135deg, #2563EB, #60A5FA)' }}>
+                    style={{ background: 'linear-gradient(135deg, #0D1B2A, #60A5FA)' }}>
                     <span className="text-white text-sm">🎯</span>
                   </div>
                   <div className="flex-1">

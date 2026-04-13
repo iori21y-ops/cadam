@@ -101,7 +101,7 @@ export default function DirectPage() {
                 {filteredVehicles.map((v) => (
                   <button key={v.id} onClick={() => setSelectedVehicle(v.id)} className={`p-3 rounded-xl text-left transition-all ${selectedVehicle === v.id ? 'bg-[#007AFF] text-white shadow-sm' : 'bg-white text-gray-700 border border-gray-200'}`}>
                     <div className="text-sm font-medium">{v.model}</div>
-                    <div className={`text-xs mt-0.5 ${selectedVehicle === v.id ? 'text-blue-100' : 'text-gray-400'}`}>{v.segment} · {v.fuel}</div>
+                    <div className={`text-xs mt-0.5 ${selectedVehicle === v.id ? 'text-white/70' : 'text-gray-400'}`}>{v.segment} · {v.fuel}</div>
                   </button>
                 ))}
               </div>
