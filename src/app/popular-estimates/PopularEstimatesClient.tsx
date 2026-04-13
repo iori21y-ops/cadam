@@ -2,6 +2,7 @@
 
 import { memo, useState, useMemo } from 'react';
 import Link from 'next/link';
+import { ChevronDown } from 'lucide-react';
 import type { Vehicle } from '@/constants/vehicles';
 import { CarImageFallback } from '@/components/cars/CarImageFallback';
 
@@ -9,7 +10,6 @@ interface VehicleWithPrice extends Vehicle {
   price: { min: number; max: number } | null;
 }
 
-// ── 섹션 정의 (추후 여기에 추가만 하면 됨) ──
 interface SectionDef {
   label: string;
   groups: {
@@ -58,8 +58,8 @@ const SECTION_TABS: Record<string, SectionDef> = {
 };
 
 const TAB_KEYS = Object.keys(SECTION_TABS);
+const VISIBLE_COUNT = 3;
 
-// ── 순위 색상 ──
 function rankStyle(rank: number): { color: string; bg: string } {
   if (rank === 1) return { color: '#FFB800', bg: 'bg-[#FFB800]/10' };
   if (rank === 2) return { color: '#8E8E93', bg: 'bg-[#8E8E93]/10' };
@@ -71,7 +71,6 @@ function formatPrice(won: number): string {
   return `월 ${Math.round(won / 10000)}만원~`;
 }
 
-// ── 리스트 아이템 ──
 function VehicleRow({ v, rank }: { v: VehicleWithPrice; rank: number }) {
   const style = rankStyle(rank);
 
@@ -119,7 +118,6 @@ function VehicleRow({ v, rank }: { v: VehicleWithPrice; rank: number }) {
   );
 }
 
-// ── 섹션 그룹 ──
 function SectionGroup({
   title,
   vehicles,
@@ -127,21 +125,39 @@ function SectionGroup({
   title: string;
   vehicles: VehicleWithPrice[];
 }) {
+  const [expanded, setExpanded] = useState(false);
+
   if (vehicles.length === 0) return null;
+
+  const hasMore = vehicles.length > VISIBLE_COUNT;
+  const displayed = expanded ? vehicles : vehicles.slice(0, VISIBLE_COUNT);
+  const hiddenCount = vehicles.length - VISIBLE_COUNT;
 
   return (
     <div className="mb-8">
       <h2 className="text-base font-bold text-text mb-3">{title}</h2>
       <div className="flex flex-col gap-2">
-        {vehicles.map((v, i) => (
+        {displayed.map((v, i) => (
           <VehicleRow key={v.id} v={v} rank={i + 1} />
         ))}
       </div>
+      {hasMore && (
+        <button
+          type="button"
+          onClick={() => setExpanded(!expanded)}
+          className="w-full mt-2 py-2.5 flex items-center justify-center gap-1 text-sm font-medium text-text-sub hover:text-accent transition-colors rounded-xl border border-border-solid bg-white"
+        >
+          {expanded ? '접기' : `${hiddenCount}개 더보기`}
+          <ChevronDown
+            size={16}
+            className={`transition-transform ${expanded ? 'rotate-180' : ''}`}
+          />
+        </button>
+      )}
     </div>
   );
 }
 
-// ── 메인 ──
 export const PopularEstimatesClient = memo(function PopularEstimatesClient({
   vehicles,
 }: {
@@ -160,7 +176,6 @@ export const PopularEstimatesClient = memo(function PopularEstimatesClient({
 
   return (
     <div>
-      {/* 탭 */}
       <div className="flex gap-2 mb-6 overflow-x-auto pb-1">
         {TAB_KEYS.map((key) => (
           <button
@@ -178,7 +193,6 @@ export const PopularEstimatesClient = memo(function PopularEstimatesClient({
         ))}
       </div>
 
-      {/* 섹션별 리스트 */}
       {groupedData.map((group) => (
         <SectionGroup key={group.title} title={group.title} vehicles={group.vehicles} />
       ))}
