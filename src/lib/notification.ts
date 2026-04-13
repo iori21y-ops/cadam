@@ -344,7 +344,7 @@ function buildDimensionHtml(dimensions: LeadDimensions): string {
   function getBarColor(pct: number): string {
     if (pct >= 80) return '#EF4444'; // red
     if (pct >= 60) return '#F59E0B'; // amber
-    if (pct >= 40) return '#3B82F6'; // blue
+    if (pct >= 40) return '#C9A84C'; // accent gold
     return '#9CA3AF';               // gray
   }
 
@@ -435,7 +435,7 @@ export async function sendConsultationNotification(
     .value { font-size: 13px; font-weight: 600; color: #0D1B2A; }
     .tip { background: #FFFBF0; border-left: 3px solid #F59E0B; padding: 10px 14px; margin: 6px 0; border-radius: 0 8px 8px 0; font-size: 12px; color: #92400E; line-height: 1.5; }
     .urgent { background: #FFF5F5; border-left: 3px solid #EF4444; }
-    .info { background: #F0F7FF; border-left: 3px solid #3B82F6; color: #1E40AF; }
+    .info { background: #FFFBF0; border-left: 3px solid #C9A84C; color: #8B6914; }
     .estimate { background: #C9A84C; color: #fff; padding: 16px; border-radius: 8px; text-align: center; margin: 12px 0; }
     .estimate .amount { font-size: 22px; font-weight: 800; }
   </style>
@@ -503,9 +503,9 @@ export async function sendConsultationNotification(
           const profileHtml = row.profiles.length > 0
             ? row.profiles.map(p => `<span style="display:inline-block;background:#F3F4F6;color:#374151;font-size:11px;font-weight:600;padding:2px 8px;border-radius:12px;margin:1px 2px;">${p}</span>`).join('')
             : '<span style="color:#D1D5DB;font-size:11px;">—</span>';
-          const actionBg = row.isProduct ? '#F0F7FF' : '#FFFBF0';
-          const actionBorder = row.isProduct ? '#3B82F6' : '#F59E0B';
-          const actionColor = row.isProduct ? '#1E40AF' : '#92400E';
+          const actionBg = row.isProduct ? '#FFFBF0' : '#FFFBF0';
+          const actionBorder = row.isProduct ? '#C9A84C' : '#F59E0B';
+          const actionColor = row.isProduct ? '#8B6914' : '#92400E';
           const actionHtml = row.actions.length > 0
             ? row.actions.map(a => `<div style="background:${actionBg};border-left:3px solid ${actionBorder};padding:5px 10px;border-radius:0 6px 6px 0;font-size:11px;color:${actionColor};line-height:1.4;margin:2px 0;">${a}</div>`).join('')
             : '<span style="color:#D1D5DB;font-size:11px;">—</span>';
@@ -602,7 +602,7 @@ export async function sendCustomerReport(
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #F5F0E8; margin: 0; padding: 20px; }
     .container { max-width: 560px; margin: 0 auto; background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
-    .header { background: linear-gradient(135deg, #C9A84C, #60A5FA); padding: 36px 24px; text-align: center; color: #fff; }
+    .header { background: linear-gradient(135deg, #C9A84C, #D4B96A); padding: 36px 24px; text-align: center; color: #fff; }
     .header h1 { margin: 0 0 8px; font-size: 22px; font-weight: 800; }
     .header p { margin: 0; font-size: 14px; opacity: 0.9; }
     .badge { display: inline-block; background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 20px; font-size: 12px; margin-top: 12px; }
@@ -665,7 +665,7 @@ export async function sendCustomerReport(
       ${info ? `
       <div class="result-card">
         <div class="result-header">
-          <div class="result-icon" style="background:linear-gradient(135deg,#C9A84C,#60A5FA);color:#fff;">${info.emoji}</div>
+          <div class="result-icon" style="background:linear-gradient(135deg,#C9A84C,#D4B96A);color:#fff;">${info.emoji}</div>
           <div>
             <div class="result-title">추천 이용방법</div>
             <div class="result-value">${escapeHtml(financeProduct)} ${financePct ? `<span class="result-pct">적합도 ${financePct}%</span>` : ''}</div>
@@ -679,7 +679,7 @@ export async function sendCustomerReport(
       ` : data.financeSummary ? `
       <div class="result-card">
         <div class="result-header">
-          <div class="result-icon" style="background:linear-gradient(135deg,#C9A84C,#60A5FA);color:#fff;">🎯</div>
+          <div class="result-icon" style="background:linear-gradient(135deg,#C9A84C,#D4B96A);color:#fff;">🎯</div>
           <div>
             <div class="result-title">추천 이용방법</div>
             <div class="result-value">${escapeHtml(data.financeSummary)}</div>
