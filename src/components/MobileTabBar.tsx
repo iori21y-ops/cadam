@@ -20,8 +20,11 @@ export function MobileTabBar() {
   if (pathname?.startsWith('/admin')) return null;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white shadow-[0_-1px_3px_rgba(0,0,0,0.06)] md:hidden pb-[env(safe-area-inset-bottom)]">
-      <div className="flex">
+    <div
+      className="fixed bottom-0 left-0 right-0 z-50 pointer-events-none md:hidden"
+      style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+    >
+      <nav className="mx-4 mb-2 bg-white rounded-2xl shadow-lg shadow-black/10 flex items-center justify-around py-2 pointer-events-auto">
         {TABS.map((tab) => {
           const isActive =
             tab.href === '/'
@@ -33,20 +36,26 @@ export function MobileTabBar() {
             <Link
               key={tab.href}
               href={tab.href}
-              className={`flex-1 flex flex-col items-center justify-center py-2 transition-colors ${
-                isActive ? 'text-accent' : 'text-gray-500'
-              }`}
+              className="flex flex-col items-center justify-center gap-0.5 py-1 px-3"
             >
               <Icon
-                className="w-6 h-6"
-                strokeWidth={isActive ? 2.5 : 1.5}
+                className={`w-6 h-6 transition-colors ${
+                  isActive ? 'text-accent' : 'text-gray-400'
+                }`}
+                strokeWidth={isActive ? 2 : 1.5}
                 fill={isActive ? 'currentColor' : 'none'}
               />
-              <span className="text-[11px] font-medium mt-0.5">{tab.label}</span>
+              <span
+                className={`text-[10px] font-medium ${
+                  isActive ? 'text-accent' : 'text-gray-400'
+                }`}
+              >
+                {tab.label}
+              </span>
             </Link>
           );
         })}
-      </div>
-    </nav>
+      </nav>
+    </div>
   );
 }
