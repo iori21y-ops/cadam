@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { memo, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { FilterPill } from '@/components/ui/FilterPill';
 
@@ -164,6 +165,7 @@ export function InfoArticles({
   initialArticles?: Article[];
   categories?: { value: string; label: string }[];
 }) {
+  const pathname = usePathname();
   const [articles, setArticles] = useState<Article[]>(initialArticles ?? []);
   const [loading, setLoading] = useState(!initialArticles);
   const [selectedKeyword, setSelectedKeyword] = useState('all');
@@ -210,6 +212,29 @@ export function InfoArticles({
 
   return (
     <div className="h-[100dvh] flex flex-col bg-surface-secondary pb-24">
+      {/* 이용정보 ↔ 약관 비교 탭 */}
+      <div className="shrink-0 border-b border-border-solid bg-white">
+        <div className="flex max-w-lg mx-auto px-5">
+          {[
+            { href: '/info', label: '이용정보' },
+            { href: '/info/terms-comparison', label: '약관 비교' },
+          ].map((t) => (
+            <Link
+              key={t.href}
+              href={t.href}
+              className={[
+                'px-4 py-3 text-sm font-semibold border-b-2 -mb-px transition-colors whitespace-nowrap',
+                pathname === t.href
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-text-sub hover:text-primary',
+              ].join(' ')}
+            >
+              {t.label}
+            </Link>
+          ))}
+        </div>
+      </div>
+
       {/* 필터 */}
       <div className="shrink-0 w-full max-w-lg mx-auto px-5 pt-4 pb-3">
         {/* 카테고리 필터 (동적, 오른쪽 fade) */}
