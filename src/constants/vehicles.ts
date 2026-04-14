@@ -42,7 +42,7 @@ export const VEHICLE_LIST: Vehicle[] = [
   { id: 'h21', brand: '현대', model: '아이오닉9', slug: 'ioniq9', category: 'EV', segment: '대형 SUV (EV)', fuel: '전기', imageKey: 'hyundai-ioniq9', trims: ['스탠다드', '롱레인지', '롱레인지 프리미엄'], seoTitle: '아이오닉9 장기렌트 | 월 납부금 비교', seoDescription: '현대 아이오닉9 장기렌터카. 플래그십 대형 전기 SUV 장기렌트 최저가 견적.' },
 
   // ═══════════════════════════════════
-  // 기아 (23종)
+  // 기아 (24종)
   // ═══════════════════════════════════
   { id: 'k01', brand: '기아', model: '모닝', slug: 'morning', category: '세단', segment: '경차', fuel: '가솔린', imageKey: 'kia-morning', trims: ['트렌디', '프레스티지', '시그니처'], seoTitle: '모닝 장기렌트 | 월 납부금 비교', seoDescription: '기아 모닝 장기렌터카. 경차 장기렌트 최저가 견적을 확인하세요.' },
   { id: 'k02', brand: '기아', model: '레이', slug: 'ray', category: '세단', segment: '경차', fuel: '가솔린', imageKey: 'kia-ray', trims: ['트렌디', '프레스티지', '시그니처'], seoTitle: '레이 장기렌트 | 월 납부금 비교', seoDescription: '기아 레이 장기렌터카. 넓은 경차 장기렌트 견적.' },
@@ -57,7 +57,6 @@ export const VEHICLE_LIST: Vehicle[] = [
   { id: 'k11', brand: '기아', model: '스포티지 하이브리드', slug: 'sportage-hybrid', category: 'SUV', segment: '준중형 SUV', fuel: '하이브리드', imageKey: 'kia-sportage-hybrid', trims: ['트렌디', '프레스티지', '시그니처', '그래비티'], seoTitle: '스포티지 하이브리드 장기렌트 | 월 납부금 비교', seoDescription: '기아 스포티지 하이브리드 장기렌터카. 연비 좋은 SUV 장기렌트.' },
   { id: 'k12', brand: '기아', model: '쏘렌토 (MQ4)', slug: 'sorento', category: 'SUV', segment: '중형 SUV', fuel: '가솔린', imageKey: 'kia-sorento', trims: ['프레스티지', '시그니처', '그래비티', '그래비티 7인승'], seoTitle: '쏘렌토 장기렌트 | 월 납부금 비교', seoDescription: '기아 쏘렌토 장기렌터카. 중형 SUV 장기렌트 견적을 확인하세요.' },
   { id: 'k13', brand: '기아', model: '쏘렌토 하이브리드', slug: 'sorento-hybrid', category: 'SUV', segment: '중형 SUV', fuel: '하이브리드', imageKey: 'kia-sorento-hybrid', trims: ['프레스티지', '시그니처', '그래비티'], seoTitle: '쏘렌토 하이브리드 장기렌트 | 월 납부금 비교', seoDescription: '기아 쏘렌토 하이브리드 장기렌터카. 패밀리 SUV 하이브리드 장기렌트.' },
-  { id: 'k14', brand: '기아', model: '모하비', slug: 'mohave', category: 'SUV', segment: '대형 SUV', fuel: '디젤', imageKey: 'kia-mohave', trims: ['프레스티지', '시그니처', '그래비티'], seoTitle: '모하비 장기렌트 | 월 납부금 비교', seoDescription: '기아 모하비 장기렌터카. 대형 SUV 장기렌트 최저가 견적.' },
   { id: 'k15', brand: '기아', model: 'EV3', slug: 'ev3', category: 'EV', segment: '소형 SUV (EV)', fuel: '전기', imageKey: 'kia-ev3', trims: ['에어', '어스', '어스 롱레인지'], seoTitle: 'EV3 장기렌트 | 월 납부금 비교', seoDescription: '기아 EV3 장기렌터카. 전기차 소형 SUV 장기렌트 견적.' },
   { id: 'k16', brand: '기아', model: 'EV6', slug: 'ev6', category: 'EV', segment: '중형 CUV (EV)', fuel: '전기', imageKey: 'kia-ev6', trims: ['스탠다드', '롱레인지', '롱레인지 프레스티지', 'GT-Line'], seoTitle: 'EV6 장기렌트 | 월 납부금 비교', seoDescription: '기아 EV6 장기렌터카. 전기차 장기렌트 혜택과 견적을 확인하세요.' },
   { id: 'k17', brand: '기아', model: 'EV9', slug: 'ev9', category: 'EV', segment: '대형 SUV (EV)', fuel: '전기', imageKey: 'kia-ev9', trims: ['에어', '어스', '어스 7인승'], seoTitle: 'EV9 장기렌트 | 월 납부금 비교', seoDescription: '기아 EV9 장기렌터카. 대형 전기 SUV 장기렌트 최저가 견적.' },
@@ -67,9 +66,11 @@ export const VEHICLE_LIST: Vehicle[] = [
   { id: 'k21', brand: '기아', model: '니로 플러그인 하이브리드', slug: 'niro-phev', category: 'SUV', segment: '소형 SUV', fuel: '플러그인 하이브리드', imageKey: 'kia-niro-plus', trims: ['트렌디', '프레스티지', '시그니처'], seoTitle: '니로 플러그인 하이브리드 장기렌트 | 월 납부금 비교', seoDescription: '기아 니로 플러그인 하이브리드 장기렌터카. 전기+하이브리드 소형 SUV 장기렌트 견적.' },
   { id: 'k22', brand: '기아', model: '니로 EV', slug: 'niro-ev', category: 'EV', segment: '소형 SUV (EV)', fuel: '전기', imageKey: 'kia-niro-ev', trims: ['에어', '어스', '어스 롱레인지'], seoTitle: '니로 EV 장기렌트 | 월 납부금 비교', seoDescription: '기아 니로 EV 장기렌터카. 소형 전기 SUV 장기렌트 최저가 견적을 확인하세요.' },
   { id: 'k23', brand: '기아', model: '레이 EV', slug: 'ray-ev', category: 'EV', segment: '경차 (EV)', fuel: '전기', imageKey: 'kia-ray-ev', trims: ['에어', '어스'], seoTitle: '레이 EV 장기렌트 | 월 납부금 비교', seoDescription: '기아 레이 EV 장기렌터카. 전기 경차 장기렌트 최저가 견적을 확인하세요.' },
+  { id: 'k24', brand: '기아', model: 'EV5', slug: 'ev5', category: 'EV', segment: '중형 SUV (EV)', fuel: '전기', imageKey: 'kia-ev5', trims: ['스탠다드', '롱레인지', '롱레인지 AWD'], seoTitle: 'EV5 장기렌트 | 월 납부금 비교', seoDescription: '기아 EV5 장기렌터카. 전기차 중형 SUV 장기렌트 견적을 확인하세요.' },
+  { id: 'k25', brand: '기아', model: '타스만', slug: 'tasman', category: '트럭', segment: '픽업트럭', fuel: '디젤', imageKey: 'kia-tasman', trims: ['프레스티지', '시그니처', '그래비티'], seoTitle: '타스만 장기렌트 | 월 납부금 비교', seoDescription: '기아 타스만 장기렌터카. 픽업트럭 장기렌트 사업자 전용 견적.' },
 
   // ═══════════════════════════════════
-  // 제네시스 (7종)
+  // 제네시스 (8종)
   // ═══════════════════════════════════
   { id: 'g01', brand: '제네시스', model: 'G70', slug: 'g70', category: '세단', segment: '스포츠 세단', fuel: '가솔린', imageKey: 'genesis-g70', trims: ['2.0T', '2.0T 스포츠', '3.3T 스포츠'], seoTitle: 'G70 장기렌트 | 월 납부금 비교', seoDescription: '제네시스 G70 장기렌터카. 스포츠 세단 장기렌트 견적을 확인하세요.' },
   { id: 'g02', brand: '제네시스', model: 'G80', slug: 'g80', category: '세단', segment: '대형 세단', fuel: '가솔린', imageKey: 'genesis-g80', trims: ['2.5T', '2.5T AWD', '3.5T', '전동화(EV)'], seoTitle: 'G80 장기렌트 | 월 납부금 비교', seoDescription: '제네시스 G80 장기렌터카. 프리미엄 세단 장기렌트 최저가 견적.' },
@@ -78,6 +79,7 @@ export const VEHICLE_LIST: Vehicle[] = [
   { id: 'g05', brand: '제네시스', model: 'GV70', slug: 'gv70', category: 'SUV', segment: '중형 SUV', fuel: '가솔린', imageKey: 'genesis-gv70', trims: ['2.5T', '2.5T AWD', '2.2D', '전동화(EV)'], seoTitle: 'GV70 장기렌트 | 월 납부금 비교', seoDescription: '제네시스 GV70 장기렌터카. 프리미엄 SUV 장기렌트 견적을 비교하세요.' },
   { id: 'g06', brand: '제네시스', model: 'GV80', slug: 'gv80', category: 'SUV', segment: '대형 SUV', fuel: '가솔린', imageKey: 'genesis-gv80', trims: ['2.5T', '2.5T AWD', '3.5T', '3.5T AWD'], seoTitle: 'GV80 장기렌트 | 월 납부금 비교', seoDescription: '제네시스 GV80 장기렌터카. 대형 SUV 장기렌트 최저가 견적.' },
   { id: 'g07', brand: '제네시스', model: 'GV80 쿠페', slug: 'gv80-coupe', category: 'SUV', segment: '대형 SUV 쿠페', fuel: '가솔린', imageKey: 'genesis-gv80-coupe', trims: ['2.5T', '3.5T', '3.5T AWD'], seoTitle: 'GV80 쿠페 장기렌트 | 월 납부금 비교', seoDescription: '제네시스 GV80 쿠페 장기렌터카. 프리미엄 SUV 쿠페 장기렌트 견적.' },
+  { id: 'g08', brand: '제네시스', model: 'GV90', slug: 'gv90', category: 'EV', segment: '플래그십 SUV (EV)', fuel: '전기', imageKey: 'genesis-gv90', trims: ['프리미엄', '프리미엄 AWD'], seoTitle: 'GV90 장기렌트 | 월 납부금 비교', seoDescription: '제네시스 GV90 장기렌터카. 플래그십 전기 SUV 장기렌트 최저가 견적.' },
 
   // ═══════════════════════════════════
   // 르노코리아 (5종)
