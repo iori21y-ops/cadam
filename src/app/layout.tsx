@@ -72,9 +72,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko" className={`${pretendard.variable} ${cormorant.variable} ${outfit.variable}`}>
-      <body className={`${pretendard.className} antialiased bg-surface-secondary`}>
-        <div className="max-w-[1024px] mx-auto w-full min-w-0">
+    <html lang="ko" className={`${pretendard.variable} ${cormorant.variable} ${outfit.variable} bg-primary`}>
+      <body className={`${pretendard.className} antialiased`}>
+        <div className="max-w-[1024px] mx-auto w-full min-w-0 bg-surface-secondary shadow-2xl">
           <GAPageView />
           <NavBar />
           <PageTransition>{children}</PageTransition>

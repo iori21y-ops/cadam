@@ -30,7 +30,7 @@ function VehiclesSkeleton() {
 
 function ArticlesSkeleton() {
   return (
-    <section className="bg-white py-12 px-5">
+    <section className="bg-background py-12 px-5">
       <div className="max-w-2xl mx-auto">
         <div className="h-7 bg-gray-100 rounded w-56 mb-2" />
         {Array.from({ length: 4 }).map((_, i) => (

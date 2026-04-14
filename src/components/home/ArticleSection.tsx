@@ -54,7 +54,7 @@ export async function ArticleSection() {
   const articles = wpArticles.length > 0 ? wpArticles : FALLBACK_ARTICLES;
 
   return (
-    <section className="bg-white py-12 px-5">
+    <section className="bg-background py-12 px-5">
       <div className="max-w-2xl mx-auto">
         <h2 className="text-primary font-bold text-xl mb-2">
           알아두면 유용한 렌트 가이드
