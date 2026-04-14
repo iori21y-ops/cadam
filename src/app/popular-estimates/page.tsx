@@ -8,8 +8,15 @@ export const revalidate = 3600;
 
 const FALLBACK_SLUGS = [
   // 현대
-  'avante', 'tucson', 'k5', 'sportage', 'sorento', 'ioniq5',
-  'grandeur', 'santafe', 'k8', 'palisade', 'ioniq6', 'carnival',
+  'avante', 'avante-hybrid', 'tucson', 'tucson-hybrid',
+  'k5', 'sportage', 'sportage-hybrid', 'sorento', 'sorento-hybrid',
+  'ioniq5', 'ioniq6', 'grandeur', 'grandeur-hybrid',
+  'santafe', 'santafe-hybrid', 'k8', 'k8-hybrid',
+  'palisade', 'carnival', 'casper-ev', 'ioniq9',
+  // 기아
+  'k3', 'mohave', 'ray-ev',
+  // 제네시스
+  'g70', 'g80', 'g90', 'gv60', 'gv70', 'gv80', 'gv80-coupe',
   // 르노코리아
   'qm6', 'xm3', 'xm3-hybrid', 'arkana', 'master',
   // KGM
