@@ -37,7 +37,7 @@ export function CarHero({ vehicle }: CarHeroProps) {
       </div>
 
       {/* 모델명 + 배지 */}
-      <div className="px-5 pt-4 pb-3">
+      <div className="px-5 pt-4 pb-5">
         <div className="flex items-center gap-2 mb-1">
           <span className="text-xs text-text-sub font-medium">{vehicle.brand}</span>
         </div>
