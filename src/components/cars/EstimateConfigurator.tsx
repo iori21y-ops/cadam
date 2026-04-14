@@ -72,7 +72,7 @@ export function EstimateConfigurator({
   };
 
   return (
-    <section className="mx-5 -mt-1 rounded-2xl bg-white border border-border-solid shadow-sm overflow-hidden">
+    <section className="mx-5 mt-4 rounded-2xl bg-white border border-border-solid shadow-sm overflow-hidden">
       {/* 가격 표시 */}
       <div className="px-5 pt-5 pb-4 border-b border-border-solid">
         {hasPrice ? (
