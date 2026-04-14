@@ -86,7 +86,7 @@ function VehicleRow({ v, rank }: { v: VehicleWithPrice; rank: number }) {
         {rank}
       </div>
 
-      <div className="w-20 h-14 relative shrink-0 bg-surface-secondary rounded-xl overflow-hidden">
+      <div className="w-20 h-14 relative shrink-0 bg-white rounded-xl overflow-hidden">
         <CarImageFallback
           src={`/cars/${v.imageKey}.webp`}
           alt={v.model}

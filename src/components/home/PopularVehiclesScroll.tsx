@@ -102,7 +102,7 @@ export function PopularVehiclesScroll({ vehicles }: { vehicles: VehicleCard[] })
             className="w-[80vw] max-w-[320px] shrink-0 snap-center bg-white rounded-2xl shadow-sm overflow-hidden transition-transform active:scale-[0.98]"
             draggable={false}
           >
-            <div className="aspect-[16/10] bg-gradient-to-b from-gray-50 to-white relative">
+            <div className="aspect-[16/10] bg-white relative">
               <Image
                 src={`/cars/${v.imageKey}.webp`}
                 alt={v.model}
