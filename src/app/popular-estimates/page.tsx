@@ -7,18 +7,14 @@ import { PopularEstimatesClient } from './PopularEstimatesClient';
 export const revalidate = 3600;
 
 const FALLBACK_SLUGS = [
-  'avante',
-  'tucson',
-  'k5',
-  'sportage',
-  'sorento',
-  'ioniq5',
-  'grandeur',
-  'santafe',
-  'k8',
-  'palisade',
-  'ioniq6',
-  'carnival',
+  // 현대
+  'avante', 'tucson', 'k5', 'sportage', 'sorento', 'ioniq5',
+  'grandeur', 'santafe', 'k8', 'palisade', 'ioniq6', 'carnival',
+  // 르노코리아
+  'qm6', 'xm3', 'xm3-hybrid', 'arkana', 'master',
+  // KGM
+  'tivoli', 'korando', 'korando-ev', 'torres', 'torres-evx',
+  'rexton', 'rexton-sports', 'rexton-sports-khan',
 ] as const;
 
 interface PriceRangeRow {

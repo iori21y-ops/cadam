@@ -33,6 +33,8 @@ const SECTION_TABS: Record<string, SectionDef> = {
       { title: '현대', filter: (v) => v.brand === '현대' },
       { title: '기아', filter: (v) => v.brand === '기아' },
       { title: '제네시스', filter: (v) => v.brand === '제네시스' },
+      { title: '르노코리아', filter: (v) => v.brand === '르노코리아' },
+      { title: 'KGM', filter: (v) => v.brand === 'KGM' },
     ],
   },
   purpose: {

@@ -7,6 +7,7 @@ import { PopularVehiclesScroll } from './PopularVehiclesScroll';
 const FALLBACK_SLUGS = [
   'avante', 'tucson', 'k5', 'sportage', 'sorento', 'ioniq5',
   'grandeur', 'santafe', 'k8', 'palisade', 'ioniq6', 'carnival',
+  'qm6', 'xm3', 'torres', 'tivoli',
 ] as const;
 
 interface PriceRangeRow {
