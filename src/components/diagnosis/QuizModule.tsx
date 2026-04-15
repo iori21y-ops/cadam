@@ -263,7 +263,7 @@ export function QuizModule({ basicQs, detailQs, color, onHome, savedResult, rend
         <div className="w-full h-1 rounded-full overflow-hidden" style={{ background: '#E5E5EA' }}>
           <div
             className="h-full rounded-full"
-            style={{ width: `${progressPct}%`, background: color, transition: 'width 0.5s ease' }}
+            style={{ width: `${progressPct}%`, background: '#C9A84C', transition: 'width 0.5s ease' }}
           />
         </div>
       </div>
@@ -299,7 +299,7 @@ export function QuizModule({ basicQs, detailQs, color, onHome, savedResult, rend
                     disabled={!!selected}
                     onClick={() => handleSelect(option)}
                   >
-                    <span className={`flex-1 text-[16px] font-medium ${isSel ? 'text-white' : 'text-text'}`}>
+                    <span className={`flex-1 text-[16px] font-medium ${isSel ? 'text-primary font-semibold' : 'text-text'}`}>
                       {option.label}
                     </span>
                   </SelectCard>

@@ -28,7 +28,7 @@ export function SelectCard({
       style={{
         '--card-accent': color,
         ...(selected
-          ? { background: color, borderColor: '#C9A84C', boxShadow: selectedShadow }
+          ? { background: 'rgba(201, 168, 76, 0.2)', borderColor: '#C9A84C', boxShadow: selectedShadow }
           : {}),
         ...(dimmed ? { opacity: 0.4 } : {}),
         ...style,
