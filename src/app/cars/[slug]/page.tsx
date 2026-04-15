@@ -1,7 +1,6 @@
 import { Suspense } from 'react';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import Link from 'next/link';
 import { VEHICLE_LIST, getVehicleBySlug } from '@/constants/vehicles';
 import { createServerSupabaseClient } from '@/lib/supabase-server';
 import { CarHero } from '@/components/cars/CarHero';
@@ -13,7 +12,7 @@ import { CarCtaSection } from '@/components/cars/CarCtaSection';
 import { CarFaq } from '@/components/cars/CarFaq';
 import { RelatedCars } from '@/components/cars/RelatedCars';
 import { CarSeoAnalytics } from '@/components/cars/CarSeoAnalytics';
-import { TrimPriceTable } from '@/components/cars/TrimPriceTable';
+import { TrimOptionSelector } from '@/components/cars/TrimOptionSelector';
 
 export const revalidate = 3600;
 
@@ -117,6 +116,26 @@ async function CarPageContent({ slug }: { slug: string }) {
   const minCarPrice = vs?.min_price ? vs.min_price * 10000 : null;
   const maxCarPrice = vs?.max_price ? vs.max_price * 10000 : null;
 
+  // 트림 & 옵션 데이터 조회 (vehicle_id가 있을 때만)
+  let trims: { id: string; trim_name: string; base_price: number; tax_reduced_price: number | null }[] = [];
+  let options: { id: string; trim_id: string | null; vehicle_id: string; option_name: string; option_price: number; option_type: string }[] = [];
+
+  if (vs?.id) {
+    const [{ data: trimData }, { data: optionData }] = await Promise.all([
+      supabase
+        .from('vehicle_trims')
+        .select('id, trim_name, base_price, tax_reduced_price')
+        .eq('vehicle_id', vs.id)
+        .order('base_price', { ascending: true }),
+      supabase
+        .from('trim_options')
+        .select('id, trim_id, vehicle_id, option_name, option_price, option_type')
+        .eq('vehicle_id', vs.id),
+    ]);
+    trims = trimData ?? [];
+    options = optionData ?? [];
+  }
+
   const articles = ((articleRows ?? []) as ArticleRow[]).map((r) => ({
     id: r.id,
     title: r.title,
@@ -141,19 +160,9 @@ async function CarPageContent({ slug }: { slug: string }) {
       {/* 3. 이용 절차 */}
       <ServiceSteps />
 
-      {/* 4. 트림별 출고가 (vehicle_trims 데이터 있을 때만 표시) */}
+      {/* 4. 트림 & 옵션 선택 (vehicle_trims 데이터 있을 때만 표시) */}
       {vs?.id && (
-        <>
-          <TrimPriceTable vehicleId={vs.id} />
-          <section className="px-5 -mt-4 pb-6">
-            <Link
-              href={`/cars/${vehicle.slug}/options`}
-              className="flex items-center justify-center gap-1.5 w-full py-3 rounded-xl border border-primary text-primary text-sm font-semibold"
-            >
-              옵션 상세 보기 →
-            </Link>
-          </section>
-        </>
+        <TrimOptionSelector trims={trims || []} options={options || []} slug={slug} />
       )}
 
       {/* 5. 조건별 가격 비교표 (데이터 있을 때만) */}
