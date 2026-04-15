@@ -68,7 +68,7 @@ export default async function VehicleOptionsPage({
       .order('display_order', { ascending: true }),
     supabase
       .from('trim_options')
-      .select('id, trim_id, option_name, option_price, option_type')
+      .select('id, trim_id, option_name, option_price, option_type, description, image_url, category')
       .eq('vehicle_id', vehicleDb.id),
   ]);
 
