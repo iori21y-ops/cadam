@@ -14,7 +14,7 @@ export const BRAND = {
   description: '양복 맞추듯 나에게 딱 맞는 장기렌터카를 찾아드립니다.',
 
   // —— 네비게이션 ——
-  navLogo: '🚗 렌테일러',
+  navLogo: '렌테일러',
 
   // —— 슬로건/카피 ——
   mainHeading: '당신에게 맞춘 렌트,\n렌테일러가 재단합니다',
@@ -31,11 +31,11 @@ export const BRAND = {
   // —— AI 캐릭터 ——
   ai: {
     charName: '렌테일러 AI',
-    charEmoji: '🚗',
+    charEmoji: 'IconCarSedan',
     charTitle: '렌테일러 AI 분석',
     charSubtitle: 'AI 전문가 진단',
     bgColor: '#0D1B2A',
-    introComment: '고객님, 어떤 자동차 이용방법이 좋을지 고민되시나요? AI 진단으로 1분 만에 최적의 방법을 찾아드리겠습니다! 🚗',
+    introComment: '고객님, 어떤 자동차 이용방법이 좋을지 고민되시나요? AI 진단으로 1분 만에 최적의 방법을 찾아드리겠습니다!',
   },
 
   // —— 개인정보 ——

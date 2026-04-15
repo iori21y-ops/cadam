@@ -5,6 +5,7 @@ import { useQuoteStore } from '@/store/quoteStore';
 import type { ContractMonths } from '@/store/quoteStore';
 import { gtag } from '@/lib/gtag';
 import { SelectCard } from '@/components/ui/SelectCard';
+import { IconCalendar } from '@/components/icons/RentailorIcons';
 
 interface PeriodOption {
   value: ContractMonths;
@@ -64,7 +65,7 @@ export function Step3Period() {
                 인기
               </span>
             )}
-            <span className="text-2xl shrink-0">📅</span>
+            <IconCalendar size={24} className="shrink-0" />
             <div className="min-w-0 flex-1">
               <div className={`text-base font-semibold ${selectedValue === opt.value ? 'text-white' : 'text-text'}`}>
                 {opt.label}

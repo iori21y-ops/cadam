@@ -3,6 +3,7 @@
 import { memo, useState, useMemo } from 'react';
 import Link from 'next/link';
 import { ChevronDown } from 'lucide-react';
+import { IconCarSedan, IconCarSUV, IconBolt, RenderIcon } from '@/components/icons/RentailorIcons';
 import type { Vehicle } from '@/constants/vehicles';
 import { CarImageFallback } from '@/components/cars/CarImageFallback';
 
@@ -13,6 +14,7 @@ interface VehicleWithPrice extends Vehicle {
 interface SectionDef {
   label: string;
   groups: {
+    icon?: string;
     title: string;
     filter: (v: VehicleWithPrice) => boolean;
   }[];
@@ -22,9 +24,9 @@ const SECTION_TABS: Record<string, SectionDef> = {
   category: {
     label: '카테고리별',
     groups: [
-      { title: '🚗 세단 TOP', filter: (v) => v.category === '세단' },
-      { title: '🏔️ SUV TOP', filter: (v) => v.category === 'SUV' },
-      { title: '⚡ 전기차 TOP', filter: (v) => v.category === 'EV' },
+      { icon: 'IconCarSedan', title: '세단 TOP', filter: (v) => v.category === '세단' },
+      { icon: 'IconCarSUV', title: 'SUV TOP', filter: (v) => v.category === 'SUV' },
+      { icon: 'IconBolt', title: '전기차 TOP', filter: (v) => v.category === 'EV' },
     ],
   },
   brand: {
@@ -41,17 +43,17 @@ const SECTION_TABS: Record<string, SectionDef> = {
     label: '용도별',
     groups: [
       {
-        title: '🧑‍💼 출퇴근 추천',
+        title: '출퇴근 추천',
         filter: (v) =>
           v.category === '세단' && (v.segment.includes('소형') || v.segment.includes('준중형') || v.segment.includes('중형')),
       },
       {
-        title: '👨‍👩‍👧‍👦 가족용 추천',
+        title: '가족용 추천',
         filter: (v) =>
           v.category === 'SUV' || v.model.includes('카니발') || v.model.includes('팰리세이드'),
       },
       {
-        title: '💼 비즈니스 추천',
+        title: '비즈니스 추천',
         filter: (v) =>
           v.brand === '제네시스' || v.model.includes('그랜저') || v.model.includes('K8'),
       },
@@ -121,9 +123,11 @@ function VehicleRow({ v, rank }: { v: VehicleWithPrice; rank: number }) {
 }
 
 function SectionGroup({
+  icon,
   title,
   vehicles,
 }: {
+  icon?: string;
   title: string;
   vehicles: VehicleWithPrice[];
 }) {
@@ -137,7 +141,10 @@ function SectionGroup({
 
   return (
     <div className="mb-8">
-      <h2 className="text-base font-bold text-text mb-3">{title}</h2>
+      <h2 className="text-base font-bold text-text mb-3 flex items-center gap-1.5">
+        {icon && <RenderIcon name={icon} size={17} className="text-primary" />}
+        {title}
+      </h2>
       <div className="flex flex-col gap-2">
         {displayed.map((v, i) => (
           <VehicleRow key={v.id} v={v} rank={i + 1} />
@@ -171,6 +178,7 @@ export const PopularEstimatesClient = memo(function PopularEstimatesClient({
 
   const groupedData = useMemo(() => {
     return section.groups.map((group) => ({
+      icon: group.icon,
       title: group.title,
       vehicles: vehicles.filter(group.filter),
     }));
@@ -196,7 +204,7 @@ export const PopularEstimatesClient = memo(function PopularEstimatesClient({
       </div>
 
       {groupedData.map((group) => (
-        <SectionGroup key={group.title} title={group.title} vehicles={group.vehicles} />
+        <SectionGroup key={group.title} icon={group.icon} title={group.title} vehicles={group.vehicles} />
       ))}
 
       {groupedData.every((g) => g.vehicles.length === 0) && (

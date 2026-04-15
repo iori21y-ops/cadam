@@ -16,6 +16,7 @@ import { BRAND } from '@/constants/brand';
 import type { ProductKey } from '@/types/diagnosis';
 import { calcMonthly, conditionLabel, DEFAULT_PERIOD, DEFAULT_MILEAGE, DEFAULT_DOWN_RATE } from '@/lib/calc-monthly';
 import { Footer } from '@/components/Footer';
+import { IconTrophy, IconCarSedan, IconTarget } from '@/components/icons/RentailorIcons';
 
 const PERIOD_LABELS: Record<number, string> = { 36: '36개월', 48: '48개월', 60: '60개월' };
 const MILEAGE_LABELS: Record<number, string> = { 10000: '연 1만km', 20000: '연 2만km', 30000: '연 3만km', 40000: '연 4만km+' };
@@ -118,7 +119,7 @@ export default function ResultPage() {
             transition={{ duration: 0.4, ease: 'easeOut' }}
             className="px-5 pt-8 pb-6 text-center"
           >
-            <span className="text-4xl block mb-3">🏆</span>
+            <span className="block mb-3 flex justify-center"><IconTrophy size={40} className="text-primary" /></span>
             <h1 className="text-[22px] font-bold text-text leading-snug mb-2">
               맞춤 상담 신청 완료!
             </h1>
@@ -160,7 +161,7 @@ export default function ResultPage() {
                 <div className="flex items-center gap-3 mb-3">
                   <div className="w-10 h-10 rounded-full flex items-center justify-center text-lg shrink-0"
                     style={{ background: 'linear-gradient(135deg, #7C3AED, #A78BFA)' }}>
-                    <span className="text-white text-sm">🚗</span>
+                    <IconCarSedan size={18} className="text-white" />
                   </div>
                   <div className="flex-1">
                     <p className="text-[11px] text-text-muted">추천 차종</p>
@@ -212,7 +213,7 @@ export default function ResultPage() {
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full flex items-center justify-center text-lg shrink-0"
                     style={{ background: 'linear-gradient(135deg, #0D1B2A, #D4B96A)' }}>
-                    <span className="text-white text-sm">🎯</span>
+                    <IconTarget size={18} className="text-white" />
                   </div>
                   <div className="flex-1">
                     <p className="text-[11px] text-text-muted">추천 이용방법</p>

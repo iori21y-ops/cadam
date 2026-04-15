@@ -4,6 +4,7 @@ import { useState, useCallback } from 'react';
 import { useQuoteStore } from '@/store/quoteStore';
 import { gtag } from '@/lib/gtag';
 import { SelectCard } from '@/components/ui/SelectCard';
+import { IconBudget } from '@/components/icons/RentailorIcons';
 
 interface BudgetOption {
   label: string;
@@ -55,7 +56,7 @@ export function Step2Budget() {
             disabled={selectedValue !== null}
             onClick={() => handleSelect(opt.value)}
           >
-            <span className="text-2xl shrink-0">💰</span>
+            <IconBudget size={24} className="shrink-0" />
             <div className="min-w-0 flex-1">
               <div className={`text-base font-semibold ${selectedValue === opt.value ? 'text-white' : 'text-text'}`}>
                 {opt.label}

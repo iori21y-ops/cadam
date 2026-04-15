@@ -4,6 +4,8 @@ import { motion } from 'framer-motion';
 import { usePathname, useRouter } from 'next/navigation';
 import { useRef, useState, useEffect } from 'react';
 import { SelectCard } from '@/components/ui/SelectCard';
+import { IconDiagnosis, IconCarSedan, IconMemo, IconShield, IconBolt, IconTarget, type IconProps } from '@/components/icons/RentailorIcons';
+import type React from 'react';
 import { ParkAI } from '@/components/diagnosis/ParkAI';
 import { createBrowserSupabaseClient } from '@/lib/supabase';
 import { DEFAULT_AI_CONFIG } from '@/data/diagnosis-ai';
@@ -15,7 +17,7 @@ const SERVICES = [
   {
     href: '/diagnosis/finance',
     accent: '#C9A84C',
-    emoji: '📊',
+    Icon: IconDiagnosis,
     title: '금융상품 진단',
     description: '할부·리스·렌트·현금 중 나에게 맞는 금융 방식을 1분 만에 알아보세요.',
     color: 'text-finance',
@@ -24,7 +26,7 @@ const SERVICES = [
   {
     href: '/diagnosis/vehicle',
     accent: '#5856D6',
-    emoji: '🚗',
+    Icon: IconCarSedan,
     title: '차종 추천',
     description: '라이프스타일과 예산에 딱 맞는 차종을 추천받으세요.',
     color: 'text-vehicle',
@@ -33,7 +35,7 @@ const SERVICES = [
   {
     href: '/quote',
     accent: '#34C759',
-    emoji: '📋',
+    Icon: IconMemo,
     title: '무료 견적',
     description: '원하는 차종과 조건을 선택하면 전문가가 무료로 견적을 드립니다.',
     color: 'text-success',
@@ -41,10 +43,10 @@ const SERVICES = [
   },
 ];
 
-const BADGES = [
-  { icon: '🔒', text: '개인정보 미수집' },
-  { icon: '⚡', text: '1분 소요' },
-  { icon: '🎯', text: 'AI 맞춤 추천' },
+const BADGES: { Icon: React.ComponentType<IconProps>; text: string }[] = [
+  { Icon: IconShield, text: '개인정보 미수집' },
+  { Icon: IconBolt, text: '1분 소요' },
+  { Icon: IconTarget, text: 'AI 맞춤 추천' },
 ];
 
 export default function DiagnosisPage() {
@@ -112,8 +114,8 @@ export default function DiagnosisPage() {
                     color={ACCENT}
                     onClick={() => handleCardClick(service.href)}
                   >
-                    <span className="text-3xl w-14 h-14 flex items-center justify-center rounded-2xl shrink-0 bg-primary/5">
-                      {service.emoji}
+                    <span className="w-14 h-14 flex items-center justify-center rounded-2xl shrink-0 bg-primary/5">
+                      <service.Icon size={28} className={isActive ? 'text-white' : service.color} />
                     </span>
                     <div className="flex-1 min-w-0">
                       <p
@@ -143,7 +145,7 @@ export default function DiagnosisPage() {
         <div className="flex justify-center gap-4 flex-wrap">
           {BADGES.map((badge) => (
             <div key={badge.text} className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-surface shadow-sm">
-              <span className="text-sm">{badge.icon}</span>
+              <badge.Icon size={15} className="text-primary" />
               <span className="text-[13px] text-text-sub font-medium">{badge.text}</span>
             </div>
           ))}

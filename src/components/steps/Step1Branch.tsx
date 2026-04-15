@@ -6,10 +6,11 @@ import type { SelectionPath } from '@/store/quoteStore';
 import { gtag } from '@/lib/gtag';
 import { motion } from 'framer-motion';
 import { SelectCard } from '@/components/ui/SelectCard';
+import { RenderIcon } from '@/components/icons/RentailorIcons';
 
 interface StepOption {
   path: SelectionPath;
-  emoji: string;
+  icon: string;
   label: string;
   sub: string;
 }
@@ -17,13 +18,13 @@ interface StepOption {
 const STEP_OPTIONS: StepOption[] = [
   {
     path: 'car',
-    emoji: '🚗',
+    icon: 'IconCarSedan',
     label: '차종 먼저 선택할게요',
     sub: '원하는 차량을 직접 고르기',
   },
   {
     path: 'budget',
-    emoji: '💰',
+    icon: 'IconBudget',
     label: '월 예산 먼저 정할게요',
     sub: '예산에 맞는 차량 추천받기',
   },
@@ -76,7 +77,7 @@ export function Step1Branch() {
               disabled={isDisabled}
               onClick={() => handleSelect(opt.path)}
             >
-              <span className="text-2xl shrink-0">{opt.emoji}</span>
+              <RenderIcon name={opt.icon} size={24} className="shrink-0" />
               <div className="min-w-0 flex-1">
                 <div
                   className={`text-[16px] font-medium leading-tight ${

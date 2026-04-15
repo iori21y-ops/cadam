@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { gtag } from '@/lib/gtag';
 import { Button } from '@/components/ui/Button';
+import { IconWarning } from '@/components/icons/RentailorIcons';
 
 interface LeaveModalProps {
   isOpen: boolean;
@@ -43,7 +44,7 @@ export function LeaveModal({ isOpen, onClose, currentStep }: LeaveModalProps) {
             transition={{ duration: 0.2 }}
             className="w-full max-w-[320px] rounded-2xl bg-white p-6 text-center shadow-xl"
           >
-            <div className="text-3xl mb-2">⚠️</div>
+            <div className="mb-2 flex justify-center"><IconWarning size={32} className="text-amber-500" /></div>
             <h3 className="text-xl font-bold text-gray-900 mb-2">
               잠깐, 아직 견적이 완성되지 않았어요!
             </h3>

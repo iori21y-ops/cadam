@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import type { Vehicle } from '@/constants/vehicles';
+import { IconCarSedan } from '@/components/icons/RentailorIcons';
 
 interface CarHeroProps {
   vehicle: Vehicle;
@@ -17,7 +18,7 @@ export function CarHero({ vehicle }: CarHeroProps) {
       <div className="mx-4 mt-4 relative aspect-[4/3] bg-white rounded-2xl overflow-hidden shadow-sm">
         {imageError ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
-            <span className="text-5xl opacity-20">🚗</span>
+            <IconCarSedan size={56} className="opacity-20 text-text-sub" />
             <span className="text-sm text-text-sub">이미지 준비 중</span>
           </div>
         ) : (

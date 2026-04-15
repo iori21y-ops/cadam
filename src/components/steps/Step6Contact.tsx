@@ -12,6 +12,7 @@ import { useQuoteStore } from '@/store/quoteStore';
 import { useToast } from '@/hooks/useToast';
 import { gtag } from '@/lib/gtag';
 import { Button } from '@/components/ui/Button';
+import { IconPhone, IconKakao } from '@/components/icons/RentailorIcons';
 import { loadProgress } from '@/lib/mission-progress';
 import { VEHICLES } from '@/data/diagnosis-vehicles';
 import type { Brand } from '@/constants/vehicles';
@@ -218,7 +219,7 @@ export function Step6Contact() {
             className="w-full p-4 rounded-2xl bg-surface border border-border-solid text-left hover:border-primary transition-colors"
           >
             <div className="flex items-center gap-3">
-              <span className="text-xl">📞</span>
+              <IconPhone size={20} />
               <div>
                 <p className="text-sm font-bold text-text">전화번호로 상담 신청</p>
                 <p className="text-[11px] text-text-sub">전문 상담사가 직접 연락드립니다</p>
@@ -244,7 +245,7 @@ export function Step6Contact() {
             className="w-full p-4 rounded-2xl bg-surface border border-border-solid text-left hover:border-primary transition-colors"
           >
             <div className="flex items-center gap-3">
-              <span className="text-xl">💬</span>
+              <IconKakao size={20} />
               <div>
                 <p className="text-sm font-bold text-text">카카오톡으로 상담하기</p>
                 <p className="text-[11px] text-text-sub">카카오 채널에서 바로 상담 가능</p>
@@ -307,7 +308,7 @@ export function Step6Contact() {
           onClick={() => handleSubmit('phone')}
           className="min-h-12 mt-6 gap-2"
         >
-          {isSubmitting ? (<><span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />요청 중...</>) : '📞 전화 상담 신청'}
+          {isSubmitting ? (<><span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />요청 중...</>) : <><IconPhone size={16} className="mr-1.5" />전화 상담 신청</>}
         </Button>
       </div>
     );
@@ -357,7 +358,7 @@ export function Step6Contact() {
           onClick={() => handleSubmit('email')}
           className="min-h-12 mt-6 gap-2"
         >
-          {isSubmitting ? (<><span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />요청 중...</>) : '📧 이메일로 결과 받기'}
+          {isSubmitting ? (<><span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />요청 중...</>) : '이메일로 결과 받기'}
         </Button>
       </div>
     );
@@ -390,7 +391,7 @@ export function Step6Contact() {
           onClick={() => handleSubmit('kakao')}
           className="min-h-12 gap-2"
         >
-          💬 카카오톡 채널로 이동
+          <IconKakao size={16} className="mr-1.5" />카카오톡 채널로 이동
         </Button>
       </div>
     );

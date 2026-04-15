@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
+import { RenderIcon, IconKakao, IconLink, IconCheck, IconCarSedan, IconTarget } from '@/components/icons/RentailorIcons';
 import { QuizModule } from '@/components/diagnosis/QuizModule';
 import { ParkAI } from '@/components/diagnosis/ParkAI';
 import { DEFAULT_VEHICLE_BASIC, DEFAULT_VEHICLE_DETAIL } from '@/data/diagnosis-vehicle';
@@ -24,9 +25,32 @@ import { useQuoteStore } from '@/store/quoteStore';
 
 const COLOR = '#C9A84C';
 
-function VehicleImage({ imageKey, brand, name, emoji }: { imageKey?: string; brand: string; name: string; emoji: string }) {
+/** Supabase img_emoji(이모지 문자)를 아이콘 이름으로 변환 */
+function emojiToIconName(emoji: string, vehicleClass: string): string {
+  const isMinivan = vehicleClass.includes('밴') || vehicleClass.includes('미니');
+  const isSUV = vehicleClass.includes('SUV');
+  const map: Record<string, string> = {
+    '🚗': 'IconCarCompact',
+    '🚙': isSUV ? 'IconCarSUV' : 'IconCarSedan',
+    '🚘': 'IconCarSedan',
+    '🏎️': 'IconCarPremium',
+    '🚐': isMinivan ? 'IconCarMinivan' : 'IconCarSUV',
+    '⚡': 'IconCarElectric',
+  };
+  return map[emoji] ?? emoji;
+}
+
+function VehicleImage({ imageKey, brand, name, img }: { imageKey?: string; brand: string; name: string; img: string }) {
   const [failed, setFailed] = useState(false);
-  if (!imageKey || failed) return <span className="text-2xl">{emoji}</span>;
+  if (!imageKey || failed) {
+    return (
+      <RenderIcon
+        name={img.startsWith('Icon') ? img : emojiToIconName(img, '')}
+        size={32}
+        className="text-primary/60"
+      />
+    );
+  }
   return (
     <div className="w-16 h-10 relative">
       <Image src={`/cars/${imageKey}.webp`} alt={`${brand} ${name}`} fill sizes="64px" className="object-contain" onError={() => setFailed(true)} />
@@ -149,17 +173,17 @@ function VehResult({ answers, mode, restart, toDetail, onHome, vehicles }: {
           <div className="flex gap-1.5">
             <button
               onClick={handleKakaoShare}
-              className="w-8 h-8 rounded-lg bg-surface flex items-center justify-center text-sm border border-border-solid hover:border-primary transition-colors"
+              className="w-8 h-8 rounded-lg bg-surface flex items-center justify-center border border-border-solid hover:border-primary transition-colors"
               title="카카오톡 공유"
             >
-              💬
+              <IconKakao size={16} className="text-text-sub" />
             </button>
             <button
               onClick={handleShare}
-              className="w-8 h-8 rounded-lg bg-surface flex items-center justify-center text-sm border border-border-solid hover:border-primary transition-colors"
+              className="w-8 h-8 rounded-lg bg-surface flex items-center justify-center border border-border-solid hover:border-primary transition-colors"
               title="링크 복사"
             >
-              {copied ? '✓' : '🔗'}
+              {copied ? <IconCheck size={16} className="text-success" /> : <IconLink size={16} className="text-text-sub" />}
             </button>
           </div>
         </div>
@@ -201,7 +225,7 @@ function VehResult({ answers, mode, restart, toDetail, onHome, vehicles }: {
                 <div className="flex items-center gap-3 mb-3">
                   <div className="flex flex-col items-center gap-1">
                     <RankBadge rank={i} />
-                    <VehicleImage imageKey={v.imageKey} brand={v.brand} name={v.name} emoji={v.img} />
+                    <VehicleImage imageKey={v.imageKey} brand={v.brand} name={v.name} img={v.img} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-0.5">
@@ -367,8 +391,8 @@ function VehResult({ answers, mode, restart, toDetail, onHome, vehicles }: {
         <div className="max-w-lg mx-auto px-5 py-3 flex items-center gap-3">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5 flex-wrap">
-              <span className="text-xs font-bold text-text">🚗 {best.brand} {best.name}</span>
-              {financeSummary && <span className="text-xs text-text-sub">· 🎯 {financeSummary}</span>}
+              <span className="text-xs font-bold text-text flex items-center gap-1"><IconCarSedan size={14} className="text-primary" /> {best.brand} {best.name}</span>
+              {financeSummary && <span className="text-xs text-text-sub flex items-center gap-1">· <IconTarget size={14} className="text-primary" /> {financeSummary}</span>}
             </div>
             <p className="text-[10px] text-text-muted mt-0.5">진단 결과가 자동 반영됩니다</p>
           </div>
@@ -405,7 +429,7 @@ export default function VehiclePage() {
             class: v.diagnosis_class ?? '',
             price: v.base_price ?? 0,
             tags: v.diagnosis_tags ?? [],
-            img: v.img_emoji ?? '🚗',
+            img: emojiToIconName(v.img_emoji ?? '🚗', v.diagnosis_class ?? ''),
             imageKey: v.image_key ?? undefined,
             parentName: v.parent_name ?? undefined,
             highlights: v.highlights ?? undefined,

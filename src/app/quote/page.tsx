@@ -10,6 +10,7 @@ import { Step3Period } from '@/components/steps/Step3Period';
 import { Step5Payment } from '@/components/steps/Step5Payment';
 import { Step6Contact } from '@/components/steps/Step6Contact';
 import { loadProgress } from '@/lib/mission-progress';
+import { IconCarSedan, IconTarget } from '@/components/icons/RentailorIcons';
 
 const LeaveModal = dynamic(
   () => import('@/components/LeaveModal').then((m) => ({ default: m.LeaveModal })),
@@ -84,13 +85,13 @@ export default function QuotePage() {
             <p className="text-[11px] font-semibold text-primary mb-2">AI 진단 결과 반영</p>
             <div className="flex items-center gap-2 flex-wrap">
               {carBrand && carModel && (
-                <span className="text-xs font-bold text-text bg-white px-3 py-1.5 rounded-full border border-border-solid">
-                  🚗 {carBrand} {carModel}
+                <span className="text-xs font-bold text-text bg-white px-3 py-1.5 rounded-full border border-border-solid flex items-center gap-1">
+                  <IconCarSedan size={13} className="text-primary" /> {carBrand} {carModel}
                 </span>
               )}
               {financeSummary && (
-                <span className="text-xs font-bold text-text bg-white px-3 py-1.5 rounded-full border border-border-solid">
-                  🎯 {financeSummary}
+                <span className="text-xs font-bold text-text bg-white px-3 py-1.5 rounded-full border border-border-solid flex items-center gap-1">
+                  <IconTarget size={13} className="text-primary" /> {financeSummary}
                 </span>
               )}
             </div>

@@ -11,24 +11,24 @@ interface Vehicle {
 }
 
 export const VEHICLES: Vehicle[] = [
-  { name: "캐스퍼", brand: "현대", class: "경차", price: 1500, tags: ["경차"], img: "🚗", imageKey: "hyundai-casper" },
-  { name: "모닝", brand: "기아", class: "경차", price: 1300, tags: ["경차"], img: "🚗", imageKey: "kia-morning" },
-  { name: "아반떼", brand: "현대", class: "소형세단", price: 2200, tags: ["소형세단", "하이브리드"], img: "🚙", imageKey: "hyundai-avante" },
-  { name: "쏘나타", brand: "현대", class: "중형세단", price: 3300, tags: ["중형세단", "하이브리드"], img: "🚘", imageKey: "hyundai-sonata" },
-  { name: "K5", brand: "기아", class: "중형세단", price: 3100, tags: ["중형세단", "하이브리드"], img: "🚘", imageKey: "kia-k5" },
-  { name: "그랜저", brand: "현대", class: "대형세단", price: 4500, tags: ["대형세단", "하이브리드"], img: "🏎️", imageKey: "hyundai-grandeur" },
-  { name: "코나", brand: "현대", class: "소형SUV", price: 2600, tags: ["소형SUV", "전기차", "하이브리드"], img: "🚙", imageKey: "hyundai-kona" },
-  { name: "셀토스", brand: "기아", class: "소형SUV", price: 2500, tags: ["소형SUV"], img: "🚙", imageKey: "kia-seltos" },
-  { name: "투싼", brand: "현대", class: "중형SUV", price: 3500, tags: ["중형SUV", "하이브리드"], img: "🚙", imageKey: "hyundai-tucson" },
-  { name: "스포티지", brand: "기아", class: "중형SUV", price: 3400, tags: ["중형SUV", "하이브리드"], img: "🚙", imageKey: "kia-sportage" },
-  { name: "팰리세이드", brand: "현대", class: "대형SUV", price: 5200, tags: ["대형SUV"], img: "🚐", imageKey: "hyundai-palisade" },
-  { name: "카니발", brand: "기아", class: "미니밴", price: 4100, tags: ["미니밴"], img: "🚐", imageKey: "kia-carnival" },
-  { name: "아이오닉5", brand: "현대", class: "중형SUV", price: 5000, tags: ["전기차", "중형SUV"], img: "⚡", imageKey: "hyundai-ioniq5" },
-  { name: "EV6", brand: "기아", class: "중형SUV", price: 5200, tags: ["전기차", "중형SUV", "스포츠"], img: "⚡", imageKey: "kia-ev6" },
+  { name: "캐스퍼", brand: "현대", class: "경차", price: 1500, tags: ["경차"], img: "IconCarCompact", imageKey: "hyundai-casper" },
+  { name: "모닝", brand: "기아", class: "경차", price: 1300, tags: ["경차"], img: "IconCarCompact", imageKey: "kia-morning" },
+  { name: "아반떼", brand: "현대", class: "소형세단", price: 2200, tags: ["소형세단", "하이브리드"], img: "IconCarSedan", imageKey: "hyundai-avante" },
+  { name: "쏘나타", brand: "현대", class: "중형세단", price: 3300, tags: ["중형세단", "하이브리드"], img: "IconCarSedan", imageKey: "hyundai-sonata" },
+  { name: "K5", brand: "기아", class: "중형세단", price: 3100, tags: ["중형세단", "하이브리드"], img: "IconCarSedan", imageKey: "kia-k5" },
+  { name: "그랜저", brand: "현대", class: "대형세단", price: 4500, tags: ["대형세단", "하이브리드"], img: "IconCarPremium", imageKey: "hyundai-grandeur" },
+  { name: "코나", brand: "현대", class: "소형SUV", price: 2600, tags: ["소형SUV", "전기차", "하이브리드"], img: "IconCarSUV", imageKey: "hyundai-kona" },
+  { name: "셀토스", brand: "기아", class: "소형SUV", price: 2500, tags: ["소형SUV"], img: "IconCarSUV", imageKey: "kia-seltos" },
+  { name: "투싼", brand: "현대", class: "중형SUV", price: 3500, tags: ["중형SUV", "하이브리드"], img: "IconCarSUV", imageKey: "hyundai-tucson" },
+  { name: "스포티지", brand: "기아", class: "중형SUV", price: 3400, tags: ["중형SUV", "하이브리드"], img: "IconCarSUV", imageKey: "kia-sportage" },
+  { name: "팰리세이드", brand: "현대", class: "대형SUV", price: 5200, tags: ["대형SUV"], img: "IconCarSUV", imageKey: "hyundai-palisade" },
+  { name: "카니발", brand: "기아", class: "미니밴", price: 4100, tags: ["미니밴"], img: "IconCarMinivan", imageKey: "kia-carnival" },
+  { name: "아이오닉5", brand: "현대", class: "중형SUV", price: 5000, tags: ["전기차", "중형SUV"], img: "IconCarElectric", imageKey: "hyundai-ioniq5" },
+  { name: "EV6", brand: "기아", class: "중형SUV", price: 5200, tags: ["전기차", "중형SUV", "스포츠"], img: "IconCarElectric", imageKey: "kia-ev6" },
   // 제네시스 (프리미엄 3종)
-  { name: "GV70", brand: "제네시스", class: "중형SUV", price: 5500, tags: ["중형SUV", "스포츠"], img: "🏎️", imageKey: "genesis-gv70" },
-  { name: "G80", brand: "제네시스", class: "대형세단", price: 6500, tags: ["대형세단"], img: "🏎️", imageKey: "genesis-g80" },
-  { name: "GV80", brand: "제네시스", class: "대형SUV", price: 7500, tags: ["대형SUV"], img: "🏎️", imageKey: "genesis-gv80" },
+  { name: "GV70", brand: "제네시스", class: "중형SUV", price: 5500, tags: ["중형SUV", "스포츠"], img: "IconCarPremium", imageKey: "genesis-gv70" },
+  { name: "G80", brand: "제네시스", class: "대형세단", price: 6500, tags: ["대형세단"], img: "IconCarPremium", imageKey: "genesis-g80" },
+  { name: "GV80", brand: "제네시스", class: "대형SUV", price: 7500, tags: ["대형SUV"], img: "IconCarPremium", imageKey: "genesis-gv80" },
 ];
 
 export const TRIMS: TrimData = {

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { IconCarSedan, IconCalendar, IconRoad, IconBudget, IconCheck } from '@/components/icons/RentailorIcons';
 import { VEHICLE_LIST } from '@/constants/vehicles';
 
 type Step = 'vehicle' | 'details' | 'contact' | 'done';
@@ -153,10 +154,10 @@ export default function DirectPage() {
             <div className="bg-white rounded-xl p-4 border border-gray-100">
               <div className="text-xs text-gray-400 mb-2">선택 내역</div>
               <div className="space-y-1 text-sm text-gray-700">
-                <div>🚗 {selectedModel?.brand} {selectedModel?.model}</div>
-                <div>📅 {period}</div>
-                <div>🛣️ {mileage}</div>
-                <div>💰 {DEPOSIT_OPTIONS.find((d) => d.value === deposit)?.label}</div>
+                <div className="flex items-center gap-1.5"><IconCarSedan size={15} className="text-gray-500" /> {selectedModel?.brand} {selectedModel?.model}</div>
+                <div className="flex items-center gap-1.5"><IconCalendar size={15} className="text-gray-500" /> {period}</div>
+                <div className="flex items-center gap-1.5"><IconRoad size={15} className="text-gray-500" /> {mileage}</div>
+                <div className="flex items-center gap-1.5"><IconBudget size={15} className="text-gray-500" /> {DEPOSIT_OPTIONS.find((d) => d.value === deposit)?.label}</div>
               </div>
             </div>
             <div>
@@ -181,15 +182,15 @@ export default function DirectPage() {
         )}
         {step === 'done' && (
           <div className="text-center py-12 space-y-4">
-            <div className="text-5xl">✅</div>
+            <div className="flex justify-center"><IconCheck size={52} className="text-success" /></div>
             <h1 className="text-xl font-bold text-gray-900">상담 신청 완료!</h1>
             <p className="text-sm text-gray-500">빠른 시간 내에 맞춤 견적을 보내드리겠습니다.<br />감사합니다.</p>
             <div className="bg-white rounded-xl p-4 border border-gray-100 text-left max-w-xs mx-auto">
               <div className="space-y-1 text-sm text-gray-700">
-                <div>🚗 {selectedModel?.brand} {selectedModel?.model}</div>
-                <div>📅 {period}</div>
-                <div>🛣️ {mileage}</div>
-                <div>💰 {DEPOSIT_OPTIONS.find((d) => d.value === deposit)?.label}</div>
+                <div className="flex items-center gap-1.5"><IconCarSedan size={15} className="text-gray-500" /> {selectedModel?.brand} {selectedModel?.model}</div>
+                <div className="flex items-center gap-1.5"><IconCalendar size={15} className="text-gray-500" /> {period}</div>
+                <div className="flex items-center gap-1.5"><IconRoad size={15} className="text-gray-500" /> {mileage}</div>
+                <div className="flex items-center gap-1.5"><IconBudget size={15} className="text-gray-500" /> {DEPOSIT_OPTIONS.find((d) => d.value === deposit)?.label}</div>
               </div>
             </div>
           </div>

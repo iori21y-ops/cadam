@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { DEFAULT_AI_CONFIG, getConfigHash } from '@/data/diagnosis-ai';
 import type { AIConfig } from '@/types/diagnosis';
+import { RenderIcon } from '@/components/icons/RentailorIcons';
 
 // 세션 단위 호출 카운트 & 캐시 (모듈 스코프)
 let callCount = 0;
@@ -158,7 +159,9 @@ export function ParkAI({ ctx, cfg, mode = 'short', variant = 'dark', staticText 
           className="w-11 h-11 rounded-full flex items-center justify-center text-xl shrink-0"
           style={{ backgroundColor: colors.iconBg }}
         >
-          {config.charEmoji}
+          {config.charEmoji.startsWith('Icon')
+            ? <RenderIcon name={config.charEmoji} size={22} />
+            : config.charEmoji}
         </div>
 
         <div className="flex-1 min-w-0">

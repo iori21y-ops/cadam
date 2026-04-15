@@ -15,6 +15,7 @@ import { NextMission } from '@/components/diagnosis/NextMission';
 import { buildShareUrl, copyShareUrl, shareToKakao, nativeShare } from '@/lib/diagnosis-share';
 import { Button } from '@/components/ui/Button';
 import { saveMissionStep, loadProgress } from '@/lib/mission-progress';
+import { IconKakao, IconLink, IconCheck, IconTip, IconWarning, IconCarSedan } from '@/components/icons/RentailorIcons';
 import { useQuoteStore } from '@/store/quoteStore';
 
 const COLOR = '#10B981';
@@ -128,17 +129,17 @@ function FinResult({ answers, questions, mode, restart, toDetail, onHome }: {
           <div className="flex gap-1.5">
             <button
               onClick={handleKakaoShare}
-              className="w-8 h-8 rounded-lg bg-surface flex items-center justify-center text-sm border border-border-solid hover:border-primary transition-colors"
+              className="w-8 h-8 rounded-lg bg-surface flex items-center justify-center border border-border-solid hover:border-primary transition-colors"
               title="카카오톡 공유"
             >
-              💬
+              <IconKakao size={16} className="text-text-sub" />
             </button>
             <button
               onClick={handleShare}
-              className="w-8 h-8 rounded-lg bg-surface flex items-center justify-center text-sm border border-border-solid hover:border-primary transition-colors"
+              className="w-8 h-8 rounded-lg bg-surface flex items-center justify-center border border-border-solid hover:border-primary transition-colors"
               title="링크 복사"
             >
-              {copied ? '✓' : '🔗'}
+              {copied ? <IconCheck size={16} className="text-success" /> : <IconLink size={16} className="text-text-sub" />}
             </button>
           </div>
         </div>
@@ -178,7 +179,7 @@ function FinResult({ answers, questions, mode, restart, toDetail, onHome }: {
             {/* 절약 포인트 */}
             {savingPoints.length > 0 && (
               <div className="mb-4">
-                <p className="text-[12px] font-semibold text-success mb-2">✨ 절약 포인트</p>
+                <p className="text-[12px] font-semibold text-success mb-2 flex items-center gap-1"><IconTip size={13} /> 절약 포인트</p>
                 <div className="flex flex-col gap-1.5">
                   {savingPoints.map((point, i) => (
                     <p key={i} className="text-[12px] text-text-sub pl-1">
@@ -192,7 +193,7 @@ function FinResult({ answers, questions, mode, restart, toDetail, onHome }: {
             {/* 불리한 점 */}
             {reasons.length > 0 && (
               <div className="mb-4">
-                <p className="text-[12px] font-semibold text-danger mb-2">⚠️ 참고사항</p>
+                <p className="text-[12px] font-semibold text-danger mb-2 flex items-center gap-1"><IconWarning size={13} /> 참고사항</p>
                 <div className="flex flex-col gap-1.5">
                   {reasons.map((reason, i) => (
                     <p key={i} className="text-[12px] text-text-sub pl-1">
@@ -266,7 +267,7 @@ function FinResult({ answers, questions, mode, restart, toDetail, onHome }: {
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5 flex-wrap">
               <span className="text-xs font-bold text-text">{tierData.emoji} 장기렌트 {score}%</span>
-              {vehicleSummary && <span className="text-xs text-text-sub">· 🚗 {vehicleSummary}</span>}
+              {vehicleSummary && <span className="text-xs text-text-sub flex items-center gap-1">· <IconCarSedan size={13} className="text-text-sub" /> {vehicleSummary}</span>}
             </div>
             <p className="text-[10px] text-text-muted mt-0.5">진단 결과가 자동 반영됩니다</p>
           </div>

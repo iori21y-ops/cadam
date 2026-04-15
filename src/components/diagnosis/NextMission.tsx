@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { loadProgress } from '@/lib/mission-progress';
 import { useQuoteStore } from '@/store/quoteStore';
 import type { MissionProgress } from '@/lib/mission-progress';
+import { RenderIcon, IconTrophy } from '@/components/icons/RentailorIcons';
 
 interface NextMissionProps {
   current: 'vehicle' | 'finance';
@@ -12,13 +13,13 @@ interface NextMissionProps {
 
 const MISSION_INFO = {
   vehicle: {
-    emoji: '🚗',
+    icon: 'IconCarSedan',
     title: '차종 진단',
     href: '/diagnosis/vehicle',
     desc: '라이프스타일에 맞는 차종을 추천받아 보세요',
   },
   finance: {
-    emoji: '🎯',
+    icon: 'IconTarget',
     title: '장기렌트 절약 진단',
     href: '/diagnosis/finance',
     desc: '장기렌트 적합도를 분석해 절약 포인트를 알아보세요',
@@ -61,7 +62,7 @@ export function NextMission({ current }: NextMissionProps) {
         className="w-full rounded-2xl p-5 text-center text-white transition-all hover:shadow-lg active:scale-[0.98]"
         style={{ background: 'linear-gradient(135deg, #F59E0B, #FBBF24)' }}
       >
-        <span className="text-xl block mb-1">🏆</span>
+        <span className="block mb-1 flex justify-center"><IconTrophy size={20} /></span>
         <p className="text-[15px] font-bold mb-1">2단계 진단 모두 완료!</p>
         <p className="text-xs text-white/80 mb-3">진단 결과를 바탕으로 맞춤 상담을 받아보세요</p>
         <span className="inline-block px-4 py-2 rounded-xl bg-white text-amber-600 font-bold text-sm">
@@ -119,7 +120,7 @@ export function NextMission({ current }: NextMissionProps) {
             className="w-full px-5 py-4 flex items-center gap-3 border-t border-border transition-colors hover:bg-surface-secondary/50 active:bg-surface-secondary"
           >
             <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-              <span className="text-lg">{next.emoji}</span>
+              <RenderIcon name={next.icon} size={20} />
             </div>
             <div className="flex-1 min-w-0 text-left">
               <p className="text-[13px] text-primary font-semibold mb-0.5">
