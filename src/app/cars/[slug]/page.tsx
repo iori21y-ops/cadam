@@ -1,6 +1,7 @@
 import { Suspense } from 'react';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import Link from 'next/link';
 import { VEHICLE_LIST, getVehicleBySlug } from '@/constants/vehicles';
 import { createServerSupabaseClient } from '@/lib/supabase-server';
 import { CarHero } from '@/components/cars/CarHero';
@@ -141,7 +142,19 @@ async function CarPageContent({ slug }: { slug: string }) {
       <ServiceSteps />
 
       {/* 4. 트림별 출고가 (vehicle_trims 데이터 있을 때만 표시) */}
-      {vs?.id && <TrimPriceTable vehicleId={vs.id} />}
+      {vs?.id && (
+        <>
+          <TrimPriceTable vehicleId={vs.id} />
+          <section className="px-5 -mt-4 pb-6">
+            <Link
+              href={`/cars/${vehicle.slug}/options`}
+              className="flex items-center justify-center gap-1.5 w-full py-3 rounded-xl border border-primary text-primary text-sm font-semibold"
+            >
+              옵션 상세 보기 →
+            </Link>
+          </section>
+        </>
+      )}
 
       {/* 5. 조건별 가격 비교표 (데이터 있을 때만) */}
       {priceRows.length > 0 && (
