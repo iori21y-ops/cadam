@@ -73,20 +73,22 @@ export function ParkAI({ ctx, cfg, mode = 'short', variant = 'dark', staticText 
   // ─── 색상 토큰 ───
   const colors = isDark
     ? {
-        bg: 'linear-gradient(135deg, #1D1D1F, #2C2C2E)',
-        border: 'none',
-        iconBg: config.bgColor || '#C9A84C',
-        title: 'text-white',
-        subtitle: 'text-white/60',
-        body: 'text-white/85',
-        bodyMuted: 'text-white/80',
-        remaining: 'text-white/40',
-        loaderDot: 'bg-white/40',
-        loaderText: 'text-white/50',
-        hr: 'border-white/10',
-        heading: 'text-white',
-        bold: 'text-white font-semibold',
-        collapsed: 'text-white/70',
+        bg: '#0D1B2A',
+        border: '1px solid rgba(201,168,76,0.2)',
+        iconBg: 'rgba(201,168,76,0.2)',
+        title: 'text-gold-gradient',
+        subtitle: 'text-[#F5F0E8]/50',
+        body: 'text-[#F5F0E8]',
+        bodyMuted: 'text-[#F5F0E8]/80',
+        remaining: 'text-[#F5F0E8]/40',
+        loaderDot: 'bg-[#C9A84C]/40',
+        loaderText: 'text-[#C9A84C]/50',
+        hr: 'border-[#C9A84C]/20',
+        heading: 'text-[#F5F0E8]',
+        bold: 'text-[#F5F0E8] font-semibold',
+        collapsed: 'text-[#F5F0E8]/70',
+        toggleBtn: 'bg-[#C9A84C]/15 text-[#C9A84C]',
+        toggleBtnExpanded: 'bg-[#C9A84C]/10 text-[#C9A84C]',
       }
     : {
         bg: `${config.bgColor || '#C9A84C'}0D`, // 5% opacity
@@ -103,6 +105,8 @@ export function ParkAI({ ctx, cfg, mode = 'short', variant = 'dark', staticText 
         heading: 'text-text',
         bold: 'text-text font-semibold',
         collapsed: 'text-text-sub',
+        toggleBtn: 'bg-primary/15 text-primary',
+        toggleBtnExpanded: 'bg-black/10 text-gray-700',
       };
 
   // 리포트 모드 렌더링
@@ -174,7 +178,7 @@ export function ParkAI({ ctx, cfg, mode = 'short', variant = 'dark', staticText 
             </div>
             <div className="flex items-center gap-2">
               {isReport && comment && (
-                <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${expanded ? 'bg-black/10 text-gray-700' : 'bg-primary/15 text-primary'}`}>
+                <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${expanded ? colors.toggleBtnExpanded : colors.toggleBtn}`}>
                   {expanded ? '접기 ▲' : '펼치기 ▼'}
                 </span>
               )}

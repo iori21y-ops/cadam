@@ -80,11 +80,15 @@ export function NextMission({ current }: NextMissionProps) {
         {/* 바로 상담 신청 CTA */}
         <button
           onClick={handleQuoteNav}
-          className="w-full rounded-2xl p-4 text-center transition-all hover:shadow-lg active:scale-[0.98]"
+          className="w-full rounded-2xl p-5 text-center transition-all hover:shadow-lg active:scale-[0.98]"
           style={{ background: '#0D1B2A', color: '#F5F0E8' }}
         >
-          <p className="text-[14px] font-bold mb-1">이 결과로 바로 상담 신청</p>
-          <p className="text-[11px]" style={{ color: 'rgba(245,240,232,0.6)' }}>진단 결과가 자동으로 반영됩니다</p>
+          <span className="block mb-1 flex justify-center text-lg">🎯</span>
+          <p className="text-[15px] font-bold mb-1">이 결과로 바로 상담 신청</p>
+          <p className="text-xs mb-3" style={{ color: 'rgba(245,240,232,0.6)' }}>진단 결과가 자동으로 반영됩니다</p>
+          <span className="inline-block cta-gold text-primary font-bold rounded-xl px-4 py-2 text-sm">
+            맞춤 상담 신청 →
+          </span>
         </button>
 
         {/* 다음 미션 카드 */}
@@ -140,11 +144,15 @@ export function NextMission({ current }: NextMissionProps) {
     <div className="space-y-3">
       <button
         onClick={handleQuoteNav}
-        className="w-full rounded-2xl p-4 text-center transition-all hover:shadow-lg active:scale-[0.98]"
+        className="w-full rounded-2xl p-5 text-center transition-all hover:shadow-lg active:scale-[0.98]"
         style={{ background: '#0D1B2A', color: '#F5F0E8' }}
       >
-        <p className="text-[14px] font-bold mb-1">이 결과로 바로 상담 신청</p>
-        <p className="text-[11px]" style={{ color: 'rgba(245,240,232,0.6)' }}>진단 결과가 자동으로 반영됩니다</p>
+        <span className="block mb-1 flex justify-center text-lg">🎯</span>
+        <p className="text-[15px] font-bold mb-1">이 결과로 바로 상담 신청</p>
+        <p className="text-xs mb-3" style={{ color: 'rgba(245,240,232,0.6)' }}>진단 결과가 자동으로 반영됩니다</p>
+        <span className="inline-block cta-gold text-primary font-bold rounded-xl px-4 py-2 text-sm">
+          맞춤 상담 신청 →
+        </span>
       </button>
 
       <div className="rounded-2xl bg-surface shadow-sm overflow-hidden">
