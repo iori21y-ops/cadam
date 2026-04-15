@@ -20,14 +20,11 @@ export function SelectCard({
   style,
   ...props
 }: SelectCardProps) {
-  const selectedShadow = '0 4px 24px #D4AF3740';
-
   return (
     <button
       {...props}
       style={{
         '--card-accent': color,
-        ...(selected ? { boxShadow: selectedShadow } : {}),
         ...(dimmed ? { opacity: 0.4 } : {}),
         ...style,
       } as React.CSSProperties}
@@ -36,7 +33,7 @@ export function SelectCard({
         'transition-all duration-300',
         compact ? 'p-3' : 'p-7',
         selected
-          ? 'border-[3px] border-gold-gradient shimmer-gold overflow-hidden'
+          ? 'border-[3px] border-gold-gradient shimmer-gold overflow-hidden card-glow-selected'
           : 'border-2 bg-white border-transparent shadow-[0_2px_16px_rgba(0,0,0,0.05)]',
         !selected && !props.disabled
           ? 'hover:border-[color:var(--card-accent)] hover:scale-[1.015]'
