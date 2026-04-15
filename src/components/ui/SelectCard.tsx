@@ -33,10 +33,10 @@ export function SelectCard({
         'transition-all duration-300',
         compact ? 'p-3' : 'p-7',
         selected
-          ? 'border-2 border-transparent bg-[#FFFDF5] scale-[1.015] shadow-[0_6px_20px_rgba(0,0,0,0.09)]'
+          ? 'border-2 border-transparent bg-white/10 scale-[1.02] shadow-[0_6px_20px_rgba(0,0,0,0.09)]'
           : 'border-2 border-transparent bg-white shadow-[0_2px_16px_rgba(0,0,0,0.05)]',
         !selected && !props.disabled
-          ? 'hover:border-[color:var(--card-accent)] hover:scale-[1.015]'
+          ? 'hover:scale-[1.015]'
           : '',
         props.disabled ? 'cursor-default' : 'cursor-pointer',
         className,
