@@ -9,7 +9,7 @@
  */
 
 import { NextResponse } from 'next/server';
-import { createServerSupabaseClient } from '@/lib/supabase-server';
+import { createServerSupabaseClient, createServiceRoleSupabaseClient } from '@/lib/supabase-server';
 import { calcMonthly, getFinanceRates } from '@/lib/calc-monthly';
 import type { ProductKey } from '@/types/diagnosis';
 
@@ -44,14 +44,17 @@ interface TrimRow {
 // ─────────────────────────────────────────────────────────────
 
 export async function POST() {
-  // ── 인증 확인 ────────────────────────────────────────────────
-  const supabase = await createServerSupabaseClient();
+  // ── 인증 확인 (anon 클라이언트 — 쿠키 세션 확인용) ──────────
+  const authSupabase = await createServerSupabaseClient();
   const {
     data: { user },
-  } = await supabase.auth.getUser();
+  } = await authSupabase.auth.getUser();
   if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
+
+  // ── DB 작업은 service role 사용 (vehicle_trims RLS 우회) ────
+  const supabase = createServiceRoleSupabaseClient();
 
   try {
     const generatedAt = new Date().toISOString();

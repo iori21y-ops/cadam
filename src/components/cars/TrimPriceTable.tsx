@@ -1,4 +1,4 @@
-import { createServerSupabaseClient } from '@/lib/supabase-server';
+import { createServiceRoleSupabaseClient } from '@/lib/supabase-server';
 
 interface TrimRow {
   id: string;
@@ -33,7 +33,8 @@ interface TrimPriceTableProps {
 }
 
 export async function TrimPriceTable({ vehicleId }: TrimPriceTableProps) {
-  const supabase = await createServerSupabaseClient();
+  // vehicle_trims에 anon 읽기 RLS 정책이 없으므로 service role 사용
+  const supabase = createServiceRoleSupabaseClient();
 
   const [{ data: trimData }, { data: optionData }] = await Promise.all([
     supabase
