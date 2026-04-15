@@ -51,7 +51,7 @@ function IconBack() {
 }
 
 function CategoryIcon({ category }: { category: string | null }) {
-  const cls = 'w-8 h-8 text-gray-400';
+  const cls = 'w-8 h-8 text-text-muted';
   switch (category) {
     case '외관':
       return (
@@ -116,7 +116,7 @@ function OptionCard({ opt }: { opt: OptionRow }) {
         <div className="flex items-start justify-between gap-1.5 mb-1">
           <span className="text-sm font-bold text-text leading-snug">{opt.option_name}</span>
           {category && (
-            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary shrink-0 leading-5">
+            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-accent/10 text-accent shrink-0 leading-5">
               {category}
             </span>
           )}

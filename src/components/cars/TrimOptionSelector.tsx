@@ -66,7 +66,7 @@ function OptionAccordion({
   const total = selected.reduce((sum, o) => sum + o.option_price, 0);
 
   return (
-    <div className="border-b border-gray-100 last:border-b-0">
+    <div className="border-b border-border-solid last:border-b-0">
       <button
         type="button"
         onClick={onToggle}
@@ -76,7 +76,7 @@ function OptionAccordion({
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-sm font-semibold text-text">{title}</span>
             {!isOpen && selected.length > 0 && (
-              <span className="text-xs text-blue-500 font-medium">
+              <span className="text-xs text-accent font-medium">
                 {selected.length}개 선택 · +{formatManwon(total)}
               </span>
             )}
@@ -99,8 +99,8 @@ function OptionAccordion({
               key={opt.id}
               className={`flex items-center justify-between px-3 py-3 rounded-xl border cursor-pointer transition-colors ${
                 selectedIds.has(opt.id)
-                  ? 'border-blue-500 bg-blue-50'
-                  : 'border-gray-200 bg-white'
+                  ? 'border-accent bg-accent/10'
+                  : 'border-border-solid bg-white'
               }`}
             >
               <div className="flex items-center gap-2 min-w-0">
@@ -108,7 +108,7 @@ function OptionAccordion({
                   type="checkbox"
                   checked={selectedIds.has(opt.id)}
                   onChange={() => onToggleOption(opt.id)}
-                  className="accent-blue-500 shrink-0"
+                  className="accent-accent shrink-0"
                 />
                 <span className="text-sm text-text truncate">{opt.option_name}</span>
               </div>
@@ -176,12 +176,12 @@ export function TrimOptionSelector({ trims, options, slug }: TrimOptionSelectorP
 
       <div className="bg-white rounded-2xl border border-border-solid shadow-sm overflow-hidden">
         {/* 트림 선택 */}
-        <div className="px-4 pt-4 pb-3 border-b border-gray-100">
+        <div className="px-4 pt-4 pb-3 border-b border-border-solid">
           <p className="text-xs text-text-sub mb-1.5">트림 선택</p>
           <select
             value={selectedTrimId}
             onChange={(e) => handleTrimChange(e.target.value)}
-            className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-text bg-surface-secondary focus:outline-none focus:border-blue-400"
+            className="w-full border border-border-solid rounded-xl px-4 py-3 text-sm text-text bg-surface-secondary focus:outline-none focus:border-accent"
           >
             {trims.map((trim) => (
               <option key={trim.id} value={trim.id}>
@@ -194,7 +194,7 @@ export function TrimOptionSelector({ trims, options, slug }: TrimOptionSelectorP
             selectedTrim.tax_reduced_price !== selectedTrim.base_price && (
               <p className="text-xs text-text-sub mt-1.5">
                 개소세 감면 시{' '}
-                <span className="font-semibold text-blue-500">
+                <span className="font-semibold text-accent">
                   {formatManwon(selectedTrim.tax_reduced_price)}
                 </span>
               </p>
@@ -237,7 +237,7 @@ export function TrimOptionSelector({ trims, options, slug }: TrimOptionSelectorP
               <span className="text-sm text-text">+{formatManwon(selectedOptionsTotal)}</span>
             </div>
           )}
-          <div className="border-t border-gray-200 mt-2 pt-3 flex items-center justify-between">
+          <div className="border-t border-border-solid mt-2 pt-3 flex items-center justify-between">
             <span className="text-sm font-bold text-text">최종 차량가격</span>
             <span className="text-xl font-extrabold text-primary">{formatManwon(finalPrice)}</span>
           </div>

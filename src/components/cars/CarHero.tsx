@@ -14,7 +14,7 @@ export function CarHero({ vehicle }: CarHeroProps) {
   return (
     <section className="bg-white">
       {/* 차량 이미지 영역 */}
-      <div className="relative w-full aspect-[4/3] bg-white rounded">
+      <div className="relative w-full aspect-[4/3] bg-white rounded-2xl overflow-hidden">
         {imageError ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
             <span className="text-5xl opacity-20">🚗</span>
