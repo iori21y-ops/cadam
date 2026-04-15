@@ -86,7 +86,7 @@ export function toInfoArticle(post: WpPost): InfoArticleShape {
     id: `wp-${post.id}`,
     title: decodeEntities(post.title.rendered),
     excerpt: stripTags(post.excerpt.rendered) || null,
-    linkUrl: `/blog/${post.slug}`,
+    linkUrl: post.link,
     thumbnailUrl: pickThumbnail(post),
     sourceType: 'blog',
     publishedAt: post.date,
