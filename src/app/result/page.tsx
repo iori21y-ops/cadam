@@ -119,7 +119,7 @@ export default function ResultPage() {
             transition={{ duration: 0.4, ease: 'easeOut' }}
             className="px-5 pt-8 pb-6 text-center"
           >
-            <span className="block mb-3 flex justify-center"><IconTrophy size={40} className="text-primary" /></span>
+            <span className="block mb-3 flex justify-center"><span className="shimmer-gold inline-flex rounded-full"><IconTrophy size={40} className="text-primary" /></span></span>
             <h1 className="text-[22px] font-bold text-text leading-snug mb-2">
               맞춤 상담 신청 완료!
             </h1>

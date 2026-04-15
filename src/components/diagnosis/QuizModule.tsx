@@ -262,8 +262,8 @@ export function QuizModule({ basicQs, detailQs, color, onHome, savedResult, rend
         </div>
         <div className="w-full h-1 rounded-full overflow-hidden" style={{ background: '#E5E5EA' }}>
           <div
-            className="h-full rounded-full"
-            style={{ width: `${progressPct}%`, background: 'linear-gradient(90deg, #D4AF37, #C9A84C, #B8960C)', transition: 'width 0.5s ease' }}
+            className="h-full rounded-full shimmer-gold"
+            style={{ width: `${progressPct}%`, background: 'linear-gradient(90deg, #F0D060, #D4AF37, #8B7320)', transition: 'width 0.5s ease' }}
           />
         </div>
       </div>
