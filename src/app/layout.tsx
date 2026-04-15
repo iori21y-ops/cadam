@@ -9,6 +9,7 @@ import { GAPageView } from '@/components/GAPageView';
 import { DynamicToast } from '@/components/DynamicToast';
 import { PageTransition } from '@/components/PageTransition';
 import { BRAND } from '@/constants/brand';
+import { GoldDefs } from '@/components/icons/GoldDefs';
 
 const pretendard = localFont({
   src: './fonts/PretendardVariable.woff2',
@@ -74,6 +75,7 @@ export default function RootLayout({
   return (
     <html lang="ko" className={`${pretendard.variable} ${cormorant.variable} ${outfit.variable} bg-surface-secondary`}>
       <body className={`${pretendard.className} antialiased`}>
+        <GoldDefs />
         <div className="max-w-[1024px] mx-auto w-full min-w-0 bg-surface-secondary shadow-2xl">
           <GAPageView />
           <NavBar />
