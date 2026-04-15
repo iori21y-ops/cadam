@@ -25,7 +25,7 @@ export default function MobileTabBar() {
 
   return (
     <>
-      <div className="h-20 md:hidden" aria-hidden="true" />
+      <div className="h-20 md:hidden bg-surface-secondary" aria-hidden="true" />
       <div
         className="fixed inset-0 pointer-events-none flex flex-col justify-end z-50 md:hidden"
         style={{ willChange: 'transform' }}
