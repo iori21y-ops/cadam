@@ -12,6 +12,7 @@ import { CarCtaSection } from '@/components/cars/CarCtaSection';
 import { CarFaq } from '@/components/cars/CarFaq';
 import { RelatedCars } from '@/components/cars/RelatedCars';
 import { CarSeoAnalytics } from '@/components/cars/CarSeoAnalytics';
+import { TrimPriceTable } from '@/components/cars/TrimPriceTable';
 
 export const revalidate = 3600;
 
@@ -27,6 +28,7 @@ interface PriceRangeRow {
 }
 
 interface VehicleDbRow {
+  id: string;
   min_price: number | null;
   max_price: number | null;
 }
@@ -101,7 +103,7 @@ async function CarPageContent({ slug }: { slug: string }) {
         .order('display_order', { ascending: true }),
       supabase
         .from('vehicles')
-        .select('min_price, max_price')
+        .select('id, min_price, max_price')
         .eq('slug', vehicle.slug)
         .maybeSingle(),
     ]);
@@ -138,7 +140,10 @@ async function CarPageContent({ slug }: { slug: string }) {
       {/* 3. 이용 절차 */}
       <ServiceSteps />
 
-      {/* 4. 조건별 가격 비교표 (데이터 있을 때만) */}
+      {/* 4. 트림별 출고가 (vehicle_trims 데이터 있을 때만 표시) */}
+      {vs?.id && <TrimPriceTable vehicleId={vs.id} />}
+
+      {/* 5. 조건별 가격 비교표 (데이터 있을 때만) */}
       {priceRows.length > 0 && (
         <section className="px-5 pb-8">
           <h2 className="text-lg font-bold text-text mb-4">조건별 월 납입금 비교</h2>
