@@ -41,7 +41,7 @@ export function SelectCard({
           ? 'bg-white border-transparent shadow-[0_2px_16px_rgba(0,0,0,0.05)]'
           : '',
         !selected && !props.disabled
-          ? 'hover:border-[var(--card-accent)] hover:scale-[1.015]'
+          ? 'hover:border-[color:var(--card-accent)] hover:scale-[1.015]'
           : '',
         props.disabled ? 'cursor-default' : 'cursor-pointer',
         className,
