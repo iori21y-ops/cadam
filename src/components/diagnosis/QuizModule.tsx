@@ -198,7 +198,7 @@ export function QuizModule({ basicQs, detailQs, color, onHome, savedResult, rend
     ];
     return (
       <div
-        className="px-5 max-w-[460px] mx-auto"
+        className="min-h-screen px-5 max-w-[460px] mx-auto"
         style={{ paddingTop: 'clamp(40px, 8vh, 80px)' }}
       >
         <h2 className="text-center font-bold text-text leading-tight mb-2"
