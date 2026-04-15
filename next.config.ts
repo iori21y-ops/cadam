@@ -1,6 +1,15 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  async redirects() {
+    return [
+      {
+        source: '/cars/grandeur-gn7',
+        destination: '/cars/grandeur',
+        permanent: true,
+      },
+    ];
+  },
   compress: true,
   images: {
     formats: ['image/avif', 'image/webp'],
