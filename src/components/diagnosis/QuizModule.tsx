@@ -201,7 +201,7 @@ export function QuizModule({ basicQs, detailQs, color, onHome, savedResult, rend
         className="min-h-screen bg-surface-secondary px-5 max-w-[460px] mx-auto"
         style={{ paddingTop: 'clamp(40px, 8vh, 80px)' }}
       >
-        <h2 className="text-center font-bold text-text leading-tight mb-2"
+        <h2 className="text-center font-bold leading-tight mb-2 text-gold-gradient"
           style={{ fontSize: 'clamp(26px, 5vw, 34px)' }}>
           진단 방식을<br />선택해주세요.
         </h2>
@@ -263,7 +263,7 @@ export function QuizModule({ basicQs, detailQs, color, onHome, savedResult, rend
         <div className="w-full h-1 rounded-full overflow-hidden" style={{ background: '#E5E5EA' }}>
           <div
             className="h-full rounded-full"
-            style={{ width: `${progressPct}%`, background: '#C9A84C', transition: 'width 0.5s ease' }}
+            style={{ width: `${progressPct}%`, background: 'linear-gradient(90deg, #D4AF37, #C9A84C, #B8960C)', transition: 'width 0.5s ease' }}
           />
         </div>
       </div>
@@ -318,7 +318,7 @@ export function QuizModule({ basicQs, detailQs, color, onHome, savedResult, rend
               <Button type="button" variant="secondary" size="lg" className="flex-1" onClick={handleBack}>
                 이전
               </Button>
-              <Button type="button" variant="primary" size="lg" className="flex-1" onClick={handleNext}>
+              <Button type="button" variant="primary" size="lg" className="flex-1 shimmer-gold" onClick={handleNext}>
                 다음
               </Button>
             </div>

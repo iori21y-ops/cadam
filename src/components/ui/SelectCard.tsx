@@ -27,9 +27,7 @@ export function SelectCard({
       {...props}
       style={{
         '--card-accent': color,
-        ...(selected
-          ? { background: 'rgba(201, 168, 76, 0.2)', borderColor: '#C9A84C', boxShadow: selectedShadow }
-          : {}),
+        ...(selected ? { boxShadow: selectedShadow } : {}),
         ...(dimmed ? { opacity: 0.4 } : {}),
         ...style,
       } as React.CSSProperties}
@@ -37,9 +35,9 @@ export function SelectCard({
         'relative w-full rounded-[20px] text-left flex items-center gap-3',
         'border-2 transition-all duration-300',
         compact ? 'p-3' : 'p-7',
-        !selected
-          ? 'bg-white border-transparent shadow-[0_2px_16px_rgba(0,0,0,0.05)]'
-          : '',
+        selected
+          ? 'border-gold-gradient'
+          : 'bg-white border-transparent shadow-[0_2px_16px_rgba(0,0,0,0.05)]',
         !selected && !props.disabled
           ? 'hover:border-[color:var(--card-accent)] hover:scale-[1.015]'
           : '',

@@ -192,7 +192,7 @@ function VehResult({ answers, mode, restart, toDetail, onHome, vehicles }: {
         <motion.div initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.35, ease: 'easeOut' }}>
           <p className="text-sm text-text-sub mb-1">차종 추천 결과</p>
           <h1 className="text-2xl font-bold text-text tracking-tight mb-4">
-            <span style={{ color: COLOR }}>{best.name}</span>을(를)<br />추천합니다
+            <span className="text-gold-gradient">{best.name}</span>을(를)<br />추천합니다
           </h1>
         </motion.div>
 

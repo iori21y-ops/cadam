@@ -94,7 +94,7 @@ export function StepLayout({
           </Button>
         )}
         {showNext && (
-          <Button type="button" variant="primary" size="lg" disabled={isNextDisabled} className="flex-1" onClick={handleNext}>
+          <Button type="button" variant="primary" size="lg" disabled={isNextDisabled} className="flex-1 shimmer-gold" onClick={handleNext}>
             다음
           </Button>
         )}

@@ -208,3 +208,53 @@ body {
   border-radius: 12px;
   margin: 1.25em 0;
 }
+
+/* ══════════════════════════════════════════════
+   골드 그라데이션 유틸리티
+══════════════════════════════════════════════ */
+
+/* 텍스트 골드 그라데이션 */
+.text-gold-gradient {
+  background: linear-gradient(135deg, #D4AF37, #C9A84C, #B8960C);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* SelectCard 선택 상태 골드 그라데이션 border 트릭
+   (border-color를 transparent로 + background에 padding-box/border-box) */
+.border-gold-gradient {
+  background:
+    linear-gradient(rgba(201, 168, 76, 0.15), rgba(201, 168, 76, 0.15)) padding-box,
+    linear-gradient(135deg, #D4AF37, #C9A84C, #B8960C) border-box;
+  border-color: transparent !important;
+}
+
+/* CTA 버튼 shimmer 애니메이션 */
+@keyframes shimmer-sweep {
+  0%   { transform: translateX(-150%) skewX(-20deg); }
+  100% { transform: translateX(400%) skewX(-20deg); }
+}
+
+.shimmer-gold {
+  position: relative;
+  overflow: hidden;
+}
+.shimmer-gold::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 35%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.30) 50%,
+    transparent 100%
+  );
+  transform: translateX(-150%) skewX(-20deg);
+  animation: shimmer-sweep 3.5s ease-in-out infinite;
+  will-change: transform;
+  pointer-events: none;
+}

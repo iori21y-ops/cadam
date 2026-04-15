@@ -59,7 +59,7 @@ export function NextMission({ current }: NextMissionProps) {
     return (
       <button
         onClick={handleQuoteNav}
-        className="w-full rounded-2xl p-5 text-center text-white transition-all hover:shadow-lg active:scale-[0.98]"
+        className="w-full rounded-2xl p-5 text-center text-white transition-all hover:shadow-lg active:scale-[0.98] shimmer-gold"
         style={{ background: 'linear-gradient(135deg, #F59E0B, #FBBF24)' }}
       >
         <span className="block mb-1 flex justify-center"><IconTrophy size={20} /></span>
@@ -80,7 +80,7 @@ export function NextMission({ current }: NextMissionProps) {
         {/* 바로 상담 신청 CTA */}
         <button
           onClick={handleQuoteNav}
-          className="w-full rounded-2xl p-4 text-center text-white transition-all hover:shadow-lg active:scale-[0.98]"
+          className="w-full rounded-2xl p-4 text-center text-white transition-all hover:shadow-lg active:scale-[0.98] shimmer-gold"
           style={{ background: 'linear-gradient(135deg, #0D1B2A, #D4B96A)' }}
         >
           <p className="text-[14px] font-bold mb-1">이 결과로 바로 상담 신청</p>
