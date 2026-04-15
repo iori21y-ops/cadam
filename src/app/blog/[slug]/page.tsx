@@ -68,13 +68,13 @@ export default async function BlogPostPage({
     <article className="min-h-[100dvh] bg-surface-secondary pb-24">
       <div className="max-w-[720px] mx-auto px-5 pt-6">
         <Link
-          href="/info"
+          href="/"
           className="inline-flex items-center gap-1 text-sm text-text-sub hover:text-text transition-colors"
         >
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path d="M10 3l-5 5 5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
-          블로그 목록
+          돌아가기
         </Link>
 
         <header className="mt-6">
