@@ -5,7 +5,6 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useRef, useState, useEffect } from 'react';
 import { SelectCard } from '@/components/ui/SelectCard';
 import { ParkAI } from '@/components/diagnosis/ParkAI';
-import { usePageTransitionStore } from '@/store/pageTransitionStore';
 import { createBrowserSupabaseClient } from '@/lib/supabase';
 import { DEFAULT_AI_CONFIG } from '@/data/diagnosis-ai';
 import type { AIConfig } from '@/types/diagnosis';
@@ -54,10 +53,7 @@ export default function DiagnosisPage() {
   const router = useRouter();
   const [clickedHref, setClickedHref] = useState<string | null>(null);
   const clickedRef = useRef<string | null>(null);
-  const NAV_DELAY_MS = 300;
   const [aiConfig, setAiConfig] = useState<AIConfig>(DEFAULT_AI_CONFIG);
-
-  const triggerPageTransition = usePageTransitionStore((s) => s.trigger);
 
   useEffect(() => {
     const supabase = createBrowserSupabaseClient();
@@ -77,10 +73,7 @@ export default function DiagnosisPage() {
     if (clickedRef.current) return;
     clickedRef.current = href;
     setClickedHref(href);
-    window.setTimeout(() => {
-      triggerPageTransition();
-      router.push(href);
-    }, NAV_DELAY_MS);
+    router.push(href);
   };
 
   return (

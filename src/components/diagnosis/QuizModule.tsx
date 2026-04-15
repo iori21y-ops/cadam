@@ -69,8 +69,6 @@ export function QuizModule({ basicQs, detailQs, color, onHome, savedResult, rend
   const [answers, setAnswers] = useState<Record<string, DiagnosisAnswer>>(initialAnswers);
   const [history, setHistory] = useState<number[]>([]);
   const [selected, setSelected] = useState<DiagnosisAnswer | null>(null);
-  const [selectedMode, setSelectedMode] = useState<'basic' | 'detail' | null>(null);
-  const [anim, setAnim] = useState(false);
 
   const prevIdxRef = useRef(currentIdx);
   const [quizDir, setQuizDir] = useState<1 | -1>(1);
@@ -101,15 +99,7 @@ export function QuizModule({ basicQs, detailQs, color, onHome, savedResult, rend
   };
 
   const pickMode = (m: 'basic' | 'detail') => {
-    setSelectedMode(m);
-    setTimeout(() => {
-      setAnim(true);
-      setTimeout(() => {
-        startQuiz(m);
-        setAnim(false);
-        setSelectedMode(null);
-      }, 350);
-    }, 300);
+    startQuiz(m);
   };
 
   const handleSelect = (option: DiagnosisAnswer) => {
@@ -164,7 +154,6 @@ export function QuizModule({ basicQs, detailQs, color, onHome, savedResult, rend
     setAnswers({});
     setHistory([]);
     setSelected(null);
-    setSelectedMode(null);
   };
 
   // ─── 브라우저 뒤로가기 방지: quiz 화면에서 popstate → handleBack ───
@@ -210,12 +199,7 @@ export function QuizModule({ basicQs, detailQs, color, onHome, savedResult, rend
     return (
       <div
         className="px-5 max-w-[460px] mx-auto"
-        style={{
-          paddingTop: 'clamp(40px, 8vh, 80px)',
-          opacity: anim ? 0 : 1,
-          transform: anim ? 'translateX(-40px)' : 'translateX(0)',
-          transition: 'opacity 0.35s ease, transform 0.35s ease',
-        }}
+        style={{ paddingTop: 'clamp(40px, 8vh, 80px)' }}
       >
         <h2 className="text-center font-bold text-text leading-tight mb-2"
           style={{ fontSize: 'clamp(26px, 5vw, 34px)' }}>
@@ -225,32 +209,25 @@ export function QuizModule({ basicQs, detailQs, color, onHome, savedResult, rend
 
         <div className="flex flex-col gap-3.5">
           {items.map(({ m, title, desc, time, count }) => {
-            const isSel = selectedMode === m;
-            const isDimmed = selectedMode !== null && !isSel;
             return (
               <SelectCard
                 key={m}
-                selected={isSel}
-                dimmed={isDimmed}
-                disabled={!!selectedMode}
                 color={color}
-                onClick={() => !selectedMode && pickMode(m)}
+                onClick={() => pickMode(m)}
               >
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between mb-3.5">
-                    <span className={`text-xs font-semibold px-3 py-1 rounded-lg ${
-                      isSel ? 'bg-white/20 text-white/80' : 'bg-surface-secondary text-text-sub'
-                    }`}>
+                    <span className="text-xs font-semibold px-3 py-1 rounded-lg bg-surface-secondary text-text-sub">
                       {time}
                     </span>
-                    <span className={`text-[13px] ${isSel ? 'text-white/60' : 'text-text-muted'}`}>
+                    <span className="text-[13px] text-text-muted">
                       {count}개
                     </span>
                   </div>
-                  <p className={`text-[22px] font-bold mb-1.5 ${isSel ? 'text-white' : 'text-text'}`}>
+                  <p className="text-[22px] font-bold mb-1.5 text-text">
                     {title}
                   </p>
-                  <p className={`text-sm ${isSel ? 'text-white/70' : 'text-text-sub'}`}>
+                  <p className="text-sm text-text-sub">
                     {desc}
                   </p>
                 </div>

@@ -20,7 +20,7 @@ export function SelectCard({
   style,
   ...props
 }: SelectCardProps) {
-  const selectedShadow = `0 4px 24px ${color}40`;
+  const selectedShadow = '0 4px 24px #C9A84C40';
 
   return (
     <button
@@ -28,7 +28,7 @@ export function SelectCard({
       style={{
         '--card-accent': color,
         ...(selected
-          ? { background: color, borderColor: color, boxShadow: selectedShadow }
+          ? { background: color, borderColor: '#C9A84C', boxShadow: selectedShadow }
           : {}),
         ...(dimmed ? { opacity: 0.4 } : {}),
         ...style,
