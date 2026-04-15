@@ -210,6 +210,22 @@ body {
 }
 
 /* ══════════════════════════════════════════════
+   골드 아이콘 애니메이션 키프레임
+══════════════════════════════════════════════ */
+
+@keyframes goldPulse {
+  0%, 100% { filter: drop-shadow(0 0 0px #C9A84C); }
+  50%       { filter: drop-shadow(0 0 12px #F0D060); }
+}
+
+@keyframes goldShimmer {
+  0%   { stop-color: #8B6914; }
+  33%  { stop-color: #F0D060; }
+  66%  { stop-color: #C9A84C; }
+  100% { stop-color: #8B6914; }
+}
+
+/* ══════════════════════════════════════════════
    골드 그라데이션 유틸리티
 ══════════════════════════════════════════════ */
 
@@ -287,11 +303,7 @@ body {
 .cta-gold {
   position: relative;
   overflow: hidden;
-  border: 3px solid transparent;
-  /* 불투명 골드 배경 + 그라데이션 테두리 동시 적용 */
-  background:
-    linear-gradient(135deg, #F0D060 0%, #E8C84B 30%, #D4AF37 60%, #C9A84C 100%) padding-box,
-    linear-gradient(135deg, #F0D060, #D4AF37, #8B7320) border-box;
+  background: linear-gradient(135deg, #F0D060 0%, #E8C84B 30%, #D4AF37 60%, #C9A84C 100%);
   animation: cta-glow 2.5s ease-in-out infinite;
   transition: filter 0.2s ease, transform 0.15s ease;
 }
