@@ -71,7 +71,7 @@ export function DiagnosisBanner() {
 
         <Link
           href={ctaHref}
-          className="inline-block bg-accent text-primary font-bold rounded-xl px-8 py-4 text-lg transition-all hover:opacity-90 active:scale-[0.97]"
+          className="inline-block cta-gold text-primary font-bold rounded-xl px-8 py-4 text-lg"
         >
           {ctaText}
         </Link>

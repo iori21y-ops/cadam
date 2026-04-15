@@ -273,3 +273,54 @@ body {
 .card-glow-selected {
   animation: gold-glow-pulse 0.65s ease-out forwards;
 }
+
+/* ══════════════════════════════════════════════
+   CTA 골드 버튼 (홈 메인 콜투액션)
+   — 배경 골드 그라데이션 + 3px 그라데이션 테두리
+     + shimmer 빛줄기 + 연속 글로우 펄스
+══════════════════════════════════════════════ */
+@keyframes cta-glow {
+  0%, 100% { box-shadow: 0 4px 20px rgba(212, 175, 55, 0.40), 0 2px 8px rgba(212, 175, 55, 0.22); }
+  50%       { box-shadow: 0 8px 32px rgba(240, 208, 96, 0.65), 0 4px 16px rgba(212, 175, 55, 0.45); }
+}
+
+.cta-gold {
+  position: relative;
+  overflow: hidden;
+  border: 3px solid transparent;
+  /* 불투명 골드 배경 + 그라데이션 테두리 동시 적용 */
+  background:
+    linear-gradient(135deg, #F0D060 0%, #E8C84B 30%, #D4AF37 60%, #C9A84C 100%) padding-box,
+    linear-gradient(135deg, #F0D060, #D4AF37, #8B7320) border-box;
+  animation: cta-glow 2.5s ease-in-out infinite;
+  transition: filter 0.2s ease, transform 0.15s ease;
+}
+
+.cta-gold::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 70%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.52) 50%,
+    transparent 100%
+  );
+  transform: translateX(-200%) skewX(-20deg);
+  animation: shimmer-sweep 3s linear infinite;
+  will-change: transform;
+  pointer-events: none;
+}
+
+.cta-gold:hover {
+  filter: brightness(1.10);
+  transform: translateY(-2px);
+}
+
+.cta-gold:active {
+  transform: scale(0.97) translateY(0);
+  filter: brightness(0.97);
+}

@@ -40,7 +40,7 @@ export function HeroSection() {
       >
         <Link
           href="/diagnosis"
-          className="inline-block bg-accent text-primary font-bold rounded-xl px-8 py-4 text-lg transition-all hover:opacity-90 active:scale-[0.97]"
+          className="inline-block cta-gold text-primary font-bold rounded-xl px-8 py-4 text-lg"
         >
           AI 맞춤 진단 시작 &rarr;
         </Link>
