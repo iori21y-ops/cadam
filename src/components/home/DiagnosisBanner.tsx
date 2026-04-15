@@ -3,21 +3,19 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ClipboardCheck, Sparkles } from 'lucide-react';
-import { loadProgress, restoreFromServer, DEFAULT_PROGRESS } from '@/lib/mission-progress';
+import { loadProgress, DEFAULT_PROGRESS } from '@/lib/mission-progress';
 import type { MissionProgress } from '@/lib/mission-progress';
 
 export function DiagnosisBanner() {
   const [progress, setProgress] = useState<MissionProgress>(DEFAULT_PROGRESS);
 
   useEffect(() => {
-    restoreFromServer().then((p) => setProgress(p));
+    setProgress(loadProgress());
 
     const handler = () => setProgress(loadProgress());
     window.addEventListener('mission-update', handler);
-    window.addEventListener('storage', handler);
     return () => {
       window.removeEventListener('mission-update', handler);
-      window.removeEventListener('storage', handler);
     };
   }, []);
 
