@@ -63,7 +63,7 @@ function stripTags(html: string): string {
 
 function extractFirstBodyImage(html: string): string | null {
   const match = html.match(/<img[^>]+src=["']([^"']+)["']/i);
-  return match ? match[1] : null;
+  return match ? decodeEntities(match[1]) : null;
 }
 
 function pickThumbnail(post: WpPost): string | null {

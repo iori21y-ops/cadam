@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import Image from 'next/image';
 import { fetchWpPosts, type InfoArticleShape } from '@/lib/wp-client';
 
 const FALLBACK_ARTICLES: InfoArticleShape[] = [
@@ -79,14 +78,13 @@ export async function ArticleSection() {
                   </p>
                 )}
               </div>
-              <div className="w-24 h-24 shrink-0 rounded-xl overflow-hidden bg-gray-100 relative">
+              <div className="w-24 h-24 shrink-0 rounded-xl overflow-hidden bg-gray-100">
                 {article.thumbnailUrl ? (
-                  <Image
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
                     src={article.thumbnailUrl}
                     alt={article.title}
-                    fill
-                    className="object-cover"
-                    sizes="96px"
+                    className="w-full h-full object-cover"
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
