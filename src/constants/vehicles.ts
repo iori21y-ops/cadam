@@ -82,13 +82,18 @@ export const VEHICLE_LIST: Vehicle[] = [
   { id: 'g08', brand: '제네시스', model: 'GV90', slug: 'gv90', category: 'EV', segment: '플래그십 SUV (EV)', fuel: '전기', imageKey: 'genesis-gv90', trims: ['프리미엄', '프리미엄 AWD'], seoTitle: 'GV90 장기렌트 | 월 납부금 비교', seoDescription: '제네시스 GV90 장기렌터카. 플래그십 전기 SUV 장기렌트 최저가 견적.' },
 
   // ═══════════════════════════════════
-  // 르노코리아 (5종)
+  // 르노코리아 (10종)
   // ═══════════════════════════════════
   { id: 'rk01', brand: '르노코리아', model: 'QM6', slug: 'qm6', category: 'SUV', segment: '중형 SUV', fuel: '가솔린/LPG', imageKey: 'renault-qm6', trims: ['LE', 'RE', 'RE 시그니처'], seoTitle: 'QM6 장기렌트 | 월 납부금 비교', seoDescription: '르노코리아 QM6 장기렌터카. 중형 SUV 가솔린·LPG 장기렌트 견적을 확인하세요.' },
   { id: 'rk02', brand: '르노코리아', model: 'XM3', slug: 'xm3', category: 'SUV', segment: '소형 SUV', fuel: '가솔린', imageKey: 'renault-xm3', trims: ['LE', 'RE', 'RE 오라'], seoTitle: 'XM3 장기렌트 | 월 납부금 비교', seoDescription: '르노코리아 XM3 장기렌터카. 감각적인 소형 SUV 장기렌트 견적.' },
   { id: 'rk03', brand: '르노코리아', model: 'XM3 하이브리드', slug: 'xm3-hybrid', category: 'SUV', segment: '소형 SUV', fuel: '하이브리드', imageKey: 'renault-xm3-hybrid', trims: ['RE 하이브리드', 'RE 오라 하이브리드'], seoTitle: 'XM3 하이브리드 장기렌트 | 월 납부금 비교', seoDescription: '르노코리아 XM3 하이브리드 장기렌터카. 연비 좋은 소형 SUV 하이브리드 장기렌트.' },
-  { id: 'rk04', brand: '르노코리아', model: '아르카나', slug: 'arkana', category: 'SUV', segment: '소형 SUV 쿠페', fuel: '하이브리드', imageKey: 'renault-arkana', trims: ['LE', 'RE', 'RE 시그니처'], seoTitle: '아르카나 장기렌트 | 월 납부금 비교', seoDescription: '르노코리아 아르카나 하이브리드 장기렌터카. 스타일리시한 SUV 쿠페 장기렌트 견적.' },
+  { id: 'rk04', brand: '르노코리아', model: '아르카나 하이브리드', slug: 'arkana', category: 'SUV', segment: '소형 SUV 쿠페', fuel: '하이브리드', imageKey: 'renault-arkana', trims: ['아이코닉'], seoTitle: '아르카나 하이브리드 장기렌트 | 월 납부금 비교', seoDescription: '르노코리아 아르카나 E-Tech 하이브리드 장기렌터카. 스타일리시한 쿠페형 SUV 장기렌트 견적.' },
   { id: 'rk05', brand: '르노코리아', model: '마스터', slug: 'master', category: '다목적', segment: '대형 밴', fuel: '디젤', imageKey: 'renault-master', trims: ['3인승', '9인승', '12인승'], seoTitle: '마스터 장기렌트 | 월 납부금 비교', seoDescription: '르노코리아 마스터 장기렌터카. 대형 밴 다목적 장기렌트 사업자 전용 견적.' },
+  { id: 'rk06', brand: '르노코리아', model: '아르카나 가솔린', slug: 'arkana-gasoline', category: 'SUV', segment: '소형 SUV 쿠페', fuel: '가솔린', imageKey: 'renault-arkana-gasoline', trims: ['아이코닉'], seoTitle: '아르카나 가솔린 장기렌트 | 월 납부금 비교', seoDescription: '르노코리아 아르카나 1.6 GTe 가솔린 장기렌터카. 쿠페형 소형 SUV 장기렌트 최저가 견적.' },
+  { id: 'rk07', brand: '르노코리아', model: '그랑 콜레오스', slug: 'grand-koleos', category: 'SUV', segment: '중형 SUV', fuel: '가솔린', imageKey: 'renault-grand-koleos', trims: ['테크노', '아이코닉', '에스프리 알핀', '아이코닉 4WD', '에스카파드', '에스카파드 4WD'], seoTitle: '그랑 콜레오스 장기렌트 | 월 납부금 비교', seoDescription: '르노코리아 그랑 콜레오스 가솔린 장기렌터카. 중형 SUV 장기렌트 트림별 최저가 견적.' },
+  { id: 'rk08', brand: '르노코리아', model: '그랑 콜레오스 하이브리드', slug: 'grand-koleos-hybrid', category: 'SUV', segment: '중형 SUV', fuel: '하이브리드', imageKey: 'renault-grand-koleos-hybrid', trims: ['테크노', '아이코닉', '에스프리 알핀', '에스카파드'], seoTitle: '그랑 콜레오스 하이브리드 장기렌트 | 월 납부금 비교', seoDescription: '르노코리아 그랑 콜레오스 E-Tech 하이브리드 장기렌터카. 중형 SUV 하이브리드 장기렌트 견적.' },
+  { id: 'rk09', brand: '르노코리아', model: '필랑트', slug: 'filante', category: '세단', segment: '대형 세단', fuel: '하이브리드', imageKey: 'renault-filante', trims: ['테크노', '아이코닉', 'SE', '에스프리 알핀'], seoTitle: '필랑트 장기렌트 | 월 납부금 비교', seoDescription: '르노코리아 필랑트 E-Tech 하이브리드 장기렌터카. 프리미엄 대형 세단 장기렌트 견적.' },
+  { id: 'rk10', brand: '르노코리아', model: 'SM6', slug: 'sm6', category: '세단', segment: '중형 세단', fuel: '가솔린', imageKey: 'renault-sm6', trims: ['인스파이어'], seoTitle: 'SM6 장기렌트 | 월 납부금 비교', seoDescription: '르노코리아 SM6 TCe 300 장기렌터카. 감성 중형 세단 장기렌트 최저가 견적.' },
 
   // ═══════════════════════════════════
   // KGM (12종)
