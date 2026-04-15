@@ -71,126 +71,126 @@ export default function DirectPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F5F0E8] pb-24">
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
+    <div className="min-h-screen bg-surface-secondary pb-24">
+      <header className="bg-surface border-b border-border-solid sticky top-0 z-10">
         <div className="max-w-lg mx-auto px-4 py-3 flex items-center justify-between">
-          <span className="text-lg font-bold text-gray-900">렌테일러</span>
-          <span className="text-xs text-gray-400">장기렌트 간편 상담</span>
+          <span className="text-lg font-bold text-text">렌테일러</span>
+          <span className="text-xs text-text-muted">장기렌트 간편 상담</span>
         </div>
       </header>
       <main className="max-w-lg mx-auto px-4 py-6">
         {step !== 'done' && (
           <div className="flex gap-1 mb-6">
             {(['vehicle', 'details', 'contact'] as Step[]).map((s, i) => (
-              <div key={s} className={`h-1 flex-1 rounded-full transition-colors ${['vehicle', 'details', 'contact'].indexOf(step) >= i ? 'bg-[#007AFF]' : 'bg-gray-200'}`} />
+              <div key={s} className={`h-1 flex-1 rounded-full transition-colors ${['vehicle', 'details', 'contact'].indexOf(step) >= i ? 'bg-primary' : 'bg-border-solid'}`} />
             ))}
           </div>
         )}
         {step === 'vehicle' && (
           <div className="space-y-4">
             <div>
-              <h1 className="text-xl font-bold text-gray-900">어떤 차량을 찾으시나요?</h1>
-              <p className="text-sm text-gray-500 mt-1">브랜드와 차종을 선택해주세요</p>
+              <h1 className="text-xl font-bold text-text">어떤 차량을 찾으시나요?</h1>
+              <p className="text-sm text-text-sub mt-1">브랜드와 차종을 선택해주세요</p>
             </div>
             <div className="flex gap-2">
               {brands.map((b) => (
-                <button key={b} onClick={() => { setSelectedBrand(b); setSelectedVehicle(''); }} className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-all ${selectedBrand === b ? 'bg-[#007AFF] text-white shadow-sm' : 'bg-white text-gray-600 border border-gray-200'}`}>{b}</button>
+                <button key={b} onClick={() => { setSelectedBrand(b); setSelectedVehicle(''); }} className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-all ${selectedBrand === b ? 'bg-primary text-white shadow-sm' : 'bg-surface text-text-sub border border-border-solid'}`}>{b}</button>
               ))}
             </div>
             {selectedBrand && (
               <div className="grid grid-cols-2 gap-2">
                 {filteredVehicles.map((v) => (
-                  <button key={v.id} onClick={() => setSelectedVehicle(v.id)} className={`p-3 rounded-xl text-left transition-all ${selectedVehicle === v.id ? 'bg-[#007AFF] text-white shadow-sm' : 'bg-white text-gray-700 border border-gray-200'}`}>
+                  <button key={v.id} onClick={() => setSelectedVehicle(v.id)} className={`p-3 rounded-xl text-left transition-all ${selectedVehicle === v.id ? 'bg-primary text-white shadow-sm' : 'bg-surface text-text border border-border-solid'}`}>
                     <div className="text-sm font-medium">{v.model}</div>
-                    <div className={`text-xs mt-0.5 ${selectedVehicle === v.id ? 'text-white/70' : 'text-gray-400'}`}>{v.segment} · {v.fuel}</div>
+                    <div className={`text-xs mt-0.5 ${selectedVehicle === v.id ? 'text-white/70' : 'text-text-muted'}`}>{v.segment} · {v.fuel}</div>
                   </button>
                 ))}
               </div>
             )}
-            <button onClick={() => setStep('details')} disabled={!canGoToDetails} className={`w-full py-3.5 rounded-xl text-sm font-semibold transition-all ${canGoToDetails ? 'bg-[#007AFF] text-white shadow-sm active:scale-[0.98]' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}>다음</button>
+            <button onClick={() => setStep('details')} disabled={!canGoToDetails} className={`w-full py-3.5 rounded-xl text-sm font-semibold transition-all ${canGoToDetails ? 'bg-primary text-white shadow-sm active:scale-[0.98]' : 'bg-surface-secondary text-text-muted border border-border-solid cursor-not-allowed'}`}>다음</button>
           </div>
         )}
         {step === 'details' && (
           <div className="space-y-5">
             <div>
-              <button onClick={() => setStep('vehicle')} className="text-sm text-[#007AFF] mb-2">← 차종 다시 선택</button>
-              <h1 className="text-xl font-bold text-gray-900">렌트 조건을 선택해주세요</h1>
-              <p className="text-sm text-gray-500 mt-1">{selectedModel?.brand} {selectedModel?.model}</p>
+              <button onClick={() => setStep('vehicle')} className="text-sm text-primary mb-2">← 차종 다시 선택</button>
+              <h1 className="text-xl font-bold text-text">렌트 조건을 선택해주세요</h1>
+              <p className="text-sm text-text-sub mt-1">{selectedModel?.brand} {selectedModel?.model}</p>
             </div>
             <div>
-              <label className="text-sm font-medium text-gray-700 block mb-2">계약 기간</label>
+              <label className="text-sm font-medium text-text block mb-2">계약 기간</label>
               <div className="grid grid-cols-2 gap-2">
                 {PERIOD_OPTIONS.map((p) => (
-                  <button key={p} onClick={() => setPeriod(p)} className={`py-2.5 rounded-xl text-sm font-medium transition-all ${period === p ? 'bg-[#007AFF] text-white shadow-sm' : 'bg-white text-gray-600 border border-gray-200'}`}>{p}</button>
+                  <button key={p} onClick={() => setPeriod(p)} className={`py-2.5 rounded-xl text-sm font-medium transition-all ${period === p ? 'bg-primary text-white shadow-sm' : 'bg-surface text-text-sub border border-border-solid'}`}>{p}</button>
                 ))}
               </div>
             </div>
             <div>
-              <label className="text-sm font-medium text-gray-700 block mb-2">연간 주행거리</label>
+              <label className="text-sm font-medium text-text block mb-2">연간 주행거리</label>
               <div className="grid grid-cols-2 gap-2">
                 {MILEAGE_OPTIONS.map((m) => (
-                  <button key={m} onClick={() => setMileage(m)} className={`py-2.5 rounded-xl text-sm font-medium transition-all ${mileage === m ? 'bg-[#007AFF] text-white shadow-sm' : 'bg-white text-gray-600 border border-gray-200'}`}>{m}</button>
+                  <button key={m} onClick={() => setMileage(m)} className={`py-2.5 rounded-xl text-sm font-medium transition-all ${mileage === m ? 'bg-primary text-white shadow-sm' : 'bg-surface text-text-sub border border-border-solid'}`}>{m}</button>
                 ))}
               </div>
             </div>
             <div>
-              <label className="text-sm font-medium text-gray-700 block mb-2">선납금 / 보증금</label>
+              <label className="text-sm font-medium text-text block mb-2">선납금 / 보증금</label>
               <div className="grid grid-cols-2 gap-2">
                 {DEPOSIT_OPTIONS.map((d) => (
-                  <button key={d.value} onClick={() => setDeposit(d.value)} className={`py-2.5 rounded-xl text-sm font-medium transition-all ${deposit === d.value ? 'bg-[#007AFF] text-white shadow-sm' : 'bg-white text-gray-600 border border-gray-200'}`}>{d.label}</button>
+                  <button key={d.value} onClick={() => setDeposit(d.value)} className={`py-2.5 rounded-xl text-sm font-medium transition-all ${deposit === d.value ? 'bg-primary text-white shadow-sm' : 'bg-surface text-text-sub border border-border-solid'}`}>{d.label}</button>
                 ))}
               </div>
             </div>
-            <button onClick={() => setStep('contact')} disabled={!canGoToContact} className={`w-full py-3.5 rounded-xl text-sm font-semibold transition-all ${canGoToContact ? 'bg-[#007AFF] text-white shadow-sm active:scale-[0.98]' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}>다음</button>
+            <button onClick={() => setStep('contact')} disabled={!canGoToContact} className={`w-full py-3.5 rounded-xl text-sm font-semibold transition-all ${canGoToContact ? 'bg-primary text-white shadow-sm active:scale-[0.98]' : 'bg-surface-secondary text-text-muted border border-border-solid cursor-not-allowed'}`}>다음</button>
           </div>
         )}
         {step === 'contact' && (
           <div className="space-y-5">
             <div>
-              <button onClick={() => setStep('details')} className="text-sm text-[#007AFF] mb-2">← 조건 다시 선택</button>
-              <h1 className="text-xl font-bold text-gray-900">연락처를 남겨주세요</h1>
-              <p className="text-sm text-gray-500 mt-1">빠른 시간 내에 맞춤 견적을 보내드립니다</p>
+              <button onClick={() => setStep('details')} className="text-sm text-primary mb-2">← 조건 다시 선택</button>
+              <h1 className="text-xl font-bold text-text">연락처를 남겨주세요</h1>
+              <p className="text-sm text-text-sub mt-1">빠른 시간 내에 맞춤 견적을 보내드립니다</p>
             </div>
-            <div className="bg-white rounded-xl p-4 border border-gray-100">
-              <div className="text-xs text-gray-400 mb-2">선택 내역</div>
-              <div className="space-y-1 text-sm text-gray-700">
-                <div className="flex items-center gap-1.5"><IconCarSedan size={15} className="text-gray-500" /> {selectedModel?.brand} {selectedModel?.model}</div>
-                <div className="flex items-center gap-1.5"><IconCalendar size={15} className="text-gray-500" /> {period}</div>
-                <div className="flex items-center gap-1.5"><IconRoad size={15} className="text-gray-500" /> {mileage}</div>
-                <div className="flex items-center gap-1.5"><IconBudget size={15} className="text-gray-500" /> {DEPOSIT_OPTIONS.find((d) => d.value === deposit)?.label}</div>
+            <div className="bg-surface rounded-xl p-4 border border-border-solid">
+              <div className="text-xs text-text-muted mb-2">선택 내역</div>
+              <div className="space-y-1 text-sm text-text">
+                <div className="flex items-center gap-1.5"><IconCarSedan size={15} className="text-text-sub" /> {selectedModel?.brand} {selectedModel?.model}</div>
+                <div className="flex items-center gap-1.5"><IconCalendar size={15} className="text-text-sub" /> {period}</div>
+                <div className="flex items-center gap-1.5"><IconRoad size={15} className="text-text-sub" /> {mileage}</div>
+                <div className="flex items-center gap-1.5"><IconBudget size={15} className="text-text-sub" /> {DEPOSIT_OPTIONS.find((d) => d.value === deposit)?.label}</div>
               </div>
             </div>
             <div>
-              <label className="text-sm font-medium text-gray-700 block mb-1.5">이름</label>
-              <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="홍길동" className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#007AFF] focus:border-transparent" />
+              <label className="text-sm font-medium text-text block mb-1.5">이름</label>
+              <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="홍길동" className="w-full px-4 py-3 rounded-xl border border-border-solid bg-surface text-sm text-text focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" />
             </div>
             <div>
-              <label className="text-sm font-medium text-gray-700 block mb-1.5">연락처</label>
-              <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="010-0000-0000" className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#007AFF] focus:border-transparent" />
+              <label className="text-sm font-medium text-text block mb-1.5">연락처</label>
+              <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="010-0000-0000" className="w-full px-4 py-3 rounded-xl border border-border-solid bg-surface text-sm text-text focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" />
             </div>
             <div>
-              <label className="text-sm font-medium text-gray-700 block mb-2">선호 연락 방법</label>
+              <label className="text-sm font-medium text-text block mb-2">선호 연락 방법</label>
               <div className="flex gap-2">
-                <button onClick={() => setContactMethod('phone')} className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-all ${contactMethod === 'phone' ? 'bg-[#007AFF] text-white shadow-sm' : 'bg-white text-gray-600 border border-gray-200'}`}>전화</button>
-                <button onClick={() => setContactMethod('kakao')} className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-all ${contactMethod === 'kakao' ? 'bg-[#007AFF] text-white shadow-sm' : 'bg-white text-gray-600 border border-gray-200'}`}>카카오톡</button>
+                <button onClick={() => setContactMethod('phone')} className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-all ${contactMethod === 'phone' ? 'bg-primary text-white shadow-sm' : 'bg-surface text-text-sub border border-border-solid'}`}>전화</button>
+                <button onClick={() => setContactMethod('kakao')} className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-all ${contactMethod === 'kakao' ? 'bg-primary text-white shadow-sm' : 'bg-surface text-text-sub border border-border-solid'}`}>카카오톡</button>
               </div>
             </div>
-            {error && <div className="text-sm text-red-500 bg-red-50 p-3 rounded-xl">{error}</div>}
-            <button onClick={handleSubmit} disabled={!canSubmit || isSubmitting} className={`w-full py-3.5 rounded-xl text-sm font-semibold transition-all ${canSubmit && !isSubmitting ? 'bg-[#007AFF] text-white shadow-sm active:scale-[0.98]' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}>{isSubmitting ? '전송 중...' : '무료 견적 요청하기'}</button>
-            <p className="text-xs text-gray-400 text-center">상담 신청 시 개인정보 수집 및 이용에 동의합니다</p>
+            {error && <div className="text-sm text-danger bg-danger/10 p-3 rounded-xl">{error}</div>}
+            <button onClick={handleSubmit} disabled={!canSubmit || isSubmitting} className={`w-full py-3.5 rounded-xl text-sm font-semibold transition-all ${canSubmit && !isSubmitting ? 'bg-primary text-white shadow-sm active:scale-[0.98]' : 'bg-surface-secondary text-text-muted border border-border-solid cursor-not-allowed'}`}>{isSubmitting ? '전송 중...' : '무료 견적 요청하기'}</button>
+            <p className="text-xs text-text-muted text-center">상담 신청 시 개인정보 수집 및 이용에 동의합니다</p>
           </div>
         )}
         {step === 'done' && (
           <div className="text-center py-12 space-y-4">
             <div className="flex justify-center"><IconCheck size={52} className="text-success" /></div>
-            <h1 className="text-xl font-bold text-gray-900">상담 신청 완료!</h1>
-            <p className="text-sm text-gray-500">빠른 시간 내에 맞춤 견적을 보내드리겠습니다.<br />감사합니다.</p>
-            <div className="bg-white rounded-xl p-4 border border-gray-100 text-left max-w-xs mx-auto">
-              <div className="space-y-1 text-sm text-gray-700">
-                <div className="flex items-center gap-1.5"><IconCarSedan size={15} className="text-gray-500" /> {selectedModel?.brand} {selectedModel?.model}</div>
-                <div className="flex items-center gap-1.5"><IconCalendar size={15} className="text-gray-500" /> {period}</div>
-                <div className="flex items-center gap-1.5"><IconRoad size={15} className="text-gray-500" /> {mileage}</div>
-                <div className="flex items-center gap-1.5"><IconBudget size={15} className="text-gray-500" /> {DEPOSIT_OPTIONS.find((d) => d.value === deposit)?.label}</div>
+            <h1 className="text-xl font-bold text-text">상담 신청 완료!</h1>
+            <p className="text-sm text-text-sub">빠른 시간 내에 맞춤 견적을 보내드리겠습니다.<br />감사합니다.</p>
+            <div className="bg-surface rounded-xl p-4 border border-border-solid text-left max-w-xs mx-auto">
+              <div className="space-y-1 text-sm text-text">
+                <div className="flex items-center gap-1.5"><IconCarSedan size={15} className="text-text-sub" /> {selectedModel?.brand} {selectedModel?.model}</div>
+                <div className="flex items-center gap-1.5"><IconCalendar size={15} className="text-text-sub" /> {period}</div>
+                <div className="flex items-center gap-1.5"><IconRoad size={15} className="text-text-sub" /> {mileage}</div>
+                <div className="flex items-center gap-1.5"><IconBudget size={15} className="text-text-sub" /> {DEPOSIT_OPTIONS.find((d) => d.value === deposit)?.label}</div>
               </div>
             </div>
           </div>

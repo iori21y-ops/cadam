@@ -32,19 +32,19 @@ function ArticlesSkeleton() {
   return (
     <section className="bg-background py-12 px-5">
       <div className="max-w-2xl mx-auto">
-        <div className="h-7 bg-gray-100 rounded w-56 mb-2" />
+        <div className="h-7 bg-surface rounded w-56 mb-2" />
         {Array.from({ length: 4 }).map((_, i) => (
           <div
             key={i}
             className={`flex items-start gap-4 py-5 animate-pulse ${
-              i < 3 ? 'border-b border-gray-100' : ''
+              i < 3 ? 'border-b border-border' : ''
             }`}
           >
             <div className="flex-1 space-y-2">
-              <div className="h-5 bg-gray-100 rounded w-3/4" />
-              <div className="h-4 bg-gray-100 rounded w-full" />
+              <div className="h-5 bg-surface rounded w-3/4" />
+              <div className="h-4 bg-surface rounded w-full" />
             </div>
-            <div className="w-24 h-24 shrink-0 rounded-xl bg-gray-100" />
+            <div className="w-24 h-24 shrink-0 rounded-xl bg-surface" />
           </div>
         ))}
       </div>
