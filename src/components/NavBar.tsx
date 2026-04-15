@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { LogoAnimated } from '@/components/icons/LogoAnimated';
 
 export function NavBar() {
   const pathname = usePathname();
@@ -14,13 +15,7 @@ export function NavBar() {
           href="/"
           className="flex items-center gap-2 shrink-0 hover:opacity-80 transition-opacity"
         >
-          <img src="/rentailor-mark.svg" alt="" className="h-7 w-auto" />
-          <span
-            className="text-[17px] font-semibold text-text tracking-tight"
-            style={{ fontFamily: 'var(--font-display), serif' }}
-          >
-            RenTailor
-          </span>
+          <LogoAnimated size={28} />
         </Link>
       </div>
     </nav>
