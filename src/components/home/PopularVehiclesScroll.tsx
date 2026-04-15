@@ -116,7 +116,7 @@ export function PopularVehiclesScroll({ vehicles }: { vehicles: VehicleCard[] })
               <p className="text-text-sub text-xs">{v.brand}</p>
               <p className="text-primary font-bold text-lg">{v.model}</p>
               <div className="border-t border-gray-100 my-3" />
-              {v.price ? (
+              {v.price && v.price.min > 0 ? (
                 <p>
                   <span className="text-text-sub text-xs mr-1">월</span>
                   <span className="text-accent font-bold text-xl">

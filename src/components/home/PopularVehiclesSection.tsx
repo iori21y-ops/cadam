@@ -53,6 +53,7 @@ export async function PopularVehiclesSection() {
     );
 
     for (const row of (priceRanges ?? []) as PriceRangeRow[]) {
+      if (!row.min_monthly || row.min_monthly <= 0) continue;
       const key = `${row.car_brand}-${row.car_model}`;
       const existing = priceMap[key];
       if (!existing || row.min_monthly < existing.min) {

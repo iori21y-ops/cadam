@@ -106,7 +106,7 @@ function VehicleRow({ v, rank }: { v: VehicleWithPrice; rank: number }) {
         <p className="text-[11px] text-text-sub">
           {v.brand} · {v.category}
         </p>
-        {v.price ? (
+        {v.price && v.price.min > 0 ? (
           <p className="text-accent font-bold text-sm mt-0.5">
             {formatPrice(v.price.min)}
           </p>
