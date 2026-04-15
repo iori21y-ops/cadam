@@ -59,13 +59,13 @@ export function NextMission({ current }: NextMissionProps) {
     return (
       <button
         onClick={handleQuoteNav}
-        className="w-full rounded-2xl p-5 text-center text-white transition-all hover:shadow-lg active:scale-[0.98] shimmer-gold"
-        style={{ background: 'linear-gradient(135deg, #F59E0B, #FBBF24)' }}
+        className="w-full rounded-2xl p-5 text-center transition-all hover:shadow-lg active:scale-[0.98]"
+        style={{ background: '#0D1B2A', color: '#F5F0E8' }}
       >
         <span className="block mb-1 flex justify-center"><IconTrophy size={20} /></span>
         <p className="text-[15px] font-bold mb-1">2단계 진단 모두 완료!</p>
-        <p className="text-xs text-white/80 mb-3">진단 결과를 바탕으로 맞춤 상담을 받아보세요</p>
-        <span className="inline-block px-4 py-2 rounded-xl bg-white text-amber-600 font-bold text-sm">
+        <p className="text-xs mb-3" style={{ color: 'rgba(245,240,232,0.6)' }}>진단 결과를 바탕으로 맞춤 상담을 받아보세요</p>
+        <span className="inline-block cta-gold text-primary font-bold rounded-xl px-4 py-2 text-sm">
           맞춤 상담 신청 →
         </span>
       </button>
@@ -80,11 +80,11 @@ export function NextMission({ current }: NextMissionProps) {
         {/* 바로 상담 신청 CTA */}
         <button
           onClick={handleQuoteNav}
-          className="w-full rounded-2xl p-4 text-center text-white transition-all hover:shadow-lg active:scale-[0.98] shimmer-gold"
-          style={{ background: 'linear-gradient(135deg, #0D1B2A, #D4B96A)' }}
+          className="w-full rounded-2xl p-4 text-center transition-all hover:shadow-lg active:scale-[0.98]"
+          style={{ background: '#0D1B2A', color: '#F5F0E8' }}
         >
           <p className="text-[14px] font-bold mb-1">이 결과로 바로 상담 신청</p>
-          <p className="text-[11px] text-white/80">진단 결과가 자동으로 반영됩니다</p>
+          <p className="text-[11px]" style={{ color: 'rgba(245,240,232,0.6)' }}>진단 결과가 자동으로 반영됩니다</p>
         </button>
 
         {/* 다음 미션 카드 */}
@@ -140,11 +140,11 @@ export function NextMission({ current }: NextMissionProps) {
     <div className="space-y-3">
       <button
         onClick={handleQuoteNav}
-        className="w-full rounded-2xl p-4 text-center text-white transition-all hover:shadow-lg active:scale-[0.98]"
-        style={{ background: 'linear-gradient(135deg, #0D1B2A, #D4B96A)' }}
+        className="w-full rounded-2xl p-4 text-center transition-all hover:shadow-lg active:scale-[0.98]"
+        style={{ background: '#0D1B2A', color: '#F5F0E8' }}
       >
         <p className="text-[14px] font-bold mb-1">이 결과로 바로 상담 신청</p>
-        <p className="text-[11px] text-white/80">진단 결과가 자동으로 반영됩니다</p>
+        <p className="text-[11px]" style={{ color: 'rgba(245,240,232,0.6)' }}>진단 결과가 자동으로 반영됩니다</p>
       </button>
 
       <div className="rounded-2xl bg-surface shadow-sm overflow-hidden">
