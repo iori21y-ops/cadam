@@ -17,6 +17,18 @@ import type { ProductKey } from '@/types/diagnosis';
 export const maxDuration = 60;
 
 // ─────────────────────────────────────────────────────────────
+// 브랜드 정규화 맵 (크롤러는 영어 brand 저장 → 한국어로 통일)
+// ─────────────────────────────────────────────────────────────
+
+const BRAND_MAP: Record<string, string> = {
+  hyundai:  '현대',
+  kia:      '기아',
+  genesis:  '제네시스',
+  kgm:      'KGM',
+  renault:  '르노코리아',
+};
+
+// ─────────────────────────────────────────────────────────────
 // 생성 조합 상수
 // ─────────────────────────────────────────────────────────────
 
@@ -115,13 +127,15 @@ export async function POST() {
               calcMonthly(p, product, months, 0, km, config)
             );
             allRows.push({
-              car_brand:       vehicle.brand,
+              vehicle_id:      vehicle.id,
+              car_brand:       BRAND_MAP[vehicle.brand.toLowerCase()] ?? vehicle.brand,
               car_model:       vehicle.name,
               contract_months: months,
               annual_km:       km,
-              min_monthly:     Math.min(...monthlies),
-              max_monthly:     Math.max(...monthlies),
+              min_monthly:     Math.min(...monthlies) * 10000,
+              max_monthly:     Math.max(...monthlies) * 10000,
               is_active:       true,
+              price_date:      generatedAt.split('T')[0],
               conditions: JSON.stringify({
                 source:        'auto',
                 product_type:  product,

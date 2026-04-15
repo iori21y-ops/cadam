@@ -25,16 +25,14 @@ const FALLBACK_SLUGS = [
 ] as const;
 
 interface PriceRangeRow {
-  car_brand: string;
-  car_model: string;
-  contract_months: number;
-  annual_km: number;
+  vehicle_id: string;
   min_monthly: number;
   max_monthly: number;
 }
 
 interface VehicleRow {
   slug: string;
+  id: string;
   is_active: boolean | null;
   display_order: number | null;
 }
@@ -63,21 +61,14 @@ function VehiclesSkeleton() {
 async function VehicleListSection() {
   const supabase = await createServerSupabaseClient();
 
-  const allModels = FALLBACK_SLUGS
+  const allSlugs = FALLBACK_SLUGS
     .map((slug) => getVehicleBySlug(slug))
-    .filter((v): v is NonNullable<ReturnType<typeof getVehicleBySlug>> => v != null)
-    .map((v) => v.model);
+    .filter((v): v is NonNullable<ReturnType<typeof getVehicleBySlug>> => v != null);
 
-  const [{ data: allVehicles }, { data: priceRanges }] = await Promise.all([
-    supabase.from('vehicles').select('slug, is_active, display_order'),
-    supabase
-      .from('pricing')
-      .select('car_brand, car_model, contract_months, annual_km, min_monthly, max_monthly')
-      .in('car_model', allModels)
-      .eq('is_active', true)
-      .eq('contract_months', 36)
-      .eq('annual_km', 20000),
-  ]);
+  // Step 1: vehicles 조회 (id 포함)
+  const { data: allVehicles } = await supabase
+    .from('vehicles')
+    .select('slug, id, is_active, display_order');
 
   const settingMap = new Map(
     (allVehicles ?? [])
@@ -85,9 +76,17 @@ async function VehicleListSection() {
       .map((s: VehicleRow) => [s.slug, s])
   );
 
-  const orderedVehicles = FALLBACK_SLUGS
-    .map((slug) => getVehicleBySlug(slug))
-    .filter((v): v is NonNullable<typeof v> => v != null)
+  // slug ↔ vehicle_id 매핑
+  const vehicleIdBySlug = new Map<string, string>();
+  const slugByVehicleId = new Map<string, string>();
+  for (const s of (allVehicles ?? []) as VehicleRow[]) {
+    if (s.slug && s.id) {
+      vehicleIdBySlug.set(s.slug, s.id);
+      slugByVehicleId.set(s.id, s.slug);
+    }
+  }
+
+  const orderedVehicles = allSlugs
     .filter((v) => {
       const s = settingMap.get(v.slug);
       return s == null || s.is_active !== false;
@@ -98,17 +97,35 @@ async function VehicleListSection() {
       return aOrder - bOrder;
     });
 
+  // Step 2: pricing 조회 by vehicle_id
+  const vehicleIds = allSlugs
+    .map((v) => vehicleIdBySlug.get(v.slug))
+    .filter((id): id is string => id != null);
+
   const priceMap: Record<string, { min: number; max: number }> = {};
-  for (const row of (priceRanges ?? []) as PriceRangeRow[]) {
-    const key = `${row.car_brand}-${row.car_model}`;
-    const existing = priceMap[key];
-    if (!existing || row.min_monthly < existing.min) {
-      priceMap[key] = { min: row.min_monthly, max: row.max_monthly };
+
+  if (vehicleIds.length > 0) {
+    const { data: priceRanges } = await supabase
+      .from('pricing')
+      .select('vehicle_id, min_monthly, max_monthly')
+      .in('vehicle_id', vehicleIds)
+      .eq('is_active', true)
+      .eq('contract_months', 36)
+      .eq('annual_km', 20000)
+      .gt('min_monthly', 0);
+
+    for (const row of (priceRanges ?? []) as PriceRangeRow[]) {
+      const slug = slugByVehicleId.get(row.vehicle_id);
+      if (!slug) continue;
+      const existing = priceMap[slug];
+      if (!existing || row.min_monthly < existing.min) {
+        priceMap[slug] = { min: row.min_monthly, max: row.max_monthly };
+      }
     }
   }
 
   const vehicles = orderedVehicles.map((v) => {
-    const price = priceMap[`${v.brand}-${v.model}`] ?? null;
+    const price = priceMap[v.slug] ?? null;
     return { ...v, price };
   });
 

@@ -87,32 +87,41 @@ async function CarPageContent({ slug }: { slug: string }) {
 
   const supabase = await createServerSupabaseClient();
 
-  const [{ data: priceRanges, error }, { data: articleRows }, { data: vehicleDb }] =
-    await Promise.all([
-      supabase
-        .from('pricing')
-        .select('contract_months, annual_km, min_monthly, max_monthly')
-        .eq('car_brand', vehicle.brand)
-        .eq('car_model', vehicle.model)
-        .eq('is_active', true),
-      supabase
-        .from('info_articles')
-        .select('id, title, link_url, thumbnail_url, source_type, display_order')
-        .eq('vehicle_slug', vehicle.slug)
-        .eq('is_active', true)
-        .order('display_order', { ascending: true }),
-      supabase
-        .from('vehicles')
-        .select('id, min_price, max_price')
-        .eq('slug', vehicle.slug)
-        .maybeSingle(),
-    ]);
+  // vehicles 먼저 조회 (vehicle_id 확보)
+  const { data: vehicleDb } = await supabase
+    .from('vehicles')
+    .select('id, min_price, max_price')
+    .eq('slug', vehicle.slug)
+    .maybeSingle();
+
+  const vs = vehicleDb as VehicleDbRow | null;
+
+  // pricing + articles 병렬 조회
+  const [priceResult, { data: articleRows }] = await Promise.all([
+    vs?.id
+      ? supabase
+          .from('pricing')
+          .select('contract_months, annual_km, min_monthly, max_monthly')
+          .eq('vehicle_id', vs.id)
+          .eq('is_active', true)
+          .gt('min_monthly', 0)
+      : Promise.resolve({ data: [] as PriceRangeRow[], error: null }),
+    supabase
+      .from('info_articles')
+      .select('id, title, link_url, thumbnail_url, source_type, display_order')
+      .eq('vehicle_slug', vehicle.slug)
+      .eq('is_active', true)
+      .order('display_order', { ascending: true }),
+  ]);
+
+  const { data: priceRanges, error } = priceResult as {
+    data: PriceRangeRow[] | null;
+    error: unknown;
+  };
 
   const priceRows: PriceRangeRow[] = error ? [] : (priceRanges ?? []);
   const minPrice =
     priceRows.length > 0 ? Math.min(...priceRows.map((r) => r.min_monthly)) : null;
-
-  const vs = vehicleDb as VehicleDbRow | null;
   const minCarPrice = vs?.min_price ? vs.min_price * 10000 : null;
   const maxCarPrice = vs?.max_price ? vs.max_price * 10000 : null;
 
