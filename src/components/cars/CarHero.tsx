@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { ChevronDown } from 'lucide-react';
 import type { Vehicle } from '@/constants/vehicles';
 
 interface CarHeroProps {
@@ -11,8 +10,6 @@ interface CarHeroProps {
 
 export function CarHero({ vehicle }: CarHeroProps) {
   const [imageError, setImageError] = useState(false);
-  const [trimOpen, setTrimOpen] = useState(false);
-  const [selectedTrim, setSelectedTrim] = useState(vehicle.trims[0] ?? '기본');
 
   return (
     <section className="bg-white">
@@ -44,44 +41,6 @@ export function CarHero({ vehicle }: CarHeroProps) {
         <h1 className="text-[26px] font-extrabold text-text tracking-tight leading-tight">
           {vehicle.model}
         </h1>
-
-        {/* 트림 선택 드롭다운 */}
-        {vehicle.trims.length > 0 && (
-          <div className="relative mt-3">
-            <button
-              type="button"
-              onClick={() => setTrimOpen(!trimOpen)}
-              className="w-full flex items-center justify-between px-4 py-3 rounded-xl border border-border-solid bg-surface-secondary text-sm text-text hover:border-accent transition-colors"
-            >
-              <span className="truncate">{selectedTrim}</span>
-              <ChevronDown
-                size={18}
-                className={`text-text-sub shrink-0 transition-transform ${trimOpen ? 'rotate-180' : ''}`}
-              />
-            </button>
-            {trimOpen && (
-              <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-xl border border-border-solid shadow-lg z-20 max-h-60 overflow-y-auto">
-                {vehicle.trims.map((trim) => (
-                  <button
-                    key={trim}
-                    type="button"
-                    onClick={() => {
-                      setSelectedTrim(trim);
-                      setTrimOpen(false);
-                    }}
-                    className={`w-full text-left px-4 py-3 text-sm transition-colors ${
-                      trim === selectedTrim
-                        ? 'bg-accent/10 text-accent font-semibold'
-                        : 'text-text hover:bg-surface-secondary'
-                    }`}
-                  >
-                    {trim}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
 
         {/* 세그먼트 + 연료 태그 */}
         <div className="flex gap-1.5 mt-3">

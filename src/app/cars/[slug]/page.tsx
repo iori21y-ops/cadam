@@ -146,10 +146,15 @@ async function CarPageContent({ slug }: { slug: string }) {
 
   return (
     <div className="max-w-lg mx-auto">
-      {/* 1. 히어로: 이미지 + 모델명 + 트림 */}
+      {/* 1. 히어로: 이미지 + 모델명 */}
       <CarHero vehicle={vehicle} />
 
-      {/* 2. 견적 조건 선택 + 가격 표시 */}
+      {/* 2. 트림 & 옵션 선택 (차량 사진 아래, 데이터 있을 때만) */}
+      {vs?.id && (
+        <TrimOptionSelector trims={trims || []} options={options || []} slug={slug} />
+      )}
+
+      {/* 3. 견적 조건 선택 + 가격 표시 */}
       <EstimateConfigurator
         vehicle={vehicle}
         priceRanges={priceRows}
@@ -157,13 +162,8 @@ async function CarPageContent({ slug }: { slug: string }) {
         maxCarPrice={maxCarPrice}
       />
 
-      {/* 3. 이용 절차 */}
+      {/* 4. 이용 절차 */}
       <ServiceSteps />
-
-      {/* 4. 트림 & 옵션 선택 (vehicle_trims 데이터 있을 때만 표시) */}
-      {vs?.id && (
-        <TrimOptionSelector trims={trims || []} options={options || []} slug={slug} />
-      )}
 
       {/* 5. 조건별 가격 비교표 (데이터 있을 때만) */}
       {priceRows.length > 0 && (
