@@ -129,7 +129,7 @@
 | 테이블명 | 용도 | 비고 |
 |---------|------|------|
 | vehicle_settings | 차량 기본 설정 (slug, 썸네일, 가격범위, 표시순서, 노출여부) | 관리자 페이지에서 관리 |
-| price_ranges | 차량별 월 납입금 범위 (계약기간, 연 주행거리별) | is_active 플래그 있음 |
+| pricing | 차량별 월납입금 — 실제 견적가 수동입력 (vehicle_id FK, min_monthly, max_monthly, contract_months, annual_km, is_active) | |
 | info_categories | 이용방법 카테고리 | display_order로 정렬 |
 | info_articles | 이용방법 상세 글 | info_categories FK |
 | consultations | 상담 신청 데이터 | 고객 접수 |
@@ -253,6 +253,29 @@ GET    $N8N_API_URL/executions?workflowId={id}    # 워크플로우별 이력
 - rm -r 명령 금지 (디렉토리 재귀 삭제)
 - 단일 파일 rm은 프로젝트 디렉토리 내 임시 파일에 한해서만 허용
 - ~/.openclaw/ 하위 파일 삭제 금지 (명시적 요청 + 승인 제외)
+
+## 3.6 가격 표시 체계 (2026-04-17 확정)
+
+### 현재 방식: 수동 견적가 입력
+- pricing 테이블에 실제 캐피탈사 견적가를 수동 입력
+- 인기차종 기본 표시 조건: 60개월 / 연 1만km / 보증금 0%
+- price.min > 0 → "월 N만원~" 표시 (PopularEstimatesClient.tsx:109)
+- 가격 없음 → "견적 문의" 표시
+- 코드가 조회하는 테이블은 pricing (CLAUDE.md 기존 기록 price_ranges는 오류였음)
+
+### pricing 테이블 컬럼
+- vehicle_id: vehicles 테이블 FK
+- min_monthly: 최저 월 렌탈료 (만원 단위)
+- max_monthly: 최고 월 렌탈료 (만원 단위, 트림별 차이)
+- contract_months: 60 (기본값)
+- annual_km: 10000 (기본값)
+- is_active: true
+
+### 향후 계획: PMT 자동 계산 (보류)
+- PMT 공식 기반 자동 계산은 잔존가치 데이터 확보 후 구현
+- 실제 견적서에서 잔존가치율 역산 → 차급별 잔존가치 테이블 구축 → PMT 자동화
+- 프로토타입: cadam_pricing_engine.jsx v0.2 존재
+- PMT 공식: PMT(월금리, N, -(취득원가-보증금), 잔존가치-보증금)
 
 
 # ────────────────────────────────────────────────────────────────
@@ -689,6 +712,7 @@ mkdir -p ~/backups/{n8n,openclaw,config,supabase,gpu-server}
 # 12. 변경 이력
 # ────────────────────────────────────────────────────────────────
 
+- 2026-04-17: price_ranges→pricing 테이블명 수정, 3.6 가격 표시 체계 섹션 추가 (수동 견적가 입력 방식 확정, PMT 자동계산 보류)
 - 2026-03-27: v3 초기 버전 — 실제 환경 조사 기반으로 전체 재작성
   - Supabase 테이블 8개 반영 (기존 6개에서 수정)
   - OpenClaw 에이전트 8개 + 개별 models.json 경로 반영
