@@ -21,7 +21,24 @@ interface WpPost {
 }
 
 function stripHtml(html: string): string {
-  return html.replace(/<[^>]*>/g, '').replace(/\n/g, ' ').trim();
+  return html
+    .replace(/<[^>]*>/g, '')
+    .replace(/&#8211;/g, '–')
+    .replace(/&#8212;/g, '—')
+    .replace(/&#8216;/g, '\u2018')
+    .replace(/&#8217;/g, '\u2019')
+    .replace(/&#8218;/g, ',')
+    .replace(/&#8220;/g, '\u201c')
+    .replace(/&#8221;/g, '\u201d')
+    .replace(/&#8230;/g, '…')
+    .replace(/&#038;/g, '&')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#039;/g, "'")
+    .replace(/\n/g, ' ')
+    .trim();
 }
 
 export async function POST(request: Request) {
