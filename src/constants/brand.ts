@@ -45,7 +45,7 @@ export const BRAND = {
   },
 
   // —— URL/기타 ——
-  domain: 'rentailor.co.kr',
+  domain: 'www.rentailor.co.kr',
 } as const;
 
 export type BrandConfig = typeof BRAND;

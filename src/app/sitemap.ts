@@ -1,9 +1,10 @@
 import type { MetadataRoute } from 'next';
 import { VEHICLE_LIST } from '@/constants/vehicles';
+import { fetchWpPostsForSitemap } from '@/lib/wp-client';
 
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://rentailor.co.kr';
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.rentailor.co.kr';
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date().toISOString();
 
   // 정적 페이지
@@ -29,5 +30,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.8,
   }));
 
-  return [...staticPages, ...vehiclePages];
+  // 동적 페이지: 블로그 포스트 (WordPress)
+  const wpPosts = await fetchWpPostsForSitemap();
+  const blogPages: MetadataRoute.Sitemap = wpPosts.map((post) => ({
+    url: `${BASE_URL}/blog/${post.slug}`,
+    lastModified: post.modified,
+    changeFrequency: 'monthly' as const,
+    priority: 0.7,
+  }));
+
+  return [...staticPages, ...vehiclePages, ...blogPages];
 }

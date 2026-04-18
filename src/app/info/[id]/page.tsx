@@ -45,9 +45,14 @@ export async function generateMetadata({
   if (!article) return { title: '글을 찾을 수 없어요' };
 
   const description = article.excerpt?.slice(0, 160) ?? undefined;
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.rentailor.co.kr';
+
   return {
     title: article.title,
     description,
+    alternates: {
+      canonical: `${siteUrl}/info/${id}`,
+    },
     openGraph: {
       title: article.title,
       description,

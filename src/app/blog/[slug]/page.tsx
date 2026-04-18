@@ -6,6 +6,8 @@ import { fetchWpPostBySlug } from '@/lib/wp-client';
 
 export const revalidate = 60;
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.rentailor.co.kr';
+
 function formatDate(iso: string): string {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return '';
@@ -42,12 +44,21 @@ export async function generateMetadata(
   return {
     title,
     description,
+    alternates: {
+      canonical: `${SITE_URL}/blog/${slug}`,
+    },
     openGraph: {
       title,
       description,
       type: 'article',
       publishedTime: post.date,
       images: image ? [{ url: image }] : undefined,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: image ? [image] : undefined,
     },
   };
 }

@@ -120,3 +120,15 @@ export async function fetchWpPostBySlug(slug: string): Promise<WpPost | null> {
   if (!data || data.length === 0) return null;
   return data[0];
 }
+
+export interface WpPostForSitemap {
+  slug: string;
+  modified: string;
+}
+
+export async function fetchWpPostsForSitemap(): Promise<WpPostForSitemap[]> {
+  const data = await wpFetch<WpPostForSitemap[]>(
+    `/posts?_fields=slug,modified&per_page=100&status=publish&orderby=modified&order=desc`
+  );
+  return data ?? [];
+}
