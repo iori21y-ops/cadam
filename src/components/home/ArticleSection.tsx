@@ -114,7 +114,7 @@ export async function ArticleSection() {
   });
 
   const displayBlogs = blogArticles.length > 0 ? blogArticles.slice(0, 4) : FALLBACK_ARTICLES;
-  const displayClips = clipArticles.slice(0, 4);
+  const displayClips = clipArticles.slice(0, 6);
 
   return (
     <>
@@ -162,23 +162,25 @@ export async function ArticleSection() {
         </div>
       </section>
 
-      {/* 클립 섹션 */}
+      {/* 클립 섹션 (차즘 스타일 가로 스크롤) */}
       {displayClips.length > 0 && (
-        <section className="bg-gray-50 py-12 px-5">
+        <section className="bg-white py-10">
           <div className="max-w-2xl mx-auto">
-            <h2 className="font-bold text-xl text-gray-900 mb-1">도움이 되는 클립</h2>
-            <p className="text-gray-500 text-sm mb-4">영상으로 쉽게 알아보세요</p>
+            <div className="px-5 mb-4">
+              <h2 className="font-bold text-xl text-gray-900 mb-1">도움이 되는 클립</h2>
+              <p className="text-gray-500 text-sm">영상으로 쉽게 알아보세요</p>
+            </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="flex gap-3 overflow-x-auto scrollbar-hide px-5 pb-2">
               {displayClips.map((article) => (
                 <a
                   key={article.id}
                   href={article.linkUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block group"
+                  className="block group shrink-0 w-[260px]"
                 >
-                  <div className="relative aspect-[9/14] rounded-2xl overflow-hidden bg-gray-200">
+                  <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-gray-200">
                     {article.thumbnailUrl ? (
                       /* eslint-disable-next-line @next/next/no-img-element */
                       <img
@@ -189,16 +191,11 @@ export async function ArticleSection() {
                       />
                     ) : (
                       <div className="w-full h-full" style={{
-                        background: 'linear-gradient(135deg, #FF3B30 0%, #FF9500 100%)',
+                        background: 'linear-gradient(135deg, #1C1C1E 0%, #3A3A3C 100%)',
                       }} />
                     )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-12 h-12 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z" /></svg>
-                      </div>
-                    </div>
-                    <div className="absolute bottom-0 left-0 right-0 p-3">
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+                    <div className="absolute bottom-0 left-0 right-0 p-3.5">
                       <p className="text-white text-[13px] font-bold leading-snug line-clamp-2 drop-shadow">
                         {article.title}
                       </p>
@@ -208,12 +205,14 @@ export async function ArticleSection() {
               ))}
             </div>
 
-            <Link
-              href="/info/clips"
-              className="block mt-4 bg-white rounded-xl py-4 text-center text-gray-600 text-sm font-medium transition-colors hover:bg-gray-100 active:bg-gray-200"
-            >
-              클립 더 보기 &gt;
-            </Link>
+            <div className="px-5 mt-3">
+              <Link
+                href="/info/clips"
+                className="block bg-gray-50 rounded-xl py-3.5 text-center text-gray-600 text-sm font-medium transition-colors hover:bg-gray-100 active:bg-gray-200"
+              >
+                클립 더 보기 &gt;
+              </Link>
+            </div>
           </div>
         </section>
       )}
