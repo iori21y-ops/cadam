@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/sync-wp?secret=cadam-sync-2026",
+      "schedule": "0 21 * * *"
+    }
+  ]
+}
