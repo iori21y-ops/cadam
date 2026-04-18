@@ -163,14 +163,14 @@ export async function ArticleSection() {
       </section>
 
       {/* 클립 섹션 (차즘 스타일 가로 스크롤) */}
-      {displayClips.length > 0 && (
-        <section className="bg-white py-10">
-          <div className="max-w-2xl mx-auto">
-            <div className="px-5 mb-4">
-              <h2 className="font-bold text-xl text-gray-900 mb-1">도움이 되는 클립</h2>
-              <p className="text-gray-500 text-sm">영상으로 쉽게 알아보세요</p>
-            </div>
+      <section className="bg-white py-10">
+        <div className="max-w-2xl mx-auto">
+          <div className="px-5 mb-4">
+            <h2 className="font-bold text-xl text-gray-900 mb-1">클립</h2>
+            <p className="text-gray-500 text-sm">영상으로 쉽게 알아보세요</p>
+          </div>
 
+          {displayClips.length > 0 ? (
             <div className="flex gap-3 overflow-x-auto scrollbar-hide px-5 pb-2">
               {displayClips.map((article) => (
                 <a
@@ -204,18 +204,24 @@ export async function ArticleSection() {
                 </a>
               ))}
             </div>
-
-            <div className="px-5 mt-3">
-              <Link
-                href="/info/clips"
-                className="block bg-gray-50 rounded-xl py-3.5 text-center text-gray-600 text-sm font-medium transition-colors hover:bg-gray-100 active:bg-gray-200"
-              >
-                클립 더 보기 &gt;
-              </Link>
+          ) : (
+            <div className="px-5">
+              <div className="rounded-2xl bg-gray-50 py-10 text-center">
+                <p className="text-gray-400 text-sm">준비 중입니다</p>
+              </div>
             </div>
+          )}
+
+          <div className="px-5 mt-3">
+            <Link
+              href="/info/clips"
+              className="block bg-gray-50 rounded-xl py-3.5 text-center text-gray-600 text-sm font-medium transition-colors hover:bg-gray-100 active:bg-gray-200"
+            >
+              클립 더 보기 &gt;
+            </Link>
           </div>
-        </section>
-      )}
+        </div>
+      </section>
     </>
   );
 }

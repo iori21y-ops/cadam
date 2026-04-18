@@ -6,7 +6,7 @@ import type { Metadata } from 'next';
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: '도움이 되는 클립 | 렌테일러',
+  title: '클립 | 렌테일러',
   description: '장기렌터카 관련 유용한 영상과 쇼츠를 모아봤습니다.',
 };
 

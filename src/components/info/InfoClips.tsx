@@ -140,7 +140,7 @@ export function InfoClips({ initialArticles, categories = [] }: {
         <div className="flex max-w-lg mx-auto px-5">
           {[
             { href: '/info',        label: '아티클' },
-            { href: '/info/clips',  label: '도움이 되는 클립' },
+            { href: '/info/clips',  label: '클립' },
           ].map((t) => (
             <Link key={t.href} href={t.href} className={[
               'px-4 py-3 text-sm font-semibold border-b-2 -mb-px transition-colors whitespace-nowrap',
@@ -154,7 +154,7 @@ export function InfoClips({ initialArticles, categories = [] }: {
 
       {/* 타이틀 */}
       <div className="max-w-lg mx-auto w-full px-5 pt-6 pb-2">
-        <h1 className="text-xl font-bold text-gray-900">도움이 되는 클립</h1>
+        <h1 className="text-xl font-bold text-gray-900">클립</h1>
       </div>
 
       {/* 카테고리 필터 */}
