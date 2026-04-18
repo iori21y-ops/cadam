@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { createServerSupabaseClient } from '@/lib/supabase-server';
 import { fetchWpPosts, type InfoArticleShape } from '@/lib/wp-client';
 
 const FALLBACK_ARTICLES: InfoArticleShape[] = [
@@ -48,61 +49,174 @@ const FALLBACK_ARTICLES: InfoArticleShape[] = [
   },
 ];
 
+interface ArticleRow {
+  id: string;
+  title: string;
+  excerpt: string | null;
+  content: string | null;
+  link_url: string;
+  thumbnail_url: string | null;
+  source_type: string | null;
+  published_at: string | null;
+  category: string | null;
+  vehicle_slug: string | null;
+}
+
+function getDisplayType(article: InfoArticleShape): 'blog' | 'youtube' | 'shorts' {
+  if (article.linkUrl.includes('youtube.com/shorts/')) return 'shorts';
+  if (article.sourceType === 'youtube') return 'youtube';
+  return 'blog';
+}
+
+async function getSupabaseArticles(): Promise<InfoArticleShape[]> {
+  try {
+    const supabase = await createServerSupabaseClient();
+    const { data, error } = await supabase
+      .from('info_articles')
+      .select('id, title, excerpt, content, link_url, thumbnail_url, source_type, published_at, category, vehicle_slug')
+      .eq('is_active', true)
+      .order('display_order', { ascending: true });
+
+    if (error || !data) return [];
+
+    return (data as ArticleRow[]).map((row) => ({
+      id: row.id,
+      title: row.title,
+      excerpt: row.excerpt,
+      linkUrl: row.content ? `/info/${row.id}` : row.link_url,
+      thumbnailUrl: row.thumbnail_url,
+      sourceType: row.source_type ?? 'blog',
+      publishedAt: row.published_at,
+      category: row.category ?? '',
+      vehicleSlug: row.vehicle_slug,
+    }));
+  } catch {
+    return [];
+  }
+}
+
 export async function ArticleSection() {
-  const wpArticles = await fetchWpPosts({ perPage: 4 });
-  const articles = wpArticles.length > 0 ? wpArticles : FALLBACK_ARTICLES;
+  const [wpArticles, supabaseArticles] = await Promise.all([
+    fetchWpPosts({ perPage: 10 }),
+    getSupabaseArticles(),
+  ]);
+
+  const allArticles = [...wpArticles, ...supabaseArticles].sort((a, b) => {
+    const da = a.publishedAt ? Date.parse(a.publishedAt) : 0;
+    const db = b.publishedAt ? Date.parse(b.publishedAt) : 0;
+    return db - da;
+  });
+
+  const blogArticles = allArticles.filter((a) => getDisplayType(a) === 'blog');
+  const clipArticles = allArticles.filter((a) => {
+    const t = getDisplayType(a);
+    return t === 'youtube' || t === 'shorts';
+  });
+
+  const displayBlogs = blogArticles.length > 0 ? blogArticles.slice(0, 4) : FALLBACK_ARTICLES;
+  const displayClips = clipArticles.slice(0, 4);
 
   return (
-    <section className="bg-background py-12 px-5">
-      <div className="max-w-2xl mx-auto">
-        <h2 className="text-primary font-bold text-xl mb-2">
-          알아두면 유용한 렌트 가이드
-        </h2>
+    <>
+      {/* 아티클 섹션 */}
+      <section className="bg-white py-12 px-5">
+        <div className="max-w-2xl mx-auto">
+          <h2 className="font-bold text-xl text-gray-900 mb-1">렌테일러 아티클</h2>
+          <p className="text-gray-500 text-sm mb-4">알아두면 유용한 렌트 가이드</p>
 
-        <div>
-          {articles.map((article, i) => (
-            <Link
-              key={article.id}
-              href={article.linkUrl}
-              className={`flex items-start gap-4 py-5 transition-colors active:bg-gray-50 ${
-                i < articles.length - 1 ? 'border-b border-gray-100' : ''
-              }`}
-            >
-              <div className="flex-1 min-w-0">
-                <p className="text-primary font-bold text-base line-clamp-2">
-                  {article.title}
-                </p>
-                {article.excerpt && (
-                  <p className="text-gray-500 text-sm line-clamp-2 mt-1">
-                    {article.excerpt}
-                  </p>
-                )}
-              </div>
-              <div className="w-24 h-24 shrink-0 rounded-xl overflow-hidden bg-gray-100">
-                {article.thumbnailUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={article.thumbnailUrl}
-                    alt={article.title}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <span className="text-text-muted text-xs">RENTAILOR</span>
-                  </div>
-                )}
-              </div>
-            </Link>
-          ))}
+          <div>
+            {displayBlogs.map((article, i) => (
+              <Link
+                key={article.id}
+                href={article.linkUrl}
+                className={`flex items-start gap-4 py-4 transition-colors active:bg-gray-50 ${
+                  i < displayBlogs.length - 1 ? 'border-b border-gray-100' : ''
+                }`}
+              >
+                <div className="flex-1 min-w-0">
+                  <p className="text-gray-900 font-bold text-[15px] line-clamp-2">{article.title}</p>
+                  {article.excerpt && (
+                    <p className="text-gray-500 text-[13px] line-clamp-2 mt-1">{article.excerpt}</p>
+                  )}
+                </div>
+                <div className="w-[88px] h-[88px] shrink-0 rounded-2xl overflow-hidden bg-gray-100">
+                  {article.thumbnailUrl ? (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img src={article.thumbnailUrl} alt={article.title} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <span className="text-gray-400 text-xs">RENTAILOR</span>
+                    </div>
+                  )}
+                </div>
+              </Link>
+            ))}
+          </div>
+
+          <Link
+            href="/info"
+            className="block mt-4 bg-gray-50 rounded-xl py-4 text-center text-gray-600 text-sm font-medium transition-colors hover:bg-gray-100 active:bg-gray-200"
+          >
+            아티클 더 보기 &gt;
+          </Link>
         </div>
+      </section>
 
-        <Link
-          href="/info"
-          className="block mt-4 bg-gray-50 rounded-xl py-4 text-center text-gray-600 text-sm font-medium transition-colors hover:bg-gray-100 active:bg-gray-200"
-        >
-          가이드 더 보기 &gt;
-        </Link>
-      </div>
-    </section>
+      {/* 클립 섹션 */}
+      {displayClips.length > 0 && (
+        <section className="bg-gray-50 py-12 px-5">
+          <div className="max-w-2xl mx-auto">
+            <h2 className="font-bold text-xl text-gray-900 mb-1">도움이 되는 클립</h2>
+            <p className="text-gray-500 text-sm mb-4">영상으로 쉽게 알아보세요</p>
+
+            <div className="grid grid-cols-2 gap-3">
+              {displayClips.map((article) => (
+                <a
+                  key={article.id}
+                  href={article.linkUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block group"
+                >
+                  <div className="relative aspect-[9/14] rounded-2xl overflow-hidden bg-gray-200">
+                    {article.thumbnailUrl ? (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img
+                        src={article.thumbnailUrl}
+                        alt={article.title}
+                        loading="lazy"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full" style={{
+                        background: 'linear-gradient(135deg, #FF3B30 0%, #FF9500 100%)',
+                      }} />
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-12 h-12 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z" /></svg>
+                      </div>
+                    </div>
+                    <div className="absolute bottom-0 left-0 right-0 p-3">
+                      <p className="text-white text-[13px] font-bold leading-snug line-clamp-2 drop-shadow">
+                        {article.title}
+                      </p>
+                    </div>
+                  </div>
+                </a>
+              ))}
+            </div>
+
+            <Link
+              href="/info/clips"
+              className="block mt-4 bg-white rounded-xl py-4 text-center text-gray-600 text-sm font-medium transition-colors hover:bg-gray-100 active:bg-gray-200"
+            >
+              클립 더 보기 &gt;
+            </Link>
+          </div>
+        </section>
+      )}
+    </>
   );
 }
