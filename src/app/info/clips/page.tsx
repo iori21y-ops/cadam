@@ -70,7 +70,9 @@ export default async function ClipsPage() {
     fetchWpPosts({ perPage: 50 }),
   ]);
 
-  const allArticles = [...wpArticles, ...articles].sort((a, b) => {
+  const wpLinks = new Set(wpArticles.map(a => a.linkUrl));
+  const uniqueSupabase = articles.filter(a => !wpLinks.has(a.linkUrl));
+  const allArticles = [...wpArticles, ...uniqueSupabase].sort((a, b) => {
     const da = a.publishedAt ? Date.parse(a.publishedAt) : 0;
     const db = b.publishedAt ? Date.parse(b.publishedAt) : 0;
     return db - da;

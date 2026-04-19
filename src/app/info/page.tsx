@@ -56,7 +56,9 @@ async function getArticles(): Promise<InfoArticleShape[]> {
 }
 
 function mergeArticles(supabaseArticles: InfoArticleShape[], wpArticles: InfoArticleShape[]): InfoArticleShape[] {
-  return [...wpArticles, ...supabaseArticles].sort((a, b) => {
+  const wpLinks = new Set(wpArticles.map(a => a.linkUrl));
+  const uniqueSupabase = supabaseArticles.filter(a => !wpLinks.has(a.linkUrl));
+  return [...wpArticles, ...uniqueSupabase].sort((a, b) => {
     const ta = a.publishedAt ? Date.parse(a.publishedAt) : 0;
     const tb = b.publishedAt ? Date.parse(b.publishedAt) : 0;
     return tb - ta;

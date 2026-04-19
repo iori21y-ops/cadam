@@ -101,7 +101,9 @@ export async function ArticleSection() {
     getSupabaseArticles(),
   ]);
 
-  const allArticles = [...wpArticles, ...supabaseArticles].sort((a, b) => {
+  const wpLinks = new Set(wpArticles.map(a => a.linkUrl));
+  const uniqueSupabase = supabaseArticles.filter(a => !wpLinks.has(a.linkUrl));
+  const allArticles = [...wpArticles, ...uniqueSupabase].sort((a, b) => {
     const da = a.publishedAt ? Date.parse(a.publishedAt) : 0;
     const db = b.publishedAt ? Date.parse(b.publishedAt) : 0;
     return db - da;
