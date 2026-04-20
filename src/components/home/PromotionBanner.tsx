@@ -21,7 +21,7 @@ const PROMOTIONS = [
 
 export function PromotionBanner() {
   return (
-    <section className="bg-surface py-12">
+    <section className="bg-gray-50 py-12">
       <div className="max-w-lg mx-auto">
         <h2 className="text-primary font-bold text-xl mb-6 px-5">
           렌테일러가 준비한 혜택

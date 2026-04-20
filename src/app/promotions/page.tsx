@@ -62,7 +62,7 @@ export default async function PromotionsPage() {
   const promotions = await getPromotions();
 
   return (
-    <div className="min-h-screen flex flex-col bg-surface-secondary pb-24">
+    <div className="min-h-screen flex flex-col bg-white pb-24">
       {/* Hero */}
       <section className="flex flex-col items-center justify-center px-5 pt-14 pb-10 text-center">
         <div className="max-w-lg mx-auto w-full">

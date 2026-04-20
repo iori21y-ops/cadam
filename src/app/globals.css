@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 :root {
-  --background: #F5F0E8;
+  --background: #FFFFFF;
   --foreground: #0D1B2A;
 }
 
@@ -20,7 +20,7 @@
   --color-text-sub: #4A5568;
   --color-text-muted: #9CA3AF;
   --color-surface: #FFFFFF;
-  --color-surface-secondary: #F5F0E8;
+  --color-surface-secondary: #F7F8FA;
   --color-border: #E5E7EB;
   --color-border-solid: #E5E7EB;
   --color-finance: #0D1B2A;
@@ -81,7 +81,7 @@ body {
 }
 
 .glass {
-  background: rgba(245, 240, 232, 0.95);
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
 }
@@ -241,7 +241,7 @@ body {
 
 /* 목차 (TOC) */
 .wp-toc {
-  background: #F5F0E8;
+  background: #F7F8FA;
   border-left: 3px solid #C9A84C;
   border-radius: 8px;
   padding: 16px 20px;
@@ -299,7 +299,7 @@ body {
 
 /* CTA 인라인 블록 (border-left 형태) */
 .rtl-cta-inline {
-  background: #F5F0E8;
+  background: #F7F8FA;
   border-left: 4px solid #C9A84C;
   border-radius: 0 8px 8px 0;
   padding: 16px 20px;

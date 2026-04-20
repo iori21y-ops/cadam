@@ -64,7 +64,7 @@ function OptionPageInner() {
     };
 
     return (
-      <div className="min-h-screen bg-surface-secondary pb-16">
+      <div className="min-h-screen bg-white pb-16">
         <div className="px-5 pt-10 max-w-lg mx-auto">
           <div className="mb-5">
             <span className="text-xs px-3 py-1 rounded-full font-semibold" style={{ backgroundColor: `${COLOR}18`, color: COLOR }}>
@@ -153,7 +153,7 @@ function OptionPageInner() {
   const progressPct = Math.round((currentIdx / OPTION_QUESTIONS.length) * 100);
 
   return (
-    <div className="min-h-screen bg-surface-secondary">
+    <div className="min-h-screen bg-white">
       {/* 헤더 */}
       <div className="px-5 pt-6 pb-2 max-w-lg mx-auto">
         <div className="flex items-center justify-between mb-2">
@@ -211,7 +211,7 @@ export default function OptionPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-surface-secondary flex items-center justify-center">
+        <div className="min-h-screen bg-white flex items-center justify-center">
           <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
         </div>
       }

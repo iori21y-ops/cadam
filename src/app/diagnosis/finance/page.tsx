@@ -119,7 +119,7 @@ function FinResult({ answers, questions, mode, restart, toDetail, onHome }: {
   const tierColor = tier === 'high' ? '#10B981' : tier === 'mid' ? '#F59E0B' : '#8E8E93';
 
   return (
-    <div className="min-h-screen bg-surface-secondary pb-16">
+    <div className="min-h-screen bg-white pb-16">
       <div className="px-5 pt-10 max-w-lg mx-auto">
         {/* 모드 배지 + 공유 */}
         <div className="flex items-center justify-between mb-5">

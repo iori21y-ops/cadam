@@ -134,7 +134,7 @@ async function VehicleListSection() {
 
 export default function PopularEstimatesPage() {
   return (
-    <div className="min-h-screen bg-surface-secondary pb-24">
+    <div className="min-h-screen bg-white pb-24">
       <div className="px-5 pt-8 max-w-lg mx-auto">
         <div className="mb-6">
           <h1 className="text-2xl font-extrabold text-text tracking-tight">인기 차종</h1>

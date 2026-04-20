@@ -5,7 +5,7 @@ function cx(...parts: Array<string | false | null | undefined>) {
 }
 
 export function V5Page({ children, className }: { children: React.ReactNode; className?: string }) {
-  return <div className={cx('min-h-screen bg-surface-secondary', className)}>{children}</div>;
+  return <div className={cx('min-h-screen bg-white', className)}>{children}</div>;
 }
 
 export function V5Card({

@@ -33,7 +33,7 @@ export function DiagnosisBanner() {
   }
 
   return (
-    <section className="bg-surface py-16 px-5">
+    <section className="bg-gray-50 py-16 px-5">
       <div className="max-w-lg mx-auto text-center">
         <h2 className="text-primary font-bold text-2xl mb-8">
           나에게 맞는 차, AI가 찾아드립니다

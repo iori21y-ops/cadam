@@ -198,7 +198,7 @@ export function QuizModule({ basicQs, detailQs, color, onHome, savedResult, rend
     ];
     return (
       <div
-        className="min-h-screen bg-surface-secondary px-5 max-w-[460px] mx-auto"
+        className="min-h-screen bg-white px-5 max-w-[460px] mx-auto"
         style={{ paddingTop: 'clamp(40px, 8vh, 80px)' }}
       >
         <h2 className="text-center font-bold leading-tight mb-2 text-gold-gradient"
@@ -242,7 +242,7 @@ export function QuizModule({ basicQs, detailQs, color, onHome, savedResult, rend
 
   if (screen === 'result') {
     return (
-      <div className="min-h-screen bg-surface-secondary">
+      <div className="min-h-screen bg-white">
         {renderResult({ answers, questions, mode, restart, toDetail, onHome })}
       </div>
     );
@@ -253,7 +253,7 @@ export function QuizModule({ basicQs, detailQs, color, onHome, savedResult, rend
   const progressPct = Math.round((answeredCount / questions.length) * 100);
 
   return (
-    <div className="flex flex-col min-h-[calc(100dvh-49px)] overflow-hidden bg-surface-secondary">
+    <div className="flex flex-col min-h-[calc(100dvh-49px)] overflow-hidden bg-white">
       {/* 프로그레스 바 */}
       <div className="px-5 pt-4 pb-2 max-w-[500px] mx-auto w-full">
         <div className="flex justify-between mb-2" style={{ fontFamily: 'inherit', fontSize: 12, color: '#AEAEB2' }}>

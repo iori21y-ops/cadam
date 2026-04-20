@@ -299,7 +299,7 @@ export function TermsComparisonTable() {
   const data = activeTab === 'rental' ? RENTAL_DATA : LEASE_DATA;
 
   return (
-    <div className="min-h-[100dvh] flex flex-col bg-surface-secondary pb-24">
+    <div className="min-h-[100dvh] flex flex-col bg-white pb-24">
       {/* 이용정보 ↔ 약관 비교 탭 */}
       <InfoTabNav />
 

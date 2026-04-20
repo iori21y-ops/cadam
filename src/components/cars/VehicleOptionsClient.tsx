@@ -183,7 +183,7 @@ export default function VehicleOptionsClient({ vehicleName, slug, trims, options
   // 데이터 없음
   if (trims.length === 0) {
     return (
-      <div className="min-h-screen bg-surface-secondary pb-24">
+      <div className="min-h-screen bg-white pb-24">
         <div className="bg-white border-b border-border-solid px-4 py-3 flex items-center gap-2 sticky top-0 z-10">
           <Link href={`/cars/${slug}`} className="p-1 -ml-1 text-text-sub">
             <IconBack />
@@ -202,7 +202,7 @@ export default function VehicleOptionsClient({ vehicleName, slug, trims, options
   }
 
   return (
-    <div className="min-h-screen bg-surface-secondary pb-28">
+    <div className="min-h-screen bg-white pb-28">
       {/* 헤더 */}
       <div className="bg-white border-b border-border-solid px-4 py-3 flex items-center gap-2 sticky top-0 z-10">
         <Link href={`/cars/${slug}`} className="p-1 -ml-1 text-text-sub">

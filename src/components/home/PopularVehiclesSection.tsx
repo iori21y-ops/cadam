@@ -103,7 +103,7 @@ export async function PopularVehiclesSection() {
     }));
 
   return (
-    <section className="bg-surface-secondary py-12">
+    <section className="bg-white py-12">
       <div className="max-w-lg mx-auto">
         <div className="flex items-center justify-between mb-6 px-5">
           <h2 className="text-primary font-bold text-xl">

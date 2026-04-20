@@ -71,7 +71,7 @@ export default function DirectPage() {
   }
 
   return (
-    <div className="min-h-screen bg-surface-secondary pb-24">
+    <div className="min-h-screen bg-white pb-24">
       <header className="bg-surface border-b border-border-solid sticky top-0 z-10">
         <div className="max-w-lg mx-auto px-4 py-3 flex items-center justify-between">
           <span className="text-lg font-bold text-text">렌테일러</span>

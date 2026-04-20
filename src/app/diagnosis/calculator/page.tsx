@@ -40,7 +40,7 @@ export default function CalculatorPage() {
   };
 
   return (
-    <div className="min-h-screen bg-surface-secondary pb-16">
+    <div className="min-h-screen bg-white pb-16">
       <div className="px-5 pt-10 max-w-lg mx-auto">
         {/* 헤더 */}
         <div className="mb-6">

@@ -163,7 +163,7 @@ function VehResult({ answers, mode, restart, toDetail, onHome, vehicles }: {
   };
 
   return (
-    <div className="min-h-screen bg-surface-secondary pb-16">
+    <div className="min-h-screen bg-white pb-16">
       <div className="px-5 pt-10 max-w-lg mx-auto">
         {/* 모드 배지 + 공유 */}
         <div className="flex items-center justify-between mb-5">

@@ -226,7 +226,7 @@ export default async function CarPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <div className="min-h-screen bg-surface-secondary pb-4">
+      <div className="min-h-screen bg-white pb-4">
         <Suspense fallback={<PageSkeleton />}>
           <CarPageContent slug={slug} />
         </Suspense>
