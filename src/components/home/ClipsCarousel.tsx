@@ -29,7 +29,7 @@ function ClipModal({ clip, onClose }: { clip: InfoArticleShape; onClose: () => v
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl"
+        className="bg-white rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         {/* 헤더 */}
@@ -46,7 +46,7 @@ function ClipModal({ clip, onClose }: { clip: InfoArticleShape; onClose: () => v
 
         {/* YouTube 임베드 */}
         {videoId ? (
-          <div className="aspect-video bg-black">
+          <div className="aspect-[9/16] max-h-[70vh] overflow-hidden bg-black">
             <iframe
               src={`https://www.youtube.com/embed/${videoId}?autoplay=1&playsinline=1&rel=0&modestbranding=1`}
               className="w-full h-full"
@@ -55,7 +55,7 @@ function ClipModal({ clip, onClose }: { clip: InfoArticleShape; onClose: () => v
             />
           </div>
         ) : (
-          <div className="aspect-video bg-gray-100 flex items-center justify-center">
+          <div className="aspect-[9/16] max-h-[70vh] bg-gray-100 flex items-center justify-center">
             <p className="text-gray-400 text-sm">영상을 불러올 수 없습니다</p>
           </div>
         )}
@@ -108,9 +108,9 @@ export function ClipsCarousel({ clips }: { clips: InfoArticleShape[] }) {
           <button
             key={article.id}
             onClick={() => setSelected(article)}
-            className="block group shrink-0 w-[260px] text-left"
+            className="block group shrink-0 w-[160px] text-left"
           >
-            <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-gray-200">
+            <div className="relative aspect-[9/16] rounded-2xl overflow-hidden bg-gray-200">
               {article.thumbnailUrl ? (
                 /* eslint-disable-next-line @next/next/no-img-element */
                 <img
