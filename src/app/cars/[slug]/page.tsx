@@ -13,6 +13,7 @@ import { CarFaq } from '@/components/cars/CarFaq';
 import { RelatedCars } from '@/components/cars/RelatedCars';
 import { CarSeoAnalytics } from '@/components/cars/CarSeoAnalytics';
 import { TrimOptionSelectorWrapper } from '@/components/cars/TrimOptionSelectorWrapper';
+import { ScrollToTop } from '@/components/ui/ScrollToTop';
 
 export const revalidate = 3600;
 
@@ -155,6 +156,7 @@ async function CarPageContent({ slug }: { slug: string }) {
 
   return (
     <div className="max-w-lg mx-auto">
+      <ScrollToTop />
       {/* 1. 히어로: 이미지 + 모델명 */}
       <CarHero vehicle={vehicle} />
 
@@ -183,7 +185,7 @@ async function CarPageContent({ slug }: { slug: string }) {
       )}
 
       {/* 5. 관련 콘텐츠 */}
-      <CarArticles articles={articles} />
+      <CarArticles articles={articles} vehicle={vehicle} />
 
       {/* 6. FAQ */}
       <CarFaq />
