@@ -82,9 +82,10 @@ const ClipCard = memo(function ClipCard({ article, onClick }: { article: Article
   );
 });
 
-export function InfoClips({ initialArticles, categories = [] }: {
+export function InfoClips({ initialArticles, categories = [], prices = {} }: {
   initialArticles?: Article[];
   categories?: { value: string; label: string }[];
+  prices?: Record<string, number>;
 }) {
   const pathname = usePathname();
   const [articles, setArticles] = useState<Article[]>(initialArticles ?? []);
@@ -108,8 +109,11 @@ export function InfoClips({ initialArticles, categories = [] }: {
     setIframeSrc('');
   };
 
-  const selectedVehicle = selectedClip?.vehicleSlug
+  const selectedVehicleBase = selectedClip?.vehicleSlug
     ? getVehicleBySlug(selectedClip.vehicleSlug) ?? undefined
+    : undefined;
+  const selectedVehicle = selectedVehicleBase
+    ? { ...selectedVehicleBase, minMonthly: selectedClip?.vehicleSlug ? prices[selectedClip.vehicleSlug] : undefined }
     : undefined;
 
   useEffect(() => {

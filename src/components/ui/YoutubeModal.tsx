@@ -22,6 +22,7 @@ interface VehicleInfo {
   brand: string;
   model: string;
   imageKey: string;
+  minMonthly?: number;
 }
 
 interface YoutubeModalProps {
@@ -80,18 +81,24 @@ export function YoutubeModal({ title, iframeSrc, onClose, vehicle }: YoutubeModa
             <Link
               href={`/cars/${vehicle.slug}`}
               onClick={onClose}
-              className="flex items-center gap-3 p-3 rounded-xl bg-white/15 backdrop-blur-sm hover:bg-white/25 transition-colors"
+              className="flex items-center gap-3 p-3 rounded-xl bg-white hover:bg-gray-50 transition-colors"
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={`/cars/${vehicle.imageKey}.webp`}
                 alt={vehicle.model}
-                className="w-14 h-10 object-contain shrink-0"
+                className="w-16 h-12 object-contain shrink-0"
               />
-              <div>
-                <p className="text-white/70 text-[11px]">{vehicle.brand}</p>
-                <p className="text-white text-sm font-bold">{vehicle.model}</p>
-                <p className="text-[#C9A84C] text-xs mt-0.5">장기렌트 견적 보기 →</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-gray-400 text-[11px]">{vehicle.brand}</p>
+                <p className="text-gray-900 text-sm font-bold leading-tight">{vehicle.model}</p>
+                {vehicle.minMonthly ? (
+                  <p className="text-[#C9A84C] text-xl font-extrabold mt-1">
+                    월 {vehicle.minMonthly.toLocaleString()}만원~
+                  </p>
+                ) : (
+                  <p className="text-[#C9A84C] text-sm font-bold mt-1">견적 문의 →</p>
+                )}
               </div>
             </Link>
           </div>

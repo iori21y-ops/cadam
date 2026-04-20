@@ -63,11 +63,44 @@ async function getCategories(): Promise<{ value: string; label: string }[]> {
   }
 }
 
+async function getPrices(): Promise<Record<string, number>> {
+  try {
+    const supabase = await createServerSupabaseClient();
+    const { data: vehicles } = await supabase
+      .from('vehicles')
+      .select('id, slug');
+    if (!vehicles?.length) return {};
+
+    const idToSlug = new Map((vehicles as { id: string; slug: string }[]).map(v => [v.id, v.slug]));
+    const vehicleIds = (vehicles as { id: string; slug: string }[]).map(v => v.id);
+
+    const { data: pricing } = await supabase
+      .from('pricing')
+      .select('vehicle_id, min_monthly')
+      .in('vehicle_id', vehicleIds)
+      .eq('is_active', true)
+      .gt('min_monthly', 0);
+
+    const priceMap: Record<string, number> = {};
+    for (const row of (pricing ?? []) as { vehicle_id: string; min_monthly: number }[]) {
+      const slug = idToSlug.get(row.vehicle_id);
+      if (!slug) continue;
+      if (!priceMap[slug] || row.min_monthly < priceMap[slug]) {
+        priceMap[slug] = row.min_monthly;
+      }
+    }
+    return priceMap;
+  } catch {
+    return {};
+  }
+}
+
 export default async function ClipsPage() {
-  const [articles, categories, wpArticles] = await Promise.all([
+  const [articles, categories, wpArticles, prices] = await Promise.all([
     getArticles(),
     getCategories(),
     fetchWpPosts({ perPage: 50 }),
+    getPrices(),
   ]);
 
   const wpLinks = new Set(wpArticles.map(a => a.linkUrl));
@@ -78,5 +111,5 @@ export default async function ClipsPage() {
     return db - da;
   });
 
-  return <InfoClips initialArticles={allArticles} categories={categories} />;
+  return <InfoClips initialArticles={allArticles} categories={categories} prices={prices} />;
 }
