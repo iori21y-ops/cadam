@@ -79,7 +79,7 @@ export default async function InfoArticlePage({
   const date = article.published_at ? formatDate(article.published_at) : '';
 
   return (
-    <article className="min-h-[100dvh] bg-white pb-24">
+    <article className="min-h-[100dvh] bg-surface-secondary pb-24">
       <div className="max-w-lg mx-auto px-5 pt-6">
         <Link
           href="/info"
