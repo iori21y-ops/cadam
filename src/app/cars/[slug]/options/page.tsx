@@ -7,7 +7,7 @@ import VehicleOptionsClient, {
   type OptionRow,
 } from '@/components/cars/VehicleOptionsClient';
 
-export const revalidate = 3600;
+export const revalidate = 60;
 
 export async function generateStaticParams() {
   return VEHICLE_LIST.map((v) => ({ slug: v.slug }));

@@ -4,7 +4,7 @@ import { ButtonLink } from '@/components/ui/Button';
 import { createServerSupabaseClient } from '@/lib/supabase-server';
 import { BRAND } from '@/constants/brand';
 
-export const revalidate = 3600;
+export const revalidate = 600;
 
 interface Promotion {
   id: string;

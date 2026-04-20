@@ -4,7 +4,7 @@ import { createServerSupabaseClient } from '@/lib/supabase-server';
 import { ButtonLink } from '@/components/ui/Button';
 import { PopularEstimatesClient } from './PopularEstimatesClient';
 
-export const revalidate = 3600;
+export const revalidate = 60;
 
 const FALLBACK_SLUGS = [
   // 현대
