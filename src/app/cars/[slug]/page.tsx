@@ -12,7 +12,7 @@ import { CarCtaSection } from '@/components/cars/CarCtaSection';
 import { CarFaq } from '@/components/cars/CarFaq';
 import { RelatedCars } from '@/components/cars/RelatedCars';
 import { CarSeoAnalytics } from '@/components/cars/CarSeoAnalytics';
-import { TrimOptionSelector } from '@/components/cars/TrimOptionSelector';
+import { TrimOptionSelectorWrapper } from '@/components/cars/TrimOptionSelectorWrapper';
 
 export const revalidate = 3600;
 
@@ -160,7 +160,7 @@ async function CarPageContent({ slug }: { slug: string }) {
 
       {/* 2. 트림 & 옵션 선택 (차량 사진 아래, 데이터 있을 때만) */}
       {vs?.id && (
-        <TrimOptionSelector trims={trims || []} options={options || []} slug={slug} />
+        <TrimOptionSelectorWrapper trims={trims || []} options={options || []} slug={slug} />
       )}
 
       {/* 3. 견적 조건 선택 + 가격 표시 */}
