@@ -87,24 +87,30 @@ export function YoutubeModal({ title, iframeSrc, onClose, vehicle }: YoutubeModa
               <img
                 src={`/cars/${vehicle.imageKey}.webp`}
                 alt={vehicle.model}
-                className="w-24 h-16 object-contain shrink-0"
+                className="w-40 h-24 object-contain shrink-0"
               />
-              <div className="flex-1 min-w-0 flex items-start gap-2">
-                <p
-                  className={`text-gray-900 font-bold leading-snug flex-1 min-w-0 ${vehicle.model.length > 8 ? 'text-xs' : 'text-sm'}`}
-                  style={{ wordBreak: 'keep-all' }}
-                >
-                  {vehicle.model}
-                </p>
-                <div className="shrink-0 flex flex-col items-end leading-none">
+              <div className="flex-1 flex flex-col items-center text-center gap-1">
+                <div style={{ wordBreak: 'keep-all' }}>
+                  <p className="text-gray-900 font-bold text-lg leading-tight">
+                    {vehicle.model.includes(' ')
+                      ? vehicle.model.slice(0, vehicle.model.indexOf(' '))
+                      : vehicle.model}
+                  </p>
+                  {vehicle.model.includes(' ') && (
+                    <p className="text-gray-500 text-sm font-medium leading-tight">
+                      {vehicle.model.slice(vehicle.model.indexOf(' ') + 1)}
+                    </p>
+                  )}
+                </div>
+                <div className="flex flex-col items-center leading-none mt-0.5">
                   {vehicle.minMonthly ? (
                     <p className="text-[#C9A84C] text-xl font-extrabold">
                       월 {vehicle.minMonthly.toLocaleString()}만원~
                     </p>
                   ) : (
-                    <p className="text-[#C9A84C] text-sm font-bold">가격 문의</p>
+                    <p className="text-[#C9A84C] text-base font-bold">가격 문의</p>
                   )}
-                  <p className="text-[#C9A84C] text-[11px] font-bold mt-1.5 opacity-80">견적 문의 →</p>
+                  <p className="text-[#C9A84C] text-xs font-bold mt-1 opacity-80">견적 문의 →</p>
                 </div>
               </div>
             </Link>
