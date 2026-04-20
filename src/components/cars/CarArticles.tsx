@@ -56,6 +56,7 @@ function ArticleThumb({
       src={src}
       alt={title}
       fill
+      quality={90}
       sizes={isShorts ? '160px' : '180px'}
       className="object-cover group-hover:scale-105 transition-transform duration-300"
       onError={() => {
