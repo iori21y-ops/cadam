@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import Link from 'next/link';
 import { X } from 'lucide-react';
 
@@ -31,13 +32,20 @@ interface YoutubeModalProps {
 }
 
 export function YoutubeModal({ title, iframeSrc, onClose, vehicle }: YoutubeModalProps) {
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, []);
+
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black"
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black h-[100dvh]"
       onClick={onClose}
     >
       <div
-        className="relative h-[90vh] aspect-[9/16] overflow-hidden rounded-xl"
+        className="relative h-[90dvh] aspect-[9/16] overflow-hidden rounded-xl"
         onClick={(e) => e.stopPropagation()}
       >
         {iframeSrc ? (
