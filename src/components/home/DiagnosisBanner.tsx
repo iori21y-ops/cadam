@@ -41,7 +41,7 @@ export function DiagnosisBanner() {
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mb-8">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center shrink-0">
               <ClipboardCheck className="w-5 h-5 text-accent" />
             </div>
             <div className="text-left">
@@ -53,7 +53,7 @@ export function DiagnosisBanner() {
           <div className="hidden sm:block w-8 h-px bg-border" />
 
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center shrink-0">
               <Sparkles className="w-5 h-5 text-accent" />
             </div>
             <div className="text-left">
