@@ -32,60 +32,61 @@ function ClipModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black"
       onClick={onClose}
     >
+      {/* 영상 wrapper — 세로 풀스크린 */}
       <div
-        className="bg-white rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl"
+        className="relative h-[90vh] aspect-[9/16] overflow-hidden rounded-xl"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* 헤더 */}
-        <div className="flex items-start justify-between p-4 border-b border-gray-100">
-          <p className="font-bold text-gray-900 text-sm leading-snug pr-3">{clip.title}</p>
-          <button
-            onClick={onClose}
-            className="shrink-0 text-gray-400 hover:text-gray-700 transition-colors"
-            aria-label="닫기"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-
-        {/* YouTube 임베드 */}
+        {/* iframe */}
         {iframeSrc ? (
-          <div className="aspect-[9/16] max-h-[70vh] overflow-hidden bg-black">
-            <iframe
-              src={iframeSrc}
-              className="w-full h-full"
-              allow="autoplay; encrypted-media; fullscreen"
-              allowFullScreen
-            />
-          </div>
+          <iframe
+            src={iframeSrc}
+            className="w-full h-full"
+            allow="autoplay; encrypted-media; fullscreen"
+            allowFullScreen
+          />
         ) : (
-          <div className="aspect-[9/16] max-h-[70vh] bg-gray-100 flex items-center justify-center">
+          <div className="w-full h-full bg-gray-900 flex items-center justify-center">
             <p className="text-gray-400 text-sm">영상을 불러올 수 없습니다</p>
           </div>
         )}
 
-        {/* 관련 차량 카드 */}
+        {/* 상단 오버레이: 제목 + X버튼 */}
+        <div className="absolute top-0 left-0 right-0 z-10 flex items-start justify-between p-4 bg-gradient-to-b from-black/70 to-transparent">
+          <p className="text-white text-sm font-bold leading-snug pr-3 drop-shadow">
+            {clip.title}
+          </p>
+          <button
+            onClick={onClose}
+            className="shrink-0 text-white/80 hover:text-white transition-colors"
+            aria-label="닫기"
+          >
+            <X className="w-6 h-6 drop-shadow" />
+          </button>
+        </div>
+
+        {/* 하단 오버레이: 관련 차량 링크 */}
         {vehicle && (
-          <div className="p-4 border-t border-gray-100">
-            <p className="text-xs text-gray-400 mb-2">관련 차량</p>
+          <div className="absolute bottom-0 left-0 right-0 z-10 p-4 bg-gradient-to-t from-black/80 to-transparent">
+            <p className="text-white/60 text-xs mb-2">관련 차량</p>
             <Link
               href={`/cars/${vehicle.slug}`}
               onClick={onClose}
-              className="flex items-center gap-3 p-3 rounded-xl border border-accent bg-white hover:bg-gray-50 transition-colors"
+              className="flex items-center gap-3 p-3 rounded-xl bg-white/15 backdrop-blur-sm hover:bg-white/25 transition-colors"
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={`/cars/${vehicle.imageKey}.webp`}
                 alt={vehicle.model}
-                className="w-16 h-12 object-contain shrink-0"
+                className="w-14 h-10 object-contain shrink-0"
               />
               <div>
-                <p className="text-[11px] text-gray-500">{vehicle.brand}</p>
-                <p className="text-sm font-bold text-gray-900">{vehicle.model}</p>
-                <p className="text-xs text-accent mt-0.5">장기렌트 견적 보기 →</p>
+                <p className="text-white/70 text-[11px]">{vehicle.brand}</p>
+                <p className="text-white text-sm font-bold">{vehicle.model}</p>
+                <p className="text-[#C9A84C] text-xs mt-0.5">장기렌트 견적 보기 →</p>
               </div>
             </Link>
           </div>
