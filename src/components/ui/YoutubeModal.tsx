@@ -87,7 +87,7 @@ export function YoutubeModal({ title, iframeSrc, onClose, vehicle }: YoutubeModa
               <img
                 src={`/cars/${vehicle.imageKey}.webp`}
                 alt={vehicle.model}
-                className="w-16 h-12 object-contain shrink-0"
+                className="w-24 h-16 object-contain shrink-0"
               />
               <div className="flex-1 min-w-0 flex items-start gap-2">
                 <p
