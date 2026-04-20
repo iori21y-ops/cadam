@@ -62,7 +62,7 @@ const ArticleCard = memo(function ArticleCard({ article }: { article: Article })
       href={article.linkUrl}
       target="_blank"
       rel="noopener noreferrer"
-      className={`shrink-0 flex flex-col rounded-2xl bg-white border border-border-solid hover:border-accent hover:shadow-md transition-all overflow-hidden group ${isShorts ? 'w-[120px]' : 'w-[180px]'}`}
+      className={`shrink-0 flex flex-col rounded-2xl bg-white border border-accent hover:shadow-md transition-all overflow-hidden group ${isShorts ? 'w-[120px]' : 'w-[180px]'}`}
     >
       <div
         className={`w-full overflow-hidden relative ${isShorts ? 'aspect-[9/16]' : 'aspect-video'}`}

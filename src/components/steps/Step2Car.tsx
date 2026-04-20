@@ -100,7 +100,7 @@ export function Step2Car() {
 
       {/* Brand tabs - sticky */}
       <div className="sticky top-0 z-10 bg-surface-secondary px-5 pt-1 pb-2">
-        <div className="bg-white border border-border-solid rounded-2xl overflow-hidden">
+        <div className="bg-white border border-accent rounded-2xl overflow-hidden">
           <div className="flex">
           {BRANDS.map((brand) => (
             <button

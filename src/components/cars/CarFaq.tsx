@@ -28,7 +28,7 @@ export function CarFaq() {
   return (
     <section className="px-5 py-8">
       <h2 className="text-lg font-bold text-text mb-4">자주 묻는 질문</h2>
-      <div className="rounded-2xl border border-border-solid bg-white overflow-hidden divide-y divide-border-solid">
+      <div className="rounded-2xl border border-accent bg-white overflow-hidden divide-y divide-border-solid">
         {FAQ_ITEMS.map((item, idx) => (
           <div key={idx}>
             <button

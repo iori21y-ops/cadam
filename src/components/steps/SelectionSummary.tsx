@@ -94,7 +94,7 @@ export function SelectionSummary({ currentStep }: { currentStep: number }) {
 
   return (
     <div className="px-5 pt-2">
-      <div className="rounded-2xl bg-white border border-border-solid overflow-hidden">
+      <div className="rounded-2xl bg-white border border-accent overflow-hidden">
         {!isExpanded ? (
           <div
             ref={containerRef}

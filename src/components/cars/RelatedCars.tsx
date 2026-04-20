@@ -22,7 +22,7 @@ export function RelatedCars({ currentVehicle }: RelatedCarsProps) {
           <Link
             key={v.id}
             href={`/cars/${v.slug}`}
-            className="shrink-0 w-[140px] rounded-2xl border border-border-solid bg-white overflow-hidden hover:border-accent hover:shadow-md transition-all group"
+            className="shrink-0 w-[140px] rounded-2xl border border-accent bg-white overflow-hidden hover:shadow-md transition-all group"
           >
             <div className="relative w-full aspect-[4/3] bg-white">
               <CarImageFallback

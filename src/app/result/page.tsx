@@ -148,7 +148,7 @@ export default function ResultPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15, duration: 0.4, ease: 'easeOut' }}
-            className="mx-5 mb-4 rounded-2xl bg-white border border-border-solid overflow-hidden"
+            className="mx-5 mb-4 rounded-2xl bg-white border border-accent overflow-hidden"
           >
             <div className="px-5 pt-5 pb-3">
               <p className="text-sm font-bold text-text">AI 종합 진단 결과</p>
@@ -242,7 +242,7 @@ export default function ResultPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.25, duration: 0.4, ease: 'easeOut' }}
-            className="mx-5 mb-4 rounded-2xl bg-white p-5 border border-border-solid"
+            className="mx-5 mb-4 rounded-2xl bg-white p-5 border border-accent"
           >
             <p className="text-sm font-bold text-text mb-3">상담 조건</p>
             {[
@@ -301,7 +301,7 @@ export default function ResultPage() {
 
       {/* ━━━ 하단 고정 ━━━ */}
       <div className="fixed bottom-0 left-0 right-0 max-w-lg mx-auto px-5 py-4 bg-surface-secondary">
-        <div className="bg-white rounded-2xl p-4 border border-border-solid shadow-[0_6px_18px_rgba(0,0,0,0.06)]">
+        <div className="bg-white rounded-2xl p-4 border border-accent shadow-[0_6px_18px_rgba(0,0,0,0.06)]">
           <Button type="button" variant="primary" size="lg" fullWidth onClick={handleRetry}>
             다른 조건으로 다시 상담하기
           </Button>

@@ -72,7 +72,7 @@ export async function TrimPriceTable({ vehicleId }: TrimPriceTableProps) {
   return (
     <section className="px-5 pb-8">
       <h2 className="text-lg font-bold text-text mb-4">트림별 출고가</h2>
-      <div className="rounded-2xl bg-white border border-border-solid shadow-sm overflow-hidden">
+      <div className="rounded-2xl bg-white border border-accent shadow-sm overflow-hidden">
         {trims.map((trim, idx) => {
           const trimOptions = optionsByTrim.get(trim.id) ?? [];
           const isLast = idx === trims.length - 1 && commonOptions.length === 0;

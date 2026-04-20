@@ -29,7 +29,7 @@ export function ServiceSteps() {
         {STEPS.map(({ icon: Icon, step, title, desc }) => (
           <div
             key={step}
-            className="flex flex-col items-center text-center p-4 rounded-2xl bg-white border border-border-solid"
+            className="flex flex-col items-center text-center p-4 rounded-2xl bg-white border border-accent"
           >
             <div className="w-11 h-11 rounded-full bg-accent/15 flex items-center justify-center mb-2.5">
               <Icon size={22} className="text-accent" strokeWidth={1.8} />

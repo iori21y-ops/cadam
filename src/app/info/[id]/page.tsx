@@ -110,7 +110,7 @@ export default async function InfoArticlePage({
 
         <SafeHtml html={article.content} className="wp-content mt-8 text-text" />
 
-        <div className="mt-12 rounded-3xl bg-white border border-border-solid p-6 text-center">
+        <div className="mt-12 rounded-3xl bg-white border border-accent p-6 text-center">
           <p className="text-base font-semibold text-text">
             내 차에 맞는 장기렌트 조건이 궁금하다면?
           </p>

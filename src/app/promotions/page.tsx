@@ -119,7 +119,7 @@ export default async function PromotionsPage() {
                 </>
               );
               const className =
-                'flex flex-col flex-shrink-0 w-full sm:w-[280px] rounded-2xl overflow-hidden bg-white border border-border-solid shadow-sm hover:shadow-md transition-shadow';
+                'flex flex-col flex-shrink-0 w-full sm:w-[280px] rounded-2xl overflow-hidden bg-white border border-accent shadow-sm hover:shadow-md transition-shadow';
               return p.linkUrl ? (
                 <a key={p.id} href={p.linkUrl} className={className}>
                   {cardContent}

@@ -174,7 +174,7 @@ export function TrimOptionSelector({ trims, options, slug }: TrimOptionSelectorP
     <section className="px-5 pt-2 pb-6">
       <h2 className="text-lg font-bold text-text mb-3">트림 &amp; 옵션 선택</h2>
 
-      <div className="bg-white rounded-2xl border border-border-solid shadow-sm overflow-hidden">
+      <div className="bg-white rounded-2xl border border-accent shadow-sm overflow-hidden">
         {/* 트림 선택 */}
         <div className="px-4 pt-4 pb-3 border-b border-border-solid">
           <p className="text-xs text-text-sub mb-1.5">트림 선택</p>

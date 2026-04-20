@@ -35,7 +35,7 @@ export function PriceCompareTable({ priceRanges }: PriceCompareTableProps) {
     : null;
 
   return (
-    <div className="overflow-x-auto rounded-2xl border border-border-solid bg-white">
+    <div className="overflow-x-auto rounded-2xl border border-accent bg-white">
       <table className="w-full min-w-[280px] border-collapse">
         <thead>
           <tr>

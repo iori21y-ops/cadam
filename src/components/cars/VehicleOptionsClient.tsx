@@ -95,7 +95,7 @@ function OptionCard({ opt }: { opt: OptionRow }) {
   const category = opt.category || null;
 
   return (
-    <div className="flex gap-3 bg-white rounded-xl border border-border-solid shadow-sm p-3">
+    <div className="flex gap-3 bg-white rounded-xl border border-accent shadow-sm p-3">
       {/* 이미지 / 아이콘 */}
       <div className="w-[120px] h-[80px] rounded-lg overflow-hidden bg-surface-secondary flex items-center justify-center shrink-0">
         {opt.image_url ? (
