@@ -3,6 +3,8 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { memo, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { YoutubeModal, extractYouTubeId } from '@/components/ui/YoutubeModal';
+import { getVehicleBySlug } from '@/constants/vehicles';
 
 interface Article {
   id: string;
@@ -36,13 +38,11 @@ function CategoryPill({ active, onClick, children }: { active: boolean; onClick:
   );
 }
 
-const ClipCard = memo(function ClipCard({ article }: { article: Article }) {
+const ClipCard = memo(function ClipCard({ article, onClick }: { article: Article; onClick: () => void }) {
   return (
-    <a
-      href={article.linkUrl}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="block group"
+    <button
+      onClick={onClick}
+      className="block group text-left w-full"
     >
       <div className="relative aspect-[9/14] rounded-2xl overflow-hidden bg-gray-100">
         {article.thumbnailUrl ? (
@@ -78,7 +78,7 @@ const ClipCard = memo(function ClipCard({ article }: { article: Article }) {
           {article.excerpt}
         </p>
       )}
-    </a>
+    </button>
   );
 });
 
@@ -90,6 +90,27 @@ export function InfoClips({ initialArticles, categories = [] }: {
   const [articles, setArticles] = useState<Article[]>(initialArticles ?? []);
   const [loading, setLoading] = useState(!initialArticles);
   const [selectedKeyword, setSelectedKeyword] = useState('all');
+  const [selectedClip, setSelectedClip] = useState<Article | null>(null);
+  const [iframeSrc, setIframeSrc] = useState('');
+
+  const handleCardClick = (clip: Article) => {
+    const videoId = extractYouTubeId(clip.linkUrl);
+    setSelectedClip(clip);
+    setIframeSrc(
+      videoId
+        ? `https://www.youtube.com/embed/${videoId}?autoplay=1&playsinline=1&rel=0&mute=0`
+        : ''
+    );
+  };
+
+  const handleClose = () => {
+    setSelectedClip(null);
+    setIframeSrc('');
+  };
+
+  const selectedVehicle = selectedClip?.vehicleSlug
+    ? getVehicleBySlug(selectedClip.vehicleSlug) ?? undefined
+    : undefined;
 
   useEffect(() => {
     if (initialArticles) return;
@@ -183,10 +204,19 @@ export function InfoClips({ initialArticles, categories = [] }: {
         <div className="flex-1 overflow-y-auto max-w-lg mx-auto w-full px-5 pt-2">
           <div className="grid grid-cols-2 gap-3">
             {filteredClips.map((article) => (
-              <ClipCard key={article.id} article={article} />
+              <ClipCard key={article.id} article={article} onClick={() => handleCardClick(article)} />
             ))}
           </div>
         </div>
+      )}
+
+      {selectedClip && (
+        <YoutubeModal
+          title={selectedClip.title}
+          iframeSrc={iframeSrc}
+          onClose={handleClose}
+          vehicle={selectedVehicle}
+        />
       )}
     </div>
   );
