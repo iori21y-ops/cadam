@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import type { Metadata } from 'next';
-import { SafeHtml } from '@/components/SafeHtml';
+import { ArticleContent } from '@/components/ArticleContent';
 import { fetchWpPostBySlug } from '@/lib/wp-client';
 
 export const revalidate = 60;
@@ -105,7 +105,7 @@ export default async function BlogPostPage({
           />
         )}
 
-        <SafeHtml html={post.content.rendered} className="wp-content mt-8 text-text" />
+        <ArticleContent html={post.content.rendered} />
 
         <div className="mt-12 rounded-3xl bg-white border border-border-solid p-6 text-center">
           <p className="text-base font-semibold text-text">

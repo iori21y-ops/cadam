@@ -210,6 +210,122 @@ body {
 }
 
 /* ══════════════════════════════════════════════
+   wp-content 모바일 최적화
+══════════════════════════════════════════════ */
+
+@media (max-width: 640px) {
+  .wp-content {
+    font-size: 15px;
+  }
+  .wp-content h2 {
+    font-size: 19px;
+    margin-top: 1.75em;
+  }
+  .wp-content h3 {
+    font-size: 16px;
+    margin-top: 1.4em;
+  }
+}
+
+/* 표 가로 스크롤 래퍼 */
+.table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 8px;
+  margin: 1.5em 0;
+}
+.table-scroll table {
+  min-width: 480px;
+  margin: 0;
+}
+
+/* 목차 (TOC) */
+.wp-toc {
+  background: #F5F0E8;
+  border-left: 3px solid #C9A84C;
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin: 2em 0;
+}
+.wp-toc__label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #C9A84C;
+  margin-bottom: 10px;
+}
+.wp-toc__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.wp-toc__list a {
+  font-size: 14px;
+  color: #4A5568;
+  text-decoration: none;
+  display: block;
+  padding: 2px 0;
+}
+.wp-toc__list a:hover {
+  color: #0D1B2A;
+}
+
+/* CTA 히어로 블록 (그라디언트 → 브랜드 스타일) */
+.rtl-cta-hero {
+  background: linear-gradient(135deg, #0D1B2A, #1B2D45);
+  border-radius: 16px;
+  padding: 32px 24px;
+  text-align: center;
+  margin: 2em 0;
+  color: #ffffff;
+}
+.rtl-cta-hero p {
+  color: #ffffff !important;
+}
+.rtl-cta-hero p:first-child {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+@media (max-width: 640px) {
+  .rtl-cta-hero p:first-child {
+    font-size: 16px;
+  }
+}
+
+/* CTA 인라인 블록 (border-left 형태) */
+.rtl-cta-inline {
+  background: #F5F0E8;
+  border-left: 4px solid #C9A84C;
+  border-radius: 0 8px 8px 0;
+  padding: 16px 20px;
+  margin: 1.5em 0;
+}
+.rtl-cta-inline p {
+  color: #4A5568 !important;
+}
+
+/* CTA 버튼 링크 */
+.rtl-btn {
+  display: inline-block;
+  background: #C9A84C !important;
+  color: #0D1B2A !important;
+  padding: 14px 32px;
+  border-radius: 8px;
+  text-decoration: none !important;
+  font-weight: 700;
+  font-size: 15px;
+  margin-top: 16px;
+}
+.rtl-btn:hover {
+  opacity: 0.9;
+}
+
+/* ══════════════════════════════════════════════
    골드 아이콘 애니메이션 키프레임
 ══════════════════════════════════════════════ */
 
