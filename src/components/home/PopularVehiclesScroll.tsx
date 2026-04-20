@@ -92,40 +92,40 @@ export function PopularVehiclesScroll({ vehicles }: { vehicles: VehicleCard[] })
       {/* 카드 스크롤 */}
       <div
         ref={scrollRef}
-        className="flex gap-4 overflow-x-auto scrollbar-hide snap-x snap-mandatory px-5"
+        className="flex gap-3 overflow-x-auto scrollbar-hide snap-x snap-mandatory px-5"
       >
         {filtered.map((v, i) => (
           <Link
             key={v.slug}
             ref={(el) => setCardRef(el, i)}
             href={`/cars/${v.slug}`}
-            className="w-[80vw] max-w-[320px] shrink-0 snap-center bg-white rounded-2xl shadow-sm overflow-hidden transition-transform active:scale-[0.98]"
+            className="w-[44vw] max-w-[200px] shrink-0 snap-start bg-white rounded-2xl border border-accent shadow-sm overflow-hidden transition-transform active:scale-[0.98]"
             draggable={false}
           >
-            <div className="aspect-[16/10] bg-white relative">
+            <div className="aspect-[4/3] bg-white relative">
               <Image
                 src={`/cars/${v.imageKey}.webp`}
                 alt={v.model}
                 fill
-                className="object-contain p-6"
-                sizes="(max-width: 768px) 80vw, 320px"
+                className="object-contain p-3"
+                sizes="(max-width: 768px) 44vw, 200px"
                 draggable={false}
               />
             </div>
-            <div className="p-5">
-              <p className="text-text-sub text-xs">{v.brand}</p>
-              <p className="text-primary font-bold text-lg">{v.model}</p>
-              <div className="border-t border-gray-100 my-3" />
+            <div className="p-3">
+              <p className="text-text-sub text-[11px]">{v.brand}</p>
+              <p className="text-primary font-bold text-sm">{v.model}</p>
+              <div className="border-t border-gray-100 my-2" />
               {v.price && v.price.min > 0 ? (
                 <p>
-                  <span className="text-text-sub text-xs mr-1">월</span>
-                  <span className="text-accent font-bold text-xl">
+                  <span className="text-text-sub text-[11px] mr-0.5">월</span>
+                  <span className="text-accent font-bold text-2xl">
                     {formatPrice(v.price.min)}
                   </span>
-                  <span className="text-text-sub text-xs">만원~</span>
+                  <span className="text-text-sub text-[11px]">만원~</span>
                 </p>
               ) : (
-                <p className="text-accent font-bold">견적 문의</p>
+                <p className="text-accent font-bold text-lg">견적 문의</p>
               )}
             </div>
           </Link>
