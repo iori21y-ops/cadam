@@ -42,9 +42,11 @@ function ArticleThumb({
   if (!src) {
     return (
       <div className="w-full h-full bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center p-3">
-        <p className="text-white text-xs font-bold line-clamp-4 leading-snug text-center">
-          {title}
-        </p>
+        {!isShorts && (
+          <p className="text-white text-xs font-bold line-clamp-4 leading-snug text-center">
+            {title}
+          </p>
+        )}
       </div>
     );
   }
@@ -54,7 +56,7 @@ function ArticleThumb({
       src={src}
       alt={title}
       fill
-      sizes={isShorts ? '120px' : '180px'}
+      sizes={isShorts ? '160px' : '180px'}
       className="object-cover group-hover:scale-105 transition-transform duration-300"
       onError={() => {
         if (src.includes('maxresdefault')) {
@@ -67,6 +69,45 @@ function ArticleThumb({
   );
 }
 
+function ShortsCard({
+  article,
+  onYoutubeClick,
+}: {
+  article: Article;
+  onYoutubeClick: (article: Article) => void;
+}) {
+  const inner = (
+    <div className="relative w-[160px] aspect-[9/16] rounded-2xl overflow-hidden bg-gray-200">
+      <ArticleThumb thumbnailUrl={article.thumbnailUrl} title={article.title} isShorts={true} />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center">
+          <div className="w-0 h-0 border-t-[8px] border-t-transparent border-l-[14px] border-l-gray-900 border-b-[8px] border-b-transparent ml-1" />
+        </div>
+      </div>
+      <div className="absolute bottom-0 left-0 right-0 p-3.5">
+        <p className="text-white text-[13px] font-bold leading-snug line-clamp-2 drop-shadow">
+          {article.title}
+        </p>
+      </div>
+    </div>
+  );
+
+  if (isYouTubeUrl(article.linkUrl)) {
+    return (
+      <button onClick={() => onYoutubeClick(article)} className="shrink-0 text-left group">
+        {inner}
+      </button>
+    );
+  }
+
+  return (
+    <a href={article.linkUrl} target="_blank" rel="noopener noreferrer" className="shrink-0 group">
+      {inner}
+    </a>
+  );
+}
+
 const ArticleCard = memo(function ArticleCard({
   article,
   onYoutubeClick,
@@ -75,12 +116,16 @@ const ArticleCard = memo(function ArticleCard({
   onYoutubeClick: (article: Article) => void;
 }) {
   const isShorts = getDisplayType(article) === 'shorts';
-  const cardClass = `shrink-0 flex flex-col rounded-2xl bg-white border border-accent hover:shadow-md transition-all overflow-hidden group ${isShorts ? 'w-[120px]' : 'w-[180px]'}`;
 
+  if (isShorts) {
+    return <ShortsCard article={article} onYoutubeClick={onYoutubeClick} />;
+  }
+
+  const cardClass = `shrink-0 flex flex-col rounded-2xl bg-white border border-accent hover:shadow-md transition-all overflow-hidden group w-[180px]`;
   const inner = (
     <>
-      <div className={`w-full overflow-hidden relative ${isShorts ? 'aspect-[9/16]' : 'aspect-video'}`}>
-        <ArticleThumb thumbnailUrl={article.thumbnailUrl} title={article.title} isShorts={isShorts} />
+      <div className="w-full overflow-hidden relative aspect-video">
+        <ArticleThumb thumbnailUrl={article.thumbnailUrl} title={article.title} isShorts={false} />
       </div>
       <div className="p-2.5">
         <h3 className="text-[11px] font-semibold text-text line-clamp-2 leading-snug">
