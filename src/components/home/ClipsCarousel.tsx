@@ -19,8 +19,15 @@ function extractYouTubeId(url: string): string | null {
   return null;
 }
 
-function ClipModal({ clip, onClose }: { clip: InfoArticleShape; onClose: () => void }) {
-  const videoId = extractYouTubeId(clip.linkUrl);
+function ClipModal({
+  clip,
+  iframeSrc,
+  onClose,
+}: {
+  clip: InfoArticleShape;
+  iframeSrc: string;
+  onClose: () => void;
+}) {
   const vehicle = clip.vehicleSlug ? getVehicleBySlug(clip.vehicleSlug) : null;
 
   return (
@@ -45,12 +52,12 @@ function ClipModal({ clip, onClose }: { clip: InfoArticleShape; onClose: () => v
         </div>
 
         {/* YouTube 임베드 */}
-        {videoId ? (
+        {iframeSrc ? (
           <div className="aspect-[9/16] max-h-[70vh] overflow-hidden bg-black">
             <iframe
-              src={`https://www.youtube.com/embed/${videoId}?autoplay=1&playsinline=1&rel=0&modestbranding=1`}
+              src={iframeSrc}
               className="w-full h-full"
-              allow="autoplay; fullscreen; accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allow="autoplay; encrypted-media; fullscreen"
               allowFullScreen
             />
           </div>
@@ -90,6 +97,22 @@ function ClipModal({ clip, onClose }: { clip: InfoArticleShape; onClose: () => v
 
 export function ClipsCarousel({ clips }: { clips: InfoArticleShape[] }) {
   const [selected, setSelected] = useState<InfoArticleShape | null>(null);
+  const [iframeSrc, setIframeSrc] = useState('');
+
+  const handleCardClick = (clip: InfoArticleShape) => {
+    const videoId = extractYouTubeId(clip.linkUrl);
+    setSelected(clip);
+    setIframeSrc(
+      videoId
+        ? `https://www.youtube.com/embed/${videoId}?autoplay=1&playsinline=1&rel=0&mute=0`
+        : ''
+    );
+  };
+
+  const handleClose = () => {
+    setSelected(null);
+    setIframeSrc('');
+  };
 
   if (clips.length === 0) {
     return (
@@ -108,7 +131,7 @@ export function ClipsCarousel({ clips }: { clips: InfoArticleShape[] }) {
           {clips.map((article) => (
             <button
               key={article.id}
-              onClick={() => setSelected(article)}
+              onClick={() => handleCardClick(article)}
               className="block group shrink-0 snap-start w-[160px] text-left"
             >
               <div className="relative aspect-[9/16] rounded-2xl overflow-hidden bg-gray-200">
@@ -144,7 +167,7 @@ export function ClipsCarousel({ clips }: { clips: InfoArticleShape[] }) {
       </div>
 
       {selected && (
-        <ClipModal clip={selected} onClose={() => setSelected(null)} />
+        <ClipModal clip={selected} iframeSrc={iframeSrc} onClose={handleClose} />
       )}
     </>
   );
