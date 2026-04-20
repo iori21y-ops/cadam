@@ -122,7 +122,7 @@ export async function ArticleSection() {
     <>
       {/* 아티클 섹션 */}
       <section className="bg-white py-12 px-5">
-        <div className="max-w-2xl mx-auto">
+        <div className="max-w-lg mx-auto">
           <h2 className="font-bold text-xl text-gray-900 mb-1">렌테일러 아티클</h2>
           <p className="text-gray-500 text-sm mb-4">알아두면 유용한 렌트 가이드</p>
 
@@ -166,7 +166,7 @@ export async function ArticleSection() {
 
       {/* 클립 섹션 (차즘 스타일 가로 스크롤) */}
       <section className="bg-white py-10">
-        <div className="max-w-2xl mx-auto">
+        <div className="max-w-lg mx-auto">
           <div className="px-5 mb-4">
             <h2 className="font-bold text-xl text-gray-900 mb-1">클립</h2>
             <p className="text-gray-500 text-sm">영상으로 쉽게 알아보세요</p>

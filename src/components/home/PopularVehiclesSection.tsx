@@ -103,8 +103,8 @@ export async function PopularVehiclesSection() {
     }));
 
   return (
-    <section className="bg-background py-12">
-      <div className="max-w-2xl mx-auto">
+    <section className="bg-surface-secondary py-12">
+      <div className="max-w-lg mx-auto">
         <div className="flex items-center justify-between mb-6 px-5">
           <h2 className="text-primary font-bold text-xl">
             렌테일러 추천 차량

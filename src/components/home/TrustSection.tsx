@@ -22,7 +22,7 @@ const FEATURES = [
 export function TrustSection() {
   return (
     <section className="bg-surface py-16 px-5">
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-lg mx-auto">
         <h2 className="text-primary font-bold text-2xl text-center mb-10">
           15년 경력 전문가가 직접 상담합니다
         </h2>
