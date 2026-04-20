@@ -1,6 +1,6 @@
 'use client';
 
-import dynamic from 'next/dynamic';
+import { TrimOptionSelector } from './TrimOptionSelector';
 
 interface Trim {
   id: string;
@@ -23,11 +23,6 @@ interface Props {
   options: TrimOption[];
   slug: string;
 }
-
-const TrimOptionSelector = dynamic(
-  () => import('./TrimOptionSelector').then((m) => ({ default: m.TrimOptionSelector })),
-  { ssr: false }
-);
 
 export function TrimOptionSelectorWrapper({ trims, options, slug }: Props) {
   if (trims.length === 0) return null;
