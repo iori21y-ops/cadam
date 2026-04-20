@@ -15,7 +15,7 @@ import { CarSeoAnalytics } from '@/components/cars/CarSeoAnalytics';
 import { TrimOptionSelectorWrapper } from '@/components/cars/TrimOptionSelectorWrapper';
 import { ScrollToTop } from '@/components/ui/ScrollToTop';
 
-export const revalidate = 3600;
+export const revalidate = 60;
 
 export async function generateStaticParams() {
   return VEHICLE_LIST.map((v) => ({ slug: v.slug }));
