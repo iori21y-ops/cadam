@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { createServerSupabaseClient } from '@/lib/supabase-server';
 import { fetchWpPosts, type InfoArticleShape } from '@/lib/wp-client';
+import { ClipsCarousel } from './ClipsCarousel';
 
 const FALLBACK_ARTICLES: InfoArticleShape[] = [
   {
@@ -164,7 +165,7 @@ export async function ArticleSection() {
         </div>
       </section>
 
-      {/* 클립 섹션 (차즘 스타일 가로 스크롤) */}
+      {/* 클립 섹션 */}
       <section className="bg-white py-10">
         <div className="max-w-lg mx-auto">
           <div className="px-5 mb-4">
@@ -172,47 +173,7 @@ export async function ArticleSection() {
             <p className="text-gray-500 text-sm">영상으로 쉽게 알아보세요</p>
           </div>
 
-          {displayClips.length > 0 ? (
-            <div className="flex gap-3 overflow-x-auto scrollbar-hide px-5 pb-2">
-              {displayClips.map((article) => (
-                <a
-                  key={article.id}
-                  href={article.linkUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block group shrink-0 w-[260px]"
-                >
-                  <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-gray-200">
-                    {article.thumbnailUrl ? (
-                      /* eslint-disable-next-line @next/next/no-img-element */
-                      <img
-                        src={article.thumbnailUrl}
-                        alt={article.title}
-                        loading="lazy"
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full" style={{
-                        background: 'linear-gradient(135deg, #1C1C1E 0%, #3A3A3C 100%)',
-                      }} />
-                    )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
-                    <div className="absolute bottom-0 left-0 right-0 p-3.5">
-                      <p className="text-white text-[13px] font-bold leading-snug line-clamp-2 drop-shadow">
-                        {article.title}
-                      </p>
-                    </div>
-                  </div>
-                </a>
-              ))}
-            </div>
-          ) : (
-            <div className="px-5">
-              <div className="rounded-2xl bg-gray-50 py-10 text-center">
-                <p className="text-gray-400 text-sm">준비 중입니다</p>
-              </div>
-            </div>
-          )}
+          <ClipsCarousel clips={displayClips} />
 
           <div className="px-5 mt-3">
             <Link
