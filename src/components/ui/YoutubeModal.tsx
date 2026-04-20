@@ -91,14 +91,16 @@ export function YoutubeModal({ title, iframeSrc, onClose, vehicle }: YoutubeModa
               />
               <div className="flex-1 min-w-0">
                 <p className="text-gray-400 text-[11px]">{vehicle.brand}</p>
-                <p className="text-gray-900 text-sm font-bold leading-tight">{vehicle.model}</p>
-                {vehicle.minMonthly ? (
-                  <p className="text-[#C9A84C] text-xl font-extrabold mt-1">
-                    월 {vehicle.minMonthly.toLocaleString()}만원~
-                  </p>
-                ) : (
-                  <p className="text-[#C9A84C] text-sm font-bold mt-1">견적 문의 →</p>
-                )}
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-gray-900 text-sm font-bold leading-tight truncate">{vehicle.model}</p>
+                  {vehicle.minMonthly ? (
+                    <p className="text-[#C9A84C] text-xl font-extrabold shrink-0">
+                      월 {vehicle.minMonthly.toLocaleString()}만원~
+                    </p>
+                  ) : (
+                    <p className="text-[#C9A84C] text-sm font-bold shrink-0">견적 문의 →</p>
+                  )}
+                </div>
               </div>
             </Link>
           </div>
