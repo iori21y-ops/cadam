@@ -89,18 +89,20 @@ export function YoutubeModal({ title, iframeSrc, onClose, vehicle }: YoutubeModa
                 alt={vehicle.model}
                 className="w-16 h-12 object-contain shrink-0"
               />
-              <div className="flex-1 min-w-0">
-                <p className="text-gray-400 text-[11px]">{vehicle.brand}</p>
-                <div className="flex items-center justify-between gap-2">
-                  <p className="text-gray-900 text-sm font-bold leading-tight truncate">{vehicle.model}</p>
-                  {vehicle.minMonthly ? (
-                    <p className="text-[#C9A84C] text-xl font-extrabold shrink-0">
-                      월 {vehicle.minMonthly.toLocaleString()}만원~
-                    </p>
-                  ) : (
-                    <p className="text-[#C9A84C] text-sm font-bold shrink-0">견적 문의 →</p>
-                  )}
-                </div>
+              <div className="flex-1 min-w-0 flex items-start gap-2">
+                <p
+                  className={`text-gray-900 font-bold leading-snug flex-1 min-w-0 ${vehicle.model.length > 8 ? 'text-xs' : 'text-sm'}`}
+                  style={{ wordBreak: 'keep-all' }}
+                >
+                  {vehicle.model}
+                </p>
+                {vehicle.minMonthly ? (
+                  <p className="text-[#C9A84C] text-xl font-extrabold shrink-0 leading-snug">
+                    월 {vehicle.minMonthly.toLocaleString()}만원~
+                  </p>
+                ) : (
+                  <p className="text-[#C9A84C] text-sm font-bold shrink-0">견적 문의 →</p>
+                )}
               </div>
             </Link>
           </div>
