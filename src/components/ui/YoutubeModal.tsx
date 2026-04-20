@@ -96,13 +96,16 @@ export function YoutubeModal({ title, iframeSrc, onClose, vehicle }: YoutubeModa
                 >
                   {vehicle.model}
                 </p>
-                {vehicle.minMonthly ? (
-                  <p className="text-[#C9A84C] text-xl font-extrabold shrink-0 leading-snug">
-                    월 {vehicle.minMonthly.toLocaleString()}만원~
-                  </p>
-                ) : (
-                  <p className="text-[#C9A84C] text-sm font-bold shrink-0">견적 문의 →</p>
-                )}
+                <div className="shrink-0 flex flex-col items-end leading-none">
+                  {vehicle.minMonthly ? (
+                    <p className="text-[#C9A84C] text-xl font-extrabold">
+                      월 {vehicle.minMonthly.toLocaleString()}만원~
+                    </p>
+                  ) : (
+                    <p className="text-[#C9A84C] text-sm font-bold">가격 문의</p>
+                  )}
+                  <p className="text-[#C9A84C] text-[11px] font-bold mt-1.5 opacity-80">견적 문의 →</p>
+                </div>
               </div>
             </Link>
           </div>
