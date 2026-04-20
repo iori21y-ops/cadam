@@ -10,7 +10,7 @@ import { Footer } from '@/components/Footer';
 function VehiclesSkeleton() {
   return (
     <section className="bg-background py-12 px-5">
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-lg mx-auto">
         <div className="h-7 bg-surface rounded w-48 mb-6" />
         <div className="flex gap-4 overflow-hidden">
           {Array.from({ length: 4 }).map((_, i) => (
@@ -31,7 +31,7 @@ function VehiclesSkeleton() {
 function ArticlesSkeleton() {
   return (
     <section className="bg-background py-12 px-5">
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-lg mx-auto">
         <div className="h-7 bg-surface rounded w-56 mb-2" />
         {Array.from({ length: 4 }).map((_, i) => (
           <div

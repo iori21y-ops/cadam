@@ -77,7 +77,7 @@ export default async function BlogPostPage({
   const featured = post._embedded?.['wp:featuredmedia']?.[0]?.source_url ?? null;
   return (
     <article className="min-h-[100dvh] bg-surface-secondary pb-24">
-      <div className="max-w-[720px] mx-auto px-5 pt-6">
+      <div className="max-w-lg mx-auto px-5 pt-6">
         <Link
           href="/"
           className="inline-flex items-center gap-1 text-sm text-text-sub hover:text-text transition-colors"

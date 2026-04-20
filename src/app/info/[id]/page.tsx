@@ -80,7 +80,7 @@ export default async function InfoArticlePage({
 
   return (
     <article className="min-h-[100dvh] bg-surface-secondary pb-24">
-      <div className="max-w-[720px] mx-auto px-5 pt-6">
+      <div className="max-w-lg mx-auto px-5 pt-6">
         <Link
           href="/info"
           className="inline-flex items-center gap-1 text-sm text-text-sub hover:text-text transition-colors"
