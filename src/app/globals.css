@@ -452,3 +452,36 @@ body {
   transform: scale(0.97) translateY(0);
   filter: brightness(0.97);
 }
+
+/* ══════════════════════════════════════════════
+   클립 모달 차량 카드 — 금색 테두리 + 글로우 + 빛줄기
+══════════════════════════════════════════════ */
+@keyframes vehicle-glow {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(201,168,76,0.2), 0 2px 8px rgba(201,168,76,0.1); }
+  50%       { box-shadow: 0 0 14px 4px rgba(240,208,96,0.55), 0 4px 20px rgba(201,168,76,0.3); }
+}
+
+.vehicle-card-gold {
+  position: relative;
+  overflow: hidden;
+  border: 2px solid #C9A84C;
+  animation: vehicle-glow 2.5s ease-in-out infinite;
+}
+
+.vehicle-card-gold::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(240, 208, 96, 0.30) 50%,
+    transparent 100%
+  );
+  transform: translateX(-200%) skewX(-20deg);
+  animation: shimmer-sweep 3.5s linear infinite;
+  pointer-events: none;
+}

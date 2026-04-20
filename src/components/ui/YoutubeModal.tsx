@@ -81,7 +81,7 @@ export function YoutubeModal({ title, iframeSrc, onClose, vehicle }: YoutubeModa
             <Link
               href={`/cars/${vehicle.slug}`}
               onClick={onClose}
-              className="flex items-center gap-3 p-3 rounded-xl bg-white hover:bg-gray-50 transition-colors"
+              className="vehicle-card-gold flex items-center gap-3 p-3 rounded-xl bg-white hover:bg-gray-50 transition-colors"
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
