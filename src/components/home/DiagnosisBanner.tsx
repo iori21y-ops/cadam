@@ -44,7 +44,7 @@ export function DiagnosisBanner() {
             <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center shrink-0">
               <ClipboardCheck className="w-5 h-5 text-accent" />
             </div>
-            <div>
+            <div className="self-center">
               <p className="text-primary font-bold text-sm">Step 1</p>
               <p className="text-text-sub text-xs">간단한 질문에 답하기 (1분)</p>
             </div>
@@ -56,7 +56,7 @@ export function DiagnosisBanner() {
             <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center shrink-0">
               <Sparkles className="w-5 h-5 text-accent" />
             </div>
-            <div>
+            <div className="self-center">
               <p className="text-primary font-bold text-sm">Step 2</p>
               <p className="text-text-sub text-xs">맞춤 차량 + 견적 받기</p>
             </div>
