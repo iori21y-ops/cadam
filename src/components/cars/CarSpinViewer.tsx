@@ -4,6 +4,8 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 
 const FRAME_COUNT = 61;
 const PX_PER_FRAME = 5;
+const STORAGE_BASE =
+  `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/car-360`;
 
 interface CarSpinViewerProps {
   slug: string;
@@ -18,7 +20,7 @@ export function CarSpinViewer({ slug, onFailed }: CarSpinViewerProps) {
   const dragRef = useRef({ active: false, startX: 0, frameAtStart: 0 });
 
   const frameUrl = (i: number) =>
-    `/cars/360/${slug}/${String(i + 1).padStart(3, '0')}.webp`;
+    `${STORAGE_BASE}/${slug}/${String(i + 1).padStart(3, '0')}.webp`;
 
   useEffect(() => {
     let cancelled = false;
