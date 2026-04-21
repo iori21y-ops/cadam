@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# 360° spin images (large binary files, generated locally)
+/public/cars/360/

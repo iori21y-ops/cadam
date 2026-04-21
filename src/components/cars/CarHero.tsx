@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Image from 'next/image';
 import type { Vehicle } from '@/constants/vehicles';
 import { IconCarSedan } from '@/components/icons/RentailorIcons';
+import { CarSpinViewer } from './CarSpinViewer';
 
 interface CarHeroProps {
   vehicle: Vehicle;
@@ -11,28 +12,35 @@ interface CarHeroProps {
 
 export function CarHero({ vehicle }: CarHeroProps) {
   const [imageError, setImageError] = useState(false);
+  const [spinFailed, setSpinFailed] = useState(false);
+
+  const showSpin = vehicle.has360Spin && !spinFailed;
 
   return (
     <section>
       {/* 차량 이미지 영역 */}
-      <div className="mx-4 mt-4 relative aspect-[4/3] bg-white rounded-2xl overflow-hidden shadow-sm">
-        {imageError ? (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
-            <IconCarSedan size={56} className="opacity-20 text-text-sub" />
-            <span className="text-sm text-text-sub">이미지 준비 중</span>
-          </div>
-        ) : (
-          <Image
-            src={`/cars/${vehicle.imageKey}.webp`}
-            alt={`${vehicle.brand} ${vehicle.model}`}
-            fill
-            sizes="(max-width:768px) 100vw, 480px"
-            className="object-contain p-4"
-            priority
-            onError={() => setImageError(true)}
-          />
-        )}
-      </div>
+      {showSpin ? (
+        <CarSpinViewer slug={vehicle.slug} onFailed={() => setSpinFailed(true)} />
+      ) : (
+        <div className="mx-4 mt-4 relative aspect-[4/3] bg-white rounded-2xl overflow-hidden shadow-sm">
+          {imageError ? (
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
+              <IconCarSedan size={56} className="opacity-20 text-text-sub" />
+              <span className="text-sm text-text-sub">이미지 준비 중</span>
+            </div>
+          ) : (
+            <Image
+              src={`/cars/${vehicle.imageKey}.webp`}
+              alt={`${vehicle.brand} ${vehicle.model}`}
+              fill
+              sizes="(max-width:768px) 100vw, 480px"
+              className="object-contain p-4"
+              priority
+              onError={() => setImageError(true)}
+            />
+          )}
+        </div>
+      )}
 
       {/* 모델명 + 배지 */}
       <div className="px-5 pt-4 pb-5">
