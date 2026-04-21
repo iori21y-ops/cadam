@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import { HeroSection } from '@/components/home/HeroSection';
 import { PopularVehiclesSection } from '@/components/home/PopularVehiclesSection';
-import { DiagnosisBanner } from '@/components/home/DiagnosisBanner';
+import { DiagnosisBannerLazy } from '@/components/home/DiagnosisBannerLazy';
 import { PromotionBanner } from '@/components/home/PromotionBanner';
 import { ArticleSection } from '@/components/home/ArticleSection';
 import { TrustSection } from '@/components/home/TrustSection';
@@ -60,7 +60,7 @@ export default function HomePage() {
       <Suspense fallback={<VehiclesSkeleton />}>
         <PopularVehiclesSection />
       </Suspense>
-      <DiagnosisBanner />
+      <DiagnosisBannerLazy />
       <Suspense fallback={<ArticlesSkeleton />}>
         <ArticleSection />
       </Suspense>

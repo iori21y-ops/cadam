@@ -1,17 +1,23 @@
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { usePageTransitionStore } from '@/store/pageTransitionStore';
 
 export function PageTransition({ children }: { children: React.ReactNode }) {
+  // SSR + 초기 클라이언트 렌더에서는 framer-motion 없이 children 직접 반환.
+  // hydration 완료 후 페이지 전환 애니메이션 활성화.
+  const [hydrated, setHydrated] = useState(false);
   const pending = usePageTransitionStore((s) => s.pending);
   const transitionId = usePageTransitionStore((s) => s.transitionId);
   const consume = usePageTransitionStore((s) => s.consume);
   const lastConsumedTransitionRef = useRef<number>(-1);
-  // 전환 1회(transitionId 1 증가)당 key는 1번만 바뀌어야 합니다.
-  // pending(true->false)로 key가 바뀌면 슬라이드가 2번 재시작될 수 있으므로, key는 transitionId만 사용합니다.
+  // key는 transitionId만 사용 — pending 변경 시 슬라이드 이중 재시작 방지
   const key = `t:${transitionId}`;
+
+  useEffect(() => { setHydrated(true); }, []);
+
+  if (!hydrated) return <>{children}</>;
 
   return (
     <AnimatePresence mode="wait" initial={false}>
