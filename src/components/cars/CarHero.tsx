@@ -20,7 +20,7 @@ export function CarHero({ vehicle }: CarHeroProps) {
     <section>
       {/* 차량 이미지 영역 */}
       {showSpin ? (
-        <CarSpinViewer slug={vehicle.slug} onFailed={() => setSpinFailed(true)} />
+        <CarSpinViewer slug={vehicle.slug} startFrame={vehicle.spinStartFrame ?? 0} onFailed={() => setSpinFailed(true)} />
       ) : (
         <div className="mx-4 mt-4 relative aspect-[4/3] bg-white rounded-2xl overflow-hidden shadow-sm">
           {imageError ? (

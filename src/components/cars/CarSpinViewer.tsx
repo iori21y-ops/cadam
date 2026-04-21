@@ -9,6 +9,7 @@ const STORAGE_BASE =
 
 interface CarSpinViewerProps {
   slug: string;
+  startFrame?: number;
   onFailed: () => void;
 }
 
@@ -22,7 +23,7 @@ function drawContained(ctx: CanvasRenderingContext2D, img: HTMLImageElement) {
   ctx.drawImage(img, x, y, img.naturalWidth * scale, img.naturalHeight * scale);
 }
 
-export function CarSpinViewer({ slug, onFailed }: CarSpinViewerProps) {
+export function CarSpinViewer({ slug, startFrame = 0, onFailed }: CarSpinViewerProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const framesRef = useRef<HTMLImageElement[]>([]);
   const dragRef = useRef({ active: false, startX: 0, frameAtStart: 0 });
@@ -47,7 +48,7 @@ export function CarSpinViewer({ slug, onFailed }: CarSpinViewerProps) {
   useEffect(() => {
     let cancelled = false;
     framesRef.current = [];
-    currentFrameRef.current = 0;
+    currentFrameRef.current = startFrame;
     setFirstLoaded(false);
     setAllLoaded(false);
     setLoadedCount(0);
@@ -61,9 +62,9 @@ export function CarSpinViewer({ slug, onFailed }: CarSpinViewerProps) {
       img.src = frameUrl(i);
       img.onload = () => {
         if (cancelled) return;
-        if (i === 0) {
+        if (i === startFrame) {
           setFirstLoaded(true);
-          requestAnimationFrame(() => drawFrame(0));
+          requestAnimationFrame(() => drawFrame(startFrame));
         }
         loaded++;
         setLoadedCount(loaded);
