@@ -7,7 +7,7 @@ export function HeroSection() {
         Tailored to your drive
       </p>
 
-      <h1 className="text-primary text-3xl md:text-5xl font-bold leading-tight mb-4 whitespace-pre-line">
+      <h1 className="hero-fade-2 text-primary text-3xl md:text-5xl font-bold leading-tight mb-4 whitespace-pre-line">
         {'당신에게 맞춘 렌트,\n렌테일러가 재단합니다'}
       </h1>
 
