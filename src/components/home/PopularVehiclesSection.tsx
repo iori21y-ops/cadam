@@ -34,10 +34,17 @@ export async function PopularVehiclesSection() {
   try {
     const supabase = await createServerSupabaseClient();
 
-    // Step 1: vehicles 조회 (id 포함)
-    const { data: allVehicles } = await supabase
-      .from('vehicles')
-      .select('slug, id, is_active, display_order');
+    // vehicles + pricing 병렬 조회 (pricing은 전체 active 항목 → 메모리 조인)
+    const [{ data: allVehicles }, { data: priceRanges }] = await Promise.all([
+      supabase.from('vehicles').select('slug, id, is_active, display_order'),
+      supabase
+        .from('pricing')
+        .select('vehicle_id, min_monthly, max_monthly')
+        .eq('is_active', true)
+        .eq('contract_months', 36)
+        .eq('annual_km', 20000)
+        .gt('min_monthly', 0),
+    ]);
 
     settingMap = new Map(
       (allVehicles ?? [])
@@ -45,38 +52,17 @@ export async function PopularVehiclesSection() {
         .map((s: VehicleRow) => [s.slug, s])
     );
 
-    // slug ↔ vehicle_id 매핑
-    const vehicleIdBySlug = new Map<string, string>();
     const slugByVehicleId = new Map<string, string>();
     for (const s of (allVehicles ?? []) as VehicleRow[]) {
-      if (s.slug && s.id) {
-        vehicleIdBySlug.set(s.slug, s.id);
-        slugByVehicleId.set(s.id, s.slug);
-      }
+      if (s.slug && s.id) slugByVehicleId.set(s.id, s.slug);
     }
 
-    // Step 2: pricing 조회 by vehicle_id
-    const vehicleIds = vehicles
-      .map((v) => vehicleIdBySlug.get(v.slug))
-      .filter((id): id is string => id != null);
-
-    if (vehicleIds.length > 0) {
-      const { data: priceRanges } = await supabase
-        .from('pricing')
-        .select('vehicle_id, min_monthly, max_monthly')
-        .in('vehicle_id', vehicleIds)
-        .eq('is_active', true)
-        .eq('contract_months', 36)
-        .eq('annual_km', 20000)
-        .gt('min_monthly', 0);
-
-      for (const row of (priceRanges ?? []) as PriceRangeRow[]) {
-        const slug = slugByVehicleId.get(row.vehicle_id);
-        if (!slug) continue;
-        const existing = priceMap[slug];
-        if (!existing || row.min_monthly < existing.min) {
-          priceMap[slug] = { min: row.min_monthly, max: row.max_monthly };
-        }
+    for (const row of (priceRanges ?? []) as PriceRangeRow[]) {
+      const slug = slugByVehicleId.get(row.vehicle_id);
+      if (!slug) continue;
+      const existing = priceMap[slug];
+      if (!existing || row.min_monthly < existing.min) {
+        priceMap[slug] = { min: row.min_monthly, max: row.max_monthly };
       }
     }
   } catch {

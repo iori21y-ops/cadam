@@ -110,6 +110,7 @@ export function PopularVehiclesScroll({ vehicles }: { vehicles: VehicleCard[] })
                 className="object-contain p-3"
                 sizes="(max-width: 768px) 44vw, 200px"
                 draggable={false}
+                priority={i === 0}
               />
             </div>
             <div className="p-3">
