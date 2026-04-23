@@ -135,7 +135,10 @@
 - 환경변수 위치: /Users/kim/projects/cadam/cadam-web/.env.local
 - ⚠️ .env.local의 키 값을 절대 출력하거나 로그에 남기지 말 것
 
-### 2.3.2 테이블 구조 (8개)
+### 2.3.2 테이블 구조 (주요 테이블)
+
+> **정정 (2026-04-23)**: 현재 public 스키마에 **46개 테이블**이 존재. 아래는 고객 접점과 직접 관련된 8개 핵심 테이블만. 전체 목록은 `cadam-pipeline/CLAUDE.md`의 API 허브 테이블(`fuel_prices`, `ev_chargers`, `insurance_stats`) 포함해 Supabase Dashboard에서 확인.
+
 | 테이블명 | 용도 | 비고 |
 |---------|------|------|
 | vehicle_settings | 차량 기본 설정 (slug, 썸네일, 가격범위, 표시순서, 노출여부) | 관리자 페이지에서 관리 |
@@ -150,7 +153,11 @@
 ### 2.3.3 접근 규칙
 - 조회(SELECT): MCP를 통해 자유 실행
 - 변경(INSERT/UPDATE/DELETE): 반드시 사전 확인 절차 (섹션 4.3 참조)
-- DDL(CREATE/ALTER/DROP TABLE): 직접 실행 금지, 마이그레이션 SQL만 제안
+- DDL(CREATE/ALTER/DROP TABLE): **사용자 승인 후** Supabase Management API로 실행 가능
+  → `cadam-dashboard/.env.local`의 `SUPABASE_ACCESS_TOKEN`(sbp_...)와 `SUPABASE_PROJECT_REF` 사용
+  → `POST https://api.supabase.com/v1/projects/{ref}/database/query` 에 SQL 전송
+  → 상세 가이드는 `cadam-pipeline/CLAUDE.md`의 "Supabase DDL 실행 방법" 섹션 참조
+  → **DROP/TRUNCATE는 여전히 금지** (섹션 3.1)
 
 ## 2.4 n8n (Docker — REST API 경유)
 
@@ -193,15 +200,12 @@ GET    $N8N_API_URL/executions?workflowId={id}    # 워크플로우별 이력
 | wOisRkS8wefBsgXS | FAQ 자동분류 | inactive | FAQ 카테고리 자동 분류 |
 | zfgXA8axWOngk6q5 | GS→Supabase 스케줄동기화 | inactive | Google Sheets→스케줄 동기화 |
 
-## 2.5 WordPress (블로그 — 셋업 예정)
+## 2.5 WordPress (블로그)
 
-### 2.5.1 현재 상태
-- Cafe24 기존 호스팅 만료 (iori21y, autoranking.co.kr)
-- 새 호스팅 신청 예정
-- 셋업 완료 후 아래 정보를 이 섹션에 추가할 것:
-  - API 엔드포인트: https://{도메인}/wp-json/wp/v2
-  - Application Password
-  - n8n WP 발행 노드 연동
+### 2.5.1 현재 상태 (2026-04-23 정정)
+- 이미 운영 중. `.env.local`의 `NEXT_PUBLIC_WP_API_URL`로 접근
+- cadam-web ↔ WP 동기화 시크릿: `SYNC_WP_SECRET` (`/api/sync-wp/route.ts`에서 사용)
+- 상세 정보(Application Password, 관리자 URL 등)는 `.env.local`에 저장 (값 출력 금지)
 
 ### 2.5.2 네이버 블로그 (별도)
 - 도구: /Users/kim/projects/cadam/cadam-naver/
@@ -227,7 +231,7 @@ GET    $N8N_API_URL/executions?workflowId={id}    # 워크플로우별 이력
 ## 3.1 데이터 보호 — NEVER
 - DROP TABLE, TRUNCATE 실행 금지
 - WHERE 없는 DELETE FROM 실행 금지
-- ALTER TABLE (스키마 변경) 직접 실행 금지 — 마이그레이션 SQL만 제안
+- ALTER TABLE / CREATE TABLE — **사용자 명시적 승인 없이는 실행 금지** (2026-04-23 현실화: Management API 경로가 확립되어 승인 시 즉시 실행 가능)
 - n8n 크리덴셜 값 조회, 수정, 삭제 금지 (n8n UI에서만 관리)
 - .env.local, .env, API 키, 토큰, 비밀번호 값을 화면에 출력 금지
 - $N8N_API_KEY, $SUPABASE_SERVICE_ROLE_KEY 등의 실제 값을 echo/cat/print 금지
@@ -521,8 +525,8 @@ openclaw.json 특별 규칙:
 | INSERT | 승인 후 | 데이터 내용 사전 제시 |
 | UPDATE | 승인 후 | WHERE 필수, 영향 행수 사전 확인 |
 | DELETE | 승인 후 | WHERE 필수, 삭제 대상 사전 제시 |
-| CREATE TABLE | 금지 | 마이그레이션 SQL만 제안 |
-| ALTER TABLE | 금지 | 마이그레이션 SQL만 제안 |
+| CREATE TABLE | 승인 후 | Management API 경로 문서화됨 (섹션 2.3.3) |
+| ALTER TABLE | 승인 후 | ADD COLUMN / RLS ENABLE / CREATE POLICY 등 보안 강화 목적 허용. DROP COLUMN은 추가 경고 필요 |
 | DROP TABLE | 금지 | |
 | TRUNCATE | 금지 | |
 
@@ -770,7 +774,12 @@ mkdir -p ~/backups/{n8n,openclaw,config,supabase,gpu-server}
 # 14. 변경 이력
 # ────────────────────────────────────────────────────────────────
 
-- 2026-04-23: 섹션 13 보안 아키텍처 추가 — RLS 1차 점검·조치, API 보안 미들웨어(`src/lib/api/security.ts`), `/api/rental-price` 템플릿, `.env.local.example`, 개인정보처리방침 12개 섹션 보강. `finance_rates` RLS HIGH 이슈 명시.
+- 2026-04-23 (2차): 문서 정합성 정정
+  - 섹션 2.3.2: 테이블 "8개" → 실제 46개 명시
+  - 섹션 2.3.3: DDL 실행 경로(Management API) 문서화
+  - 섹션 2.5: WordPress "셋업 예정" → "이미 운영 중"으로 정정
+  - 섹션 3.1, 7.1: ALTER/CREATE TABLE 규칙을 "금지"에서 "사용자 승인 후 허용"으로 현실화
+- 2026-04-23 (1차): 섹션 13 보안 아키텍처 추가 — RLS 1차 점검·조치, API 보안 미들웨어(`src/lib/api/security.ts`), `/api/rental-price` 템플릿, `.env.local.example`, 개인정보처리방침 12개 섹션 보강. `finance_rates` RLS HIGH 이슈 명시.
 - 2026-04-17: price_ranges→pricing 테이블명 수정, 3.6 가격 표시 체계 섹션 추가 (수동 견적가 입력 방식 확정, PMT 자동계산 보류)
 - 2026-03-27: v3 초기 버전 — 실제 환경 조사 기반으로 전체 재작성
   - Supabase 테이블 8개 반영 (기존 6개에서 수정)
