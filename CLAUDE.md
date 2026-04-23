@@ -719,9 +719,58 @@ mkdir -p ~/backups/{n8n,openclaw,config,supabase,gpu-server}
 
 
 # ────────────────────────────────────────────────────────────────
-# 12. 변경 이력
+# 13. 보안 아키텍처 (2026-04-23~)
 # ────────────────────────────────────────────────────────────────
 
+## 13.1 환경변수 분리
+- `NEXT_PUBLIC_*` = 공개용만 (Supabase URL, anon key, GA ID, 전화번호 등)
+- `NEXT_PUBLIC_` 접두사 없는 변수 = 서버 전용 (service_role, Resend, Upstash, 캐피탈사 키 등)
+- 템플릿: `.env.local.example` (실제 키 미포함, gitignore 예외로 추가 여부 검토)
+- 서버 전용 키 접근은 반드시 `src/lib/api/security.ts`의 `requireServerApiKey(name)` 경유
+  → `NEXT_PUBLIC_*` 이름 전달 시 예외 throw (실수 방지)
+
+## 13.2 API 보안 미들웨어
+위치: `src/lib/api/security.ts`
+- `applyRateLimit(req)` — Upstash Redis 기반 분산 rate limit (IP당 60초 내 3회)
+- `requireServerApiKey(envName)` — 서버 환경변수 접근 (NEXT_PUBLIC_* 거부)
+- `secureError(err, status)` — 스택·내부 경로 노출 없는 표준 에러 응답
+- `allowCors(req, res)` / `handleCorsPreflight(req)` — rentailor.co.kr + *.vercel.app + localhost만 허용
+
+기존 `src/lib/rateLimit.ts`는 재활용되므로 삭제하지 말 것.
+
+## 13.3 API Route 구조 원칙
+- 프론트 → `/api/*` (서버) → 외부 API (캐피탈사 등)
+- 외부 API 키는 **절대** `NEXT_PUBLIC_*`에 넣지 않음
+- 브라우저 Supabase 클라이언트(anon)로 UPDATE/DELETE 금지 — 서버 API route 경유 (service_role)
+- rate limiting: 모든 외부 API 중계/리드 수집 엔드포인트에 필수 적용
+
+## 13.4 캐피탈사 API 연동 준비
+- 라우트 템플릿: `src/app/api/rental-price/route.ts` (현재 501 반환)
+- 확정 시 3단계 블록(캐피탈사 API 호출)만 구현하면 프론트 무수정
+- 환경변수 자리: `CAPITAL_API_KEY`, `CAPITAL_API_SECRET`, `CAPITAL_API_BASE_URL`
+
+## 13.5 Supabase RLS
+- 공개 데이터 테이블 (`vehicles`, `pricing`, `fuel_prices`, `ev_chargers`, `insurance_stats`, `info_articles` 등): `anon`/`authenticated` SELECT 허용, `service_role` ALL
+- 리드/개인정보 테이블 (`consultations`, `diagnosis_logs`): `anon` INSERT만, `authenticated` SELECT만
+- 내부 관리 테이블 (`used_pexels_photos`, `cadam_*`, `gs_sync_log` 등): `service_role`만
+
+### 🚨 HIGH 미해결 이슈 — `finance_rates`
+`admin/finance/page.tsx`가 브라우저 anon 클라이언트로 `.update()`를 직접 호출.
+→ 지금 RLS 켜면 관리자 저장 기능 깨짐.
+**해결 순서**: admin 페이지를 서버 API route(`service_role`)로 리팩토링 → 그 후 RLS ENABLE + anon SELECT만 허용.
+
+## 13.6 개인정보처리방침
+- 경로: `src/app/privacy/page.tsx` (12개 섹션, 시행 2026-04-23)
+- 개인정보보호 책임자 이메일: `cadam21y@gmail.com`
+- 제3자 제공 조항: 캐피탈사 견적 요청 시 사전 동의 기반
+- 상수: `src/constants/brand.ts`의 `BRAND.privacy.title/description` 재활용
+
+
+# ────────────────────────────────────────────────────────────────
+# 14. 변경 이력
+# ────────────────────────────────────────────────────────────────
+
+- 2026-04-23: 섹션 13 보안 아키텍처 추가 — RLS 1차 점검·조치, API 보안 미들웨어(`src/lib/api/security.ts`), `/api/rental-price` 템플릿, `.env.local.example`, 개인정보처리방침 12개 섹션 보강. `finance_rates` RLS HIGH 이슈 명시.
 - 2026-04-17: price_ranges→pricing 테이블명 수정, 3.6 가격 표시 체계 섹션 추가 (수동 견적가 입력 방식 확정, PMT 자동계산 보류)
 - 2026-03-27: v3 초기 버전 — 실제 환경 조사 기반으로 전체 재작성
   - Supabase 테이블 8개 반영 (기존 6개에서 수정)
@@ -731,7 +780,7 @@ mkdir -p ~/backups/{n8n,openclaw,config,supabase,gpu-server}
   - Tailscale 앱 경로 반영
   - 기존 백업 구조 반영
 
-## 12.1 CLAUDE.md 수정 규칙
+## 14.1 CLAUDE.md 수정 규칙
 - 이 파일 수정 시에도 백업 + git commit 필수
 - 수정 이유를 이 섹션에 기록
 - 새 규칙 추가 시 기존 규칙과 충돌 여부 확인
