@@ -771,9 +771,58 @@ mkdir -p ~/backups/{n8n,openclaw,config,supabase,gpu-server}
 
 
 # ────────────────────────────────────────────────────────────────
-# 14. 변경 이력
+# 14. 주요 기능·라우트 현황 (2026-04-23)
 # ────────────────────────────────────────────────────────────────
 
+## 14.1 시뮬레이터 (src/app/simulator/)
+2026-04-23 기준 로컬에 구현되어 있으나 **cadam-web git에 미커밋** → 프로덕션 404. NEXT_ACTIONS A안(최우선)이 "git 커밋 + push + Vercel 배포".
+
+| 라우트 | 역할 | 상태 |
+|--------|------|------|
+| `/simulator` | 시뮬레이터 허브 — TCO/세무/유지비 선택 진입점 | 로컬 구현됨 |
+| `/simulator/tco` | A1 TCO(총소유비용) — 렌트/리스/할부/현금 5년 누적 비교 | 계획, 프로토타입 분리 |
+| `/simulator/tax` | A2 사업자 세무 절세 — 5단계 질문 → 절세금액 | 로컬 구현됨 |
+| `/simulator/cost` | 유지비 — 유류비/보험/정비 5년 누적 | 로컬 구현됨 |
+
+### 알려진 이슈
+- `simulator/page.tsx` — `metadata` export 없음 (SEO 제목/설명 누락)
+- `cost/page.tsx:395` — `PHASE_KEY_MAP` 미사용 변수 lint 경고
+- `/diagnosis` 페이지 콘솔 406 에러 (외부 API) — 별도 조사 항목
+
+## 14.2 차량 360° 회전 뷰어 — `CarSpinViewer`
+- 컴포넌트: 차량 상세페이지(`/cars/[slug]`)에 탑재
+- **이미지 소스**: Supabase Storage (2026-04-23 이전: 공개 URL → 이후: Storage 이관)
+- 구현: Canvas 방식 (이전 `<img>` 드래그가 끊김 → Canvas로 전환해 해소)
+- 첫 프레임 즉시 표시로 체감 로딩 개선
+- 차종별 시작 각도 보정 필요 시 `spinStartFrame` 파라미터 사용 (예: 그랜저 9)
+
+## 14.3 차량 대표 이미지 표준
+- 해상도: **940×515** (가로 비율 고정)
+- 피사체 면적: 프레임 대비 약 **45%**
+- 세로 위치: Y 중심 50% 기본, 차종별 보정 가능 (그랜저 53%)
+- 이미지 최적화 규칙: `priority` 속성은 **첫 번째 차량 카드만**, 나머지는 지연 로드
+- 캐시: 30일 (`Cache-Control: s-maxage=2592000`)
+
+## 14.4 Supabase Storage
+- 차량 360° 이미지 원본 저장
+- cadam-web은 **공개 버킷의 직접 URL**로 접근 (anon key 불필요)
+- Storage 접근 경로는 `.env.local`의 `NEXT_PUBLIC_SUPABASE_URL`/storage/v1/object/public/{bucket}/...
+
+## 14.5 성능 기준·원칙 (2026-04 최적화 결과)
+- **LCP 목표: 2초 이내** (홈 기준. 2026-04-17 HeroSection framer-motion → CSS animation 전환으로 13.7s → ~1.8s 달성)
+- **애니메이션 원칙**:
+  - framer-motion은 마운트 후 지연 적용 (`PageTransition mount gate`)
+  - h1 등 LCP 후보 요소는 opacity 애니메이션 사용 시 초기 `opacity: 1` 유지 필요
+  - 디바이더성 애니메이션(`DiagnosisBanner` 등)은 **뷰포트 진입 시 지연 로드**
+- **Supabase 쿼리**: 병렬화(`Promise.all`) 기본. 홈 첫 쿼리는 서버 렌더에서 완료
+- **이미지**: Next.js Image + `priority` 는 fold-above 단일 이미지에만
+
+
+# ────────────────────────────────────────────────────────────────
+# 15. 변경 이력
+# ────────────────────────────────────────────────────────────────
+
+- 2026-04-23 (3차): 섹션 14 신설 — 시뮬레이터 3페이지, CarSpinViewer 360° 뷰어, Supabase Storage, 차량 이미지 표준(940×515, 면적 45%), 성능 기준·원칙(LCP 2초 목표 등) 반영. API Routes 목록을 루트 CLAUDE.md에 함께 정리.
 - 2026-04-23 (2차): 문서 정합성 정정
   - 섹션 2.3.2: 테이블 "8개" → 실제 46개 명시
   - 섹션 2.3.3: DDL 실행 경로(Management API) 문서화
@@ -789,7 +838,7 @@ mkdir -p ~/backups/{n8n,openclaw,config,supabase,gpu-server}
   - Tailscale 앱 경로 반영
   - 기존 백업 구조 반영
 
-## 14.1 CLAUDE.md 수정 규칙
+## 15.1 CLAUDE.md 수정 규칙
 - 이 파일 수정 시에도 백업 + git commit 필수
 - 수정 이유를 이 섹션에 기록
 - 새 규칙 추가 시 기존 규칙과 충돌 여부 확인
