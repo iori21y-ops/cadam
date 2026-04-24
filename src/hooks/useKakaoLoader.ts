@@ -24,7 +24,7 @@ export function useKakaoLoader(): KakaoLoadState {
   useEffect(() => {
     if (_state !== 'idle') return;
 
-    const key = process.env.NEXT_PUBLIC_KAKAO_JS_KEY;
+    const key = process.env.NEXT_PUBLIC_KAKAO_JS_KEY?.trim();
     if (!key) { _notify('error'); return; }
 
     _notify('loading');
