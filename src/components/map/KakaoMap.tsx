@@ -232,11 +232,7 @@ export default function KakaoMap() {
         }
 
         markers.current = newMarkers;
-        if (tab === 'repair') {
-          clusterer.current?.addMarkers(newMarkers);
-        } else {
-          newMarkers.forEach(m => m.setMap(map));
-        }
+        clusterer.current?.addMarkers(newMarkers);
       } catch (e) {
         if ((e as Error).name !== 'AbortError') { clearAll(); setCount(0); }
       } finally {
