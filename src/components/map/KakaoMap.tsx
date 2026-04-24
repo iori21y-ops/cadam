@@ -5,7 +5,8 @@ import { Navigation } from 'lucide-react';
 import { useKakaoLoader } from '@/hooks/useKakaoLoader';
 
 // ─── 타입 ───────────────────────────────────────────────────
-type TabKey = 'ev' | 'gas' | 'repair';
+type TabKey  = 'ev' | 'gas' | 'repair';
+type GasSort = 'default' | 'gasoline_asc' | 'diesel_asc';
 
 interface Bounds {
   latMin: number; latMax: number;
@@ -41,9 +42,27 @@ const TAB_LABEL: Record<TabKey, string> = {
 
 const SOURCE_LABEL: Record<TabKey, string> = {
   ev:     '출처: 환경부 전기차 충전소 공공데이터 · 지도: 카카오맵',
-  gas:    '출처: 카카오 로컬 API · 지도: 카카오맵',
+  gas:    '출처: 카카오 로컬 API · 오피넷 가격 · 지도: 카카오맵',
   repair: '출처: 공공데이터포털 자동차관리사업체 · 지도: 카카오맵',
 };
+
+const GAS_SORT_OPTIONS: { value: GasSort; label: string }[] = [
+  { value: 'default',      label: '기본' },
+  { value: 'gasoline_asc', label: '⛽ 휘발유 낮은 순' },
+  { value: 'diesel_asc',   label: '🚛 경유 낮은 순' },
+];
+
+function gasMarkerColor(gasolinePrice: number | null | undefined): string {
+  if (!gasolinePrice) return '#f59e0b';   // 가격 정보 없음 — 주황
+  if (gasolinePrice < 1900) return '#22c55e';   // 저가 — 초록
+  if (gasolinePrice < 2050) return '#f59e0b';   // 중간 — 주황
+  return '#ef4444';                              // 고가 — 빨강
+}
+
+function formatPrice(price: number | null | undefined): string {
+  if (!price) return '-';
+  return price.toLocaleString('ko-KR') + '원';
+}
 
 // ─── 헬퍼 ───────────────────────────────────────────────────
 function makeMarkerSvg(color: string): string {
@@ -72,12 +91,35 @@ function buildInfoContent(item: Record<string, string>, tab: TabKey): string {
   }
 
   if (tab === 'gas') {
+    const gasPrice     = item.gasoline_price     ? parseInt(item.gasoline_price)     : null;
+    const dieselPrice  = item.diesel_price        ? parseInt(item.diesel_price)        : null;
+    const premiumPrice = item.premium_gasoline_price ? parseInt(item.premium_gasoline_price) : null;
+    const lpgPrice     = item.lpg_price           ? parseInt(item.lpg_price)           : null;
+
+    const priceDate = item.price_updated_at
+      ? item.price_updated_at.slice(0, 10)
+      : null;
+
+    const hasPrices = gasPrice || dieselPrice;
+    const priceBlock = hasPrices
+      ? `<table style="font-size:12px;border-collapse:collapse;width:100%;margin-top:6px">
+          ${gasPrice    ? `<tr><td style="color:#9ca3af;padding-right:8px">휘발유</td><td style="font-weight:600">${formatPrice(gasPrice)}</td></tr>` : ''}
+          ${dieselPrice ? `<tr><td style="color:#9ca3af">경유</td><td style="font-weight:600">${formatPrice(dieselPrice)}</td></tr>` : ''}
+          ${premiumPrice ? `<tr><td style="color:#9ca3af">고급휘발유</td><td>${formatPrice(premiumPrice)}</td></tr>` : ''}
+          ${lpgPrice    ? `<tr><td style="color:#9ca3af">LPG</td><td>${formatPrice(lpgPrice)}</td></tr>` : ''}
+          ${priceDate   ? `<tr><td colspan="2" style="color:#d1d5db;font-size:11px;padding-top:4px">기준일: ${priceDate}</td></tr>` : ''}
+        </table>`
+      : `<p style="color:#9ca3af;font-size:12px;margin-top:6px">가격 정보 없음</p>`;
+
     return wrap(`
       <strong style="font-size:14px;display:block;margin-bottom:2px">${item.name}</strong>
       ${item.brand ? `<span style="color:#f59e0b;font-size:12px">${item.brand}</span>` : ''}
       <p style="color:#6b7280;margin:4px 0;font-size:12px">${item.road_address ?? item.address ?? ''}</p>
-      ${item.phone ? `<p style="font-size:12px;margin:2px 0">📞 ${item.phone}</p>` : ''}
-      ${item.place_url ? `<a href="${item.place_url}" target="_blank" rel="noopener" style="font-size:12px;color:#3b82f6">카카오맵 보기 →</a>` : ''}`);
+      ${priceBlock}
+      <div style="margin-top:6px">
+        ${item.phone ? `<span style="font-size:12px">📞 ${item.phone}</span>` : ''}
+        ${item.place_url ? ` &nbsp;<a href="${item.place_url}" target="_blank" rel="noopener" style="font-size:12px;color:#3b82f6">카카오맵 →</a>` : ''}
+      </div>`);
   }
 
   return wrap(`
@@ -102,6 +144,7 @@ export default function KakaoMap() {
   const abortCtrl   = useRef<AbortController | null>(null);
 
   const [tab,        setTab]        = useState<TabKey>('ev');
+  const [gasSort,    setGasSort]    = useState<GasSort>('default');
   const [bounds,     setBounds]     = useState<Bounds | null>(null);
   const [count,      setCount]      = useState(0);
   const [loading,    setLoading]    = useState(false);
@@ -166,6 +209,7 @@ export default function KakaoMap() {
   // 탭 변경
   const handleTabChange = useCallback((newTab: TabKey) => {
     setTab(newTab);
+    setGasSort('default');
     setCount(0);
     clearAll();
   }, [clearAll]);
@@ -182,6 +226,7 @@ export default function KakaoMap() {
       lat_min: bounds.latMin.toString(), lat_max: bounds.latMax.toString(),
       lng_min: bounds.lngMin.toString(), lng_max: bounds.lngMax.toString(),
     });
+    if (tab === 'gas' && gasSort !== 'default') p.set('sort', gasSort);
     const url = tab === 'ev'     ? `/api/ev-chargers?${p}&type=all`
               : tab === 'gas'    ? `/api/gas-stations?${p}`
               : `/api/repair-shops?${p}`;
@@ -207,7 +252,7 @@ export default function KakaoMap() {
           if (!lat || !lng) continue;
 
           const color = tab === 'ev'     ? (EV_STATUS[item.status_code]?.color ?? '#9ca3af')
-                      : tab === 'gas'    ? '#f59e0b'
+                      : tab === 'gas'    ? gasMarkerColor(item.gasoline_price ? parseInt(item.gasoline_price) : null)
                       : '#3b82f6';
 
           const markerImage = new kakao.maps.MarkerImage(
@@ -241,7 +286,7 @@ export default function KakaoMap() {
     }, 300);
 
     return () => { clearTimeout(timer); ctrl.abort(); };
-  }, [bounds, tab, kakaoState, clearAll]);
+  }, [bounds, tab, gasSort, kakaoState, clearAll]);
 
   // 내 위치
   const handleGeolocate = useCallback(() => {
@@ -308,6 +353,33 @@ export default function KakaoMap() {
 
       {geoError && <p className="text-sm text-red-500">{geoError}</p>}
 
+      {/* 주유소 정렬 옵션 */}
+      {tab === 'gas' && (
+        <div className="flex items-center gap-2 text-sm">
+          <span className="text-text-sub">정렬:</span>
+          <div className="flex gap-1">
+            {GAS_SORT_OPTIONS.map(({ value, label }) => (
+              <button
+                key={value}
+                onClick={() => { setGasSort(value); clearAll(); setCount(0); }}
+                className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                  gasSort === value
+                    ? 'bg-primary text-white'
+                    : 'bg-surface border border-border-solid text-text-sub hover:bg-surface-hover'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          <span className="text-xs text-text-sub ml-1">
+            <span className="inline-block w-2 h-2 rounded-full bg-green-500 mr-1" />1,900원 미만
+            <span className="inline-block w-2 h-2 rounded-full bg-amber-500 mx-1 ml-2" />1,900~2,050원
+            <span className="inline-block w-2 h-2 rounded-full bg-red-500 mx-1 ml-2" />2,050원 초과
+          </span>
+        </div>
+      )}
+
       {/* 지도 컨테이너 */}
       <div className="relative rounded-xl overflow-hidden border border-border-solid" style={{ height: '560px' }}>
         <div ref={mapRef} style={{ width: '100%', height: '100%' }} />
@@ -338,6 +410,26 @@ export default function KakaoMap() {
                   <div className="w-2.5 h-2.5 rounded-full border-[1.5px] border-white shadow-sm"
                     style={{ background: EV_STATUS[code].color }} />
                   {EV_STATUS[code].label}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* 주유소 가격 범례 */}
+        {tab === 'gas' && (
+          <div className="absolute bottom-8 left-3 z-[1000] bg-white/90 rounded-lg px-3 py-2 shadow-sm border border-border-solid">
+            <div className="flex flex-col gap-1">
+              {[
+                { color: '#22c55e', label: '1,900원 미만' },
+                { color: '#f59e0b', label: '1,900~2,050원' },
+                { color: '#ef4444', label: '2,050원 초과' },
+                { color: '#f59e0b', label: '가격 미확인' },
+              ].map(({ color, label }) => (
+                <div key={label} className="flex items-center gap-1.5 text-xs text-gray-700">
+                  <div className="w-2.5 h-2.5 rounded-full border-[1.5px] border-white shadow-sm"
+                    style={{ background: color }} />
+                  {label}
                 </div>
               ))}
             </div>
