@@ -136,10 +136,19 @@ export default function KakaoMap() {
     });
 
     const updateBounds = () => {
-      const b  = map.getBounds();
-      const sw = b.getSouthWest();
-      const ne = b.getNorthEast();
-      setBounds({ latMin: sw.getLat(), latMax: ne.getLat(), lngMin: sw.getLng(), lngMax: ne.getLng() });
+      const b      = map.getBounds();
+      const sw     = b.getSouthWest();
+      const ne     = b.getNorthEast();
+      const latMin = sw.getLat(), latMax = ne.getLat();
+      const lngMin = sw.getLng(), lngMax = ne.getLng();
+      // 함수형 업데이트: 값이 동일하면 기존 참조를 반환해 불필요한 re-render를 방지
+      setBounds(prev =>
+        prev &&
+        prev.latMin === latMin && prev.latMax === latMax &&
+        prev.lngMin === lngMin && prev.lngMax === lngMax
+          ? prev
+          : { latMin, latMax, lngMin, lngMax }
+      );
     };
 
     kakao.maps.event.addListener(map, 'idle', updateBounds);
