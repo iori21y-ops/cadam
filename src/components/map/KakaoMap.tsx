@@ -136,7 +136,7 @@ export default function KakaoMap() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const mapObj      = useRef<any>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const markers     = useRef<any[]>([]);
+  const markerData  = useRef<Array<{ marker: any; item: Record<string, string> }>>([]);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const clusterer   = useRef<any>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -150,6 +150,7 @@ export default function KakaoMap() {
   const [loading,    setLoading]    = useState(false);
   const [geoLoading, setGeoLoading] = useState(false);
   const [geoError,   setGeoError]   = useState('');
+  const [cheapest,   setCheapest]   = useState<Record<string, string> | null>(null);
 
   // 지도 초기화 (카카오 SDK 로드 완료 후 1회)
   useEffect(() => {
@@ -202,8 +203,30 @@ export default function KakaoMap() {
   const clearAll = useCallback(() => {
     if (openInfoWin.current) { openInfoWin.current.close(); openInfoWin.current = null; }
     if (clusterer.current)   clusterer.current.clear();
-    markers.current.forEach(m => m.setMap(null));
-    markers.current = [];
+    markerData.current.forEach(d => d.marker.setMap(null));
+    markerData.current = [];
+    setCheapest(null);
+  }, []);
+
+  // 최저가 주유소 클릭 → 지도 이동 + InfoWindow 오픈
+  const handleCheapestClick = useCallback((item: Record<string, string>) => {
+    const { kakao } = window;
+    const map = mapObj.current;
+    if (!map || !kakao) return;
+    const lat = parseFloat(item.lat);
+    const lng = parseFloat(item.lng);
+    map.setCenter(new kakao.maps.LatLng(lat, lng));
+    map.setLevel(4);
+    const entry = markerData.current.find(d => d.item === item);
+    if (entry) {
+      const iw = new kakao.maps.InfoWindow({
+        content: buildInfoContent(item, 'gas'),
+        removable: true,
+      });
+      if (openInfoWin.current) openInfoWin.current.close();
+      iw.open(map, entry.marker);
+      openInfoWin.current = iw;
+    }
   }, []);
 
   // 탭 변경
@@ -241,10 +264,20 @@ export default function KakaoMap() {
         clearAll();
         setCount(items.length);
 
+        // 주유소 탭: 현재 화면 최저가 계산
+        if (tab === 'gas') {
+          const withPrice = items.filter(i => i.gasoline_price);
+          const min = withPrice.reduce<Record<string, string> | null>(
+            (best, i) => !best || parseInt(i.gasoline_price) < parseInt(best.gasoline_price) ? i : best,
+            null
+          );
+          setCheapest(min);
+        }
+
         const { kakao } = window;
         const map        = mapObj.current!;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const newMarkers: any[] = [];
+        const newData: Array<{ marker: any; item: Record<string, string> }> = [];
 
         for (const item of items) {
           const lat = tab === 'repair' ? parseFloat(item.latitude) : parseFloat(item.lat);
@@ -273,11 +306,11 @@ export default function KakaoMap() {
             openInfoWin.current = iw;
           });
 
-          newMarkers.push(marker);
+          newData.push({ marker, item });
         }
 
-        markers.current = newMarkers;
-        clusterer.current?.addMarkers(newMarkers);
+        markerData.current = newData;
+        clusterer.current?.addMarkers(newData.map(d => d.marker));
       } catch (e) {
         if ((e as Error).name !== 'AbortError') { clearAll(); setCount(0); }
       } finally {
@@ -378,6 +411,30 @@ export default function KakaoMap() {
             <span className="inline-block w-2 h-2 rounded-full bg-red-500 mx-1 ml-2" />2,050원 초과
           </span>
         </div>
+      )}
+
+      {/* 최저가 주유소 카드 */}
+      {tab === 'gas' && cheapest && !loading && (
+        <button
+          onClick={() => handleCheapestClick(cheapest)}
+          className="w-full flex items-center gap-2 px-3 py-2 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 transition-colors text-left"
+        >
+          <span className="text-base">💰</span>
+          <span className="text-xs text-green-700 font-medium whitespace-nowrap">현재 화면 최저가</span>
+          <span className="text-sm font-semibold text-green-900 truncate">{cheapest.name}</span>
+          {cheapest.brand && (
+            <span className="text-xs text-green-700 whitespace-nowrap">{cheapest.brand}</span>
+          )}
+          <span className="ml-auto text-sm font-bold text-green-800 whitespace-nowrap">
+            {formatPrice(parseInt(cheapest.gasoline_price))} <span className="text-xs font-normal">휘발유</span>
+          </span>
+          <span className="text-xs text-green-600 whitespace-nowrap">지도에서 보기 →</span>
+        </button>
+      )}
+      {tab === 'gas' && !loading && !cheapest && count > 0 && (
+        <p className="text-xs text-text-sub text-center py-1">
+          현재 화면 주유소 가격 정보를 수집 중입니다
+        </p>
       )}
 
       {/* 지도 컨테이너 */}
