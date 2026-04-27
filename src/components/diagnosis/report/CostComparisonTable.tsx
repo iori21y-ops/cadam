@@ -8,6 +8,7 @@ interface Props {
   annualAutoTax:      number;  // 연간 자동차세 (만원)
   residual5yr:        number;  // 5년차 잔존가치 (만원)
   annualInsurance?:   number;  // 연간 보험료 (만원) — insurance-stats API
+  monthlyFuel?:       number;  // 월 유류비 (만원) — fuel-prices API
   annualMaintenance?: number;  // Phase 3 예정: 연간 정비비 (만원)
 }
 
@@ -23,6 +24,7 @@ interface CostRow {
   taxIncluded:        boolean; // 포함 배지 (장기렌트)
   insurance5yr:       number;  // 보험료 5년 (만원)
   insuranceIncluded:  boolean; // 포함 배지 (장기렌트)
+  fuel5yr:            number;  // 유류비 5년 (만원) — 3개 옵션 동일
   tco5yr:             number;  // 5년 TCO 순비용 (만원)
   residual:           number;  // 만기 잔존가치 (만원)
 }
@@ -105,7 +107,7 @@ function Row({
         />
       </div>
 
-      {/* 비용 내역 4줄 */}
+      {/* 비용 내역 */}
       <div className="space-y-1.5 mb-3">
         <BreakdownRow
           label="월납입금 × 60개월"
@@ -126,6 +128,12 @@ function Row({
             label="보험료 × 5년"
             value={row.insurance5yr > 0 ? fmt(row.insurance5yr) : '0원'}
             included={row.insuranceIncluded}
+          />
+        )}
+        {row.fuel5yr > 0 && (
+          <BreakdownRow
+            label="유류비 × 5년"
+            value={fmt(row.fuel5yr)}
           />
         )}
       </div>
@@ -158,11 +166,13 @@ export function CostComparisonTable({
   annualAutoTax,
   residual5yr,
   annualInsurance,
+  monthlyFuel,
   annualMaintenance: _maint, // Phase 3 예정
 }: Props) {
   const PERIOD       = 60;
   const autoTax5yr   = annualAutoTax * 5;
   const insurance5yr = annualInsurance != null ? Math.round(annualInsurance * 5) : 0;
+  const fuel5yr      = monthlyFuel    != null ? monthlyFuel * PERIOD : 0;
 
   const mInstall = calcMonthly(msrp, 'installment', PERIOD, 0, 20000);
   const mLease   = calcMonthly(msrp, 'lease',       PERIOD, 0, 20000);
@@ -181,8 +191,9 @@ export function CostComparisonTable({
       taxIncluded:       false,
       insurance5yr,
       insuranceIncluded: false,
-      // TCO = 납입금 + 취득세 + 자동차세 + 보험료 − 잔존가치
-      tco5yr: mInstall * PERIOD + acquisitionTax + autoTax5yr + insurance5yr - residual5yr,
+      fuel5yr,
+      // TCO = 납입금 + 취득세 + 자동차세 + 보험료 + 유류비 − 잔존가치
+      tco5yr: mInstall * PERIOD + acquisitionTax + autoTax5yr + insurance5yr + fuel5yr - residual5yr,
       residual: residual5yr,
     },
     {
@@ -197,8 +208,9 @@ export function CostComparisonTable({
       taxIncluded:       false,
       insurance5yr,
       insuranceIncluded: false,
-      // TCO = 납입금 + 취득세 + 자동차세 + 보험료 (만기 후 차 반환)
-      tco5yr: mLease * PERIOD + acquisitionTax + autoTax5yr + insurance5yr,
+      fuel5yr,
+      // TCO = 납입금 + 취득세 + 자동차세 + 보험료 + 유류비 (만기 후 차 반환)
+      tco5yr: mLease * PERIOD + acquisitionTax + autoTax5yr + insurance5yr + fuel5yr,
       residual: 0,
     },
     {
@@ -212,9 +224,10 @@ export function CostComparisonTable({
       autoTax5yr:        0,
       taxIncluded:       true,
       insurance5yr:      0,
-      insuranceIncluded: annualInsurance != null, // 보험료 있을 때만 포함 배지 표시
-      // TCO = 납입금만 (취득세·세금·보험료 모두 포함)
-      tco5yr: mRent * PERIOD,
+      insuranceIncluded: annualInsurance != null,
+      fuel5yr,
+      // TCO = 납입금 + 유류비 (취득세·세금·보험료는 월납입금에 포함)
+      tco5yr: mRent * PERIOD + fuel5yr,
       residual: 0,
     },
   ];
@@ -227,7 +240,8 @@ export function CostComparisonTable({
     <div>
       <p className="text-[11px] text-[#8E8E93] mb-3">
         신차가 {msrp.toLocaleString()}만원 기준 · 60개월 · 연 2만km · 선납금 없음
-        {annualInsurance != null && ` · 보험료 연 ${annualInsurance.toLocaleString()}만원 포함`}
+        {annualInsurance != null && ` · 보험료 연 ${annualInsurance.toLocaleString()}만원`}
+        {monthlyFuel != null && ` · 유류비 월 ${monthlyFuel.toLocaleString()}만원`}
       </p>
 
       {rows.map((row) => (
@@ -240,12 +254,14 @@ export function CostComparisonTable({
       ))}
 
       <p className="text-[10px] text-[#8E8E93] mt-3 leading-relaxed">
-        * TCO = 납입금 합계 + 취득세 + 자동차세 5년{annualInsurance != null ? ' + 보험료 5년' : ''} − 만기 잔존가치.
-        {annualInsurance != null
-          ? ' 보험료는 금융감독원 통계 기반 추정치로 실제 조건에 따라 다를 수 있음. 장기렌트는 월납입금에 포함.'
-          : ' 보험료·정비비 미포함.'
-        }
-        {' '}자동차세는 연식 경감 미반영. 리스·할부는 만기 후 차량 소유 여부로 잔존가치 처리 상이.
+        * TCO = 납입금 합계 + 취득세 + 자동차세 5년
+        {annualInsurance != null ? ' + 보험료 5년' : ''}
+        {monthlyFuel != null ? ' + 유류비 5년' : ''}
+        {' − 만기 잔존가치.'}
+        {annualInsurance != null && ' 보험료는 금융감독원 통계 기반 추정치. 장기렌트는 월납입금에 포함.'}
+        {monthlyFuel != null && ' 유류비는 오피넷 전국 평균가 기준 추정치.'}
+        {annualInsurance == null && monthlyFuel == null && ' 보험료·유류비·정비비 미포함.'}
+        {' '}자동차세는 연식 경감 미반영. 유류비는 3개 옵션 동일 적용.
       </p>
     </div>
   );

@@ -146,11 +146,13 @@ export default function ReportPage() {
   const [report, setReport]                 = useState<ReportData | null>(null);
   const [annualInsuranceMk, setAnnInsurMk]  = useState<number | null>(null);
   const [evStats, setEvStats]               = useState<EvChargingStats | null>(null);
+  const [monthlyFuelMk, setMonthlyFuelMk]   = useState<number | null>(null);
   const resultRef                           = useRef<HTMLDivElement>(null);
 
   function handleSubmit(formData: DiagnosisFormData) {
     setStep('calculating');
     setAnnInsurMk(null);
+    setMonthlyFuelMk(null);
     setTimeout(() => {
       const data = runCalculations(formData);
       setReport(data);
@@ -185,6 +187,30 @@ export default function ReportPage() {
           })
           .catch(() => { /* EV 통계 로드 실패 시 미표시 */ });
       }
+
+      // 유류비 비동기 조회 (EV 제외)
+      if (!data.isEV) {
+        fetch('/api/fuel-prices')
+          .then((r) => r.ok ? r.json() : null)
+          .then((json) => {
+            if (json?.status === 'ok') {
+              const MONTHLY_KM = { low: 833, mid: 1250, high: 1667 } as const;
+              const KM_PER_L   = { gasoline: 12, diesel: 14, lpg: 9, hybrid: 18 } as const;
+              const PRICE_MAP  = {
+                gasoline: json.gasoline as number,
+                diesel:   json.diesel   as number,
+                lpg:      json.lpg      as number,
+                hybrid:   json.gasoline as number,  // 하이브리드는 휘발유 가격 사용
+              } as const;
+              const fuelType  = data.formData.trimData.fuel_type as keyof typeof KM_PER_L;
+              const monthlyKm = MONTHLY_KM[data.formData.mileageGroup];
+              const kmPerL    = KM_PER_L[fuelType]  ?? 12;
+              const pricePerL = PRICE_MAP[fuelType]  ?? json.gasoline as number;
+              setMonthlyFuelMk(Math.round((monthlyKm / kmPerL) * pricePerL / 10000));
+            }
+          })
+          .catch(() => { /* 유류비 로드 실패 시 미표시 */ });
+      }
     }, 600);
   }
 
@@ -193,6 +219,7 @@ export default function ReportPage() {
     setReport(null);
     setAnnInsurMk(null);
     setEvStats(null);
+    setMonthlyFuelMk(null);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -390,6 +417,7 @@ export default function ReportPage() {
                   annualAutoTax={Math.round(report.autoTaxResult.discountedTotal / 10000)}
                   residual5yr={report.residual5yr}
                   annualInsurance={annualInsuranceMk ?? undefined}
+                  monthlyFuel={monthlyFuelMk ?? undefined}
                 />
               </ReportSection>
 
