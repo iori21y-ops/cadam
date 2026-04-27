@@ -33,6 +33,8 @@ import { calculateAcquisitionTax, type AcquisitionTaxResult } from '@/lib/domain
 import { getVehicleCC }                         from '@/lib/domain/vehicle-cc-map';
 import { calcMonthly }                          from '@/lib/calc-monthly';
 import type { DiagnosisFormData }               from '@/components/diagnosis/report/DiagnosisForm';
+import { useQuoteStore }                        from '@/store/quoteStore';
+import type { Brand }                           from '@/constants/vehicles';
 
 // recharts SSR 오류 방지 (recharts는 클라이언트 전용)
 const DepreciationChart = dynamic(
@@ -146,6 +148,15 @@ function runCalculations(formData: DiagnosisFormData): ReportData {
 
 // ── 컴포넌트 ─────────────────────────────────────────────────────────────────
 
+// 연료 종류 → 한국어 레이블
+const FUEL_LABEL: Record<string, string> = {
+  gasoline: '가솔린',
+  diesel:   '디젤',
+  lpg:      'LPG',
+  hybrid:   '하이브리드',
+  ev:       'EV',
+};
+
 export default function ReportPage() {
   const [step, setStep]                     = useState<Step>('input');
   const [report, setReport]                 = useState<ReportData | null>(null);
@@ -153,6 +164,11 @@ export default function ReportPage() {
   const [evStats, setEvStats]               = useState<EvChargingStats | null>(null);
   const [monthlyFuelMk, setMonthlyFuelMk]   = useState<number | null>(null);
   const resultRef                           = useRef<HTMLDivElement>(null);
+
+  const setCarBrand      = useQuoteStore((s) => s.setCarBrand);
+  const setCarModel      = useQuoteStore((s) => s.setCarModel);
+  const setTrim          = useQuoteStore((s) => s.setTrim);
+  const setReportSummary = useQuoteStore((s) => s.setReportSummary);
 
   function handleSubmit(formData: DiagnosisFormData) {
     setStep('calculating');
@@ -226,6 +242,37 @@ export default function ReportPage() {
     setEvStats(null);
     setMonthlyFuelMk(null);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function handleQuoteClick() {
+    if (!report) {
+      window.location.href = '/quote';
+      return;
+    }
+
+    // 리포트 요약 문자열 생성
+    const fuelLabel = FUEL_LABEL[report.formData.trimData.fuel_type] ?? report.formData.trimData.fuel_type;
+    const retentionPct = report.depResult.retentionRate != null
+      ? `잔존가치율 ${Math.round(report.depResult.retentionRate * 100)}%`
+      : '';
+    const parts = [
+      `[감가상각 진단] ${report.formData.brand} ${report.formData.model} ${report.formData.trimData.model_year}년식 ${report.formData.trimData.trim_name}`,
+      `연료: ${fuelLabel}`,
+      `신차가: ${report.formData.trimData.msrp_price.toLocaleString()}만원`,
+      `현재시세 추정: ${report.depResult.currentValue.toLocaleString()}만원 (${retentionPct}, 차령 ${report.vehicleAge}년)`,
+      `연간 자동차세: ${Math.round(report.autoTaxResult.discountedTotal / 10000)}만원`,
+      `취득세: ${Math.round(report.acqTaxResult.finalTax / 10000)}만원`,
+      annualInsuranceMk != null ? `보험료(추정): 연 ${annualInsuranceMk}만원` : null,
+      monthlyFuelMk     != null ? `유류비(추정): 월 ${monthlyFuelMk}만원` : null,
+    ].filter(Boolean).join(' / ');
+
+    // quoteStore에 차량 정보 + 리포트 요약 세팅
+    setCarBrand(report.formData.brand as Brand);
+    setCarModel(report.formData.model);
+    setTrim(report.formData.trimData.trim_name);
+    setReportSummary(parts);
+
+    window.location.href = '/quote';
   }
 
   return (
@@ -489,7 +536,7 @@ export default function ReportPage() {
                   variant="primary"
                   fullWidth
                   className="!bg-[#007AFF] !rounded-2xl"
-                  onClick={() => window.location.href = '/quote'}
+                  onClick={handleQuoteClick}
                 >
                   무료 견적 받기
                 </Button>

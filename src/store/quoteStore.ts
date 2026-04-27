@@ -27,6 +27,8 @@ export interface QuoteState {
   name: string;
   phone: string;
   privacyAgreed: boolean;
+  /** 감가상각 진단 리포트 요약 — 상담 신청 시 financeSummary로 전송 */
+  reportSummary: string | null;
 }
 
 interface QuoteActions {
@@ -46,6 +48,7 @@ interface QuoteActions {
   setPhone: (phone: string) => void;
   setPrivacyAgreed: (agreed: boolean) => void;
   resetAll: () => void;
+  setReportSummary: (summary: string | null) => void;
   /** 진단 결과를 quoteStore에 자동 세팅 */
   prefillFromDiagnosis: () => boolean;
 }
@@ -66,11 +69,12 @@ const initialState: QuoteState = {
   name: '',
   phone: '',
   privacyAgreed: true,
+  reportSummary: null,
 };
 
 export const useQuoteStore = create<QuoteState & QuoteActions>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       ...initialState,
 
       setCurrentStep: (step: number) => set({ currentStep: step }),
@@ -91,10 +95,15 @@ export const useQuoteStore = create<QuoteState & QuoteActions>()(
       setName: (name: string) => set({ name }),
       setPhone: (phone: string) => set({ phone }),
       setPrivacyAgreed: (agreed: boolean) => set({ privacyAgreed: agreed }),
+      setReportSummary: (summary: string | null) => set({ reportSummary: summary }),
 
       resetAll: () => set(initialState),
 
       prefillFromDiagnosis: () => {
+        // 감가상각 진단 리포트에서 이미 세팅된 경우 덮어쓰지 않음
+        const current = get();
+        if (current.carBrand && current.carModel) return true;
+
         const progress = loadProgress();
         const updates: Partial<QuoteState> = {};
         let prefilled = false;
@@ -153,6 +162,7 @@ export const useQuoteStore = create<QuoteState & QuoteActions>()(
         name: state.name,
         phone: state.phone,
         privacyAgreed: state.privacyAgreed,
+        reportSummary: state.reportSummary,
       }),
     }
   )
