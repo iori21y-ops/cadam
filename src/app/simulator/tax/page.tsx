@@ -211,6 +211,8 @@ function ResultScreen({
   showLeadForm,
   leadData,
   leadSubmitted,
+  leadSubmitting,
+  leadError,
   onShowLeadForm,
   onLeadChange,
   onLeadSubmit,
@@ -219,6 +221,8 @@ function ResultScreen({
   showLeadForm: boolean;
   leadData: { name: string; phone: string };
   leadSubmitted: boolean;
+  leadSubmitting: boolean;
+  leadError: string | null;
   onShowLeadForm: () => void;
   onLeadChange: (d: { name: string; phone: string }) => void;
   onLeadSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
@@ -325,11 +329,22 @@ function ResultScreen({
                   onChange={(e) => onLeadChange({ ...leadData, phone: e.target.value })}
                   className="w-full px-4 py-3 bg-[#0f172a] border border-[#334155] rounded-xl text-white placeholder:text-slate-500 text-sm focus:outline-none focus:border-emerald-500 transition-colors"
                 />
+                <p className="text-slate-600 text-xs text-center">
+                  신청 시{' '}
+                  <a href="/privacy" target="_blank" rel="noreferrer" className="underline text-slate-500 hover:text-slate-400">
+                    개인정보 처리방침
+                  </a>
+                  에 동의합니다.
+                </p>
+                {leadError && (
+                  <p className="text-red-400 text-xs text-center">{leadError}</p>
+                )}
                 <button
                   type="submit"
-                  className="w-full py-3 bg-emerald-500 hover:bg-emerald-400 text-white font-semibold rounded-xl transition-colors text-sm"
+                  disabled={leadSubmitting}
+                  className="w-full py-3 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-colors text-sm"
                 >
-                  상담 신청하기
+                  {leadSubmitting ? '신청 중...' : '상담 신청하기'}
                 </button>
               </form>
             </>
@@ -384,13 +399,15 @@ function FakeAnalysisRow({ label, value }: { label: string; value: string }) {
 // ── 메인 페이지 컴포넌트 ──────────────────────────────────────────────
 
 export default function TaxSimulatorPage() {
-  const [phase, setPhase]               = useState<Phase>(1);
-  const [dir, setDir]                   = useState(1);
-  const [answers, setAnswers]           = useState<Partial<DiagnosisInputs>>({});
-  const [result, setResult]             = useState<DiagnosisResult | null>(null);
-  const [showLeadForm, setShowLeadForm] = useState(false);
+  const [phase, setPhase]                 = useState<Phase>(1);
+  const [dir, setDir]                     = useState(1);
+  const [answers, setAnswers]             = useState<Partial<DiagnosisInputs>>({});
+  const [result, setResult]               = useState<DiagnosisResult | null>(null);
+  const [showLeadForm, setShowLeadForm]   = useState(false);
   const [leadSubmitted, setLeadSubmitted] = useState(false);
-  const [leadData, setLeadData]         = useState({ name: '', phone: '' });
+  const [leadSubmitting, setLeadSubmitting] = useState(false);
+  const [leadError, setLeadError]         = useState<string | null>(null);
+  const [leadData, setLeadData]           = useState({ name: '', phone: '' });
 
   function select<K extends keyof DiagnosisInputs>(key: K, value: DiagnosisInputs[K]) {
     const next: Partial<DiagnosisInputs> = { ...answers, [key]: value };
@@ -417,19 +434,90 @@ export default function TaxSimulatorPage() {
     setResult(null);
     setShowLeadForm(false);
     setLeadSubmitted(false);
+    setLeadSubmitting(false);
+    setLeadError(null);
     setLeadData({ name: '', phone: '' });
     setPhase(1);
   }
 
-  function submitLead(e: React.FormEvent<HTMLFormElement>) {
+  // 월예산 범위 → 원 단위 변환
+  const BUDGET_WON: Record<string, number> = {
+    w300k:    300_000,
+    w500k:    500_000,
+    w700k:    700_000,
+    w1m:    1_000_000,
+    over1p5m: 1_500_000,
+  };
+
+  // 답변 레이블 매핑 (financeAnswers용)
+  const BUSINESS_LABEL: Record<string, string> = {
+    corporation: '법인 사업자',
+    individual:  '개인 사업자',
+  };
+  const INDUSTRY_LABEL: Record<string, string> = {
+    construction: '건설업',
+    retail:       '도소매업',
+    food:         '음식업',
+    service:      '서비스업',
+    freelance:    '프리랜서·1인기업',
+  };
+  const REVENUE_LABEL: Record<string, string> = {
+    'under5k':    '5천만원 미만',
+    '5k-1eok':   '5천~1억',
+    '1eok-3eok': '1억~3억',
+    '3eok-10eok':'3억~10억',
+    'over10eok': '10억 이상',
+  };
+  const VEHICLE_LABEL: Record<string, string> = {
+    none:     '차량 없음',
+    owned:    '직접 구매·보유',
+    planning: '장기렌트 검토 중',
+  };
+
+  async function submitLead(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    console.log('[세무진단 리드]', {
-      ...leadData,
-      ...answers,
-      result,
-      submittedAt: new Date().toISOString(),
-    });
-    setLeadSubmitted(true);
+    if (!result) return;
+
+    setLeadSubmitting(true);
+    setLeadError(null);
+
+    const financeSummary = [
+      `[세무진단] 연간 절세 예상: ${formatWon(result.annualTaxSaving)}`,
+      `사업자: ${BUSINESS_LABEL[answers.businessType ?? ''] ?? answers.businessType ?? ''}`,
+      `업종: ${INDUSTRY_LABEL[answers.industry ?? ''] ?? answers.industry ?? ''}`,
+      `연매출: ${REVENUE_LABEL[answers.revenue ?? ''] ?? answers.revenue ?? ''}`,
+      `한계세율: ${Math.round(result.marginalTaxRate * 100)}%`,
+      `비용처리가능: ${formatWon(result.deductibleExpense)}`,
+      `차량현황: ${VEHICLE_LABEL[answers.vehicleStatus ?? ''] ?? answers.vehicleStatus ?? ''}`,
+    ].join(' / ');
+
+    try {
+      const res = await fetch('/api/consultation', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name:          leadData.name,
+          phone:         leadData.phone,
+          privacyAgreed: true,
+          contactMethod: 'phone',
+          financeSummary,
+          financeAnswers: Object.fromEntries(
+            Object.entries(answers)
+              .filter(([, v]) => v != null)
+              .map(([k, v]) => [k, { value: String(v), label: String(v) }]),
+          ),
+          monthlyBudget: BUDGET_WON[answers.monthlyBudget ?? ''] ?? null,
+          stepCompleted: 6,
+        }),
+      });
+
+      if (!res.ok) throw new Error('server');
+      setLeadSubmitted(true);
+    } catch {
+      setLeadError('오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+    } finally {
+      setLeadSubmitting(false);
+    }
   }
 
   const progress = phase === 'result'
@@ -509,6 +597,8 @@ export default function TaxSimulatorPage() {
                   showLeadForm={showLeadForm}
                   leadData={leadData}
                   leadSubmitted={leadSubmitted}
+                  leadSubmitting={leadSubmitting}
+                  leadError={leadError}
                   onShowLeadForm={() => setShowLeadForm(true)}
                   onLeadChange={setLeadData}
                   onLeadSubmit={submitLead}
