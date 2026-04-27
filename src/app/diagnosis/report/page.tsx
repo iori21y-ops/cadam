@@ -40,6 +40,11 @@ const DepreciationChart = dynamic(
   { ssr: false, loading: () => <div className="h-[220px] animate-pulse bg-[#F2F2F7] rounded-xl" /> },
 );
 
+const CostTimelineChart = dynamic(
+  () => import('@/components/diagnosis/report/CostTimelineChart').then((m) => m.CostTimelineChart),
+  { ssr: false, loading: () => <div className="h-[220px] animate-pulse bg-[#F2F2F7] rounded-xl" /> },
+);
+
 // ── 상수 ────────────────────────────────────────────────────────────────────
 
 const DATA_YEAR = 2026;
@@ -411,14 +416,31 @@ export default function ReportPage() {
                 subtitle="할부 · 리스 · 장기렌트 — 신차 기준"
                 badgeColor="#5856D6"
               >
-                <CostComparisonTable
-                  msrp={report.formData.trimData.msrp_price}
-                  acquisitionTax={Math.round(report.acqTaxResult.finalTax / 10000)}
-                  annualAutoTax={Math.round(report.autoTaxResult.discountedTotal / 10000)}
-                  residual5yr={report.residual5yr}
-                  annualInsurance={annualInsuranceMk ?? undefined}
-                  monthlyFuel={monthlyFuelMk ?? undefined}
-                />
+                {/* 타임라인 그래프 */}
+                <div className="mb-5">
+                  <p className="text-[11px] font-bold text-[#8E8E93] uppercase tracking-wide mb-3">
+                    누적 비용 타임라인
+                  </p>
+                  <CostTimelineChart
+                    msrp={report.formData.trimData.msrp_price}
+                    acquisitionTax={Math.round(report.acqTaxResult.finalTax / 10000)}
+                    annualAutoTax={Math.round(report.autoTaxResult.discountedTotal / 10000)}
+                    residual5yr={report.residual5yr}
+                    annualInsurance={annualInsuranceMk ?? undefined}
+                    monthlyFuel={monthlyFuelMk ?? undefined}
+                  />
+                </div>
+
+                <div className="border-t border-[#F2F2F7] pt-4">
+                  <CostComparisonTable
+                    msrp={report.formData.trimData.msrp_price}
+                    acquisitionTax={Math.round(report.acqTaxResult.finalTax / 10000)}
+                    annualAutoTax={Math.round(report.autoTaxResult.discountedTotal / 10000)}
+                    residual5yr={report.residual5yr}
+                    annualInsurance={annualInsuranceMk ?? undefined}
+                    monthlyFuel={monthlyFuelMk ?? undefined}
+                  />
+                </div>
               </ReportSection>
 
               {/* ── 섹션6: EV 충전비 분석 (EV 차량만) ──────────── */}
