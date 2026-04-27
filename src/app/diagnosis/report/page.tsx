@@ -16,6 +16,7 @@ import { CostComparisonTable } from '@/components/diagnosis/report/CostCompariso
 import { TaxSummaryCard }      from '@/components/diagnosis/report/TaxSummaryCard';
 import { TaxSavingCard }       from '@/components/diagnosis/report/TaxSavingCard';
 import { EvChargingCard, type EvChargingStats } from '@/components/diagnosis/report/EvChargingCard';
+import { LeasePenaltyCard }    from '@/components/diagnosis/report/LeasePenaltyCard';
 import { SwitchTimingCard }    from '@/components/diagnosis/report/SwitchTimingCard';
 import { ReportSection }       from '@/components/diagnosis/report/ReportSection';
 import { Button }              from '@/components/ui/Button';
@@ -514,6 +515,14 @@ export default function ReportPage() {
                 subtitle="할부 · 리스 · 장기렌트 — 신차 기준"
                 badgeColor="#5856D6"
               >
+                {/* 리스 감가 패널티 카드 */}
+                <div className="mb-5">
+                  <LeasePenaltyCard
+                    msrp={report.formData.trimData.msrp_price}
+                    residual5yr={report.residual5yr}
+                  />
+                </div>
+
                 {/* 타임라인 그래프 */}
                 <div className="mb-5">
                   <p className="text-[11px] font-bold text-[#8E8E93] uppercase tracking-wide mb-3">
