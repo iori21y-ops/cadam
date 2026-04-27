@@ -8,7 +8,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServiceRoleSupabaseClient } from '@/lib/supabase-server';
 
-const CACHE_HEADER = 'public, max-age=86400, stale-while-revalidate=3600';
+const CACHE_HEADER = 'public, max-age=3600, stale-while-revalidate=600';
 
 export async function GET(req: NextRequest) {
   const brand = req.nextUrl.searchParams.get('brand')?.trim() ?? '';
