@@ -15,6 +15,7 @@ import { DiagnosisForm }       from '@/components/diagnosis/report/DiagnosisForm
 import { CostComparisonTable } from '@/components/diagnosis/report/CostComparisonTable';
 import { TaxSummaryCard }      from '@/components/diagnosis/report/TaxSummaryCard';
 import { TaxSavingCard }       from '@/components/diagnosis/report/TaxSavingCard';
+import { EvChargingCard, type EvChargingStats } from '@/components/diagnosis/report/EvChargingCard';
 import { ReportSection }       from '@/components/diagnosis/report/ReportSection';
 import { Button }              from '@/components/ui/Button';
 
@@ -42,6 +43,14 @@ const DepreciationChart = dynamic(
 // ── 상수 ────────────────────────────────────────────────────────────────────
 
 const DATA_YEAR = 2026;
+
+// cc → insurance_stats car_type 매핑
+function toInsuranceCarType(cc: number, isEV: boolean, msrp: number): '소형' | '중형' | '대형' | '다인승' {
+  if (isEV) return msrp < 4000 ? '소형' : '중형';
+  if (cc <= 1600) return '소형';
+  if (cc <= 2000) return '중형';
+  return '대형';
+}
 
 // ── 타입 ────────────────────────────────────────────────────────────────────
 
@@ -133,13 +142,15 @@ function runCalculations(formData: DiagnosisFormData): ReportData {
 // ── 컴포넌트 ─────────────────────────────────────────────────────────────────
 
 export default function ReportPage() {
-  const [step, setStep]       = useState<Step>('input');
-  const [report, setReport]   = useState<ReportData | null>(null);
-  const resultRef             = useRef<HTMLDivElement>(null);
+  const [step, setStep]                     = useState<Step>('input');
+  const [report, setReport]                 = useState<ReportData | null>(null);
+  const [annualInsuranceMk, setAnnInsurMk]  = useState<number | null>(null);
+  const [evStats, setEvStats]               = useState<EvChargingStats | null>(null);
+  const resultRef                           = useRef<HTMLDivElement>(null);
 
   function handleSubmit(formData: DiagnosisFormData) {
     setStep('calculating');
-    // 계산이 동기적이므로 약간의 딜레이로 UX 개선
+    setAnnInsurMk(null);
     setTimeout(() => {
       const data = runCalculations(formData);
       setReport(data);
@@ -147,12 +158,41 @@ export default function ReportPage() {
       setTimeout(() => {
         resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 100);
+
+      // 보험료 비동기 조회 (리포트 렌더 후 백그라운드 fetch)
+      const carType = toInsuranceCarType(data.cc, data.isEV, data.formData.trimData.msrp_price);
+      fetch('/api/insurance-stats', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ car_type: carType }),
+      })
+        .then((r) => r.ok ? r.json() : null)
+        .then((json) => {
+          if (json?.status === 'ok' && json.estimated_annual_mk) {
+            setAnnInsurMk(json.estimated_annual_mk);
+          }
+        })
+        .catch(() => { /* 보험료 로드 실패 시 미표시 */ });
+
+      // EV 충전 통계 비동기 조회 (EV 차량일 때만)
+      if (data.isEV) {
+        fetch('/api/ev-charger-stats')
+          .then((r) => r.ok ? r.json() : null)
+          .then((json) => {
+            if (json?.status === 'ok') {
+              setEvStats(json as EvChargingStats);
+            }
+          })
+          .catch(() => { /* EV 통계 로드 실패 시 미표시 */ });
+      }
     }, 600);
   }
 
   function handleReset() {
     setStep('input');
     setReport(null);
+    setAnnInsurMk(null);
+    setEvStats(null);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -349,10 +389,26 @@ export default function ReportPage() {
                   acquisitionTax={Math.round(report.acqTaxResult.finalTax / 10000)}
                   annualAutoTax={Math.round(report.autoTaxResult.discountedTotal / 10000)}
                   residual5yr={report.residual5yr}
+                  annualInsurance={annualInsuranceMk ?? undefined}
                 />
               </ReportSection>
 
-              {/* ── 섹션6: 절세 효과 (사업자만) ──────────────────── */}
+              {/* ── 섹션6: EV 충전비 분석 (EV 차량만) ──────────── */}
+              {report.isEV && evStats && (
+                <ReportSection
+                  title="EV 충전비 분석"
+                  subtitle="월 충전비 추정 · 주유 대비 절감액 · 전국 충전 인프라"
+                  badgeColor="#34C759"
+                  badge="전기차 전용"
+                >
+                  <EvChargingCard
+                    mileageGroup={report.formData.mileageGroup}
+                    stats={evStats}
+                  />
+                </ReportSection>
+              )}
+
+              {/* ── 섹션7: 절세 효과 (사업자만) ──────────────────── */}
               {(report.formData.businessType === 'individual_business' ||
                 report.formData.businessType === 'corporation') && (
                 <ReportSection

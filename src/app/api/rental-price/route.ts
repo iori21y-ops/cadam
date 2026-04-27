@@ -4,7 +4,7 @@
  * 목적: 프론트 ↔ 캐피탈사 API 사이의 서버사이드 프록시.
  * 프론트에 캐피탈사 API 키가 노출되지 않도록, 모든 인증·요청을 이 라우트에서 처리한다.
  *
- * 현재 상태: 빈 템플릿 (캐피탈사 API 계약 확정 전)
+ * 현재 상태: Phase 1 구현 (Supabase rental_prices 테이블 조회)
  *
  * ─────────────────────────────────────────────────────────
  * 구조 — 4단계
@@ -40,6 +40,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import { createClient } from '@supabase/supabase-js';
 import {
   applyRateLimit,
   secureError,
@@ -48,18 +49,24 @@ import {
   // requireServerApiKey, // ← Phase 2에서 사용
 } from '@/lib/api/security';
 
-// 요청 스키마 — 캐피탈사 API 계약 확정 후 조정 필요
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!,
+);
+
+// brand + model 필수, trim 선택
 const RentalPriceRequest = z.object({
-  vehicleSlug: z.string().min(1),
+  brand: z.string().min(1),
+  model: z.string().min(1),
   trim: z.string().optional(),
-  contractMonths: z.union([z.literal(36), z.literal(48), z.literal(60)]),
+  contractMonths: z.union([z.literal(36), z.literal(48), z.literal(60)]).optional(),
   annualKm: z.union([
     z.literal(10000),
     z.literal(20000),
     z.literal(30000),
     z.literal(40000),
-  ]),
-  deposit: z.number().min(0).max(50).default(0), // 보증금 %
+  ]).optional(),
+  deposit: z.number().min(0).max(50).default(0),
 });
 
 export async function OPTIONS(req: NextRequest) {
@@ -79,16 +86,34 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: '잘못된 요청' }, { status: 400 });
     }
 
-    // TODO(Phase 1): Supabase `rental_prices` 테이블 조회
+    // Phase 1: Supabase rental_prices 테이블 조회
+    const { brand, model, trim, contractMonths, annualKm } = parsed.data;
+
+    let query = supabase
+      .from('rental_prices')
+      .select('brand, model, trim, monthly_price, contract_months, annual_km, deposit_rate, includes_insurance, includes_tax, includes_maintenance, source, updated_at')
+      .eq('brand', brand)
+      .eq('model', model);
+
+    if (trim)          query = query.eq('trim', trim);
+    if (contractMonths) query = query.eq('contract_months', contractMonths);
+    if (annualKm)      query = query.eq('annual_km', annualKm);
+
+    const { data, error } = await query.order('monthly_price', { ascending: true });
+
+    if (error) throw error;
+
+    if (!data || data.length === 0) {
+      const res = NextResponse.json(
+        { status: 'not_found', message: '해당 차량의 렌탈료 정보가 없습니다. 상담 신청으로 안내드립니다.' },
+        { status: 404 },
+      );
+      return allowCors(req, res);
+    }
+
     // TODO(Phase 2): 캐시 미스 시 캐피탈사 API 호출 → 정규화 → upsert
 
-    const res = NextResponse.json(
-      {
-        status: 'not_implemented',
-        message: '캐피탈사 API 연동 전입니다. 상담 신청으로 안내드립니다.',
-      },
-      { status: 501 }
-    );
+    const res = NextResponse.json({ status: 'ok', data }, { status: 200 });
     return allowCors(req, res);
   } catch (err) {
     return secureError(err, 500);
