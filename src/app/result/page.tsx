@@ -60,6 +60,14 @@ function extractFinanceInfo(progress: MissionProgress) {
   return found ? { key: found[0], product: DEFAULT_PRODUCTS[found[0]], pct } : null;
 }
 
+// 연비 기본값 (km/L) — fuel_type별
+const KM_PER_L: Record<string, number> = {
+  gasoline: 12,
+  diesel:   14,
+  hybrid:   18,
+  lpg:      9,
+};
+
 export default function ResultPage() {
   const router = useRouter();
   const hydrated = useHydrated();
@@ -75,12 +83,34 @@ export default function ResultPage() {
 
   const [vehicleInfo, setVehicleInfo] = useState<ReturnType<typeof extractVehicleInfo>>(null);
   const [financeInfo, setFinanceInfo] = useState<ReturnType<typeof extractFinanceInfo>>(null);
+  const [monthlyFuelMk, setMonthlyFuelMk] = useState<number | null>(null);
 
   useEffect(() => {
     const progress = loadProgress();
-    setVehicleInfo(extractVehicleInfo(progress));
+    const vi = extractVehicleInfo(progress);
+    setVehicleInfo(vi);
     setFinanceInfo(extractFinanceInfo(progress));
-  }, []);
+
+    // EV가 아닌 경우에만 유류비 조회
+    if (!vi) return;
+    const carName = vi.name.split(' ').at(-1) ?? '';
+    const vehicle = VEHICLES.find((v) => v.name === carName);
+    const isEV = vehicle?.tags.includes('전기차') ?? false;
+    if (isEV) return;
+
+    const fuelType = vehicle?.tags.includes('하이브리드') ? 'hybrid' : 'gasoline';
+    const kmPerL   = KM_PER_L[fuelType];
+    const monthlyKm = (annualKm ?? 20000) / 12;
+
+    fetch('/api/fuel-prices')
+      .then((r) => r.ok ? r.json() : null)
+      .then((json) => {
+        if (!json || json.status !== 'ok') return;
+        const pricePerL = fuelType === 'hybrid' ? (json.gasoline as number) : (json.gasoline as number);
+        setMonthlyFuelMk(Math.round((monthlyKm / kmPerL) * pricePerL / 10000));
+      })
+      .catch(() => { /* 유류비 로드 실패 시 미표시 */ });
+  }, [annualKm]);
 
   const handleRetry = () => {
     gtag.resultRetry();
@@ -277,6 +307,7 @@ export default function ResultPage() {
                     ? ({ 0: 0, 1000000: 10, 2000000: 20, 3000000: 30 } as Record<number, number>)[deposit] ?? 10
                     : prepaymentPct ?? undefined
                 }
+                monthlyFuelMk={monthlyFuelMk ?? undefined}
               />
             </motion.div>
           )}

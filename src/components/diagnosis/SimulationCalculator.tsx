@@ -12,6 +12,7 @@ interface SimulationCalculatorProps {
   initialPeriod?: number;
   initialMileage?: number;
   initialDownRate?: number;
+  monthlyFuelMk?: number; // 월 유류비 (만원) — fuel-prices API
 }
 
 const PERIODS = [24, 36, 48, 60] as const;
@@ -31,6 +32,7 @@ export function SimulationCalculator({
   initialPeriod,
   initialMileage,
   initialDownRate,
+  monthlyFuelMk,
 }: SimulationCalculatorProps) {
   const [period, setPeriod] = useState<number>(initialPeriod ?? 48);
   const [mileage, setMileage] = useState<number>(initialMileage ?? 20000);
@@ -161,6 +163,28 @@ export function SimulationCalculator({
             })}
           </div>
         </div>
+
+        {/* 유류비 포함 실질 월비용 */}
+        {monthlyFuelMk != null && (
+          <div className="border-t border-border pt-2 mt-1">
+            <p className="text-[10px] text-text-muted mb-1">
+              월 연료비 <span className="font-semibold text-[#FF9500]">{monthlyFuelMk.toLocaleString()}만원</span> 포함 시 실질 월비용
+            </p>
+            <div className="grid grid-cols-4 gap-2">
+              {results.map(({ key, monthly }) => {
+                const product = DEFAULT_PRODUCTS[key];
+                const total = key === 'cash' ? null : monthly + monthlyFuelMk;
+                return (
+                  <div key={key} className="text-center">
+                    <p className="text-[11px] font-bold" style={{ color: product.color }}>
+                      {total != null ? `${total.toLocaleString()}만` : '-'}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
 
       <p className="text-[10px] text-text-muted mt-3 leading-relaxed">
