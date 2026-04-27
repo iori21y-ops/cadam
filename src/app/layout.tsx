@@ -8,6 +8,7 @@ import MobileTabBar from '@/components/MobileTabBar';
 import { GAPageView } from '@/components/GAPageView';
 import { DynamicToast } from '@/components/DynamicToast';
 import { PageTransition } from '@/components/PageTransition';
+import { PwaRegistration } from '@/components/PwaRegistration';
 import { BRAND } from '@/constants/brand';
 import { GoldDefs } from '@/components/icons/GoldDefs';
 
@@ -86,6 +87,7 @@ export default function RootLayout({
         </div>
         <MobileTabBar />
         <DynamicToast />
+        <PwaRegistration />
         {GA_ID && (
           <>
             <Script

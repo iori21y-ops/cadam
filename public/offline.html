@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>오프라인 | 렌테일러</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Pretendard', sans-serif;
+      background: #F2F2F7;
+      min-height: 100svh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 20px;
+      padding: 40px 32px;
+      text-align: center;
+      max-width: 360px;
+      width: 100%;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+    .icon { font-size: 48px; margin-bottom: 16px; }
+    h1 { font-size: 20px; font-weight: 700; color: #1C1C1E; margin-bottom: 8px; }
+    p { font-size: 14px; color: #8E8E93; line-height: 1.6; margin-bottom: 24px; }
+    button {
+      width: 100%;
+      padding: 14px;
+      background: #007AFF;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 600;
+      border: none;
+      border-radius: 14px;
+      cursor: pointer;
+    }
+    button:active { opacity: 0.85; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon">📡</div>
+    <h1>인터넷 연결이 없습니다</h1>
+    <p>네트워크에 연결되면 렌테일러의 모든 기능을<br>다시 이용할 수 있습니다.</p>
+    <button onclick="location.reload()">다시 시도</button>
+  </div>
+</body>
+</html>

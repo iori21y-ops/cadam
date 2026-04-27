@@ -1,13 +1,33 @@
 {
-  "name": "RenTailor",
-  "short_name": "RenTailor",
-  "description": "당신에게 맞춘 렌트, 렌테일러가 재단합니다",
+  "id": "/",
+  "name": "렌테일러 | 장기렌트 총비용 진단",
+  "short_name": "렌테일러",
+  "description": "차량 감가상각·총비용 진단, 사업자 절세 계산, 장기렌트 견적 비교",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
+  "orientation": "portrait-primary",
   "background_color": "#0D1B2A",
   "theme_color": "#0D1B2A",
+  "lang": "ko",
   "icons": [
-    { "src": "/android-chrome-192x192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "/android-chrome-512x512.png", "sizes": "512x512", "type": "image/png" }
-  ]
+    { "src": "/android-chrome-192x192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/android-chrome-512x512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/apple-touch-icon.png",       "sizes": "180x180", "type": "image/png", "purpose": "any" }
+  ],
+  "shortcuts": [
+    {
+      "name": "차량 감가상각 진단",
+      "short_name": "진단",
+      "url": "/diagnosis/report",
+      "icons": [{ "src": "/android-chrome-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "무료 견적 신청",
+      "short_name": "견적",
+      "url": "/quote",
+      "icons": [{ "src": "/android-chrome-192x192.png", "sizes": "192x192" }]
+    }
+  ],
+  "categories": ["automotive", "finance", "utilities"]
 }
