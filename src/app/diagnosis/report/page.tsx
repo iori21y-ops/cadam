@@ -16,6 +16,7 @@ import { CostComparisonTable } from '@/components/diagnosis/report/CostCompariso
 import { TaxSummaryCard }      from '@/components/diagnosis/report/TaxSummaryCard';
 import { TaxSavingCard }       from '@/components/diagnosis/report/TaxSavingCard';
 import { EvChargingCard, type EvChargingStats } from '@/components/diagnosis/report/EvChargingCard';
+import { SwitchTimingCard }    from '@/components/diagnosis/report/SwitchTimingCard';
 import { ReportSection }       from '@/components/diagnosis/report/ReportSection';
 import { Button }              from '@/components/ui/Button';
 
@@ -441,6 +442,24 @@ export default function ReportPage() {
                     </div>
                   ))}
                 </div>
+              </ReportSection>
+
+              {/* ── 섹션2-b: 전환 시점 비교 ──────────────────────── */}
+              <ReportSection
+                title="전환 시점 비교"
+                subtitle="지금 렌트로 전환 vs 1년 더 현재 차 유지"
+                badgeColor="#FF9500"
+                badge="전환 타이밍"
+              >
+                <SwitchTimingCard
+                  msrp={report.formData.trimData.msrp_price}
+                  currentValue={report.depResult.currentValue}
+                  vehicleAge={report.vehicleAge}
+                  curve={report.curve}
+                  annualAutoTax={Math.round(report.autoTaxResult.discountedTotal / 10000)}
+                  annualInsurance={annualInsuranceMk ?? undefined}
+                  monthlyFuel={monthlyFuelMk ?? undefined}
+                />
               </ReportSection>
 
               {/* ── 섹션3+4: 자동차세 + 취등록세 ────────────────── */}
