@@ -392,14 +392,6 @@ export default function CostSimulatorPage() {
   const [answers, setAnswers] = useState<Partial<CostInputs>>({});
   const [result, setResult]  = useState<CostResult | null>(null);
 
-  const PHASE_KEY_MAP: Record<NumericPhase, keyof CostInputs> = {
-    1: 'carAge',
-    2: 'carPrice',
-    3: 'monthlyKm',
-    4: 'loanPayment',
-    5: 'annualInsurance',
-  };
-
   function select<K extends keyof CostInputs>(key: K, value: CostInputs[K]) {
     const next: Partial<CostInputs> = { ...answers, [key]: value };
     setAnswers(next);

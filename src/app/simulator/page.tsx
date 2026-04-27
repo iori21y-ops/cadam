@@ -1,4 +1,14 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
+
+export const metadata: Metadata = {
+  title: '무료 진단 | 렌테일러',
+  description: '절세 혜택과 실제 차량 유지비를 1분 안에 확인하세요. 사업자 절세 진단과 내 차 유지비 진단을 무료로 제공합니다.',
+  openGraph: {
+    title: '무료 진단 | 렌테일러',
+    description: '절세 혜택과 실제 차량 유지비를 1분 안에 확인하세요.',
+  },
+};
 
 const CARDS = [
   {
