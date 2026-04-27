@@ -63,7 +63,7 @@ export default function DiagnosisPage() {
       .from('diagnosis_config')
       .select('data')
       .eq('id', CONFIG_ID)
-      .single()
+      .maybeSingle()
       .then(({ data }) => {
         if (data?.data?.aiConfig) {
           setAiConfig({ ...DEFAULT_AI_CONFIG, ...data.data.aiConfig });
