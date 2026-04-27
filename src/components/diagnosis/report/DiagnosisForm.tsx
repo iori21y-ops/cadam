@@ -34,7 +34,8 @@ const BUSINESS_OPTIONS: { value: BusinessType; label: string }[] = [
 export function DiagnosisForm({ onSubmit, loading = false }: Props) {
   const [brand, setBrand]           = useState('');
   const [model, setModel]           = useState('');
-  const [trimKey, setTrimKey]       = useState('');   // "model_year|trim_name" composite key
+  const [year, setYear]             = useState<number | ''>('');
+  const [trimName, setTrimName]     = useState('');
   const [mileageGroup, setMileage]  = useState<MileageGroup>('mid');
   const [businessType, setBusiness] = useState<BusinessType>('personal');
 
@@ -63,7 +64,8 @@ export function DiagnosisForm({ onSubmit, loading = false }: Props) {
     setLoadingModels(true);
     setModel('');
     setTrims([]);
-    setTrimKey('');
+    setYear('');
+    setTrimName('');
     fetch(`/api/vehicle-msrp/models?brand=${encodeURIComponent(brand)}`)
       .then((r) => r.json())
       .then((d) => setModels(d.models ?? []))
@@ -73,9 +75,10 @@ export function DiagnosisForm({ onSubmit, loading = false }: Props) {
 
   // 트림 목록 로드
   useEffect(() => {
-    if (!brand || !model) { setTrims([]); setTrimKey(''); return; }
+    if (!brand || !model) { setTrims([]); setYear(''); setTrimName(''); return; }
     setLoadingTrims(true);
-    setTrimKey('');
+    setYear('');
+    setTrimName('');
     fetch(`/api/vehicle-msrp?brand=${encodeURIComponent(brand)}&model=${encodeURIComponent(model)}`)
       .then((r) => r.json())
       .then((d) => setTrims(d.trims ?? []))
@@ -83,11 +86,20 @@ export function DiagnosisForm({ onSubmit, loading = false }: Props) {
       .finally(() => setLoadingTrims(false));
   }, [brand, model]);
 
-  const selectedTrim = trims.find(
-    (t) => `${t.model_year}|${t.trim_name}` === trimKey,
-  ) ?? null;
+  // 고유 연식 목록 (최신순)
+  const years = [...new Set(trims.map((t) => t.model_year))].sort((a, b) => b - a);
+
+  // 선택된 연식의 트림 목록
+  const filteredTrims = year !== '' ? trims.filter((t) => t.model_year === year) : [];
+
+  const selectedTrim = filteredTrims.find((t) => t.trim_name === trimName) ?? null;
 
   const canSubmit = !!(brand && model && selectedTrim && !loading);
+
+  function handleYearChange(val: string) {
+    setYear(val === '' ? '' : Number(val));
+    setTrimName('');
+  }
 
   function handleSubmit() {
     if (!selectedTrim) return;
@@ -132,22 +144,38 @@ export function DiagnosisForm({ onSubmit, loading = false }: Props) {
         </select>
       </div>
 
-      {/* 트림 */}
+      {/* 연식 */}
       <div>
-        <label className="block text-[13px] font-semibold text-[#1C1C1E] mb-1.5">
-          연식 · 트림
-          <span className="ml-1.5 text-[11px] font-normal text-[#8E8E93]">신차가 기준</span>
-        </label>
+        <label className="block text-[13px] font-semibold text-[#1C1C1E] mb-1.5">연식</label>
         <select
-          value={trimKey}
-          onChange={(e) => setTrimKey(e.target.value)}
+          value={year}
+          onChange={(e) => handleYearChange(e.target.value)}
           disabled={!model || loadingTrims}
           className="w-full px-4 py-3 rounded-xl border border-[#E5E7EB] bg-white text-[14px] text-[#1C1C1E] appearance-none focus:outline-none focus:ring-2 focus:ring-[#007AFF]/30 disabled:opacity-50"
         >
-          <option value="">{loadingTrims ? '불러오는 중…' : '트림 선택'}</option>
-          {trims.map((t) => (
-            <option key={`${t.model_year}|${t.trim_name}`} value={`${t.model_year}|${t.trim_name}`}>
-              {t.model_year}년식 · {t.trim_name} ({t.msrp_price.toLocaleString()}만원)
+          <option value="">{loadingTrims ? '불러오는 중…' : '연식 선택'}</option>
+          {years.map((y) => (
+            <option key={y} value={y}>{y}년식</option>
+          ))}
+        </select>
+      </div>
+
+      {/* 트림 */}
+      <div>
+        <label className="block text-[13px] font-semibold text-[#1C1C1E] mb-1.5">
+          트림
+          <span className="ml-1.5 text-[11px] font-normal text-[#8E8E93]">신차가 기준</span>
+        </label>
+        <select
+          value={trimName}
+          onChange={(e) => setTrimName(e.target.value)}
+          disabled={!year || filteredTrims.length === 0}
+          className="w-full px-4 py-3 rounded-xl border border-[#E5E7EB] bg-white text-[14px] text-[#1C1C1E] appearance-none focus:outline-none focus:ring-2 focus:ring-[#007AFF]/30 disabled:opacity-50"
+        >
+          <option value="">{!year ? '연식을 먼저 선택하세요' : '트림 선택'}</option>
+          {filteredTrims.map((t) => (
+            <option key={t.trim_name} value={t.trim_name}>
+              {t.trim_name} ({t.msrp_price.toLocaleString()}만원)
             </option>
           ))}
         </select>
