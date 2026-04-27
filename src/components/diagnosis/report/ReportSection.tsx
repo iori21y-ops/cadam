@@ -18,7 +18,7 @@ export function ReportSection({
   className = '',
 }: ReportSectionProps) {
   return (
-    <div className={`bg-white rounded-2xl shadow-sm border border-[#F2F2F7] overflow-hidden ${className}`}>
+    <div className={`bg-white rounded-2xl shadow-sm border border-[#F2F2F7] overflow-hidden diagnosis-section-card ${className}`}>
       <div className="px-5 pt-5 pb-4 border-b border-[#F2F2F7]">
         <div className="flex items-center gap-2">
           <div className="w-1 h-4 rounded-full shrink-0" style={{ background: badgeColor }} />

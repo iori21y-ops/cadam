@@ -164,6 +164,7 @@ export default function ReportPage() {
   const [annualInsuranceMk, setAnnInsurMk]  = useState<number | null>(null);
   const [evStats, setEvStats]               = useState<EvChargingStats | null>(null);
   const [monthlyFuelMk, setMonthlyFuelMk]   = useState<number | null>(null);
+  const [pdfToast, setPdfToast]             = useState(false);
   const resultRef                           = useRef<HTMLDivElement>(null);
 
   const setCarBrand      = useQuoteStore((s) => s.setCarBrand);
@@ -245,6 +246,12 @@ export default function ReportPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
+  function handlePdfSave() {
+    setPdfToast(true);
+    setTimeout(() => setPdfToast(false), 4000);
+    setTimeout(() => window.print(), 150);
+  }
+
   function handleQuoteClick() {
     if (!report) {
       window.location.href = '/quote';
@@ -277,28 +284,53 @@ export default function ReportPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F2F2F7] pb-24">
+    <div className="min-h-screen bg-[#F2F2F7] pb-24 diagnosis-print-root">
+      {/* PDF 저장 안내 토스트 */}
+      {pdfToast && (
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 diagnosis-no-print
+          bg-[#1C1C1E] text-white text-[12px] font-medium px-4 py-2.5 rounded-xl shadow-lg
+          flex items-center gap-2 whitespace-nowrap">
+          <span>🖨️</span>
+          <span>인쇄 화면에서 <strong>'PDF로 저장'</strong> 선택 (Chrome 권장)</span>
+        </div>
+      )}
+
       {/* 헤더 */}
-      <div className="bg-white border-b border-[#E5E7EB] sticky top-0 z-10">
+      <div className="bg-white border-b border-[#E5E7EB] sticky top-0 z-10 diagnosis-print-header">
         <div className="max-w-lg mx-auto px-5 py-4 flex items-center justify-between">
           <div>
             <h1 className="text-[17px] font-bold text-[#1C1C1E]">차량 감가상각 진단</h1>
             <p className="text-[11px] text-[#8E8E93]">엔카 실데이터 기반 · 2026-W17</p>
           </div>
-          {step === 'result' && (
-            <button
-              onClick={handleReset}
-              className="text-[13px] font-semibold text-[#007AFF]"
-            >
-              다시 진단
-            </button>
-          )}
+          <div className="flex items-center gap-2">
+            {step === 'result' && (
+              <button
+                onClick={handlePdfSave}
+                className="diagnosis-no-print flex items-center gap-1 text-[12px] font-semibold text-[#5856D6] border border-[#5856D6] rounded-lg px-2.5 py-1 hover:bg-[#5856D610] transition-colors"
+              >
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="7 10 12 15 17 10"/>
+                  <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                PDF
+              </button>
+            )}
+            {step === 'result' && (
+              <button
+                onClick={handleReset}
+                className="diagnosis-no-print text-[13px] font-semibold text-[#007AFF]"
+              >
+                다시 진단
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
-      <div className="max-w-lg mx-auto px-4 py-5 space-y-4">
+      <div className="max-w-lg mx-auto px-4 py-5 space-y-4 diagnosis-print-content">
         {/* ── 입력 폼 ───────────────────────────────────────────────── */}
-        <div className="bg-white rounded-2xl shadow-sm border border-[#F2F2F7] p-5">
+        <div className="bg-white rounded-2xl shadow-sm border border-[#F2F2F7] p-5 diagnosis-no-print">
           <p className="text-[13px] font-bold text-[#8E8E93] uppercase tracking-wide mb-4">
             차량 정보 입력
           </p>
@@ -315,7 +347,7 @@ export default function ReportPage() {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -12 }}
-              className="flex flex-col items-center justify-center py-12 gap-3"
+              className="flex flex-col items-center justify-center py-12 gap-3 diagnosis-no-print"
             >
               <div className="w-10 h-10 rounded-full border-2 border-[#007AFF] border-t-transparent animate-spin" />
               <p className="text-[13px] text-[#8E8E93]">감가상각 분석 중…</p>
@@ -544,7 +576,7 @@ export default function ReportPage() {
               )}
 
               {/* ── 하단 CTA ───────────────────────────────────────── */}
-              <div className="bg-white rounded-2xl shadow-sm border border-[#F2F2F7] p-5 text-center">
+              <div className="bg-white rounded-2xl shadow-sm border border-[#F2F2F7] p-5 text-center diagnosis-no-print">
                 <p className="text-[14px] font-bold text-[#1C1C1E] mb-1">
                   장기렌트가 유리한지 확인해 보셨나요?
                 </p>
@@ -559,6 +591,12 @@ export default function ReportPage() {
                 >
                   무료 견적 받기
                 </Button>
+              </div>
+
+              {/* PDF 전용 면책문구 (화면에서는 숨김) */}
+              <div className="diagnosis-print-footer">
+                ※ 본 진단 결과는 참고용 추정치이며, 정확한 세무·보험·금융 상담은 전문가에게 문의하시기 바랍니다.
+                렌탈료·보험료·세금은 실제 계약 조건에 따라 달라질 수 있습니다. rentailor.co.kr
               </div>
             </motion.div>
           )}
