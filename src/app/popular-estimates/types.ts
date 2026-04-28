@@ -14,6 +14,8 @@ export interface VehicleCard {
   fuelType: string;
   basePrice: number | null;
   imageKey: string | null;
+  has360Spin: boolean;
+  spinStartFrame: number;
   displayOrder: number;
   isDomestic: boolean;
   price: { min: number } | null;

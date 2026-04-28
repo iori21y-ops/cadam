@@ -121,8 +121,18 @@ function sortVehicles(vehicles: VehicleCard[], sort: SortKey): VehicleCard[] {
   });
 }
 
+const SPIN_BASE = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/car-360`;
+
+function getCardImageSrc(v: VehicleCard): string | null {
+  if (v.has360Spin) {
+    const frame = String(v.spinStartFrame + 1).padStart(3, '0');
+    return `${SPIN_BASE}/${v.slug}/${frame}.webp`;
+  }
+  return v.imageKey ? `/cars/${v.imageKey}.webp` : null;
+}
+
 function VehicleCardItem({ v }: { v: VehicleCard }) {
-  const imgSrc = v.imageKey ? `/cars/${v.imageKey}.webp` : null;
+  const imgSrc = getCardImageSrc(v);
 
   return (
     <Link
@@ -150,14 +160,14 @@ function VehicleCardItem({ v }: { v: VehicleCard }) {
         )}
       </div>
 
-      {/* 우측 이미지 */}
-      <div className="relative w-44 h-28 shrink-0 rounded-xl overflow-hidden bg-gray-50">
+      {/* 우측 이미지 — 홈페이지 카드와 동일한 4:3 비율 */}
+      <div className="relative w-44 aspect-[4/3] shrink-0 rounded-xl overflow-hidden bg-gray-50">
         {imgSrc ? (
           <CarImageFallback
             src={imgSrc}
             alt={v.name}
             sizes="176px"
-            className="object-contain p-1"
+            className="object-contain p-3"
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center text-4xl opacity-20">

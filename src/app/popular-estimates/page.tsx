@@ -95,6 +95,8 @@ async function VehicleListSection() {
         fuelType: v.fuel_type ?? '',
         basePrice: v.base_price ?? null,
         imageKey: local?.imageKey ?? v.image_key ?? null,
+        has360Spin: local?.has360Spin ?? false,
+        spinStartFrame: local?.spinStartFrame ?? 0,
         displayOrder: v.display_order ?? 999,
         isDomestic: DOMESTIC_BRANDS.has(v.brand ?? ''),
         price: defaultPriceMap.has(v.id) ? { min: defaultPriceMap.get(v.id)! } : null,
