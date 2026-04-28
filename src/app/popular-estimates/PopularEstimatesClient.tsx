@@ -127,40 +127,40 @@ function VehicleCardItem({ v }: { v: VehicleCard }) {
   return (
     <Link
       href={`/cars/${v.slug}`}
-      className="flex items-center justify-between gap-4 bg-white rounded-2xl border border-border-solid p-4 hover:border-accent hover:shadow-md transition-all group"
+      className="flex items-center justify-between gap-4 bg-white rounded-2xl border border-border-solid p-5 hover:border-accent hover:shadow-md transition-all group"
     >
       {/* 좌측 텍스트 */}
       <div className="flex-1 min-w-0">
-        <span className="inline-block text-[10px] font-bold tracking-wide text-white bg-success rounded-md px-2 py-0.5 mb-2">
+        <span className="inline-block text-[11px] font-bold tracking-wide text-white bg-success rounded-md px-2 py-0.5 mb-2.5">
           장기렌트
         </span>
-        <p className="font-bold text-base text-text leading-snug truncate group-hover:text-accent transition-colors">
+        <p className="font-bold text-lg text-text leading-snug truncate group-hover:text-accent transition-colors">
           {v.name}
         </p>
-        <p className="text-xs text-text-sub mt-0.5">
+        <p className="text-sm text-text-sub mt-1">
           {v.brand}
           {v.category ? ` · ${v.category}` : ''}
         </p>
         {v.price ? (
-          <p className="text-accent font-extrabold text-lg mt-2 leading-none">
+          <p className="text-accent font-extrabold text-xl mt-2.5 leading-none">
             {formatPrice(v.price.min)}
           </p>
         ) : (
-          <p className="text-text-sub text-sm mt-2">견적 문의</p>
+          <p className="text-text-sub text-sm mt-2.5">견적 문의</p>
         )}
       </div>
 
       {/* 우측 이미지 */}
-      <div className="relative w-32 h-20 shrink-0 rounded-xl overflow-hidden bg-gray-50">
+      <div className="relative w-44 h-28 shrink-0 rounded-xl overflow-hidden bg-gray-50">
         {imgSrc ? (
           <CarImageFallback
             src={imgSrc}
             alt={v.name}
-            sizes="128px"
+            sizes="176px"
             className="object-contain p-1"
           />
         ) : (
-          <div className="absolute inset-0 flex items-center justify-center text-3xl opacity-30">
+          <div className="absolute inset-0 flex items-center justify-center text-4xl opacity-20">
             🚗
           </div>
         )}

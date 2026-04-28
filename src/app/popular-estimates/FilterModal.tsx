@@ -33,7 +33,7 @@ export function FilterModal({ open, filters, onChange, onClose }: FilterModalPro
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col justify-end">
+    <div className="fixed inset-0 z-50 flex flex-col justify-end items-center">
       {/* 오버레이 */}
       <div
         ref={overlayRef}
@@ -42,7 +42,7 @@ export function FilterModal({ open, filters, onChange, onClose }: FilterModalPro
       />
 
       {/* 바텀 시트 */}
-      <div className="relative bg-white rounded-t-3xl px-5 pt-5 pb-8 max-h-[80vh] overflow-y-auto">
+      <div className="relative w-full max-w-[480px] bg-white rounded-t-3xl px-5 pt-5 pb-8 max-h-[80vh] overflow-y-auto">
         {/* 헤더 */}
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-lg font-bold text-text">필터</h2>

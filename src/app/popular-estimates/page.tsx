@@ -108,7 +108,7 @@ async function VehicleListSection() {
 export default function PopularEstimatesPage() {
   return (
     <div className="min-h-screen bg-[#F7F8FA] pb-24">
-      <div className="px-4 pt-8 max-w-2xl mx-auto">
+      <div className="px-4 pt-8 max-w-lg mx-auto">
         <div className="mb-5">
           <h1 className="text-2xl font-extrabold text-text tracking-tight">전체 차종</h1>
           <p className="text-sm text-text-sub mt-1">60개월 기준 · 월 납부금 비교</p>
