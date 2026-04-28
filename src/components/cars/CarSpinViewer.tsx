@@ -2,7 +2,6 @@
 
 import { useRef, useEffect, useCallback, useState } from 'react';
 
-const FRAME_COUNT = 61;
 const PX_PER_FRAME = 5;
 const STORAGE_BASE =
   `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/car-360`;
@@ -10,6 +9,7 @@ const STORAGE_BASE =
 interface CarSpinViewerProps {
   slug: string;
   startFrame?: number;
+  frameCount?: number;
   onFailed: () => void;
 }
 
@@ -23,7 +23,9 @@ function drawContained(ctx: CanvasRenderingContext2D, img: HTMLImageElement) {
   ctx.drawImage(img, x, y, img.naturalWidth * scale, img.naturalHeight * scale);
 }
 
-export function CarSpinViewer({ slug, startFrame = 0, onFailed }: CarSpinViewerProps) {
+export function CarSpinViewer({ slug, startFrame = 0, frameCount = 61, onFailed }: CarSpinViewerProps) {
+  const FRAME_COUNT = frameCount;
+
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const framesRef = useRef<HTMLImageElement[]>([]);
   const dragRef = useRef({ active: false, startX: 0, frameAtStart: 0 });
