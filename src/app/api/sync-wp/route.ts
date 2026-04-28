@@ -80,7 +80,7 @@ export async function POST(request: Request) {
     });
 
     if (newPosts.length === 0) {
-      revalidateTag('wp-posts');
+      revalidateTag('wp-posts', 'default');
       revalidatePath('/info');
       return NextResponse.json({ message: 'No new posts, cache revalidated', synced: 0 });
     }
@@ -119,7 +119,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    revalidateTag('wp-posts');
+    revalidateTag('wp-posts', 'default');
     revalidatePath('/info');
 
     return NextResponse.json({
