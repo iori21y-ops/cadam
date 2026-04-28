@@ -357,31 +357,17 @@ export function TrimOptionSelector({ trims, options, slug }: TrimOptionSelectorP
           {showTrimStep && (
             <div>
               <p className="text-xs text-text-sub mb-1.5">세부 트림</p>
-              <div className="flex flex-col gap-2">
+              <select
+                value={effectiveTrimId}
+                onChange={(e) => handleTrimChange(e.target.value)}
+                className="w-full border border-border-solid rounded-xl px-4 py-3 text-sm text-text bg-surface-secondary focus:outline-none focus:border-accent"
+              >
                 {availableTrims.map((trim) => (
-                  <button
-                    key={trim.id}
-                    type="button"
-                    onClick={() => handleTrimChange(trim.id)}
-                    className={`flex items-center justify-between w-full px-4 py-3 rounded-xl border text-left transition-all ${
-                      effectiveTrimId === trim.id
-                        ? 'border-accent bg-accent/10'
-                        : 'border-border-solid bg-white hover:border-text-sub'
-                    }`}
-                  >
-                    <span
-                      className={`text-sm font-medium ${
-                        effectiveTrimId === trim.id ? 'text-accent' : 'text-text'
-                      }`}
-                    >
-                      {trim.trim_name}
-                    </span>
-                    <span className="text-sm font-semibold text-text-sub ml-2 shrink-0">
-                      {formatManwon(trim.base_price)}
-                    </span>
-                  </button>
+                  <option key={trim.id} value={trim.id}>
+                    {trim.trim_name} — {formatManwon(trim.base_price)}
+                  </option>
                 ))}
-              </div>
+              </select>
               {selectedTrim?.tax_reduced_price != null &&
                 selectedTrim.tax_reduced_price !== selectedTrim.base_price && (
                   <p className="text-xs text-text-sub mt-1.5">
