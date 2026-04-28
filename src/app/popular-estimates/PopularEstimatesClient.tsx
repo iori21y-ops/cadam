@@ -1,9 +1,10 @@
 'use client';
 
 import { memo, useState, useMemo } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { SlidersHorizontal, ChevronDown } from 'lucide-react';
-import { CarImageFallback } from '@/components/cars/CarImageFallback';
+import { IconCarSedan } from '@/components/icons/RentailorIcons';
 import { FilterModal } from './FilterModal';
 import type { VehicleCard, SortKey, TabKey, FilterState } from './types';
 
@@ -123,16 +124,23 @@ function sortVehicles(vehicles: VehicleCard[], sort: SortKey): VehicleCard[] {
 
 const SPIN_BASE = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/car-360`;
 
-function getCardImageSrc(v: VehicleCard): string | null {
-  if (v.has360Spin) {
-    const frame = String(v.spinStartFrame + 1).padStart(3, '0');
-    return `${SPIN_BASE}/${v.slug}/${frame}.webp`;
-  }
-  return v.imageKey ? `/cars/${v.imageKey}.webp` : null;
-}
-
 function VehicleCardItem({ v }: { v: VehicleCard }) {
-  const imgSrc = getCardImageSrc(v);
+  const [spinFailed, setSpinFailed] = useState(false);
+  const [imgError, setImgError] = useState(false);
+
+  const spinSrc = v.has360Spin
+    ? `${SPIN_BASE}/${v.slug}/${String(v.spinStartFrame + 1).padStart(3, '0')}.webp`
+    : null;
+  const staticSrc = v.imageKey ? `/cars/${v.imageKey}.webp` : null;
+  const imgSrc = spinSrc && !spinFailed ? spinSrc : staticSrc;
+
+  function handleImgError() {
+    if (spinSrc && !spinFailed) {
+      setSpinFailed(true);
+    } else {
+      setImgError(true);
+    }
+  }
 
   return (
     <Link
@@ -162,17 +170,24 @@ function VehicleCardItem({ v }: { v: VehicleCard }) {
 
       {/* 우측 이미지 — 홈페이지 카드와 동일한 4:3 비율 */}
       <div className="relative w-44 aspect-[4/3] shrink-0 rounded-xl overflow-hidden bg-gray-50">
-        {imgSrc ? (
-          <CarImageFallback
-            src={imgSrc}
-            alt={v.name}
-            sizes="176px"
-            className="object-contain p-3"
-          />
-        ) : (
+        {!imgSrc ? (
           <div className="absolute inset-0 flex items-center justify-center text-4xl opacity-20">
             🚗
           </div>
+        ) : imgError ? (
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-1">
+            <IconCarSedan size={36} className="opacity-20 text-text-sub" />
+            <span className="text-[10px] text-text-sub">이미지 준비 중</span>
+          </div>
+        ) : (
+          <Image
+            src={imgSrc}
+            alt={v.name}
+            fill
+            sizes="176px"
+            className="object-contain p-3"
+            onError={handleImgError}
+          />
         )}
       </div>
     </Link>

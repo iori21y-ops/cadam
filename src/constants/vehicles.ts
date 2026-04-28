@@ -42,6 +42,7 @@ export const VEHICLE_LIST: Vehicle[] = [
   { id: 'h18', brand: '현대', model: '스타리아', slug: 'staria', category: '다목적', segment: '다목적', fuel: '디젤', imageKey: 'hyundai-staria', has360Spin: true, trims: ['투어러 9인승', '라운지 7인승', '라운지 9인승'], seoTitle: '스타리아 장기렌트 | 월 납부금 비교', seoDescription: '현대 스타리아 장기렌터카. 다목적 차량 장기렌트 견적.' },
   { id: 'h19', brand: '현대', model: '포터 II', slug: 'porter2', category: '트럭', segment: '1톤 트럭', fuel: '디젤', imageKey: 'hyundai-porter2', trims: ['슈퍼캡', '더블캡'], seoTitle: '포터2 장기렌트 | 월 납부금 비교', seoDescription: '현대 포터2 장기렌터카. 1톤 트럭 장기렌트 사업자 전용 견적.' },
   { id: 'h20', brand: '현대', model: '캐스퍼 일렉트릭', slug: 'casper-ev', category: 'EV', segment: '경차 (EV)', fuel: '전기', imageKey: 'hyundai-casper-ev', trims: ['스마트', '프리미엄', '인스퍼레이션'], seoTitle: '캐스퍼 일렉트릭 장기렌트 | 월 납부금 비교', seoDescription: '현대 캐스퍼 일렉트릭 장기렌터카. 경차 전기차 장기렌트 최저가 견적을 확인하세요.' },
+  { id: 'h22', brand: '현대', model: '베뉴', slug: 'venue', category: 'SUV', segment: '소형 SUV', fuel: '가솔린', imageKey: 'hyundai-venue', trims: ['스마트', '프리미엄', '인스퍼레이션'], seoTitle: '베뉴 장기렌트 | 월 납부금 비교', seoDescription: '현대 베뉴 장기렌터카. 소형 SUV 장기렌트 최저가 견적을 확인하세요.' },
   { id: 'h21', brand: '현대', model: '아이오닉9', slug: 'ioniq9', category: 'EV', segment: '대형 SUV (EV)', fuel: '전기', imageKey: 'hyundai-ioniq9', has360Spin: true, trims: ['스탠다드', '롱레인지', '롱레인지 프리미엄'], seoTitle: '아이오닉9 장기렌트 | 월 납부금 비교', seoDescription: '현대 아이오닉9 장기렌터카. 플래그십 대형 전기 SUV 장기렌트 최저가 견적.' },
 
   // ═══════════════════════════════════
@@ -107,7 +108,7 @@ export const VEHICLE_LIST: Vehicle[] = [
   // ═══════════════════════════════════
   // KGM (12종)
   // ═══════════════════════════════════
-  { id: 'kg01', brand: 'KGM', model: '더 뉴 티볼리 1.6 가솔린', slug: 'tivoli', category: 'SUV', segment: '소형 SUV', fuel: '가솔린', imageKey: 'kgm-tivoli', has360Spin: true, frameCount: 36, trims: ['스마트', '퍼펙트'], seoTitle: '티볼리 장기렌트 | 월 납부금 비교', seoDescription: 'KGM 티볼리 장기렌터카. 소형 SUV 장기렌트 최저가 견적을 확인하세요.' },
+  { id: 'kg01', brand: 'KGM', model: '더 뉴 티볼리 1.6 가솔린', slug: 'tivoli', category: 'SUV', segment: '소형 SUV', fuel: '가솔린', imageKey: 'kgm-tivoli', has360Spin: false, trims: ['스마트', '퍼펙트'], seoTitle: '티볼리 장기렌트 | 월 납부금 비교', seoDescription: 'KGM 티볼리 장기렌터카. 소형 SUV 장기렌트 최저가 견적을 확인하세요.' },
   { id: 'kg02', brand: 'KGM', model: '더 뉴 티볼리 1.5 가솔린 터보', slug: 'tivoli-turbo', category: 'SUV', segment: '소형 SUV', fuel: '가솔린', imageKey: 'kgm-tivoli-turbo', trims: ['스마트', '퍼펙트'], seoTitle: '티볼리 터보 장기렌트 | 월 납부금 비교', seoDescription: 'KGM 티볼리 1.5 터보 장기렌터카. 소형 SUV 터보 엔진 장기렌트 견적을 확인하세요.' },
   { id: 'kg03', brand: 'KGM', model: '액티언 하이브리드', slug: 'actyon-hybrid', category: 'SUV', segment: '준중형 SUV', fuel: '하이브리드', imageKey: 'kgm-actyon-hybrid', has360Spin: true, frameCount: 36, trims: ['퍼펙트'], seoTitle: '액티언 하이브리드 장기렌트 | 월 납부금 비교', seoDescription: 'KGM 액티언 하이브리드 장기렌터카. 준중형 SUV 하이브리드 장기렌트 견적을 확인하세요.' },
   { id: 'kg04', brand: 'KGM', model: '토레스', slug: 'torres', category: 'SUV', segment: '중형 SUV', fuel: '가솔린', imageKey: 'kgm-torres', has360Spin: true, frameCount: 36, trims: ['스마트', '퍼펙트', '프리미엄'], seoTitle: '토레스 장기렌트 | 월 납부금 비교', seoDescription: 'KGM 토레스 장기렌터카. 중형 SUV 장기렌트 최저가 견적을 확인하세요.' },
