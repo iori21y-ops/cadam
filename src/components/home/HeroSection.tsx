@@ -12,7 +12,7 @@ export function HeroSection() {
       </h1>
 
       <p className="hero-fade-3 text-text-sub text-base mb-8">
-        15년 전문가의 맞춤 상담부터 AI 견적 비교까지
+        전문가의 맞춤 상담부터 AI 견적 비교까지
       </p>
 
       <div className="hero-fade-4">

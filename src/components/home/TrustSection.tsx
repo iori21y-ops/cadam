@@ -24,7 +24,7 @@ export function TrustSection() {
     <section className="bg-gray-50 py-16 px-5">
       <div className="max-w-lg mx-auto">
         <h2 className="text-primary font-bold text-2xl text-center mb-10">
-          15년 경력 전문가가 직접 상담합니다
+          렌트 전문가가 직접 상담합니다
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
