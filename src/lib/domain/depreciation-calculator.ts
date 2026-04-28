@@ -769,6 +769,7 @@ function calcFallback(
  * @param mileageGroup      주행거리 구간 (기본: 'low' = 0~3만km 기준)
  * @param fallbackCategory  테이블에 없을 때 사용할 카테고리 (기본: domestic_sedan)
  * @param fallbackMsrp      테이블에 없을 때 사용할 신차가 (만원)
+ * @param customPrices      DB에서 조회한 연식별 시세 — 제공 시 MARKET_PRICE_TABLE 대신 사용
  */
 export function calculateDepreciation(
   modelName: string,
@@ -776,8 +777,17 @@ export function calculateDepreciation(
   mileageGroup: MileageGroup = 'low',
   fallbackCategory: DepreciationCategory = 'domestic_sedan',
   fallbackMsrp?: number,
+  customPrices?: Record<number, YearPrices>,
 ): DepreciationResult {
-  const entry = MARKET_PRICE_TABLE[modelName];
+  const tableEntry = MARKET_PRICE_TABLE[modelName];
+  const entry: ModelEntry | undefined = customPrices
+    ? {
+        msrp:     tableEntry?.msrp ?? fallbackMsrp ?? null,
+        category: tableEntry?.category ?? fallbackCategory,
+        brand:    tableEntry?.brand ?? '',
+        prices:   customPrices,
+      }
+    : tableEntry;
 
   if (!entry) {
     return calcFallback(fallbackCategory, fallbackMsrp, vehicleAge, mileageGroup);
@@ -855,18 +865,47 @@ export function calculateDepreciation(
  * @param mileageGroup      주행거리 구간 (기본: 'low')
  * @param fallbackCategory  없을 때 카테고리
  * @param fallbackMsrp      없을 때 신차가
+ * @param customPrices      DB에서 조회한 연식별 시세 — 제공 시 MARKET_PRICE_TABLE 대신 사용
  */
 export function getDepreciationCurve(
   modelName: string,
   mileageGroup: MileageGroup = 'low',
   fallbackCategory: DepreciationCategory = 'domestic_sedan',
   fallbackMsrp?: number,
+  customPrices?: Record<number, YearPrices>,
 ): YearlyRow[] {
-  const entry = MARKET_PRICE_TABLE[modelName];
+  const tableEntry = MARKET_PRICE_TABLE[modelName];
+  const entry: ModelEntry | undefined = customPrices
+    ? {
+        msrp:     tableEntry?.msrp ?? fallbackMsrp ?? null,
+        category: tableEntry?.category ?? fallbackCategory,
+        brand:    tableEntry?.brand ?? '',
+        prices:   customPrices,
+      }
+    : tableEntry;
   if (!entry) {
     return calcFallback(fallbackCategory, fallbackMsrp, 1, mileageGroup).yearlyTable;
   }
   return buildYearlyTable(entry, mileageGroup);
+}
+
+/**
+ * /api/used-prices에서 DB 실측 시세를 조회한다 (브라우저 클라이언트 전용).
+ * 데이터 없거나 오류 시 null 반환 — 호출부에서 MARKET_PRICE_TABLE으로 폴백.
+ */
+export async function fetchDbPrices(
+  brand: string,
+  model: string,
+): Promise<Record<number, YearPrices> | null> {
+  try {
+    const params = new URLSearchParams({ brand, model });
+    const res = await fetch(`/api/used-prices?${params.toString()}`);
+    if (!res.ok) return null;
+    const json = await res.json() as { status: string; prices: Record<number, YearPrices> | null };
+    return json.status === 'ok' ? json.prices : null;
+  } catch {
+    return null;
+  }
 }
 
 /**
@@ -966,6 +1005,7 @@ export async function getModelMsrpFromDB(
  * @param vehicleAge        차령 (년, 소수 가능 — 예: 2.5)
  * @param mileageGroup      주행거리 구간 (기본: 'low')
  * @param fallbackCategory  테이블 미등록 시 카테고리 (기본: domestic_sedan)
+ * @param customPrices      DB에서 조회한 연식별 시세 — 제공 시 MARKET_PRICE_TABLE 대신 사용
  */
 export function calculateDepreciationWithTrim(
   modelName: string,
@@ -973,14 +1013,16 @@ export function calculateDepreciationWithTrim(
   vehicleAge: number,
   mileageGroup: MileageGroup = 'low',
   fallbackCategory: DepreciationCategory = 'domestic_sedan',
+  customPrices?: Record<number, YearPrices>,
 ): DepreciationResult {
-  // 시세 데이터는 기존 로직 그대로 사용
+  // 시세 데이터는 기존 로직 그대로 사용 (DB 시세 있으면 우선 적용)
   const base = calculateDepreciation(
     modelName,
     vehicleAge,
     mileageGroup,
     fallbackCategory,
     trimMsrp,
+    customPrices,
   );
 
   // trimMsrp 기준으로 잔존가치율·감가율·yearlyTable 재계산

@@ -25,8 +25,10 @@ import {
   calculateDepreciationWithTrim,
   calculateDepreciation,
   getDepreciationCurve,
+  fetchDbPrices,
   type DepreciationResult,
   type YearlyRow,
+  type YearPrices,
   type MileageGroup,
   type TrimMsrpResult,
 } from '@/lib/domain/depreciation-calculator';
@@ -94,23 +96,25 @@ function retentionColor(rate: number | null) {
 
 // ── 계산 로직 ─────────────────────────────────────────────────────────────
 
-function runCalculations(formData: DiagnosisFormData): ReportData {
+function runCalculations(formData: DiagnosisFormData, dbPrices?: Record<number, YearPrices>): ReportData {
   const { model, trimData, mileageGroup } = formData;
   const vehicleAge = DATA_YEAR - trimData.model_year;
   const isEV       = trimData.fuel_type === 'ev';
   const isHybrid   = trimData.fuel_type === 'hybrid';
   const cc         = getVehicleCC(model) ?? (isEV ? 0 : 2000);
 
-  // 감가상각 계산 (trimMsrp 기반)
+  // 감가상각 계산 — DB 시세 있으면 우선 사용, 없으면 MARKET_PRICE_TABLE 폴백
   const depResult = calculateDepreciationWithTrim(
     model,
     trimData.msrp_price,
     vehicleAge > 0 ? vehicleAge : 1,
     mileageGroup,
+    undefined,
+    dbPrices,
   );
 
-  // 1~10년차 커브 (차트용)
-  const curve = getDepreciationCurve(model, mileageGroup);
+  // 1~10년차 커브 (차트용) — DB 시세 동일하게 반영
+  const curve = getDepreciationCurve(model, mileageGroup, undefined, undefined, dbPrices);
 
   // 자동차세
   const autoTaxResult = calculateAutoTax({
@@ -177,8 +181,13 @@ export default function ReportPage() {
     setStep('calculating');
     setAnnInsurMk(null);
     setMonthlyFuelMk(null);
-    setTimeout(() => {
-      const data = runCalculations(formData);
+
+    // "계산 중..." 600ms 동안 DB 시세 조회를 병렬 실행
+    const delay   = new Promise<void>((resolve) => setTimeout(resolve, 600));
+    const dbFetch = fetchDbPrices(formData.brand, formData.model);
+
+    Promise.all([delay, dbFetch]).then(([, dbPrices]) => {
+      const data = runCalculations(formData, dbPrices ?? undefined);
       setReport(data);
       setStep('result');
       setTimeout(() => {
@@ -235,7 +244,7 @@ export default function ReportPage() {
           })
           .catch(() => { /* 유류비 로드 실패 시 미표시 */ });
       }
-    }, 600);
+    });
   }
 
   function handleReset() {

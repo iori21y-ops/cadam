@@ -1,0 +1,2217 @@
+===== acquisition-tax-calculator.ts =====
+/**
+ * 취득세(취등록세) 계산기
+ *
+ * 법적 근거
+ * ─────────────────────────────────────────────────────────────────────
+ * • 취득세 세율:           지방세법 제12조 제1항 (자동차 취득세)
+ *   - 승용 비영업:          7%
+ *   - 승합·화물 비영업:     5%
+ *   - 경차(1,000cc 이하):  4%
+ * • 전기차 취득세 감면:    조세특례제한법 제66조 제4항 (140만원 한도)
+ * • 하이브리드 취득세 감면: 조세특례제한법 제66조 제4항 (40만원 한도)
+ * • 중고차 과세표준:       지방세법 제4조 제2항 (시가표준액 또는 거래가액)
+ */
+
+// ── 공개 타입 ─────────────────────────────────────────────────────────
+
+/** 차종 구분 */
+export type AcquisitionVehicleType = '승용' | '승합' | '화물' | '경차';
+
+export interface AcquisitionTaxInputs {
+  vehiclePrice: number;            // 차량 취득가액 (원)
+  vehicleType: AcquisitionVehicleType; // 차종
+  isEV: boolean;                   // 순수 전기차 여부 (BEV)
+  isHEV: boolean;                  // 하이브리드 여부 (HEV)
+  isUsed: boolean;                 // 중고차 여부
+  bondDiscountRate?: number;       // 공채 매입 할인율 (0.00~1.00, 기본값 0)
+                                   // Phase 2에서 지역별 공채 연동 예정
+}
+
+export interface AcquisitionTaxResult {
+  acquisitionTax: number;  // 산출 취득세 (감면 전, 원)
+  taxRate: number;         // 적용 세율 (0.04~0.07)
+  evDiscount: number;      // 전기차 감면액 (원, 최대 140만원)
+  hevDiscount: number;     // 하이브리드 감면액 (원, 최대 40만원)
+  finalTax: number;        // 최종 납부 취득세 = 산출세 − 감면액 (원)
+  bondAmount: number;      // 공채 매입 할인 금액 (원, Phase 2 연동 전 0)
+}
+
+// ── 내부 상수 ─────────────────────────────────────────────────────────
+
+/**
+ * 차종별 취득세율 (지방세법 제12조 제1항)
+ * 영업용은 별도 세율이 적용되나, 본 계산기는 비영업용 기준
+ */
+const TAX_RATES: Record<AcquisitionVehicleType, number> = {
+  '승용': 0.07,  // 비영업용 승용: 7%
+  '승합': 0.05,  // 비영업용 승합: 5%
+  '화물': 0.05,  // 비영업용 화물: 5%
+  '경차': 0.04,  // 경차(1,000cc 이하): 4%
+};
+
+/** 전기차(BEV) 취득세 감면 한도 (조세특례제한법 제66조 제4항, 원) */
+const EV_DISCOUNT_LIMIT = 1_400_000;
+
+/** 하이브리드(HEV) 취득세 감면 한도 (조세특례제한법 제66조 제4항, 원) */
+const HEV_DISCOUNT_LIMIT = 400_000;
+
+// ── 공개 계산 함수 ────────────────────────────────────────────────────
+
+export function calculateAcquisitionTax(inputs: AcquisitionTaxInputs): AcquisitionTaxResult {
+  const {
+    vehiclePrice,
+    vehicleType,
+    isEV,
+    isHEV,
+    bondDiscountRate = 0,
+  } = inputs;
+
+  // ① 세율 결정
+  const taxRate = TAX_RATES[vehicleType];
+
+  // ② 산출 취득세 = 취득가액 × 세율
+  const acquisitionTax = Math.round(vehiclePrice * taxRate);
+
+  // ③ EV·HEV 감면액 산출 (조세특례제한법 제66조)
+  //    EV와 HEV는 중복 적용 불가 — EV 우선
+  let evDiscount = 0;
+  let hevDiscount = 0;
+
+  if (isEV) {
+    evDiscount = Math.min(acquisitionTax, EV_DISCOUNT_LIMIT);
+  } else if (isHEV) {
+    hevDiscount = Math.min(acquisitionTax, HEV_DISCOUNT_LIMIT);
+  }
+
+  // ④ 최종 취득세 = 산출세 − 감면액 (음수 방지)
+  const finalTax = Math.max(0, acquisitionTax - evDiscount - hevDiscount);
+
+  // ⑤ 공채 할인액 (Phase 2 연동 전 0, 파라미터 보존)
+  const bondAmount = Math.round(vehiclePrice * bondDiscountRate);
+
+  return {
+    acquisitionTax,
+    taxRate,
+    evDiscount,
+    hevDiscount,
+    finalTax,
+    bondAmount,
+  };
+}
+
+===== auto-tax-calculator.ts =====
+/**
+ * 자동차세 계산기
+ *
+ * 법적 근거
+ * ─────────────────────────────────────────────────────────────────────
+ * • 자동차세 세율 (비영업용):  지방세법 제127조 제1항 제1호
+ * • 연식 경감률:               지방세법 제127조 제3항
+ * • 지방교육세:                지방세법 제151조 제1항 (자동차세액의 30%)
+ * • 전기자동차 정액세:         지방세특례제한법 제67조의2 (연 100,000원)
+ */
+
+// ── 공개 타입 ─────────────────────────────────────────────────────────
+
+/** 차종 구분 */
+export type VehicleType = 'passenger' | 'van' | 'truck';
+
+export interface AutoTaxInputs {
+  cc: number;              // 배기량 (cc) — 전기차는 모터 출력 무관, 0 입력 가능
+  vehicleType: VehicleType; // 차종: 승용(passenger) / 승합(van) / 화물(truck)
+  ageYears: number;        // 차령 — 최초 등록연도 기준 경과 년수 (1년차 = 1)
+  isElectric: boolean;     // 순수 전기차 여부 (BEV)
+  isHybrid: boolean;       // 하이브리드 여부 (HEV) — 현행법상 일반 세율 적용
+}
+
+export interface AutoTaxResult {
+  autoTax: number;         // 자동차세 (원)
+  localEduTax: number;     // 지방교육세 = 자동차세 × 30% (원)
+  total: number;           // 세전 합계 = 자동차세 + 지방교육세 (원)
+  discountRate: number;    // 연식 경감률 (0.00 ~ 0.50)
+  discountedTotal: number; // 경감 후 최종 납부액 (원)
+}
+
+// ── 내부 상수 ─────────────────────────────────────────────────────────
+
+/**
+ * 승용 비영업용 cc당 세율 (지방세법 제127조 제1항 제1호)
+ * • 1,000cc 이하:  cc당  80원
+ * • 1,600cc 이하:  cc당 140원
+ * • 1,600cc 초과:  cc당 200원
+ */
+const PASSENGER_RATE_PER_CC: { limit: number; rate: number }[] = [
+  { limit: 1_000, rate:  80 },
+  { limit: 1_600, rate: 140 },
+  { limit: Infinity, rate: 200 },
+];
+
+/** 전기차 정액세 (지방세특례제한법 제67조의2, 원/년) */
+const EV_FLAT_TAX = 100_000;
+
+/** 지방교육세율 = 자동차세액의 30% (지방세법 제151조) */
+const LOCAL_EDU_TAX_RATE = 0.30;
+
+/** 연식 경감 시작 차령 (3년차부터 적용) */
+const DISCOUNT_START_YEAR = 3;
+
+/** 차령 1년당 경감률 증가폭 (5%) */
+const DISCOUNT_STEP = 0.05;
+
+/** 최대 경감률 50% (12년차 이후 동결) */
+const DISCOUNT_MAX = 0.50;
+
+// ── 내부 헬퍼 ─────────────────────────────────────────────────────────
+
+/** 배기량(cc)으로 승용 비영업용 자동차세를 계산한다 */
+function calcPassengerTax(cc: number): number {
+  const bracket = PASSENGER_RATE_PER_CC.find((b) => cc <= b.limit);
+  return (bracket?.rate ?? 200) * cc;
+}
+
+/**
+ * 차령에 따른 연식 경감률을 반환한다 (지방세법 제127조 제3항).
+ * • 1~2년차: 0%
+ * • 3년차:   5%
+ * • 4년차:  10%
+ * •  …
+ * • 12년차 이후: 50% (상한)
+ */
+function getDiscountRate(ageYears: number): number {
+  if (ageYears < DISCOUNT_START_YEAR) return 0;
+  return Math.min((ageYears - 2) * DISCOUNT_STEP, DISCOUNT_MAX);
+}
+
+// ── 공개 계산 함수 ────────────────────────────────────────────────────
+
+export function calculateAutoTax(inputs: AutoTaxInputs): AutoTaxResult {
+  const { cc, vehicleType, ageYears, isElectric } = inputs;
+
+  // ① 기본 자동차세 산출
+  //    전기차: 차종 무관 정액 / HEV: 일반 세율 동일 / 승합·화물: 승용 기준 cc 세율로 근사
+  //    ※ 승합(8인 이상)·화물은 지방세법상 승차정원·최대적재량 기준 정액이 원칙이나,
+  //      cc 단일 입력 구조에서는 승용 세율로 근사한다.
+  let autoTax: number;
+  if (isElectric) {
+    autoTax = EV_FLAT_TAX;
+  } else {
+    switch (vehicleType) {
+      case 'passenger':
+        autoTax = calcPassengerTax(cc);
+        break;
+      case 'van':
+      case 'truck':
+        autoTax = calcPassengerTax(cc);
+        break;
+    }
+  }
+
+  // ② 지방교육세 = 자동차세 × 30%
+  const localEduTax = Math.round(autoTax * LOCAL_EDU_TAX_RATE);
+
+  // ③ 세전 합계
+  const total = autoTax + localEduTax;
+
+  // ④ 연식 경감 적용 (전기차 정액세에는 경감률 미적용 — 이미 감면 세율)
+  const discountRate = isElectric ? 0 : getDiscountRate(ageYears);
+  const discountedTotal = Math.round(total * (1 - discountRate));
+
+  return {
+    autoTax,
+    localEduTax,
+    total,
+    discountRate,
+    discountedTotal,
+  };
+}
+
+===== cost-calculator.ts =====
+// 개인 차량 유지비 진단 계산기
+
+// ── 공개 타입 ─────────────────────────────────────────────────────────
+
+export type CarAge = '1-3' | '4-6' | '7-10' | '10+';
+
+export type CarPrice = 'under2k' | '2k-3k' | '3k-5k' | '5k+';
+
+export type MonthlyKm = 'under1k' | '1k-2k' | '2k-3k' | '3k+';
+
+export type LoanPayment = 'paid' | '200-400k' | '400-600k' | '600k+';
+
+export type AnnualInsurance = 'under500k' | '500k-800k' | '800k-1200k' | '1200k+';
+
+export interface CostInputs {
+  carAge: CarAge;
+  carPrice: CarPrice;
+  monthlyKm: MonthlyKm;
+  loanPayment: LoanPayment;
+  annualInsurance: AnnualInsurance;
+}
+
+export interface CostBreakdown {
+  loan: number;
+  insurance: number;
+  carTax: number;
+  fuel: number;
+  maintenance: number;
+  depreciation: number;
+  misc: number;
+}
+
+export type Verdict = 'strong-rent' | 'consider-rent' | 'similar' | 'keep-car';
+
+export interface CostResult {
+  breakdown: CostBreakdown;
+  totalCost: number;
+  perceivedCost: number;
+  hiddenCost: number;
+  rentLow: number;
+  rentHigh: number;
+  rentMid: number;
+  rentTotal: number;
+  diff: number;
+  verdict: Verdict;
+}
+
+// ── 내부 상수 ─────────────────────────────────────────────────────────
+
+const LOAN_MAP: Record<LoanPayment, number> = {
+  'paid':      0,
+  '200-400k':  300_000,
+  '400-600k':  500_000,
+  '600k+':     700_000,
+};
+
+const INSURANCE_ANNUAL_MAP: Record<AnnualInsurance, number> = {
+  'under500k':   400_000,
+  '500k-800k':   650_000,
+  '800k-1200k':  1_000_000,
+  '1200k+':      1_500_000,
+};
+
+const CAR_TAX_ANNUAL_MAP: Record<CarPrice, number> = {
+  'under2k': 280_000,
+  '2k-3k':   400_000,
+  '3k-5k':   520_000,
+  '5k+':     520_000,
+};
+
+const FUEL_EFFICIENCY_MAP: Record<CarAge, number> = {
+  '1-3':  13,
+  '4-6':  12,
+  '7-10': 10.5,
+  '10+':  9,
+};
+
+const KM_MIDPOINT_MAP: Record<MonthlyKm, number> = {
+  'under1k': 750,
+  '1k-2k':   1_500,
+  '2k-3k':   2_500,
+  '3k+':     3_500,
+};
+
+const MAINTENANCE_BASE_MAP: Record<CarAge, number> = {
+  '1-3':  30_000,
+  '4-6':  70_000,
+  '7-10': 120_000,
+  '10+':  180_000,
+};
+
+const MAINTENANCE_KM_MULT_MAP: Record<MonthlyKm, number> = {
+  'under1k': 1.0,
+  '1k-2k':   1.1,
+  '2k-3k':   1.3,
+  '3k+':     1.3,
+};
+
+const DEPRECIATION_RATE_MAP: Record<CarAge, number> = {
+  '1-3':  0.15,
+  '4-6':  0.10,
+  '7-10': 0.06,
+  '10+':  0.03,
+};
+
+// 만원 → 원
+const CAR_PRICE_VALUE_MAP: Record<CarPrice, number> = {
+  'under2k': 15_000_000,
+  '2k-3k':   25_000_000,
+  '3k-5k':   40_000_000,
+  '5k+':     65_000_000,
+};
+
+const RENT_RANGE_MAP: Record<CarPrice, [number, number]> = {
+  'under2k': [350_000, 450_000],
+  '2k-3k':   [450_000, 600_000],
+  '3k-5k':   [550_000, 800_000],
+  '5k+':     [750_000, 1_100_000],
+};
+
+const FUEL_PRICE = 1_750; // 원/L
+
+// ── 계산 함수 ─────────────────────────────────────────────────────────
+
+export function calcCost(inputs: CostInputs): CostResult {
+  const { carAge, carPrice, monthlyKm, loanPayment, annualInsurance } = inputs;
+
+  const loan       = LOAN_MAP[loanPayment];
+  const insurance  = Math.round(INSURANCE_ANNUAL_MAP[annualInsurance] / 12);
+  const carTax     = Math.round(CAR_TAX_ANNUAL_MAP[carPrice] / 12);
+
+  const km         = KM_MIDPOINT_MAP[monthlyKm];
+  const efficiency = FUEL_EFFICIENCY_MAP[carAge];
+  const fuel       = Math.round((km / efficiency) * FUEL_PRICE);
+
+  const maintBase  = MAINTENANCE_BASE_MAP[carAge];
+  const maintMult  = MAINTENANCE_KM_MULT_MAP[monthlyKm];
+  const maintenance = Math.round(maintBase * maintMult);
+
+  const carValue    = CAR_PRICE_VALUE_MAP[carPrice];
+  const deprRate    = DEPRECIATION_RATE_MAP[carAge];
+  const depreciation = Math.round((carValue * deprRate) / 12);
+
+  const misc = 80_000;
+
+  const breakdown: CostBreakdown = {
+    loan, insurance, carTax, fuel, maintenance, depreciation, misc,
+  };
+
+  const totalCost = loan + insurance + carTax + fuel + maintenance + depreciation + misc;
+
+  // 인식 비용: 할부 + 유류 + 보험
+  const perceivedCost = loan + fuel + insurance;
+  const hiddenCost    = totalCost - perceivedCost;
+
+  const [rentLow, rentHigh] = RENT_RANGE_MAP[carPrice];
+  const rentMid  = Math.round((rentLow + rentHigh) / 2);
+  const rentTotal = rentMid + fuel;
+
+  const diff = totalCost - rentTotal;
+
+  let verdict: Verdict;
+  if (diff > 200_000)       verdict = 'strong-rent';
+  else if (diff > 50_000)   verdict = 'consider-rent';
+  else if (diff >= -100_000) verdict = 'similar';
+  else                       verdict = 'keep-car';
+
+  return {
+    breakdown,
+    totalCost,
+    perceivedCost,
+    hiddenCost,
+    rentLow,
+    rentHigh,
+    rentMid,
+    rentTotal,
+    diff,
+    verdict,
+  };
+}
+
+===== depreciation-calculator.ts =====
+/**
+ * 감가상각 계산기
+ *
+ * 데이터 출처 및 설계
+ * ─────────────────────────────────────────────────────────────────────
+ * • 시세: 엔카(encar.com) 2026-W17 수집분 (2021~2025년식, 주행거리 3구간 중간가)
+ *   - low  = 0~3만km 중간가 (저주행 프리미엄, 최고가)
+ *   - mid  = 3~6만km 중간가
+ *   - high = 6~10만km 중간가 (고주행 할인, 최저가)
+ * • 신차가(msrp): 제조사 공시 기준, 2025년 시점 수동 기록 (만원)
+ * • 이상값은 null 처리 후 주석 표기
+ * • Phase 4에서 CODEF 실거래가 API로 대체 예정
+ */
+
+// ── 공개 타입 ─────────────────────────────────────────────────────────
+
+/**
+ * 주행거리 구간
+ * low  = 0~3만km (저주행, 최고가)
+ * mid  = 3~6만km
+ * high = 6~10만km (고주행, 최저가)
+ */
+export type MileageGroup = 'low' | 'mid' | 'high';
+
+export type DepreciationCategory =
+  | 'domestic_sedan'  // 국산 세단·경차 (아반떼, 쏘나타, 그랜저 등)
+  | 'domestic_suv'    // 국산 SUV·MPV (투싼, 싼타페, 카니발 등)
+  | 'genesis'         // 제네시스 전 모델
+  | 'ev'              // 순수 전기차 (국산·수입 공통)
+  | 'import_sedan'    // 수입 세단 (BMW 시리즈, 벤츠 클래스 등)
+  | 'import_suv';     // 수입 SUV (X5, GLE 등)
+
+export interface YearPrices {
+  low:  number | null;  // 0~3만km 중간가 (만원)
+  mid:  number | null;  // 3~6만km 중간가 (만원)
+  high: number | null;  // 6~10만km 중간가 (만원)
+}
+
+export interface ModelEntry {
+  msrp:     number | null;            // 신차 MSRP (만원); null = 미등록
+  category: DepreciationCategory;
+  brand:    string;
+  prices:   Record<number, YearPrices>; // key = 연식 (2021~2025)
+}
+
+export interface YearlyRow {
+  age:           number;        // 차령 (1~10)
+  year:          number;        // 연식
+  value:         number;        // 예상 시세 (만원)
+  retentionRate: number | null; // 잔존가치율 (msrp 없으면 null)
+}
+
+export interface DepreciationResult {
+  currentValue:     number;        // 현재 시세 (만원)
+  msrp:             number | null; // 신차가 (만원)
+  retentionRate:    number | null; // 잔존가치율 (1.0 초과 = 프리미엄)
+  depreciationRate: number | null; // 감가율
+  mileageGroup:     MileageGroup;  // 계산에 사용된 주행거리 구간
+  yearlyTable:      YearlyRow[];   // 1~10년차 잔존가치 테이블 (동일 구간 기준)
+  dataSource:       'market' | 'market_trim' | 'fallback';
+}
+
+// ── 내부 상수 ─────────────────────────────────────────────────────────
+
+/** 시세 데이터 기준 연도 (새 수집분 반영 시 업데이트) */
+const DATA_YEAR = 2026;
+
+/**
+ * 카테고리별 연식별 평균 잔존가치율 (엔카 2026-W17 실데이터에서 산출)
+ * index 0 = 1년차, index 4 = 5년차
+ * 1~2년차가 1.0 초과인 것은 신차 프리미엄(대기수요) 현상
+ */
+const CATEGORY_RETENTION: Record<DepreciationCategory, number[]> = {
+  domestic_sedan: [1.26, 1.17, 1.09, 1.04, 0.92],
+  domestic_suv:   [1.22, 1.11, 1.05, 0.95, 0.89],
+  genesis:        [0.78, 0.79, 0.71, 0.68, 0.62],
+  ev:             [0.92, 0.81, 0.75, 0.70, 0.69],
+  import_sedan:   [0.84, 0.86, 0.69, 0.63, 0.58],
+  import_suv:     [0.85, 0.85, 0.83, 0.75, 0.68],
+};
+
+/** 잔존가치 최저 보장율 (외삽 시 이 값 이하로 내려가지 않음) */
+const MIN_RETENTION = 0.15;
+
+/**
+ * 주행거리 구간별 시세 보정 계수 (low 기준)
+ * 엔카 2026-W17 실데이터 평균: mid/low≈0.91, high/low≈0.83
+ * fallback 계산 시 저주행 기준 잔존율에 이 계수를 곱함
+ */
+const MILEAGE_FACTOR: Record<MileageGroup, number> = {
+  low:  1.00,
+  mid:  0.91,
+  high: 0.83,
+};
+
+// ── 시세 테이블 ───────────────────────────────────────────────────────
+
+export const MARKET_PRICE_TABLE: Record<string, ModelEntry> = {
+
+  // ── 현대 ──────────────────────────────────────────────────────────
+  '그랜저': {
+    msrp: 3_820, category: 'domestic_sedan', brand: '현대',
+    prices: {
+      2025: { low: 3890, mid: 3820, high: 2620 },
+      2024: { low: 3750, mid: 3580, high: 3190 },
+      2023: { low: 3570, mid: 3280, high: 3150 },
+      2022: { low: 2890, mid: 2740, high: 2520 },
+      2021: { low: 2790, mid: 2650, high: 2460 },
+    },
+  },
+  '싼타페': {
+    msrp: 3_520, category: 'domestic_suv', brand: '현대',
+    prices: {
+      2025: { low: 3940, mid: 3570, high: null },
+      2024: { low: 3699, mid: 3550, high: 3430 },
+      2023: { low: 3790, mid: 3480, high: 2950 },
+      2022: { low: 3080, mid: 2900, high: 2580 },
+      2021: { low: 2950, mid: 2699, high: 2490 },
+    },
+  },
+  '쏘나타': {
+    msrp: 2_580, category: 'domestic_sedan', brand: '현대',
+    prices: {
+      2025: { low: 2990, mid: 2290, high: 2150 },
+      2024: { low: 2950, mid: 2390, high: 2000 },
+      2023: { low: 2940, mid: 2620, high: 2120 },
+      2022: { low: 2350, mid: 2230, high: 1760 },
+      2021: { low: 2190, mid: 2090, high: 1770 },
+    },
+  },
+  '아반떼': {
+    msrp: 1_880, category: 'domestic_sedan', brand: '현대',
+    prices: {
+      2025: { low: 2580, mid: 2590, high: null },
+      2024: { low: 2450, mid: 2100, high: 1940 },
+      2023: { low: 2290, mid: 2100, high: 1920 },
+      2022: { low: 2250, mid: 1999, high: 1785 },
+      2021: { low: 1980, mid: 1820, high: 1690 },
+    },
+  },
+  '아이오닉5': {
+    msrp: 5_197, category: 'ev', brand: '현대',
+    prices: {
+      2025: { low: 5850, mid: 4440, high: null },
+      2024: { low: 3950, mid: 3770, high: 3190 },
+      2023: { low: 3950, mid: 3718, high: 3100 },
+      2022: { low: 3250, mid: 3400, high: 3090 },
+      2021: { low: 3140, mid: 2999, high: 2899 },
+    },
+  },
+  '아이오닉6': {
+    msrp: 5_195, category: 'ev', brand: '현대',
+    prices: {
+      2025: { low: 4350, mid: null,  high: 3150 },
+      2024: { low: 4290, mid: null,  high: 3090 },
+      2023: { low: 3790, mid: 3590, high: 3370 },
+      2022: { low: 3495, mid: 3450, high: 3100 },
+      2021: { low: null,  mid: null,  high: null  },
+    },
+  },
+  '캐스퍼': {
+    msrp: 1_500, category: 'domestic_sedan', brand: '현대',
+    prices: {
+      2025: { low: 2399, mid: 1560, high: null },
+      2024: { low: 1860, mid: 1680, high: 1550 },
+      2023: { low: 1660, mid: 1580, high: 1390 },
+      2022: { low: 1610, mid: 1560, high: 1430 },
+      2021: { low: 1570, mid: 1520, high: 1400 },
+    },
+  },
+  '코나': {
+    msrp: 2_415, category: 'domestic_suv', brand: '현대',
+    prices: {
+      2025: { low: 2930, mid: 3099, high: null },
+      2024: { low: 2790, mid: 2630, high: 2340 },
+      2023: { low: 2730, mid: 2610, high: 2450 },
+      2022: { low: 2320, mid: 2370, high: 1950 },
+      2021: { low: 2100, mid: 2120, high: 1880 },
+    },
+  },
+  '투싼': {
+    msrp: 2_695, category: 'domestic_suv', brand: '현대',
+    prices: {
+      2025: { low: 3250, mid: 3599, high: null },
+      2024: { low: 3200, mid: 2990, high: 2689 },
+      2023: { low: 2850, mid: 2599, high: 2490 },
+      2022: { low: 2690, mid: 2589, high: 2280 },
+      2021: { low: 2570, mid: 2500, high: 2350 },
+    },
+  },
+  '팰리세이드': {
+    msrp: 4_380, category: 'domestic_suv', brand: '현대',
+    prices: {
+      2025: { low: 5890, mid: 5630, high: null },
+      2024: { low: 3790, mid: 3820, high: 3750 },
+      2023: { low: 4050, mid: 3950, high: 3770 },
+      2022: { low: 3650, mid: 3350, high: 3099 },
+      2021: { low: 3050, mid: 3050, high: 2880 },
+    },
+  },
+  '스타리아': {
+    msrp: 3_070, category: 'domestic_suv', brand: '현대',
+    prices: {
+      2025: { low: 3490, mid: 2900, high: 3920 },
+      2024: { low: 3390, mid: 3199, high: 2800 },
+      2023: { low: 3240, mid: 2750, high: 2599 },
+      2022: { low: 2890, mid: 2950, high: 2660 },
+      2021: { low: 2880, mid: 2990, high: 2750 },
+    },
+  },
+  '넥쏘': {
+    msrp: 6_890, category: 'ev', brand: '현대',
+    prices: {
+      2025: { low: 4390, mid: null,  high: null  },
+      2024: { low: 2650, mid: null,  high: null  },
+      2023: { low: 2480, mid: 2260, high: 2150 },
+      2022: { low: 1950, mid: 2150, high: 1899 },
+      2021: { low: null,  mid: 2150, high: 1850 },
+    },
+  },
+
+  // ── 기아 ──────────────────────────────────────────────────────────
+  'K3': {
+    msrp: 1_836, category: 'domestic_sedan', brand: '기아',
+    prices: {
+      2025: { low: null,  mid: null,  high: null  },
+      2024: { low: 2220, mid: 2150, high: 1510 },
+      2023: { low: 2090, mid: 1990, high: 1750 },
+      2022: { low: 2450, mid: 1835, high: 1630 },
+      2021: { low: 1900, mid: 1790, high: 1550 },
+    },
+  },
+  'K5': {
+    msrp: 2_625, category: 'domestic_sedan', brand: '기아',
+    prices: {
+      2025: { low: 3190, mid: 3349, high: null },
+      2024: { low: 3060, mid: 2920, high: 2250 },
+      2023: { low: 2850, mid: 2580, high: 2450 },
+      2022: { low: 2590, mid: 2480, high: 2150 },
+      2021: { low: 2390, mid: 2200, high: 1990 },
+    },
+  },
+  'K8': {
+    msrp: 3_765, category: 'domestic_sedan', brand: '기아',
+    prices: {
+      2025: { low: 3950, mid: 3600, high: null },
+      2024: { low: 3690, mid: 3110, high: 2550 },
+      2023: { low: 3090, mid: 3000, high: 2719 },
+      2022: { low: 3120, mid: 2750, high: 2499 },
+      2021: { low: 2930, mid: 2570, high: 2490 },
+    },
+  },
+  'K9': {
+    msrp: 5_920, category: 'domestic_sedan', brand: '기아',
+    prices: {
+      2025: { low: 5680, mid: null,  high: null  },
+      2024: { low: 5250, mid: 4750, high: 4489 },
+      2023: { low: 4550, mid: 4380, high: 4090 },
+      2022: { low: 4399, mid: 4190, high: 3799 },
+      2021: { low: 4130, mid: 3450, high: 3550 },
+    },
+  },
+  'EV3': {
+    msrp: 3_996, category: 'ev', brand: '기아',
+    prices: {
+      2025: { low: 3690, mid: 3330, high: null },
+      2024: { low: 3750, mid: 3790, high: 3320 },
+      2023: { low: null,  mid: null,  high: null  },
+      2022: { low: null,  mid: null,  high: null  },
+      2021: { low: null,  mid: null,  high: null  },
+    },
+  },
+  'EV6': {
+    msrp: 5_019, category: 'ev', brand: '기아',
+    prices: {
+      2025: { low: 5450, mid: 3830, high: 3550 },
+      2024: { low: 4120, mid: 4130, high: 3390 },
+      2023: { low: 3899, mid: 3590, high: 3490 },
+      2022: { low: 3660, mid: 3399, high: 3199 },
+      2021: { low: 3550, mid: 3390, high: 3189 },
+    },
+  },
+  'EV9': {
+    msrp: 7_660, category: 'ev', brand: '기아',
+    prices: {
+      2025: { low: 5969, mid: null,  high: null  },
+      2024: { low: 5490, mid: 5550, high: 5950 },
+      2023: { low: 6350, mid: 5850, high: 5299 },
+      2022: { low: null,  mid: null,  high: null  },
+      2021: { low: null,  mid: null,  high: null  },
+    },
+  },
+  '레이': {
+    msrp: 1_580, category: 'domestic_sedan', brand: '기아',
+    prices: {
+      2025: { low: 1840, mid: 1750, high: null },
+      2024: { low: 1730, mid: 1620, high: 1600 },
+      2023: { low: 1630, mid: 1580, high: 1330 },
+      2022: { low: 1450, mid: 1330, high: 1140 },
+      2021: { low: 1383, mid: 1290, high:  910 },
+    },
+  },
+  '모닝': {
+    msrp: 1_346, category: 'domestic_sedan', brand: '기아',
+    prices: {
+      2025: { low: 1690, mid: null,  high: null  },
+      2024: { low: 1630, mid: 1620, high: 1999 },
+      2023: { low: 1540, mid: 1459, high: 1350 },
+      2022: { low: 1390, mid: 1250, high: 1250 },
+      2021: { low: 1090, mid: 1180, high: 1050 },
+    },
+  },
+  '모하비': {
+    msrp: 4_901, category: 'domestic_suv', brand: '기아',
+    prices: {
+      2025: { low: null,  mid: null,  high: null  },
+      2024: { low: 4950, mid: 4590, high: 4620 },
+      2023: { low: 4670, mid: 4320, high: 4040 },
+      2022: { low: 4390, mid: 4020, high: 3600 },
+      2021: { low: 4077, mid: 3650, high: 3430 },
+    },
+  },
+  '셀토스': {
+    msrp: 2_342, category: 'domestic_suv', brand: '기아',
+    prices: {
+      2025: { low: 2690, mid: 2350, high: null },
+      2024: { low: 2740, mid: 2499, high: 2529 },
+      2023: { low: 2600, mid: 2555, high: 2299 },
+      2022: { low: 2390, mid: 2290, high: 2020 },
+      2021: { low: 2150, mid: 2080, high: 1850 },
+    },
+  },
+  '스팅어': {
+    msrp: 4_350, category: 'domestic_sedan', brand: '기아',
+    prices: {
+      2025: { low: null,  mid: null,  high: null  },
+      2024: { low: null,  mid: null,  high: null  },
+      2023: { low: 3490, mid: 4199, high: 3550 },
+      2022: { low: 3130, mid: 3420, high: 2970 },
+      2021: { low: 3250, mid: 2990, high: 2840 },
+    },
+  },
+  '스포티지': {
+    msrp: 2_681, category: 'domestic_suv', brand: '기아',
+    prices: {
+      2025: { low: 3750, mid: 3440, high: null },
+      2024: { low: 3250, mid: 2790, high: 2750 },
+      2023: { low: 3030, mid: 2880, high: 2690 },
+      2022: { low: 2850, mid: 2730, high: 2460 },
+      2021: { low: 2790, mid: 2610, high: 2440 },
+    },
+  },
+  '쏘렌토': {
+    msrp: 3_587, category: 'domestic_suv', brand: '기아',
+    prices: {
+      2025: { low: 4130, mid: 4070, high: null },
+      2024: { low: 4100, mid: 3990, high: 3690 },
+      2023: { low: 3830, mid: 3550, high: 3269 },
+      2022: { low: 3390, mid: 3210, high: 2900 },
+      2021: { low: 3330, mid: 2999, high: 2790 },
+    },
+  },
+  '카니발': {
+    msrp: 3_618, category: 'domestic_suv', brand: '기아',
+    prices: {
+      2025: { low: 4380, mid: 4650, high: null },
+      2024: { low: 4390, mid: 4240, high: 3950 },
+      2023: { low: 3530, mid: 3380, high: 3040 },
+      2022: { low: 3390, mid: 3250, high: 2890 },
+      2021: { low: 3290, mid: 3099, high: 2750 },
+    },
+  },
+
+  // ── 제네시스 ───────────────────────────────────────────────────────
+  'G70': {
+    msrp: 4_716, category: 'genesis', brand: '제네시스',
+    prices: {
+      2025: { low: 4590, mid: null,  high: null  },
+      2024: { low: 3970, mid: 3800, high: null  },
+      2023: { low: 3830, mid: 3510, high: 3050 },
+      2022: { low: 3590, mid: 3299, high: 2799 },
+      2021: { low: 3350, mid: 3250, high: 2950 },
+    },
+  },
+  'G80': {
+    msrp: 7_314, category: 'genesis', brand: '제네시스',
+    prices: {
+      2025: { low: 5950, mid: 5750, high: null },
+      2024: { low: 5699, mid: 5200, high: 4890 },
+      2023: { low: 4700, mid: 4450, high: 3960 },
+      2022: { low: 4380, mid: 4199, high: 3690 },
+      2021: { low: 4290, mid: 3940, high: 3490 },
+    },
+  },
+  'G90': {
+    msrp: 16_000, category: 'genesis', brand: '제네시스',
+    prices: {
+      2025: { low: 8300, mid: null,  high: 7350 },
+      2024: { low: 7799, mid: 7599, high: 6790 },
+      2023: { low: 8250, mid: 7117, high: 6320 },
+      2022: { low: 7490, mid: 7190, high: 6590 },
+      2021: { low: null,  mid: 4590, high: 4159 },  // 저주행 매물 없음
+    },
+  },
+  'GV60': {
+    msrp: 5_907, category: 'ev', brand: '제네시스',
+    prices: {
+      // 2025: 2매물, 0~3만km=8,232만원 → 신차가 초과로 이상값 처리
+      2025: { low: null,  mid: null,  high: null  },
+      2024: { low: 6020, mid: 5586, high: null  },
+      2023: { low: 4990, mid: 5190, high: 4850 },
+      2022: { low: 5260, mid: 4590, high: 4099 },
+      2021: { low: 4329, mid: 4390, high: 3999 },
+    },
+  },
+  'GV70': {
+    msrp: 6_178, category: 'genesis', brand: '제네시스',
+    prices: {
+      2025: { low: 5350, mid: 5599, high: null },
+      2024: { low: 5170, mid: 4590, high: 3590 },
+      2023: { low: 4600, mid: 4350, high: 3940 },
+      2022: { low: 4460, mid: 4190, high: 3850 },
+      2021: { low: 4090, mid: 3899, high: 3600 },
+    },
+  },
+  'GV80': {
+    msrp: 9_184, category: 'genesis', brand: '제네시스',
+    prices: {
+      2025: { low: 6820, mid: 6740, high: null },
+      2024: { low: 6790, mid: 6580, high: 5900 },
+      2023: { low: 6250, mid: 5750, high: 5250 },
+      2022: { low: 5690, mid: 5200, high: 4830 },
+      2021: { low: 4890, mid: 4850, high: 4499 },
+    },
+  },
+
+  // ── 테슬라 ────────────────────────────────────────────────────────
+  '모델 Y': {
+    msrp: 5_999, category: 'ev', brand: '테슬라',
+    prices: {
+      2025: { low: 5070, mid: 5125, high: null },
+      2024: { low: 4490, mid: 3870, high: 3680 },
+      2023: { low: 4050, mid: 3780, high: 3750 },
+      2022: { low: 4740, mid: 4390, high: 3850 },
+      2021: { low: 4800, mid: 3850, high: 3690 },
+    },
+  },
+  '모델 3': {
+    msrp: 5_299, category: 'ev', brand: '테슬라',
+    prices: {
+      2025: { low: 4550, mid: null,  high: null  },
+      2024: { low: 4490, mid: 4700, high: null  },
+      2023: { low: null,  mid: 3749, high: null  },
+      2022: { low: 3730, mid: 3399, high: 3099 },
+      2021: { low: null,  mid: 3390, high: 3150 },
+    },
+  },
+
+  // ── BMW ───────────────────────────────────────────────────────────
+  '3시리즈': {
+    msrp: 5_380, category: 'import_sedan', brand: 'BMW',
+    prices: {
+      2025: { low: 4200, mid: 4790, high: null },
+      2024: { low: 4390, mid: 4690, high: 5690 },  // t3 높음은 특정 트림 반영
+      2023: { low: 4250, mid: 3999, high: 3490 },
+      2022: { low: 3500, mid: 3390, high: 3200 },
+      2021: { low: 3390, mid: 3250, high: 2990 },
+    },
+  },
+  '5시리즈': {
+    msrp: 7_490, category: 'import_sedan', brand: 'BMW',
+    prices: {
+      2025: { low: 6680, mid: 6250, high: null },
+      2024: { low: 6400, mid: 5990, high: 5549 },
+      2023: { low: 4725, mid: 4390, high: 3980 },
+      2022: { low: 4390, mid: 4120, high: 3850 },
+      2021: { low: 4030, mid: 3950, high: 3680 },
+    },
+  },
+  'X5': {
+    msrp: 9_960, category: 'import_suv', brand: 'BMW',
+    prices: {
+      2025: { low: 7500, mid: 6948, high: null },
+      2024: { low: 7900, mid: 8700, high: null },  // t2>t1은 트림 구성 차이
+      2023: { low: 8500, mid: 7990, high: 7190 },
+      2022: { low: 7950, mid: 7300, high: 6690 },
+      2021: { low: 7080, mid: 6860, high: 6130 },
+    },
+  },
+  // MSRP 미등록 BMW — 절대 시세 조회용
+  'X3': {
+    msrp: null, category: 'import_suv', brand: 'BMW',
+    prices: {
+      2025: { low: 7750, mid: 7550, high: null },
+      2024: { low: 6499, mid: 5250, high: null },
+      2023: { low: 6250, mid: 5500, high: 4830 },
+      2022: { low: 5650, mid: 4650, high: 4540 },
+      2021: { low: 4899, mid: 4500, high: 3980 },
+    },
+  },
+  'X6': {
+    msrp: null, category: 'import_suv', brand: 'BMW',
+    prices: {
+      2025: { low: 7340, mid: null,  high: null  },
+      2024: { low: null,  mid: 8600, high: 8500 },
+      2023: { low: 8700, mid: 8008, high: 7950 },
+      2022: { low: 8290, mid: 7550, high: 7190 },
+      2021: { low: 7750, mid: 7100, high: 6300 },
+    },
+  },
+  'X4': {
+    msrp: null, category: 'import_suv', brand: 'BMW',
+    prices: {
+      2025: { low: 6950, mid: null,  high: null  },
+      2024: { low: 5950, mid: 5790, high: null  },
+      2023: { low: 5780, mid: 5490, high: 4720 },
+      2022: { low: 5490, mid: 4850, high: 4700 },
+      2021: { low: 4800, mid: 4380, high: 4000 },
+    },
+  },
+  '1시리즈': {
+    msrp: null, category: 'import_sedan', brand: 'BMW',
+    prices: {
+      2025: { low: 4000, mid: null,  high: null  },
+      2024: { low: 3230, mid: 3180, high: null  },
+      2023: { low: 2950, mid: 2770, high: 2640 },
+      2022: { low: 2799, mid: 2699, high: 3050 },
+      2021: { low: 2990, mid: 2640, high: 2390 },
+    },
+  },
+  '4시리즈': {
+    msrp: null, category: 'import_sedan', brand: 'BMW',
+    prices: {
+      2025: { low: 5400, mid: null,  high: null  },
+      2024: { low: 5650, mid: 4390, high: null  },
+      2023: { low: 4799, mid: 5080, high: 4250 },
+      2022: { low: 4780, mid: 4390, high: 4057 },
+      2021: { low: 5399, mid: 4150, high: 3999 },
+    },
+  },
+  'i4': {
+    msrp: null, category: 'ev', brand: 'BMW',
+    prices: {
+      2025: { low: 5890, mid: null,  high: null  },
+      2024: { low: 5550, mid: 5400, high: 4750 },
+      2023: { low: 5380, mid: 5150, high: 4400 },
+      2022: { low: 5290, mid: 4750, high: 4400 },
+      2021: { low: null,  mid: null,  high: null  },
+    },
+  },
+  'i5': {
+    msrp: null, category: 'ev', brand: 'BMW',
+    prices: {
+      2025: { low: 7390, mid: null,  high: null  },
+      2024: { low: 8300, mid: 6700, high: 6300 },
+      2023: { low: 6550, mid: 6700, high: null  },
+      2022: { low: null,  mid: null,  high: null  },
+      2021: { low: null,  mid: null,  high: null  },
+    },
+  },
+
+  // ── 벤츠 ──────────────────────────────────────────────────────────
+  'E-클래스': {
+    msrp: 7_460, category: 'import_sedan', brand: '벤츠',
+    prices: {
+      2025: { low: 6400, mid: 5400, high: null },
+      2024: { low: 6690, mid: 6499, high: 6450 },
+      2023: { low: 4900, mid: 4750, high: 4290 },
+      2022: { low: 4780, mid: 4390, high: 3990 },
+      2021: { low: 4300, mid: 3999, high: 3690 },
+    },
+  },
+  'S-클래스': {
+    // 2025 0~3만km = 1,484만원 → 신차가(15,990) 대비 명백한 이상값, null 처리
+    msrp: 15_990, category: 'import_sedan', brand: '벤츠',
+    prices: {
+      2025: { low: null,  mid: null,  high: null  },
+      2024: { low: 6958, mid: 7984, high: 8850 },
+      2023: { low: 6652, mid: 8849, high: 8550 },
+      2022: { low: 8700, mid: 8500, high: 8250 },
+      2021: { low: null,  mid: 8590, high: 8090 },
+    },
+  },
+  'GLE-클래스': {
+    msrp: 11_090, category: 'import_suv', brand: '벤츠',
+    prices: {
+      2025: { low: 7975, mid: 8500, high: null },
+      2024: { low: 8500, mid: 8675, high: 8150 },
+      2023: { low: 8540, mid: 8350, high: 7650 },
+      2022: { low: 8100, mid: 7659, high: 6990 },
+      2021: { low: 7650, mid: 6990, high: 6390 },
+    },
+  },
+  'GLC-클래스': {
+    msrp: 7_190, category: 'import_suv', brand: '벤츠',
+    prices: {
+      2025: { low: 7800, mid: 6700, high: null },
+      2024: { low: 7050, mid: 6900, high: 6540 },
+      2023: { low: 6150, mid: 5600, high: 5100 },
+      2022: { low: 5150, mid: 4880, high: 4440 },
+      2021: { low: 4650, mid: 4350, high: 4149 },
+    },
+  },
+  // MSRP 미등록 벤츠
+  'C-클래스': {
+    msrp: null, category: 'import_sedan', brand: '벤츠',
+    prices: {
+      2025: { low: 4840, mid: null,  high: null  },
+      2024: { low: 4650, mid: 4570, high: null  },
+      2023: { low: 4650, mid: 4639, high: 4250 },
+      2022: { low: 4450, mid: 4230, high: 3990 },
+      2021: { low: 3700, mid: 3050, high: 2900 },
+    },
+  },
+  'A-클래스': {
+    msrp: null, category: 'import_sedan', brand: '벤츠',
+    prices: {
+      2025: { low: 3450, mid: null,  high: null  },
+      2024: { low: 3340, mid: 3090, high: null  },
+      2023: { low: 3699, mid: 2780, high: 3250 },
+      2022: { low: 2970, mid: 2700, high: 2499 },
+      2021: { low: 2530, mid: 2550, high: 2400 },
+    },
+  },
+  'GLB-클래스': {
+    msrp: null, category: 'import_suv', brand: '벤츠',
+    prices: {
+      2025: { low: 5690, mid: null,  high: null  },
+      2024: { low: 4790, mid: 4620, high: null  },
+      2023: { low: 4470, mid: 4199, high: 3680 },
+      2022: { low: 4150, mid: 3950, high: 3700 },
+      2021: { low: 3720, mid: 3450, high: 3250 },
+    },
+  },
+  'GLA-클래스': {
+    msrp: null, category: 'import_suv', brand: '벤츠',
+    prices: {
+      2025: { low: 4830, mid: null,  high: null  },
+      2024: { low: 4290, mid: 4090, high: null  },
+      2023: { low: 4390, mid: 3950, high: null  },
+      2022: { low: 4000, mid: 3880, high: 3370 },
+      2021: { low: 3590, mid: 3220, high: 2990 },
+    },
+  },
+  'EQE': {
+    msrp: null, category: 'ev', brand: '벤츠',
+    prices: {
+      2025: { low: 8700, mid: null,  high: null  },
+      2024: { low: 7300, mid: null,  high: null  },
+      2023: { low: 6999, mid: 5920, high: 5280 },
+      2022: { low: 5450, mid: 5380, high: 4730 },
+      2021: { low: null,  mid: null,  high: null  },
+    },
+  },
+  'EQA': {
+    msrp: null, category: 'ev', brand: '벤츠',
+    prices: {
+      2025: { low: 5090, mid: null,  high: null  },
+      2024: { low: 4950, mid: 2200, high: null  },  // t2=2200 이상값 가능성 있으나 유지
+      2023: { low: 4250, mid: 3835, high: 3280 },
+      2022: { low: 3799, mid: 3580, high: 3320 },
+      2021: { low: 3450, mid: 3600, high: 2960 },
+    },
+  },
+};
+
+// ── 내부 헬퍼 ─────────────────────────────────────────────────────────
+
+/**
+ * 지정 주행거리 구간의 시세를 반환한다.
+ * 해당 구간이 null이면 인접 구간으로 fallback.
+ * low  → mid → high
+ * mid  → low → high
+ * high → mid → low
+ */
+function getTierPrice(p: YearPrices | undefined, tier: MileageGroup): number | null {
+  if (!p) return null;
+  if (tier === 'low')  return p.low  ?? p.mid  ?? p.high ?? null;
+  if (tier === 'mid')  return p.mid  ?? p.low  ?? p.high ?? null;
+  return                      p.high ?? p.mid  ?? p.low  ?? null;
+}
+
+/**
+ * 5년차 초과 구간을 선형 외삽한다.
+ * 4년차→5년차 기울기를 유지하되, msrp의 MIN_RETENTION 이하로 떨어지지 않도록 보정.
+ */
+function extrapolatePrice(entry: ModelEntry, age: number, tier: MileageGroup): number {
+  const price4 = getTierPrice(entry.prices[DATA_YEAR - 4], tier);
+  const price5 = getTierPrice(entry.prices[DATA_YEAR - 5], tier);
+  if (price4 === null || price5 === null) return 0;
+  const slope = price5 - price4;
+  const raw = price5 + slope * (age - 5);
+  const floor = entry.msrp ? entry.msrp * MIN_RETENTION : price5 * 0.5;
+  return Math.max(Math.round(raw), Math.round(floor));
+}
+
+/** 카테고리 fallback 잔존가치율을 반환한다 (6년차 이상은 4→5년차 기울기로 외삽) */
+function getCategoryRetention(category: DepreciationCategory, age: number): number {
+  const rates = CATEGORY_RETENTION[category];
+  if (age <= 5) return rates[age - 1];
+  const slope = rates[4] - rates[3];
+  return Math.max(rates[4] + slope * (age - 5), MIN_RETENTION);
+}
+
+/** 모델 데이터로 1~10년차 잔존가치 테이블을 생성한다 */
+function buildYearlyTable(entry: ModelEntry, tier: MileageGroup): YearlyRow[] {
+  const rows: YearlyRow[] = [];
+  for (let age = 1; age <= 10; age++) {
+    const year = DATA_YEAR - age;
+    let value: number;
+    if (age <= 5) {
+      const rep = getTierPrice(entry.prices[year], tier);
+      if (rep !== null) {
+        value = rep;
+      } else {
+        // 인접 연식으로 선형 보간
+        const prev = getTierPrice(entry.prices[year + 1], tier);
+        const next = getTierPrice(entry.prices[year - 1], tier);
+        value = Math.round(((prev ?? 0) + (next ?? 0)) / (prev && next ? 2 : 1));
+      }
+    } else {
+      value = extrapolatePrice(entry, age, tier);
+    }
+    const retentionRate = (entry.msrp && value)
+      ? Math.round((value / entry.msrp) * 1000) / 1000
+      : null;
+    rows.push({ age, year, value, retentionRate });
+  }
+  return rows;
+}
+
+/** Fallback: 카테고리 평균 감가율로 결과를 계산한다 */
+function calcFallback(
+  category: DepreciationCategory,
+  msrp: number | undefined,
+  vehicleAge: number,
+  tier: MileageGroup,
+): DepreciationResult {
+  const factor = MILEAGE_FACTOR[tier];
+  const retention = getCategoryRetention(category, vehicleAge) * factor;
+  const currentValue = msrp ? Math.round(msrp * retention) : 0;
+  const retentionRate = msrp ? Math.round(retention * 1000) / 1000 : null;
+  const depreciationRate = retentionRate !== null
+    ? Math.round((1 - retentionRate) * 1000) / 1000
+    : null;
+
+  const yearlyTable: YearlyRow[] = Array.from({ length: 10 }, (_, i) => {
+    const age = i + 1;
+    const r = getCategoryRetention(category, age) * factor;
+    const val = msrp ? Math.round(msrp * r) : 0;
+    return {
+      age,
+      year: DATA_YEAR - age,
+      value: val,
+      retentionRate: msrp ? Math.round(r * 1000) / 1000 : null,
+    };
+  });
+
+  return { currentValue, msrp: msrp ?? null, retentionRate, depreciationRate, mileageGroup: tier, yearlyTable, dataSource: 'fallback' };
+}
+
+// ── 공개 계산 함수 ────────────────────────────────────────────────────
+
+/**
+ * 모델명과 차령으로 감가상각을 계산한다.
+ *
+ * @param modelName         MARKET_PRICE_TABLE의 모델명
+ * @param vehicleAge        차령 (년, 소수 가능 — 예: 2.5)
+ * @param mileageGroup      주행거리 구간 (기본: 'low' = 0~3만km 기준)
+ * @param fallbackCategory  테이블에 없을 때 사용할 카테고리 (기본: domestic_sedan)
+ * @param fallbackMsrp      테이블에 없을 때 사용할 신차가 (만원)
+ * @param customPrices      DB에서 조회한 연식별 시세 — 제공 시 MARKET_PRICE_TABLE 대신 사용
+ */
+export function calculateDepreciation(
+  modelName: string,
+  vehicleAge: number,
+  mileageGroup: MileageGroup = 'low',
+  fallbackCategory: DepreciationCategory = 'domestic_sedan',
+  fallbackMsrp?: number,
+  customPrices?: Record<number, YearPrices>,
+): DepreciationResult {
+  const tableEntry = MARKET_PRICE_TABLE[modelName];
+  const entry: ModelEntry | undefined = customPrices
+    ? {
+        msrp:     tableEntry?.msrp ?? fallbackMsrp ?? null,
+        category: tableEntry?.category ?? fallbackCategory,
+        brand:    tableEntry?.brand ?? '',
+        prices:   customPrices,
+      }
+    : tableEntry;
+
+  if (!entry) {
+    return calcFallback(fallbackCategory, fallbackMsrp, vehicleAge, mileageGroup);
+  }
+
+  // ① 5년차 초과: 외삽
+  if (vehicleAge > 5) {
+    const currentValue = extrapolatePrice(entry, vehicleAge, mileageGroup);
+    const retentionRate = (entry.msrp && currentValue)
+      ? Math.round((currentValue / entry.msrp) * 1000) / 1000
+      : null;
+    const depreciationRate = retentionRate !== null
+      ? Math.round((1 - retentionRate) * 1000) / 1000
+      : null;
+    return {
+      currentValue,
+      msrp: entry.msrp,
+      retentionRate,
+      depreciationRate,
+      mileageGroup,
+      yearlyTable: buildYearlyTable(entry, mileageGroup),
+      dataSource: 'market',
+    };
+  }
+
+  // ② 1~5년차: 선형 보간
+  const exactYear = DATA_YEAR - vehicleAge;
+  const lowerYear = Math.floor(exactYear);
+  const upperYear = Math.ceil(exactYear);
+  const fraction = exactYear - lowerYear;
+
+  const loRep = getTierPrice(entry.prices[lowerYear], mileageGroup);
+  const hiRep = getTierPrice(entry.prices[upperYear], mileageGroup);
+
+  let currentValue: number;
+  if (loRep !== null && hiRep !== null) {
+    currentValue = Math.round(loRep + (hiRep - loRep) * fraction);
+  } else if (hiRep !== null) {
+    currentValue = hiRep;
+  } else if (loRep !== null) {
+    currentValue = loRep;
+  } else {
+    // 해당 연식·구간 데이터 없음 → fallback
+    return calcFallback(
+      entry.category,
+      entry.msrp ?? fallbackMsrp,
+      vehicleAge,
+      mileageGroup,
+    );
+  }
+
+  const retentionRate = (entry.msrp && currentValue)
+    ? Math.round((currentValue / entry.msrp) * 1000) / 1000
+    : null;
+  const depreciationRate = retentionRate !== null
+    ? Math.round((1 - retentionRate) * 1000) / 1000
+    : null;
+
+  return {
+    currentValue,
+    msrp: entry.msrp,
+    retentionRate,
+    depreciationRate,
+    mileageGroup,
+    yearlyTable: buildYearlyTable(entry, mileageGroup),
+    dataSource: 'market',
+  };
+}
+
+/**
+ * 1~10년차 잔존가치 곡선을 반환한다.
+ * 6~10년차는 4→5년차 기울기로 외삽. 차트/리포트 UI에서 사용.
+ *
+ * @param modelName         MARKET_PRICE_TABLE의 모델명
+ * @param mileageGroup      주행거리 구간 (기본: 'low')
+ * @param fallbackCategory  없을 때 카테고리
+ * @param fallbackMsrp      없을 때 신차가
+ * @param customPrices      DB에서 조회한 연식별 시세 — 제공 시 MARKET_PRICE_TABLE 대신 사용
+ */
+export function getDepreciationCurve(
+  modelName: string,
+  mileageGroup: MileageGroup = 'low',
+  fallbackCategory: DepreciationCategory = 'domestic_sedan',
+  fallbackMsrp?: number,
+  customPrices?: Record<number, YearPrices>,
+): YearlyRow[] {
+  const tableEntry = MARKET_PRICE_TABLE[modelName];
+  const entry: ModelEntry | undefined = customPrices
+    ? {
+        msrp:     tableEntry?.msrp ?? fallbackMsrp ?? null,
+        category: tableEntry?.category ?? fallbackCategory,
+        brand:    tableEntry?.brand ?? '',
+        prices:   customPrices,
+      }
+    : tableEntry;
+  if (!entry) {
+    return calcFallback(fallbackCategory, fallbackMsrp, 1, mileageGroup).yearlyTable;
+  }
+  return buildYearlyTable(entry, mileageGroup);
+}
+
+/**
+ * /api/used-prices에서 DB 실측 시세를 조회한다 (브라우저 클라이언트 전용).
+ * 데이터 없거나 오류 시 null 반환 — 호출부에서 MARKET_PRICE_TABLE으로 폴백.
+ */
+export async function fetchDbPrices(
+  brand: string,
+  model: string,
+): Promise<Record<number, YearPrices> | null> {
+  try {
+    const params = new URLSearchParams({ brand, model });
+    const res = await fetch(`/api/used-prices?${params.toString()}`);
+    if (!res.ok) return null;
+    const json = await res.json() as { status: string; prices: Record<number, YearPrices> | null };
+    return json.status === 'ok' ? json.prices : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * CODEF 실거래가 API 연동 시세 보정 — Phase 4 구현 예정
+ * 현재는 null 반환 (호출부에서 calculateDepreciation() 결과 사용)
+ *
+ * TODO: CODEF API 연동 후 실거래가 기반 보정값 반환
+ */
+export function adjustWithMarketPrice(
+  _modelName: string,
+  _vehicleAge: number,
+): DepreciationResult | null {
+  return null;
+}
+
+// ── Phase 1: vehicle_msrp DB 연동 ────────────────────────────────────
+
+/** vehicle_msrp 테이블 단건 행 */
+export interface TrimMsrpResult {
+  trim_name:  string;
+  msrp_price: number;
+  fuel_type:  string;
+  model_year: number;
+}
+
+/** getModelMsrpFromDB 반환 타입 */
+export interface MsrpLookupResult {
+  msrp:   number | null;
+  source: 'db' | 'fallback';
+}
+
+/**
+ * vehicle_msrp DB에서 특정 모델(+트림)의 신차가를 조회한다.
+ * 클라이언트 사이드(브라우저)에서 호출한다.
+ *
+ * - 트림이 주어지면 해당 트림 신차가를 반환
+ * - 트림 미지정 시 가장 저렴한 트림 기준
+ * - DB 조회 실패 시 MARKET_PRICE_TABLE의 하드코딩 값으로 fallback
+ *
+ * @param brand  브랜드명 (예: '현대')
+ * @param model  모델명  (예: '아반떼') — MARKET_PRICE_TABLE 키와 동일
+ * @param trim   트림명  (예: '스마트') — 미지정 시 최저 트림
+ */
+export async function getModelMsrpFromDB(
+  brand: string,
+  model: string,
+  trim?: string,
+): Promise<MsrpLookupResult> {
+  try {
+    const params = new URLSearchParams({ brand, model });
+    if (trim) params.set('trim', trim);
+
+    // 브라우저는 서버의 Cache-Control: max-age=86400 헤더를 따름
+    const res = await fetch(`/api/vehicle-msrp?${params.toString()}`);
+
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+    const json = await res.json();
+
+    if (trim) {
+      // 단건 응답: { trim_name, msrp_price, ... }
+      const row = json as TrimMsrpResult;
+      return { msrp: row.msrp_price ?? null, source: 'db' };
+    }
+
+    // 목록 응답: { trims: [...] } — 최저가 트림 사용
+    const trims = (json.trims ?? []) as TrimMsrpResult[];
+    if (trims.length === 0) throw new Error('트림 없음');
+    const lowest = trims.reduce((a, b) => (a.msrp_price < b.msrp_price ? a : b));
+    return { msrp: lowest.msrp_price, source: 'db' };
+  } catch {
+    // DB 조회 실패 → MARKET_PRICE_TABLE 하드코딩 fallback
+    const fallback = MARKET_PRICE_TABLE[model]?.msrp ?? null;
+    return { msrp: fallback, source: 'fallback' };
+  }
+}
+
+/**
+ * 트림별 정확한 신차가를 사용해 감가상각을 계산한다.
+ * DB 조회는 호출부에서 먼저 수행하고, 이 함수에 결과를 전달한다.
+ *
+ * 기존 calculateDepreciation()과의 차이:
+ *   - msrp를 MARKET_PRICE_TABLE 대표가 대신 trimMsrp로 교체
+ *   - 시세(currentValue)는 동일한 Encar 실데이터 사용
+ *   - dataSource가 'market_trim'으로 표시됨
+ *
+ * Phase 1 UI 흐름:
+ *   브랜드 → 모델 → 트림 드롭다운 선택
+ *   → getModelMsrpFromDB() 호출
+ *   → trimMsrp를 이 함수에 전달
+ *   → 결과 렌더링
+ *
+ * TODO(Phase 2): 차량번호 입력 → car365 API → 차종/트림 자동 매칭 → 동일 계산
+ *
+ * @param modelName         MARKET_PRICE_TABLE 키 (예: '아반떼')
+ * @param trimMsrp          트림 신차가 (만원) — getModelMsrpFromDB() 결과
+ * @param vehicleAge        차령 (년, 소수 가능 — 예: 2.5)
+ * @param mileageGroup      주행거리 구간 (기본: 'low')
+ * @param fallbackCategory  테이블 미등록 시 카테고리 (기본: domestic_sedan)
+ * @param customPrices      DB에서 조회한 연식별 시세 — 제공 시 MARKET_PRICE_TABLE 대신 사용
+ */
+export function calculateDepreciationWithTrim(
+  modelName: string,
+  trimMsrp: number,
+  vehicleAge: number,
+  mileageGroup: MileageGroup = 'low',
+  fallbackCategory: DepreciationCategory = 'domestic_sedan',
+  customPrices?: Record<number, YearPrices>,
+): DepreciationResult {
+  // 시세 데이터는 기존 로직 그대로 사용 (DB 시세 있으면 우선 적용)
+  const base = calculateDepreciation(
+    modelName,
+    vehicleAge,
+    mileageGroup,
+    fallbackCategory,
+    trimMsrp,
+    customPrices,
+  );
+
+  // trimMsrp 기준으로 잔존가치율·감가율·yearlyTable 재계산
+  const retentionRate = base.currentValue
+    ? Math.round((base.currentValue / trimMsrp) * 1000) / 1000
+    : null;
+  const depreciationRate = retentionRate !== null
+    ? Math.round((1 - retentionRate) * 1000) / 1000
+    : null;
+  const yearlyTable = base.yearlyTable.map((row) => ({
+    ...row,
+    retentionRate: row.value
+      ? Math.round((row.value / trimMsrp) * 1000) / 1000
+      : null,
+  }));
+
+  return {
+    ...base,
+    msrp: trimMsrp,
+    retentionRate,
+    depreciationRate,
+    yearlyTable,
+    dataSource: 'market_trim',
+  };
+}
+
+===== tax-calculator.ts =====
+/**
+ * 사업자용 업무용승용차 절세 진단 계산기
+ *
+ * 법적 근거
+ * ─────────────────────────────────────────────────────────────────────
+ * • 업무용승용차 비용처리 연 한도 1,500만원 (운행일지 미작성 시)
+ *   - 법인:  법인세법 시행령 §50의2
+ *   - 개인:  소득세법 시행령 §78의3
+ * • 감가상각 연 800만원 / 유지비 연 700만원 구분 (합계 1,500만원)
+ * • 업무전용보험 의무: 복식부기의무자가 2대 이상 보유 시
+ * • 개인 종합소득세 세율: 소득세법 §55
+ * • 법인세 세율:         법인세법 §55
+ */
+
+// ── 공개 타입 ─────────────────────────────────────────────────────────
+
+export type BusinessType = 'corporation' | 'individual';
+
+export type Industry = 'construction' | 'retail' | 'food' | 'service' | 'freelance';
+
+/** 연 매출 구간 */
+export type RevenueRange =
+  | 'under5k'      // 5,000만원 미만
+  | '5k-1eok'      // 5,000만 ~ 1억
+  | '1eok-3eok'    // 1억 ~ 3억
+  | '3eok-10eok'   // 3억 ~ 10억
+  | 'over10eok';   // 10억 이상
+
+export type VehicleStatus = 'none' | 'owned' | 'planning';
+
+/** 월 차량 관련 예산 구간 */
+export type MonthlyBudgetRange =
+  | 'w300k'      // 30만원
+  | 'w500k'      // 50만원
+  | 'w700k'      // 70만원
+  | 'w1m'        // 100만원
+  | 'over1p5m';  // 150만원 이상
+
+export interface DiagnosisInputs {
+  businessType:  BusinessType;
+  industry:      Industry;
+  revenue:       RevenueRange;
+  vehicleStatus: VehicleStatus;
+  monthlyBudget: MonthlyBudgetRange;
+}
+
+export interface DiagnosisResult {
+  annualCarExpense:     number;   // 연간 실제 차량 비용
+  deductibleExpense:    number;   // 비용처리 가능 금액 (한도·비율 적용 후)
+  marginalTaxRate:      number;   // 한계세율 (0.06 ~ 0.45)
+  annualTaxSaving:      number;   // 연간 절세 예상액
+  businessUseRatio:     number;   // 업무사용비율 (0.60 ~ 0.90)
+  expenseLimitApplied:  boolean;  // 연 1,500만원 한도 적용 여부
+}
+
+// ── 내부 상수 ─────────────────────────────────────────────────────────
+
+/** 업종별 추정 업무사용비율 */
+const BUSINESS_USE_RATIOS: Record<Industry, number> = {
+  construction: 0.90,  // 건설업
+  retail:       0.85,  // 도소매업
+  food:         0.70,  // 음식업
+  service:      0.60,  // 서비스업
+  freelance:    0.65,  // 프리랜서·1인기업
+};
+
+/**
+ * 운행일지 미작성 시 업무용승용차 연 비용처리 한도
+ * (감가상각 800만원 + 유지비 700만원)
+ * 법인세법 시행령 §50의2 / 소득세법 시행령 §78의3
+ */
+const ANNUAL_EXPENSE_LIMIT = 15_000_000;
+
+/** 연 매출 구간별 대표 소득 (한계세율 산정용) */
+const REVENUE_REPRESENTATIVE: Record<RevenueRange, number> = {
+  'under5k':    35_000_000,
+  '5k-1eok':    75_000_000,
+  '1eok-3eok':  200_000_000,
+  '3eok-10eok': 650_000_000,
+  'over10eok':  1_500_000_000,
+};
+
+/** 월 예산 구간별 대표값 (원) */
+const MONTHLY_BUDGET_VALUES: Record<MonthlyBudgetRange, number> = {
+  w300k:    300_000,
+  w500k:    500_000,
+  w700k:    700_000,
+  w1m:    1_000_000,
+  over1p5m: 1_800_000,
+};
+
+interface TaxBracket { limit: number; rate: number; }
+
+/**
+ * 개인 종합소득세 누진 세율 구간 — 소득세법 §55
+ * 6%(~1,400만) / 15%(~5,000만) / 24%(~8,800만) / 35%(~1.5억)
+ * 38%(~3억) / 40%(~5억) / 42%(~10억) / 45%(10억~)
+ */
+const INDIVIDUAL_BRACKETS: TaxBracket[] = [
+  { limit: 14_000_000,      rate: 0.06 },
+  { limit: 50_000_000,      rate: 0.15 },
+  { limit: 88_000_000,      rate: 0.24 },
+  { limit: 150_000_000,     rate: 0.35 },
+  { limit: 300_000_000,     rate: 0.38 },
+  { limit: 500_000_000,     rate: 0.40 },
+  { limit: 1_000_000_000,   rate: 0.42 },
+  { limit: Infinity,        rate: 0.45 },
+];
+
+/**
+ * 법인세 세율 구간 — 법인세법 §55
+ * 9%(~2억) / 19%(~200억) / 21%(200억~)
+ */
+const CORPORATE_BRACKETS: TaxBracket[] = [
+  { limit: 200_000_000,     rate: 0.09 },
+  { limit: 20_000_000_000,  rate: 0.19 },
+  { limit: Infinity,        rate: 0.21 },
+];
+
+function getMarginalRate(income: number, brackets: TaxBracket[]): number {
+  for (const b of brackets) {
+    if (income <= b.limit) return b.rate;
+  }
+  return brackets[brackets.length - 1].rate;
+}
+
+// ── 공개 계산 함수 ────────────────────────────────────────────────────
+
+export function calculateTaxSaving(inputs: DiagnosisInputs): DiagnosisResult {
+  const monthlyBudget      = MONTHLY_BUDGET_VALUES[inputs.monthlyBudget];
+  const annualCarExpense   = monthlyBudget * 12;
+  const businessUseRatio   = BUSINESS_USE_RATIOS[inputs.industry];
+  const expenseLimitApplied = annualCarExpense > ANNUAL_EXPENSE_LIMIT;
+
+  // 비용처리 가능 금액 = min(연 차량비용, 1,500만원 한도) × 업무사용비율
+  const cappedExpense    = Math.min(annualCarExpense, ANNUAL_EXPENSE_LIMIT);
+  const deductibleExpense = Math.round(cappedExpense * businessUseRatio);
+
+  const income     = REVENUE_REPRESENTATIVE[inputs.revenue];
+  const brackets   = inputs.businessType === 'corporation' ? CORPORATE_BRACKETS : INDIVIDUAL_BRACKETS;
+  const marginalTaxRate = getMarginalRate(income, brackets);
+
+  const annualTaxSaving = Math.round(deductibleExpense * marginalTaxRate);
+
+  return {
+    annualCarExpense,
+    deductibleExpense,
+    marginalTaxRate,
+    annualTaxSaving,
+    businessUseRatio,
+    expenseLimitApplied,
+  };
+}
+
+===== vehicle-cc-map.ts =====
+/**
+ * 모델별 대표 배기량 테이블
+ *
+ * 기준: 각 모델에서 가장 많이 팔리는 트림의 배기량 (자동차세 계산용)
+ * 전기차 / 수소차 = 0 → 자동차세 면제 대상
+ * MARKET_PRICE_TABLE 55개 모델 전체 포함
+ */
+
+const VEHICLE_CC_MAP: Record<string, number> = {
+  // ── 현대 ──────────────────────────────────────────────────────────
+  '그랜저':     2497,  // GN7 2.5 GDi
+  '싼타페':     2497,  // MX5 2.5 T-GDi
+  '쏘나타':     1999,  // DN8 2.0 Nu
+  '아반떼':     1598,  // CN7 1.6 GDi 주력
+  '아이오닉5':     0,  // EV
+  '아이오닉6':     0,  // EV
+  '캐스퍼':      998,  // 경차 1.0 WL3
+  '코나':       1598,  // OS 1.6 T-GDi
+  '투싼':       1598,  // NX4 1.6 T-GDi
+  '팰리세이드':  2497,  // LX2 2.5 T-GDi
+  '스타리아':    2497,  // US4 2.5 T-GDi
+  '넥쏘':          0,  // 수소전기차 (자동차세 = EV 동일)
+
+  // ── 기아 ──────────────────────────────────────────────────────────
+  'K3':         1598,  // BD 1.6 GDi
+  'K5':         1598,  // DL3 1.6 T-GDi 주력
+  'K8':         2497,  // GL3 2.5 GDi
+  'K9':         3342,  // RJ 3.3 GDi
+  'EV3':           0,  // EV
+  'EV6':           0,  // EV
+  'EV9':           0,  // EV
+  '레이':         998,  // 경차 1.0 (998cc)
+  '모닝':         998,  // 경차 1.0
+  '모하비':     2993,  // HM 3.0 CRDi
+  '셀토스':     1598,  // SP2 1.6 T-GDi
+  '스팅어':     1998,  // CK 2.0 T-GDi 주력
+  '스포티지':    1598,  // NQ5 1.6 T-GDi
+  '쏘렌토':     1598,  // MQ4 1.6 T-GDi HEV 주력
+  '카니발':     2151,  // KA4 2.2 CRDi
+
+  // ── 제네시스 ──────────────────────────────────────────────────────
+  'G70':        1998,  // IK 2.0T 주력
+  'G80':        2497,  // RG3 2.5T
+  'G90':        3498,  // RS4 3.5T
+  'GV60':          0,  // EV
+  'GV70':       2497,  // JK1 2.5T
+  'GV80':       2497,  // JX1 2.5T
+
+  // ── 테슬라 ────────────────────────────────────────────────────────
+  '모델 Y':        0,  // EV
+  '모델 3':        0,  // EV
+
+  // ── BMW ───────────────────────────────────────────────────────────
+  '1시리즈':    1499,  // F40 118i 1.5T
+  '3시리즈':    1998,  // G20 320i 2.0L
+  '4시리즈':    1998,  // G22 420i 2.0L
+  '5시리즈':    1998,  // G30 520i 2.0L 주력
+  'X3':         1998,  // G01 xDrive20i
+  'X4':         1998,  // G02 xDrive20i
+  'X5':         2998,  // G05 xDrive40i 3.0L
+  'X6':         2998,  // G06 xDrive40i 3.0L
+  'i4':            0,  // EV
+  'i5':            0,  // EV (i5 eDrive40)
+
+  // ── 메르세데스-벤츠 ───────────────────────────────────────────────
+  'A-클래스':    1332,  // W177 A200 1.3L
+  'C-클래스':    1499,  // W206 C200 1.5L
+  'E-클래스':    1999,  // W213 E200 2.0L
+  'S-클래스':    2999,  // W223 S450 3.0L
+  'GLA-클래스':  1332,  // H247 GLA200 1.3L
+  'GLB-클래스':  1332,  // X247 GLB200 1.3L
+  'GLC-클래스':  1999,  // X254 GLC200 2.0L
+  'GLE-클래스':  2999,  // V167 GLE450 3.0L
+  'EQA':           0,  // EV
+  'EQE':           0,  // EV
+};
+
+/**
+ * 모델명으로 대표 배기량(cc)을 반환한다.
+ * 전기차/수소차는 0, 미등록 모델은 null.
+ */
+export function getVehicleCC(modelName: string): number | null {
+  const cc = VEHICLE_CC_MAP[modelName];
+  return cc !== undefined ? cc : null;
+}
+
+===== simulator/cost/page.tsx =====
+'use client';
+
+import { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  calcCost,
+  type CarAge,
+  type CarPrice,
+  type MonthlyKm,
+  type LoanPayment,
+  type AnnualInsurance,
+  type CostInputs,
+  type CostResult,
+} from '@/lib/domain/cost-calculator';
+
+// ── 상수 ──────────────────────────────────────────────────────────────
+
+const TOTAL_STEPS = 5;
+type NumericPhase = 1 | 2 | 3 | 4 | 5;
+type Phase = NumericPhase | 'result';
+
+const STEP_META: Record<NumericPhase, { title: string; sub: string }> = {
+  1: { title: '차량 연식이 어느 정도인가요?',    sub: '연식에 따라 연비·정비비가 달라집니다' },
+  2: { title: '차량 구매 가격대는요?',            sub: '자동차세·감가상각 계산에 사용됩니다' },
+  3: { title: '월 평균 주행거리는요?',            sub: '유류비와 정비비 계산에 반영됩니다' },
+  4: { title: '현재 할부 상환액은요?',            sub: '완납이면 "완납"을 선택하세요' },
+  5: { title: '연간 자동차 보험료는요?',          sub: '월 보험료 환산에 사용됩니다' },
+};
+
+const AGE_OPTIONS: { value: CarAge; label: string; sub: string }[] = [
+  { value: '1-3',  label: '1~3년 (신차급)',    sub: '정비비 최소, 감가상각 최대' },
+  { value: '4-6',  label: '4~6년',             sub: '균형 잡힌 구간' },
+  { value: '7-10', label: '7~10년',            sub: '정비비 증가 시작' },
+  { value: '10+',  label: '10년 이상',          sub: '연비·정비비 부담 구간' },
+];
+
+const PRICE_OPTIONS: { value: CarPrice; label: string }[] = [
+  { value: 'under2k', label: '2,000만원 미만' },
+  { value: '2k-3k',   label: '2,000 ~ 3,000만원' },
+  { value: '3k-5k',   label: '3,000 ~ 5,000만원' },
+  { value: '5k+',     label: '5,000만원 이상' },
+];
+
+const KM_OPTIONS: { value: MonthlyKm; label: string; sub: string }[] = [
+  { value: 'under1k', label: '1,000km 이하',   sub: '연 12,000km 이하' },
+  { value: '1k-2k',   label: '1,000 ~ 2,000km', sub: '연 12,000 ~ 24,000km' },
+  { value: '2k-3k',   label: '2,000 ~ 3,000km', sub: '연 24,000 ~ 36,000km' },
+  { value: '3k+',     label: '3,000km 이상',    sub: '연 36,000km 이상' },
+];
+
+const LOAN_OPTIONS: { value: LoanPayment; label: string }[] = [
+  { value: 'paid',     label: '완납 (할부 없음)' },
+  { value: '200-400k', label: '월 20 ~ 40만원' },
+  { value: '400-600k', label: '월 40 ~ 60만원' },
+  { value: '600k+',    label: '월 60만원 이상' },
+];
+
+const INSURANCE_OPTIONS: { value: AnnualInsurance; label: string }[] = [
+  { value: 'under500k',   label: '50만원 미만' },
+  { value: '500k-800k',   label: '50 ~ 80만원' },
+  { value: '800k-1200k',  label: '80 ~ 120만원' },
+  { value: '1200k+',      label: '120만원 이상' },
+];
+
+const BAR_ITEMS: { key: keyof CostResult['breakdown']; label: string; color: string }[] = [
+  { key: 'loan',         label: '할부금',    color: '#ef4444' },
+  { key: 'insurance',    label: '보험료',    color: '#f97316' },
+  { key: 'carTax',       label: '자동차세',  color: '#eab308' },
+  { key: 'fuel',         label: '유류비',    color: '#f87171' },
+  { key: 'maintenance',  label: '정비비',    color: '#fb923c' },
+  { key: 'depreciation', label: '감가상각',  color: '#dc2626' },
+  { key: 'misc',         label: '기타',      color: '#6b7280' },
+];
+
+// ── 유틸 ──────────────────────────────────────────────────────────────
+
+function w(n: number): string {
+  const man = Math.round(n / 10_000);
+  return `${man.toLocaleString()}만원`;
+}
+
+// ── 서브 컴포넌트 ─────────────────────────────────────────────────────
+
+function OptionCard({
+  selected,
+  onClick,
+  children,
+}: {
+  selected: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={[
+        'w-full text-left px-4 py-4 rounded-xl border transition-all duration-150',
+        selected
+          ? 'border-red-500 bg-red-500/10 ring-1 ring-red-500/40'
+          : 'border-[#2a2a3e] bg-[#12122a] hover:border-[#3a3a5e]',
+      ].join(' ')}
+    >
+      {children}
+    </button>
+  );
+}
+
+function AnimatedBar({
+  value,
+  maxValue,
+  color,
+  label,
+  animate,
+}: {
+  value: number;
+  maxValue: number;
+  color: string;
+  label: string;
+  animate: boolean;
+}) {
+  const pct = maxValue > 0 ? Math.min(100, (value / maxValue) * 100) : 0;
+  return (
+    <div className="flex items-center gap-3">
+      <span className="text-slate-400 text-xs w-16 shrink-0 text-right">{label}</span>
+      <div className="flex-1 h-5 bg-[#1a1a2e] rounded-full overflow-hidden">
+        <motion.div
+          className="h-full rounded-full"
+          style={{ backgroundColor: color }}
+          initial={{ width: 0 }}
+          animate={{ width: animate ? `${pct}%` : 0 }}
+          transition={{ duration: 0.8, ease: 'easeOut', delay: 0.1 }}
+        />
+      </div>
+      <span className="text-white text-xs font-medium w-16 shrink-0">{w(value)}</span>
+    </div>
+  );
+}
+
+// ── 결과 화면 ─────────────────────────────────────────────────────────
+
+function ResultScreen({ result }: { result: CostResult }) {
+  const [barVisible, setBarVisible] = useState(false);
+  const [showLeadForm, setShowLeadForm] = useState(false);
+  const [leadSubmitted, setLeadSubmitted] = useState(false);
+  const [leadData, setLeadData] = useState({ name: '', phone: '' });
+  const barRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setBarVisible(true), 400);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const { breakdown, totalCost, perceivedCost, hiddenCost, rentLow, rentHigh, rentTotal, diff, verdict } = result;
+  const maxBar = Math.max(...Object.values(breakdown));
+
+  const verdictConfig = {
+    'strong-rent':   { text: '장기렌트 전환이 확실히 유리합니다', color: '#22c55e', border: '#16a34a' },
+    'consider-rent': { text: '한번 검토해볼 만합니다',            color: '#eab308', border: '#ca8a04' },
+    'similar':       { text: '비슷하지만 편의성에서 렌트가 유리',  color: '#3b82f6', border: '#2563eb' },
+    'keep-car':      { text: '현재 유지가 더 경제적',             color: '#9ca3af', border: '#6b7280' },
+  }[verdict];
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    console.log('[cost-simulator lead]', leadData);
+    setLeadSubmitted(true);
+  }
+
+  return (
+    <div className="flex flex-col gap-5">
+      {/* 헤더 */}
+      <div>
+        <p className="text-red-400 text-sm font-medium mb-1">유지비 진단 완료</p>
+        <h2 className="text-white text-2xl font-bold">실제 차량 유지비</h2>
+      </div>
+
+      {/* 충격 포인트 — 인식 vs 실제 */}
+      <div className="bg-gradient-to-br from-red-950/60 to-[#1a0a0a] border border-red-900/40 rounded-2xl p-5">
+        <div className="flex justify-between items-end mb-4">
+          <div>
+            <p className="text-slate-400 text-xs mb-1">내가 생각한 월 비용</p>
+            <p className="text-slate-300 text-2xl font-bold">{w(perceivedCost)}</p>
+          </div>
+          <div className="text-slate-600 text-2xl font-light">→</div>
+          <div className="text-right">
+            <p className="text-red-400 text-xs mb-1">실제 월 유지비</p>
+            <p className="text-red-400 text-3xl font-bold">{w(totalCost)}</p>
+          </div>
+        </div>
+        <div className="border-t border-red-900/40 pt-3 text-center">
+          <p className="text-slate-400 text-sm">숨어있는 비용</p>
+          <p className="text-red-300 text-2xl font-bold mt-0.5">
+            월 {w(hiddenCost)} <span className="text-base font-normal text-red-400/80">더 나가고 있습니다</span>
+          </p>
+        </div>
+      </div>
+
+      {/* 항목별 바 차트 */}
+      <div ref={barRef} className="bg-[#12122a] border border-[#2a2a3e] rounded-2xl p-5">
+        <p className="text-slate-300 text-sm font-semibold mb-4">항목별 월 비용</p>
+        <div className="flex flex-col gap-3">
+          {BAR_ITEMS.map(({ key, label, color }) => (
+            breakdown[key] > 0 ? (
+              <AnimatedBar
+                key={key}
+                value={breakdown[key]}
+                maxValue={maxBar}
+                color={color}
+                label={label}
+                animate={barVisible}
+              />
+            ) : null
+          ))}
+        </div>
+        <div className="border-t border-[#2a2a3e] mt-4 pt-3 flex justify-between">
+          <span className="text-slate-400 text-sm">합계</span>
+          <span className="text-red-400 font-bold">{w(totalCost)}/월</span>
+        </div>
+      </div>
+
+      {/* VS 비교 */}
+      <div className="bg-[#12122a] border border-[#2a2a3e] rounded-2xl p-5">
+        <p className="text-slate-300 text-sm font-semibold mb-4">내 차 vs 동급 장기렌트</p>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="bg-red-950/40 border border-red-900/40 rounded-xl p-4 text-center">
+            <p className="text-slate-400 text-xs mb-1">내 차 유지비</p>
+            <p className="text-red-400 text-xl font-bold">{w(totalCost)}</p>
+            <p className="text-slate-500 text-xs mt-1">/월</p>
+          </div>
+          <div className="bg-[#0c1a0c] border border-[#1a3a1a] rounded-xl p-4 text-center">
+            <p className="text-slate-400 text-xs mb-1">장기렌트 예상</p>
+            <p className="text-green-400 text-xl font-bold">{w(rentTotal)}</p>
+            <p className="text-slate-500 text-xs mt-1">렌트 {w(rentLow)}~{w(rentHigh)} + 유류비</p>
+          </div>
+        </div>
+        <div className="mt-3 text-center">
+          <p className="text-slate-400 text-xs">
+            차이:{' '}
+            <span className={diff > 0 ? 'text-red-400 font-semibold' : 'text-green-400 font-semibold'}>
+              {diff > 0 ? `내 차가 월 ${w(diff)} 더 비쌉니다` : `내 차가 월 ${w(Math.abs(diff))} 더 저렴합니다`}
+            </span>
+          </p>
+        </div>
+      </div>
+
+      {/* 판정 메시지 */}
+      <div
+        className="rounded-2xl p-4 text-center border"
+        style={{ backgroundColor: `${verdictConfig.color}15`, borderColor: `${verdictConfig.border}60` }}
+      >
+        <p className="font-semibold" style={{ color: verdictConfig.color }}>
+          {verdictConfig.text}
+        </p>
+      </div>
+
+      {/* 잠금 영역 */}
+      <div className="relative rounded-2xl overflow-hidden border border-[#2a2a3e]">
+        <div className="select-none pointer-events-none blur-sm p-5 bg-[#12122a] flex flex-col gap-3">
+          <p className="text-slate-300 font-semibold text-sm">🔍 정밀 분석</p>
+          {[
+            ['내 차 시세 기반 정확한 감가상각', '실제 중고차 시세 반영'],
+            ['신용등급별 실제 렌트료 3사 비교', '현대캐피탈 · KB · 롯데'],
+            ['보험료 절감 시뮬레이션',           '운전자 조건 최적화'],
+          ].map(([l, r]) => (
+            <div key={l} className="flex justify-between items-center">
+              <span className="text-slate-400 text-sm">{l}</span>
+              <span className="text-slate-300 text-sm">{r}</span>
+            </div>
+          ))}
+        </div>
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-[#0c0c1d]/70 backdrop-blur-[2px]">
+          <span className="text-2xl">🔒</span>
+          <p className="text-white font-semibold text-sm text-center px-4">
+            무료 맞춤 견적 비교 후<br />상세 분석을 확인하세요
+          </p>
+          {!showLeadForm && !leadSubmitted && (
+            <button
+              onClick={() => setShowLeadForm(true)}
+              className="mt-1 px-5 py-2.5 bg-red-600 hover:bg-red-500 text-white font-semibold text-sm rounded-xl transition-colors"
+            >
+              무료 맞춤 견적 비교 받기 →
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* 리드 폼 */}
+      {(showLeadForm || leadSubmitted) && (
+        <div className="bg-[#12122a] border border-red-900/40 rounded-2xl p-5">
+          {leadSubmitted ? (
+            <div className="text-center py-4">
+              <p className="text-red-400 text-2xl mb-2">✓</p>
+              <p className="text-white font-semibold">신청 완료!</p>
+              <p className="text-slate-400 text-sm mt-1">곧 연락드리겠습니다.</p>
+            </div>
+          ) : (
+            <>
+              <p className="text-white font-semibold mb-1">무료 맞춤 견적 비교</p>
+              <p className="text-slate-400 text-xs mb-4">
+                전문 상담사가 1영업일 내 연락드립니다
+              </p>
+              <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+                <input
+                  type="text"
+                  placeholder="이름"
+                  required
+                  value={leadData.name}
+                  onChange={(e) => setLeadData({ ...leadData, name: e.target.value })}
+                  className="w-full px-4 py-3 bg-[#0c0c1d] border border-[#2a2a3e] rounded-xl text-white placeholder:text-slate-500 text-sm focus:outline-none focus:border-red-500 transition-colors"
+                />
+                <input
+                  type="tel"
+                  placeholder="연락처 (010-0000-0000)"
+                  required
+                  value={leadData.phone}
+                  onChange={(e) => setLeadData({ ...leadData, phone: e.target.value })}
+                  className="w-full px-4 py-3 bg-[#0c0c1d] border border-[#2a2a3e] rounded-xl text-white placeholder:text-slate-500 text-sm focus:outline-none focus:border-red-500 transition-colors"
+                />
+                <button
+                  type="submit"
+                  className="w-full py-3 bg-red-600 hover:bg-red-500 text-white font-semibold rounded-xl transition-colors text-sm"
+                >
+                  신청하기
+                </button>
+              </form>
+            </>
+          )}
+        </div>
+      )}
+
+      <p className="text-slate-600 text-xs leading-relaxed text-center px-2">
+        ※ 본 진단 결과는 참고용입니다. 실제 유지비는 차종·운전 습관·지역에 따라 다를 수 있습니다.
+      </p>
+    </div>
+  );
+}
+
+// ── 단계별 콘텐츠 ─────────────────────────────────────────────────────
+
+function StepContent({
+  phase,
+  answers,
+  onSelect,
+}: {
+  phase: NumericPhase;
+  answers: Partial<CostInputs>;
+  onSelect: <K extends keyof CostInputs>(k: K, v: CostInputs[K]) => void;
+}) {
+  const meta = STEP_META[phase];
+  return (
+    <div>
+      <p className="text-slate-400 text-sm mb-1">{meta.sub}</p>
+      <h2 className="text-white text-xl font-semibold mb-6 leading-snug">{meta.title}</h2>
+      <div className="flex flex-col gap-3">
+        {phase === 1 && AGE_OPTIONS.map((o) => (
+          <OptionCard key={o.value} selected={answers.carAge === o.value} onClick={() => onSelect('carAge', o.value)}>
+            <span className="block text-white font-medium">{o.label}</span>
+            <span className="block text-slate-400 text-sm mt-0.5">{o.sub}</span>
+          </OptionCard>
+        ))}
+        {phase === 2 && PRICE_OPTIONS.map((o) => (
+          <OptionCard key={o.value} selected={answers.carPrice === o.value} onClick={() => onSelect('carPrice', o.value)}>
+            <span className="text-white font-medium">{o.label}</span>
+          </OptionCard>
+        ))}
+        {phase === 3 && KM_OPTIONS.map((o) => (
+          <OptionCard key={o.value} selected={answers.monthlyKm === o.value} onClick={() => onSelect('monthlyKm', o.value)}>
+            <span className="block text-white font-medium">{o.label}</span>
+            <span className="block text-slate-400 text-sm mt-0.5">{o.sub}</span>
+          </OptionCard>
+        ))}
+        {phase === 4 && LOAN_OPTIONS.map((o) => (
+          <OptionCard key={o.value} selected={answers.loanPayment === o.value} onClick={() => onSelect('loanPayment', o.value)}>
+            <span className="text-white font-medium">{o.label}</span>
+          </OptionCard>
+        ))}
+        {phase === 5 && INSURANCE_OPTIONS.map((o) => (
+          <OptionCard key={o.value} selected={answers.annualInsurance === o.value} onClick={() => onSelect('annualInsurance', o.value)}>
+            <span className="text-white font-medium">{o.label}</span>
+          </OptionCard>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── 메인 페이지 ──────────────────────────────────────────────────────
+
+export default function CostSimulatorPage() {
+  const [phase, setPhase]   = useState<Phase>(1);
+  const [dir, setDir]       = useState(1);
+  const [answers, setAnswers] = useState<Partial<CostInputs>>({});
+  const [result, setResult]  = useState<CostResult | null>(null);
+
+  function select<K extends keyof CostInputs>(key: K, value: CostInputs[K]) {
+    const next: Partial<CostInputs> = { ...answers, [key]: value };
+    setAnswers(next);
+    setDir(1);
+
+    const currentPhase = phase as NumericPhase;
+    if (currentPhase < TOTAL_STEPS) {
+      setTimeout(() => setPhase((currentPhase + 1) as NumericPhase), 120);
+    } else {
+      const inputs = next as CostInputs;
+      setResult(calcCost(inputs));
+      setTimeout(() => setPhase('result'), 120);
+    }
+  }
+
+  function goBack() {
+    setDir(-1);
+    if (phase === 'result') {
+      setPhase(TOTAL_STEPS);
+    } else if ((phase as number) > 1) {
+      setPhase(((phase as number) - 1) as NumericPhase);
+    }
+  }
+
+  function reset() {
+    setDir(-1);
+    setAnswers({});
+    setResult(null);
+    setTimeout(() => setPhase(1), 50);
+  }
+
+  const canGoBack = phase !== 1;
+  const progress = phase === 'result' ? 100 : ((phase as number) / TOTAL_STEPS) * 100;
+
+  return (
+    <div
+      className="min-h-screen"
+      style={{ background: 'linear-gradient(160deg, #0c0c1d 0%, #1a1a2e 60%, #0c0c1d 100%)' }}
+    >
+      <div className="max-w-[520px] mx-auto px-4 py-8">
+        {/* 헤더 */}
+        <div className="mb-6">
+          <div className="flex items-center gap-2 mb-3">
+            {canGoBack && (
+              <button onClick={goBack} className="text-slate-400 hover:text-white transition-colors text-sm">
+                ← 이전
+              </button>
+            )}
+            <span className="ml-auto text-slate-500 text-xs">
+              {phase === 'result' ? '결과' : `${phase as number} / ${TOTAL_STEPS}`}
+            </span>
+          </div>
+
+          {/* 진행 바 */}
+          <div className="h-1.5 bg-[#1a1a2e] rounded-full overflow-hidden">
+            <motion.div
+              className="h-full bg-red-500 rounded-full"
+              animate={{ width: `${progress}%` }}
+              transition={{ duration: 0.4, ease: 'easeInOut' }}
+            />
+          </div>
+        </div>
+
+        {/* 인트로 (1단계 위) */}
+        {phase === 1 && (
+          <div className="mb-6">
+            <div className="inline-flex items-center gap-2 bg-red-500/10 border border-red-500/30 rounded-full px-3 py-1 mb-3">
+              <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+              <span className="text-red-400 text-xs font-medium">유지비 진단</span>
+            </div>
+            <h1 className="text-white text-2xl font-bold leading-snug mb-2">
+              내 차 유지비,<br />
+              <span className="text-red-400">정말 이만큼일까요?</span>
+            </h1>
+            <p className="text-slate-400 text-sm leading-relaxed">
+              할부·유류·보험만 생각하셨나요? 감가상각·정비·세금까지 합치면
+              체감의 1.5~2배가 됩니다.
+            </p>
+          </div>
+        )}
+
+        {/* 콘텐츠 */}
+        <AnimatePresence mode="wait" custom={dir}>
+          <motion.div
+            key={phase}
+            custom={dir}
+            initial={{ x: dir * 40, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: dir * -40, opacity: 0 }}
+            transition={{ duration: 0.25, ease: 'easeOut' }}
+          >
+            {phase === 'result' && result ? (
+              <ResultScreen result={result} />
+            ) : (
+              <StepContent
+                phase={phase as NumericPhase}
+                answers={answers}
+                onSelect={select}
+              />
+            )}
+          </motion.div>
+        </AnimatePresence>
+
+        {/* 처음으로 버튼 (결과 화면) */}
+        {phase === 'result' && (
+          <div className="mt-6 text-center">
+            <button
+              onClick={reset}
+              className="text-slate-500 hover:text-slate-300 text-sm transition-colors"
+            >
+              ↺ 다시 진단하기
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
