@@ -1,57 +1,30 @@
 import { Suspense } from 'react';
-import { getVehicleBySlug } from '@/constants/vehicles';
+import { VEHICLE_LIST } from '@/constants/vehicles';
 import { createServerSupabaseClient } from '@/lib/supabase-server';
 import { ButtonLink } from '@/components/ui/Button';
 import { PopularEstimatesClient } from './PopularEstimatesClient';
+import type { VehicleCard, PricingEntry } from './types';
 
 export const revalidate = 60;
 
-const FALLBACK_SLUGS = [
-  // 현대
-  'avante', 'avante-hybrid', 'tucson', 'tucson-hybrid',
-  'k5', 'sportage', 'sportage-hybrid', 'sorento', 'sorento-hybrid',
-  'ioniq5', 'ioniq6', 'grandeur', 'grandeur-hybrid',
-  'santafe', 'santafe-hybrid', 'k8', 'k8-hybrid',
-  'palisade', 'carnival', 'casper-ev', 'ioniq9',
-  // 기아
-  'k3', 'mohave', 'ray-ev',
-  // 제네시스
-  'g70', 'g80', 'g90', 'gv60', 'gv70', 'gv80', 'gv80-coupe',
-  // 르노코리아
-  'qm6', 'xm3', 'xm3-hybrid', 'arkana', 'master',
-  // KGM
-  'tivoli', 'korando', 'korando-ev', 'torres', 'torres-evx',
-  'rexton', 'rexton-sports', 'rexton-sports-khan',
-] as const;
-
-interface PriceRangeRow {
-  vehicle_id: string;
-  min_monthly: number;
-  max_monthly: number;
-}
-
-interface VehicleRow {
-  slug: string;
-  id: string;
-  is_active: boolean | null;
-  display_order: number | null;
-}
+const DOMESTIC_BRANDS = new Set(['현대', '기아', '제네시스', 'KGM', '르노코리아', '쉐보레']);
+const vehicleLocalMap = new Map(VEHICLE_LIST.map(v => [v.slug, v]));
 
 function VehiclesSkeleton() {
   return (
-    <div className="flex flex-col gap-2">
-      {Array.from({ length: 6 }).map((_, i) => (
+    <div className="flex flex-col gap-3">
+      {Array.from({ length: 8 }).map((_, i) => (
         <div
           key={i}
-          className="flex items-center gap-3 bg-white rounded-2xl border border-border-solid p-3 animate-pulse"
+          className="flex items-center justify-between bg-white rounded-2xl border border-border-solid p-4 animate-pulse"
         >
-          <div className="w-8 h-8 bg-surface-secondary rounded-full" />
-          <div className="w-20 h-14 bg-surface-secondary rounded-xl" />
-          <div className="flex-1 space-y-1.5">
-            <div className="h-3.5 bg-surface-secondary rounded w-2/3" />
-            <div className="h-3 bg-surface-secondary rounded w-1/2" />
-            <div className="h-3.5 bg-surface-secondary rounded w-1/3" />
+          <div className="flex flex-col gap-2 flex-1 mr-4">
+            <div className="h-3 bg-gray-100 rounded w-14" />
+            <div className="h-5 bg-gray-100 rounded w-32" />
+            <div className="h-3 bg-gray-100 rounded w-20" />
+            <div className="h-5 bg-gray-100 rounded w-24 mt-1" />
           </div>
+          <div className="w-32 h-20 bg-gray-100 rounded-xl shrink-0" />
         </div>
       ))}
     </div>
@@ -61,84 +34,84 @@ function VehiclesSkeleton() {
 async function VehicleListSection() {
   const supabase = await createServerSupabaseClient();
 
-  const allSlugs = FALLBACK_SLUGS
-    .map((slug) => getVehicleBySlug(slug))
-    .filter((v): v is NonNullable<ReturnType<typeof getVehicleBySlug>> => v != null);
-
-  // Step 1: vehicles 조회 (id 포함)
-  const { data: allVehicles } = await supabase
+  const { data: dbVehicles } = await supabase
     .from('vehicles')
-    .select('slug, id, is_active, display_order');
+    .select('id, slug, name, brand, category, fuel_type, base_price, image_key, display_order')
+    .eq('is_active', true);
 
-  const settingMap = new Map(
-    (allVehicles ?? [])
-      .filter((s: VehicleRow) => s.slug != null)
-      .map((s: VehicleRow) => [s.slug, s])
-  );
+  if (!dbVehicles?.length) return <PopularEstimatesClient vehicles={[]} />;
 
-  // slug ↔ vehicle_id 매핑
-  const vehicleIdBySlug = new Map<string, string>();
-  const slugByVehicleId = new Map<string, string>();
-  for (const s of (allVehicles ?? []) as VehicleRow[]) {
-    if (s.slug && s.id) {
-      vehicleIdBySlug.set(s.slug, s.id);
-      slugByVehicleId.set(s.id, s.slug);
-    }
-  }
+  const vehicleIds = dbVehicles.map(v => v.id);
 
-  const orderedVehicles = allSlugs
-    .filter((v) => {
-      const s = settingMap.get(v.slug);
-      return s == null || s.is_active !== false;
-    })
-    .sort((a, b) => {
-      const aOrder = settingMap.get(a.slug)?.display_order ?? 999;
-      const bOrder = settingMap.get(b.slug)?.display_order ?? 999;
-      return aOrder - bOrder;
-    });
+  // 전 계약기간 / 10000km 기준 pricing 수집 (필터링용)
+  const { data: priceRows } = await supabase
+    .from('pricing')
+    .select('vehicle_id, min_monthly, contract_months, conditions')
+    .in('vehicle_id', vehicleIds)
+    .eq('is_active', true)
+    .eq('annual_km', 10000)
+    .gt('min_monthly', 0)
+    .limit(5000);
 
-  // Step 2: pricing 조회 by vehicle_id
-  const vehicleIds = allSlugs
-    .map((v) => vehicleIdBySlug.get(v.slug))
-    .filter((id): id is string => id != null);
+  // vehicle별 pricing options 집계
+  const pricingByVehicle = new Map<string, PricingEntry[]>();
+  const defaultPriceMap = new Map<string, number>(); // 60개월/rent 기본 가격
 
-  const priceMap: Record<string, { min: number; max: number }> = {};
+  for (const row of priceRows ?? []) {
+    const cond = row.conditions as { product_type?: string; deposit_rate?: number } | null;
+    const productType = (cond?.product_type ?? 'rent') as PricingEntry['productType'];
+    const depositRate = typeof cond?.deposit_rate === 'number' ? cond.deposit_rate : 0;
 
-  if (vehicleIds.length > 0) {
-    const { data: priceRanges } = await supabase
-      .from('pricing')
-      .select('vehicle_id, min_monthly, max_monthly')
-      .in('vehicle_id', vehicleIds)
-      .eq('is_active', true)
-      .eq('contract_months', 36)
-      .eq('annual_km', 20000)
-      .gt('min_monthly', 0);
+    const entry: PricingEntry = {
+      contractMonths: row.contract_months,
+      productType,
+      depositZero: depositRate === 0,
+      minMonthly: row.min_monthly,
+    };
 
-    for (const row of (priceRanges ?? []) as PriceRangeRow[]) {
-      const slug = slugByVehicleId.get(row.vehicle_id);
-      if (!slug) continue;
-      const existing = priceMap[slug];
-      if (!existing || row.min_monthly < existing.min) {
-        priceMap[slug] = { min: row.min_monthly, max: row.max_monthly };
+    const arr = pricingByVehicle.get(row.vehicle_id) ?? [];
+    arr.push(entry);
+    pricingByVehicle.set(row.vehicle_id, arr);
+
+    // 기본 표시 가격: 60개월 rent 최저
+    if (row.contract_months === 60 && productType === 'rent') {
+      const existing = defaultPriceMap.get(row.vehicle_id);
+      if (!existing || row.min_monthly < existing) {
+        defaultPriceMap.set(row.vehicle_id, row.min_monthly);
       }
     }
   }
 
-  const vehicles = orderedVehicles.map((v) => {
-    const price = priceMap[v.slug] ?? null;
-    return { ...v, price };
-  });
+  const vehicles: VehicleCard[] = dbVehicles
+    .filter(v => v.slug)
+    .map(v => {
+      const local = vehicleLocalMap.get(v.slug!);
+      return {
+        id: v.id,
+        slug: v.slug!,
+        name: v.name,
+        brand: v.brand ?? '',
+        category: v.category ?? '',
+        fuelType: v.fuel_type ?? '',
+        basePrice: v.base_price ?? null,
+        imageKey: local?.imageKey ?? v.image_key ?? null,
+        displayOrder: v.display_order ?? 999,
+        isDomestic: DOMESTIC_BRANDS.has(v.brand ?? ''),
+        price: defaultPriceMap.has(v.id) ? { min: defaultPriceMap.get(v.id)! } : null,
+        pricingOptions: pricingByVehicle.get(v.id) ?? [],
+      };
+    });
 
   return <PopularEstimatesClient vehicles={vehicles} />;
 }
 
 export default function PopularEstimatesPage() {
   return (
-    <div className="min-h-screen bg-white pb-24">
-      <div className="px-5 pt-8 max-w-lg mx-auto">
-        <div className="mb-6">
-          <h1 className="text-2xl font-extrabold text-text tracking-tight">인기 차종</h1>
-          <p className="text-sm text-text-sub mt-1">36개월 기준 · 보증금 0원</p>
+    <div className="min-h-screen bg-[#F7F8FA] pb-24">
+      <div className="px-4 pt-8 max-w-2xl mx-auto">
+        <div className="mb-5">
+          <h1 className="text-2xl font-extrabold text-text tracking-tight">전체 차종</h1>
+          <p className="text-sm text-text-sub mt-1">60개월 기준 · 월 납부금 비교</p>
         </div>
 
         <Suspense fallback={<VehiclesSkeleton />}>
@@ -146,8 +119,8 @@ export default function PopularEstimatesPage() {
         </Suspense>
 
         <div className="mt-8 p-5 rounded-2xl bg-white border border-border-solid text-center">
-          <p className="text-sm text-text font-semibold mb-1">원하는 차량이 없으신가요?</p>
-          <p className="text-xs text-text-sub mb-4">내 조건에 맞는 맞춤 견적을 받아보세요</p>
+          <p className="text-sm text-text font-semibold mb-1">내 조건에 맞는 차량이 없으신가요?</p>
+          <p className="text-xs text-text-sub mb-4">맞춤 견적을 무료로 받아보세요</p>
           <ButtonLink href="/quote" variant="primary" size="lg" fullWidth>
             무료 견적 받기
           </ButtonLink>

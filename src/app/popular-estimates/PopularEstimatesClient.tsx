@@ -2,214 +2,303 @@
 
 import { memo, useState, useMemo } from 'react';
 import Link from 'next/link';
-import { ChevronDown } from 'lucide-react';
-import { IconCarSedan, IconCarSUV, IconBolt, RenderIcon } from '@/components/icons/RentailorIcons';
-import type { Vehicle } from '@/constants/vehicles';
+import { SlidersHorizontal, ChevronDown } from 'lucide-react';
 import { CarImageFallback } from '@/components/cars/CarImageFallback';
+import { FilterModal } from './FilterModal';
+import type { VehicleCard, SortKey, TabKey, FilterState } from './types';
 
-interface VehicleWithPrice extends Vehicle {
-  price: { min: number; max: number } | null;
-}
+const TABS: { key: TabKey; label: string }[] = [
+  { key: 'all', label: '전체' },
+  { key: 'best', label: 'BEST' },
+  { key: 'domestic', label: '국산차' },
+  { key: 'import', label: '수입차' },
+  { key: 'ev', label: '전기차' },
+  { key: 'hybrid', label: 'HYBRID' },
+];
 
-interface SectionDef {
-  label: string;
-  groups: {
-    icon?: string;
-    title: string;
-    filter: (v: VehicleWithPrice) => boolean;
-  }[];
-}
+const SORT_OPTIONS: { key: SortKey; label: string }[] = [
+  { key: 'price_asc', label: '월 이용료 낮은순' },
+  { key: 'price_desc', label: '월 이용료 높은순' },
+  { key: 'base_asc', label: '출고가 낮은순' },
+  { key: 'base_desc', label: '출고가 높은순' },
+  { key: 'name_asc', label: '가나다순' },
+];
 
-const SECTION_TABS: Record<string, SectionDef> = {
-  category: {
-    label: '카테고리별',
-    groups: [
-      { icon: 'IconCarSedan', title: '세단 TOP', filter: (v) => v.category === '세단' },
-      { icon: 'IconCarSUV', title: 'SUV TOP', filter: (v) => v.category === 'SUV' },
-      { icon: 'IconBolt', title: '전기차 TOP', filter: (v) => v.category === 'EV' },
-    ],
-  },
-  brand: {
-    label: '브랜드별',
-    groups: [
-      { title: '현대', filter: (v) => v.brand === '현대' },
-      { title: '기아', filter: (v) => v.brand === '기아' },
-      { title: '제네시스', filter: (v) => v.brand === '제네시스' },
-      { title: '르노코리아', filter: (v) => v.brand === '르노코리아' },
-      { title: 'KGM', filter: (v) => v.brand === 'KGM' },
-    ],
-  },
-  purpose: {
-    label: '용도별',
-    groups: [
-      {
-        title: '출퇴근 추천',
-        filter: (v) =>
-          v.category === '세단' && (v.segment.includes('소형') || v.segment.includes('준중형') || v.segment.includes('중형')),
-      },
-      {
-        title: '가족용 추천',
-        filter: (v) =>
-          v.category === 'SUV' || v.model.includes('카니발') || v.model.includes('팰리세이드'),
-      },
-      {
-        title: '비즈니스 추천',
-        filter: (v) =>
-          v.brand === '제네시스' || v.model.includes('그랜저') || v.model.includes('K8'),
-      },
-    ],
-  },
+const DEFAULT_FILTERS: FilterState = {
+  productTypes: [],
+  depositZero: null,
+  contractMonths: [],
 };
 
-const TAB_KEYS = Object.keys(SECTION_TABS);
-const VISIBLE_COUNT = 3;
-
-function rankStyle(rank: number): { color: string; bg: string } {
-  if (rank === 1) return { color: '#FFB800', bg: 'bg-[#FFB800]/10' };
-  if (rank === 2) return { color: '#8E8E93', bg: 'bg-[#8E8E93]/10' };
-  if (rank === 3) return { color: '#CD7F32', bg: 'bg-[#CD7F32]/10' };
-  return { color: '#9CA3AF', bg: '' };
-}
-
 function formatPrice(won: number): string {
-  return `월 ${Math.round(won / 10000)}만원~`;
+  return `월 ${Math.round(won / 10000).toLocaleString()}만원~`;
 }
 
-function VehicleRow({ v, rank }: { v: VehicleWithPrice; rank: number }) {
-  const style = rankStyle(rank);
+function filterByTab(vehicles: VehicleCard[], tab: TabKey): VehicleCard[] {
+  switch (tab) {
+    case 'best':
+      return [...vehicles]
+        .sort((a, b) => a.displayOrder - b.displayOrder)
+        .slice(0, 30);
+    case 'domestic':
+      return vehicles.filter(v => v.isDomestic);
+    case 'import':
+      return vehicles.filter(v => !v.isDomestic);
+    case 'ev':
+      return vehicles.filter(v => v.fuelType === '전기');
+    case 'hybrid':
+      return vehicles.filter(
+        v => v.fuelType === '하이브리드' || v.fuelType === '플러그인 하이브리드'
+      );
+    default:
+      return vehicles;
+  }
+}
+
+function applyFilters(vehicles: VehicleCard[], filters: FilterState): VehicleCard[] {
+  const noFilter =
+    filters.productTypes.length === 0 &&
+    filters.depositZero === null &&
+    filters.contractMonths.length === 0;
+
+  if (noFilter) return vehicles;
+
+  return vehicles.filter(v => {
+    const opts = v.pricingOptions;
+    if (opts.length === 0) return false;
+
+    if (filters.productTypes.length > 0) {
+      const ok = opts.some(o =>
+        (filters.productTypes as string[]).includes(o.productType)
+      );
+      if (!ok) return false;
+    }
+
+    if (filters.depositZero !== null) {
+      const ok = opts.some(o => o.depositZero === filters.depositZero);
+      if (!ok) return false;
+    }
+
+    if (filters.contractMonths.length > 0) {
+      const ok = opts.some(o => filters.contractMonths.includes(o.contractMonths));
+      if (!ok) return false;
+    }
+
+    return true;
+  });
+}
+
+function sortVehicles(vehicles: VehicleCard[], sort: SortKey): VehicleCard[] {
+  return [...vehicles].sort((a, b) => {
+    switch (sort) {
+      case 'price_asc': {
+        if (!a.price && !b.price) return 0;
+        if (!a.price) return 1;
+        if (!b.price) return -1;
+        return a.price.min - b.price.min;
+      }
+      case 'price_desc': {
+        if (!a.price && !b.price) return 0;
+        if (!a.price) return 1;
+        if (!b.price) return -1;
+        return b.price.min - a.price.min;
+      }
+      case 'base_asc': {
+        if (!a.basePrice && !b.basePrice) return 0;
+        if (!a.basePrice) return 1;
+        if (!b.basePrice) return -1;
+        return a.basePrice - b.basePrice;
+      }
+      case 'base_desc': {
+        if (!a.basePrice && !b.basePrice) return 0;
+        if (!a.basePrice) return 1;
+        if (!b.basePrice) return -1;
+        return b.basePrice - a.basePrice;
+      }
+      case 'name_asc':
+        return a.name.localeCompare(b.name, 'ko');
+    }
+  });
+}
+
+function VehicleCardItem({ v }: { v: VehicleCard }) {
+  const imgSrc = v.imageKey ? `/cars/${v.imageKey}.webp` : null;
 
   return (
     <Link
       href={`/cars/${v.slug}`}
-      className="flex items-center gap-3 bg-white rounded-2xl border border-border-solid p-3 hover:border-accent hover:shadow-sm transition-all group"
+      className="flex items-center justify-between gap-4 bg-white rounded-2xl border border-border-solid p-4 hover:border-accent hover:shadow-md transition-all group"
     >
-      <div
-        className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0 ${style.bg}`}
-        style={{ color: style.color }}
-      >
-        {rank}
-      </div>
-
-      <div className="w-20 h-14 relative shrink-0 bg-white rounded-xl overflow-hidden">
-        <CarImageFallback
-          src={`/cars/${v.imageKey}.webp`}
-          alt={v.model}
-          sizes="80px"
-          className="object-contain p-1"
-        />
-      </div>
-
+      {/* 좌측 텍스트 */}
       <div className="flex-1 min-w-0">
-        <p className="font-bold text-sm text-text group-hover:text-accent transition-colors truncate">
-          {v.model}
+        <span className="inline-block text-[10px] font-bold tracking-wide text-white bg-success rounded-md px-2 py-0.5 mb-2">
+          장기렌트
+        </span>
+        <p className="font-bold text-base text-text leading-snug truncate group-hover:text-accent transition-colors">
+          {v.name}
         </p>
-        <p className="text-[11px] text-text-sub">
-          {v.brand} · {v.category}
+        <p className="text-xs text-text-sub mt-0.5">
+          {v.brand}
+          {v.category ? ` · ${v.category}` : ''}
         </p>
-        {v.price && v.price.min > 0 ? (
-          <p className="text-accent font-bold text-sm mt-0.5">
+        {v.price ? (
+          <p className="text-accent font-extrabold text-lg mt-2 leading-none">
             {formatPrice(v.price.min)}
           </p>
         ) : (
-          <p className="text-text-sub text-xs mt-0.5">견적 문의</p>
+          <p className="text-text-sub text-sm mt-2">견적 문의</p>
         )}
       </div>
 
-      <svg width="7" height="12" viewBox="0 0 7 12" fill="none" className="shrink-0">
-        <path d="M1 1l5 5-5 5" stroke="#C7C7CC" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-    </Link>
-  );
-}
-
-function SectionGroup({
-  icon,
-  title,
-  vehicles,
-}: {
-  icon?: string;
-  title: string;
-  vehicles: VehicleWithPrice[];
-}) {
-  const [expanded, setExpanded] = useState(false);
-
-  if (vehicles.length === 0) return null;
-
-  const hasMore = vehicles.length > VISIBLE_COUNT;
-  const displayed = expanded ? vehicles : vehicles.slice(0, VISIBLE_COUNT);
-  const hiddenCount = vehicles.length - VISIBLE_COUNT;
-
-  return (
-    <div className="mb-8">
-      <h2 className="text-base font-bold text-text mb-3 flex items-center gap-1.5">
-        {icon && <RenderIcon name={icon} size={17} className="text-primary" />}
-        {title}
-      </h2>
-      <div className="flex flex-col gap-2">
-        {displayed.map((v, i) => (
-          <VehicleRow key={v.id} v={v} rank={i + 1} />
-        ))}
-      </div>
-      {hasMore && (
-        <button
-          type="button"
-          onClick={() => setExpanded(!expanded)}
-          className="w-full mt-2 py-2.5 flex items-center justify-center gap-1 text-sm font-medium text-text-sub hover:text-accent transition-colors rounded-xl border border-border-solid bg-white"
-        >
-          {expanded ? '접기' : `${hiddenCount}개 더보기`}
-          <ChevronDown
-            size={16}
-            className={`transition-transform ${expanded ? 'rotate-180' : ''}`}
+      {/* 우측 이미지 */}
+      <div className="relative w-32 h-20 shrink-0 rounded-xl overflow-hidden bg-gray-50">
+        {imgSrc ? (
+          <CarImageFallback
+            src={imgSrc}
+            alt={v.name}
+            sizes="128px"
+            className="object-contain p-1"
           />
-        </button>
-      )}
-    </div>
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center text-3xl opacity-30">
+            🚗
+          </div>
+        )}
+      </div>
+    </Link>
   );
 }
 
 export const PopularEstimatesClient = memo(function PopularEstimatesClient({
   vehicles,
 }: {
-  vehicles: VehicleWithPrice[];
+  vehicles: VehicleCard[];
 }) {
-  const [activeTab, setActiveTab] = useState(TAB_KEYS[0]);
+  const [activeTab, setActiveTab] = useState<TabKey>('all');
+  const [sortKey, setSortKey] = useState<SortKey>('price_asc');
+  const [showSort, setShowSort] = useState(false);
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS);
 
-  const section = SECTION_TABS[activeTab];
+  const activeFilterCount = useMemo(() => {
+    let n = 0;
+    if (filters.productTypes.length) n++;
+    if (filters.depositZero !== null) n++;
+    if (filters.contractMonths.length) n++;
+    return n;
+  }, [filters]);
 
-  const groupedData = useMemo(() => {
-    return section.groups.map((group) => ({
-      icon: group.icon,
-      title: group.title,
-      vehicles: vehicles.filter(group.filter),
-    }));
-  }, [vehicles, section]);
+  const displayed = useMemo(() => {
+    const tabFiltered = filterByTab(vehicles, activeTab);
+    const filterApplied = applyFilters(tabFiltered, filters);
+    return sortVehicles(filterApplied, sortKey);
+  }, [vehicles, activeTab, sortKey, filters]);
+
+  const currentSortLabel = SORT_OPTIONS.find(o => o.key === sortKey)?.label ?? '';
 
   return (
     <div>
-      <div className="flex gap-2 mb-6 overflow-x-auto pb-1">
-        {TAB_KEYS.map((key) => (
+      {/* 카테고리 탭 */}
+      <div className="flex gap-1.5 mb-4 overflow-x-auto pb-1 scrollbar-hide">
+        {TABS.map(tab => (
           <button
-            key={key}
+            key={tab.key}
             type="button"
-            onClick={() => setActiveTab(key)}
-            className={`shrink-0 px-4 py-2 rounded-xl text-sm font-medium border transition-all ${
-              activeTab === key
-                ? 'border-accent bg-accent/10 text-accent'
+            onClick={() => setActiveTab(tab.key)}
+            className={`shrink-0 px-4 py-2 rounded-xl text-sm font-semibold border transition-all ${
+              activeTab === tab.key
+                ? 'border-primary bg-primary text-white'
                 : 'border-border-solid bg-white text-text-sub hover:border-text-sub'
             }`}
           >
-            {SECTION_TABS[key].label}
+            {tab.label}
           </button>
         ))}
       </div>
 
-      {groupedData.map((group) => (
-        <SectionGroup key={group.title} icon={group.icon} title={group.title} vehicles={group.vehicles} />
-      ))}
+      {/* 정렬 + 필터 바 */}
+      <div className="flex items-center justify-between mb-3">
+        {/* 정렬 드롭다운 */}
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => setShowSort(v => !v)}
+            className="flex items-center gap-1.5 text-sm font-medium text-text-sub hover:text-text transition-colors"
+          >
+            {currentSortLabel}
+            <ChevronDown
+              size={15}
+              className={`transition-transform ${showSort ? 'rotate-180' : ''}`}
+            />
+          </button>
+          {showSort && (
+            <>
+              <div className="fixed inset-0 z-10" onClick={() => setShowSort(false)} />
+              <div className="absolute left-0 top-8 z-20 bg-white border border-border-solid rounded-2xl shadow-lg py-1.5 min-w-[180px]">
+                {SORT_OPTIONS.map(opt => (
+                  <button
+                    key={opt.key}
+                    type="button"
+                    onClick={() => { setSortKey(opt.key); setShowSort(false); }}
+                    className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
+                      sortKey === opt.key
+                        ? 'text-accent font-semibold'
+                        : 'text-text hover:bg-gray-50'
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
 
-      {groupedData.every((g) => g.vehicles.length === 0) && (
-        <div className="py-16 text-center text-text-sub">등록된 차량이 없습니다</div>
+        {/* 필터 버튼 */}
+        <button
+          type="button"
+          onClick={() => setFilterOpen(true)}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium border transition-all ${
+            activeFilterCount > 0
+              ? 'border-accent bg-accent/10 text-accent'
+              : 'border-border-solid bg-white text-text-sub hover:border-text-sub'
+          }`}
+        >
+          <SlidersHorizontal size={14} />
+          필터
+          {activeFilterCount > 0 && (
+            <span className="ml-0.5 bg-accent text-white rounded-full text-[10px] w-4 h-4 flex items-center justify-center font-bold">
+              {activeFilterCount}
+            </span>
+          )}
+        </button>
+      </div>
+
+      {/* 차량 수 표시 */}
+      <p className="text-xs text-text-sub mb-3">
+        총 <span className="font-semibold text-text">{displayed.length}</span>개 차종
+      </p>
+
+      {/* 카드 리스트 */}
+      {displayed.length > 0 ? (
+        <div className="flex flex-col gap-3">
+          {displayed.map(v => (
+            <VehicleCardItem key={v.id} v={v} />
+          ))}
+        </div>
+      ) : (
+        <div className="py-20 text-center text-text-sub text-sm">
+          해당하는 차종이 없습니다
+        </div>
       )}
+
+      {/* 필터 모달 */}
+      <FilterModal
+        open={filterOpen}
+        filters={filters}
+        onChange={setFilters}
+        onClose={() => setFilterOpen(false)}
+      />
     </div>
   );
 });
