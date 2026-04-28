@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { NextResponse } from 'next/server';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -79,7 +80,9 @@ export async function POST(request: Request) {
     });
 
     if (newPosts.length === 0) {
-      return NextResponse.json({ message: 'No new posts', synced: 0 });
+      revalidateTag('wp-posts');
+      revalidatePath('/info');
+      return NextResponse.json({ message: 'No new posts, cache revalidated', synced: 0 });
     }
 
     // 현재 최대 display_order 조회
@@ -115,6 +118,9 @@ export async function POST(request: Request) {
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
+
+    revalidateTag('wp-posts');
+    revalidatePath('/info');
 
     return NextResponse.json({
       message: `Synced ${inserted?.length ?? 0} new posts`,

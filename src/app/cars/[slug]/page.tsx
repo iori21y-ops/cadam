@@ -127,14 +127,14 @@ async function CarPageContent({ slug }: { slug: string }) {
   const maxCarPrice = vs?.max_price ? vs.max_price * 10000 : null;
 
   // 트림 & 옵션 데이터 조회 (vehicle_id가 있을 때만)
-  let trims: { id: string; trim_name: string; base_price: number; tax_reduced_price: number | null }[] = [];
+  let trims: { id: string; trim_name: string; base_price: number; tax_reduced_price: number | null; fuel_type: string | null; displacement: number | null; drive_type: string | null }[] = [];
   let options: { id: string; trim_id: string | null; vehicle_id: string; option_name: string; option_price: number; option_type: string }[] = [];
 
   if (vs?.id) {
     const [{ data: trimData }, { data: optionData }] = await Promise.all([
       supabase
         .from('vehicle_trims')
-        .select('id, trim_name, base_price, tax_reduced_price')
+        .select('id, trim_name, base_price, tax_reduced_price, fuel_type, displacement, drive_type')
         .eq('vehicle_id', vs.id)
         .order('base_price', { ascending: true }),
       supabase

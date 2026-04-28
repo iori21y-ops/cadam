@@ -7,6 +7,9 @@ interface Trim {
   trim_name: string;
   base_price: number;
   tax_reduced_price: number | null;
+  fuel_type: string | null;
+  displacement: number | null;
+  drive_type: string | null;
 }
 
 interface TrimOption {
