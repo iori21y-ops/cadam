@@ -33,7 +33,7 @@ export function FilterModal({ open, filters, onChange, onClose }: FilterModalPro
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col justify-end items-center">
+    <div className="fixed inset-0 z-[60] flex flex-col justify-end items-center">
       {/* 오버레이 */}
       <div
         ref={overlayRef}
