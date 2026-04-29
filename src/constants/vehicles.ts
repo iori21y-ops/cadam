@@ -1,5 +1,5 @@
 export type Category = '세단' | 'SUV' | 'EV' | '다목적' | '트럭';
-export type Brand = '현대' | '기아' | '제네시스' | '르노코리아' | 'KGM' | '테슬라';
+export type Brand = '현대' | '기아' | '제네시스' | '르노코리아' | 'KGM' | '테슬라' | 'BMW' | '벤츠';
 
 export interface Vehicle {
   id: string;
@@ -123,12 +123,70 @@ export const VEHICLE_LIST: Vehicle[] = [
   // 테슬라
   { id: 't01', brand: '테슬라', model: 'Model 3', slug: 'tesla-model-3', category: 'EV', segment: '중형 세단 (EV)', fuel: '전기', imageKey: 'tesla-model-3', trims: ['Standard RWD', 'Premium Long Range RWD', 'Performance AWD'], seoTitle: 'Model 3 장기렌트 | 월 납부금 비교', seoDescription: '테슬라 Model 3 장기렌터카. 전기 세단 장기렌트 최저가 견적을 확인하세요.' },
   { id: 't02', brand: '테슬라', model: 'Model Y', slug: 'tesla-model-y', category: 'EV', segment: '중형 SUV (EV)', fuel: '전기', imageKey: 'tesla-model-y', trims: ['RWD', 'Long Range AWD', 'Performance'], seoTitle: 'Model Y 장기렌트 | 월 납부금 비교', seoDescription: '테슬라 Model Y 장기렌터카. 전기 SUV 장기렌트 최저가 견적을 확인하세요.' },
+
+  // ═══════════════════════════════════
+  // BMW (26종) — 2026-04-29 크롤러 적재 기반
+  // 이미지: 미준비 (imageKey='') → 전체차종 페이지 이모지 표시
+  // ═══════════════════════════════════
+  { id: 'bmw01', brand: 'BMW', model: '1시리즈', slug: 'bmw-1series', category: '세단', segment: '준중형 세단', fuel: '가솔린', imageKey: '', trims: [], seoTitle: 'BMW 1시리즈 장기렌트 | 월 납부금 비교', seoDescription: 'BMW 1시리즈 장기렌터카 최저가 견적. 프리미엄 준중형 세단 장기렌트 조건을 비교하세요.' },
+  { id: 'bmw02', brand: 'BMW', model: '2시리즈', slug: 'bmw-2series', category: '세단', segment: '쿠페·그란쿠페', fuel: '가솔린', imageKey: '', trims: [], seoTitle: 'BMW 2시리즈 장기렌트 | 월 납부금 비교', seoDescription: 'BMW 2시리즈 장기렌터카 견적. 쿠페·그란쿠페·액티브투어러 장기렌트 조건을 비교하세요.' },
+  { id: 'bmw03', brand: 'BMW', model: '3시리즈', slug: 'bmw-3series', category: '세단', segment: '중형 세단', fuel: '가솔린', imageKey: '', trims: [], seoTitle: 'BMW 3시리즈 장기렌트 | 월 납부금 비교', seoDescription: 'BMW 3시리즈 장기렌터카 최저가 견적. 인기 프리미엄 중형 세단 장기렌트.' },
+  { id: 'bmw04', brand: 'BMW', model: '4시리즈', slug: 'bmw-4series', category: '세단', segment: '중형 쿠페', fuel: '가솔린', imageKey: '', trims: [], seoTitle: 'BMW 4시리즈 장기렌트 | 월 납부금 비교', seoDescription: 'BMW 4시리즈 장기렌터카 견적. 쿠페·컨버터블·그란쿠페 장기렌트 조건 비교.' },
+  { id: 'bmw05', brand: 'BMW', model: '5시리즈', slug: 'bmw-5series', category: '세단', segment: '준대형 세단', fuel: '가솔린', imageKey: '', trims: [], seoTitle: 'BMW 5시리즈 장기렌트 | 월 납부금 비교', seoDescription: 'BMW 5시리즈 장기렌터카 최저가 견적. 비즈니스 세단 장기렌트 조건을 비교하세요.' },
+  { id: 'bmw06', brand: 'BMW', model: '7시리즈', slug: 'bmw-7series', category: '세단', segment: '대형 세단', fuel: '가솔린', imageKey: '', trims: [], seoTitle: 'BMW 7시리즈 장기렌트 | 월 납부금 비교', seoDescription: 'BMW 7시리즈 장기렌터카 견적. 플래그십 대형 세단 장기렌트 최저가.' },
+  { id: 'bmw07', brand: 'BMW', model: '8시리즈', slug: 'bmw-8series', category: '세단', segment: '대형 쿠페', fuel: '가솔린', imageKey: '', trims: [], seoTitle: 'BMW 8시리즈 장기렌트 | 월 납부금 비교', seoDescription: 'BMW 8시리즈 장기렌터카 견적. 럭셔리 쿠페 장기렌트.' },
+  { id: 'bmw08', brand: 'BMW', model: 'i4', slug: 'bmw-i4', category: 'EV', segment: 'EV 그란쿠페', fuel: '전기', imageKey: '', trims: [], seoTitle: 'BMW i4 장기렌트 | 월 납부금 비교', seoDescription: 'BMW i4 전기차 장기렌터카 견적. 프리미엄 EV 그란쿠페 장기렌트 조건을 비교하세요.' },
+  { id: 'bmw09', brand: 'BMW', model: 'i5', slug: 'bmw-i5', category: 'EV', segment: 'EV 준대형 세단', fuel: '전기', imageKey: '', trims: [], seoTitle: 'BMW i5 장기렌트 | 월 납부금 비교', seoDescription: 'BMW i5 전기차 장기렌터카 견적. 프리미엄 전기 세단 장기렌트.' },
+  { id: 'bmw10', brand: 'BMW', model: 'i7', slug: 'bmw-i7', category: 'EV', segment: 'EV 대형 세단', fuel: '전기', imageKey: '', trims: [], seoTitle: 'BMW i7 장기렌트 | 월 납부금 비교', seoDescription: 'BMW i7 전기차 장기렌터카 견적. 플래그십 EV 대형 세단 장기렌트.' },
+  { id: 'bmw11', brand: 'BMW', model: 'iX', slug: 'bmw-ix', category: 'EV', segment: 'EV 대형 SUV', fuel: '전기', imageKey: '', trims: [], seoTitle: 'BMW iX 장기렌트 | 월 납부금 비교', seoDescription: 'BMW iX 전기차 장기렌터카 견적. 플래그십 EV SUV 장기렌트 최저가.' },
+  { id: 'bmw12', brand: 'BMW', model: 'iX1', slug: 'bmw-ix1', category: 'EV', segment: 'EV 소형 SUV', fuel: '전기', imageKey: '', trims: [], seoTitle: 'BMW iX1 장기렌트 | 월 납부금 비교', seoDescription: 'BMW iX1 전기차 장기렌터카 견적. 소형 EV SUV 장기렌트 조건 비교.' },
+  { id: 'bmw13', brand: 'BMW', model: 'iX2', slug: 'bmw-ix2', category: 'EV', segment: 'EV 소형 SUV', fuel: '전기', imageKey: '', trims: [], seoTitle: 'BMW iX2 장기렌트 | 월 납부금 비교', seoDescription: 'BMW iX2 전기차 장기렌터카 견적. 소형 EV SUV 쿠페 장기렌트.' },
+  { id: 'bmw14', brand: 'BMW', model: 'M 모델', slug: 'bmw-m', category: '세단', segment: '고성능 M', fuel: '가솔린', imageKey: '', trims: [], seoTitle: 'BMW M 모델 장기렌트 | 월 납부금 비교', seoDescription: 'BMW M2·M3·M4·M5·M8 고성능 모델 장기렌터카 견적.' },
+  { id: 'bmw15', brand: 'BMW', model: 'X1', slug: 'bmw-x1', category: 'SUV', segment: '소형 SUV', fuel: '가솔린', imageKey: '', trims: [], seoTitle: 'BMW X1 장기렌트 | 월 납부금 비교', seoDescription: 'BMW X1 장기렌터카 최저가 견적. 프리미엄 소형 SUV 장기렌트 조건을 비교하세요.' },
+  { id: 'bmw16', brand: 'BMW', model: 'X2', slug: 'bmw-x2', category: 'SUV', segment: '소형 SUV 쿠페', fuel: '가솔린', imageKey: '', trims: [], seoTitle: 'BMW X2 장기렌트 | 월 납부금 비교', seoDescription: 'BMW X2 장기렌터카 견적. 소형 SUV 쿠페 장기렌트.' },
+  { id: 'bmw17', brand: 'BMW', model: 'X3', slug: 'bmw-x3', category: 'SUV', segment: '준중형 SUV', fuel: '가솔린', imageKey: '', trims: [], seoTitle: 'BMW X3 장기렌트 | 월 납부금 비교', seoDescription: 'BMW X3 장기렌터카 최저가 견적. 인기 프리미엄 SUV 장기렌트 조건을 비교하세요.' },
+  { id: 'bmw18', brand: 'BMW', model: 'X4', slug: 'bmw-x4', category: 'SUV', segment: '준중형 SUV 쿠페', fuel: '가솔린', imageKey: '', trims: [], seoTitle: 'BMW X4 장기렌트 | 월 납부금 비교', seoDescription: 'BMW X4 장기렌터카 견적. SUV 쿠페 장기렌트.' },
+  { id: 'bmw19', brand: 'BMW', model: 'X4 M', slug: 'bmw-x4-m', category: 'SUV', segment: '준중형 고성능 SUV', fuel: '가솔린', imageKey: '', trims: [], seoTitle: 'BMW X4 M 장기렌트 | 월 납부금 비교', seoDescription: 'BMW X4 M 고성능 SUV 장기렌터카 견적.' },
+  { id: 'bmw20', brand: 'BMW', model: 'X5', slug: 'bmw-x5', category: 'SUV', segment: '중형 SUV', fuel: '가솔린', imageKey: '', trims: [], seoTitle: 'BMW X5 장기렌트 | 월 납부금 비교', seoDescription: 'BMW X5 장기렌터카 최저가 견적. 프리미엄 중형 SUV 장기렌트 조건을 비교하세요.' },
+  { id: 'bmw21', brand: 'BMW', model: 'X5 M', slug: 'bmw-x5-m', category: 'SUV', segment: '중형 고성능 SUV', fuel: '가솔린', imageKey: '', trims: [], seoTitle: 'BMW X5 M 장기렌트 | 월 납부금 비교', seoDescription: 'BMW X5 M 고성능 SUV 장기렌터카 견적.' },
+  { id: 'bmw22', brand: 'BMW', model: 'X6', slug: 'bmw-x6', category: 'SUV', segment: '대형 SUV 쿠페', fuel: '가솔린', imageKey: '', trims: [], seoTitle: 'BMW X6 장기렌트 | 월 납부금 비교', seoDescription: 'BMW X6 장기렌터카 견적. 대형 SUV 쿠페 장기렌트.' },
+  { id: 'bmw23', brand: 'BMW', model: 'X6 M', slug: 'bmw-x6-m', category: 'SUV', segment: '대형 고성능 SUV', fuel: '가솔린', imageKey: '', trims: [], seoTitle: 'BMW X6 M 장기렌트 | 월 납부금 비교', seoDescription: 'BMW X6 M 고성능 SUV 장기렌터카 견적.' },
+  { id: 'bmw24', brand: 'BMW', model: 'X7', slug: 'bmw-x7', category: 'SUV', segment: '대형 SUV', fuel: '가솔린', imageKey: '', trims: [], seoTitle: 'BMW X7 장기렌트 | 월 납부금 비교', seoDescription: 'BMW X7 장기렌터카 견적. 대형 7인승 프리미엄 SUV 장기렌트 최저가.' },
+  { id: 'bmw25', brand: 'BMW', model: 'XM', slug: 'bmw-xm', category: 'SUV', segment: '플래그십 PHEV SUV', fuel: '하이브리드', imageKey: '', trims: [], seoTitle: 'BMW XM 장기렌트 | 월 납부금 비교', seoDescription: 'BMW XM 플러그인 하이브리드 SUV 장기렌터카 견적.' },
+  { id: 'bmw26', brand: 'BMW', model: 'Z4', slug: 'bmw-z4', category: '세단', segment: '로드스터', fuel: '가솔린', imageKey: '', trims: [], seoTitle: 'BMW Z4 장기렌트 | 월 납부금 비교', seoDescription: 'BMW Z4 로드스터 장기렌터카 견적.' },
+
+  // ═══════════════════════════════════
+  // 벤츠 (21종) — 2026-04-29 크롤러 적재 기반
+  // 이미지: 미준비 (imageKey='') → 전체차종 페이지 이모지 표시
+  // ═══════════════════════════════════
+  { id: 'mb01', brand: '벤츠', model: 'A-Class', slug: 'mercedes-a-class', category: '세단', segment: '소형 세단', fuel: '가솔린', imageKey: '', trims: [], seoTitle: '벤츠 A-Class 장기렌트 | 월 납부금 비교', seoDescription: '메르세데스-벤츠 A-Class 장기렌터카 최저가 견적. 프리미엄 소형 세단 장기렌트.' },
+  { id: 'mb02', brand: '벤츠', model: 'C-Class', slug: 'mercedes-c-class', category: '세단', segment: '중형 세단', fuel: '가솔린', imageKey: '', trims: [], seoTitle: '벤츠 C-Class 장기렌트 | 월 납부금 비교', seoDescription: '메르세데스-벤츠 C-Class 장기렌터카 최저가 견적. 인기 프리미엄 중형 세단 장기렌트.' },
+  { id: 'mb03', brand: '벤츠', model: 'CLA', slug: 'mercedes-cla', category: '세단', segment: '쿠페형 세단', fuel: '가솔린', imageKey: '', trims: [], seoTitle: '벤츠 CLA 장기렌트 | 월 납부금 비교', seoDescription: '메르세데스-벤츠 CLA 장기렌터카 견적. 스포티한 쿠페 세단 장기렌트.' },
+  { id: 'mb04', brand: '벤츠', model: 'CLE', slug: 'mercedes-cle', category: '세단', segment: '중형 쿠페', fuel: '가솔린', imageKey: '', trims: [], seoTitle: '벤츠 CLE 장기렌트 | 월 납부금 비교', seoDescription: '메르세데스-벤츠 CLE 쿠페·카브리올레 장기렌터카 견적.' },
+  { id: 'mb05', brand: '벤츠', model: 'E-Class', slug: 'mercedes-e-class', category: '세단', segment: '준대형 세단', fuel: '가솔린', imageKey: '', trims: [], seoTitle: '벤츠 E-Class 장기렌트 | 월 납부금 비교', seoDescription: '메르세데스-벤츠 E-Class 장기렌터카 최저가 견적. 비즈니스 세단 장기렌트 조건 비교.' },
+  { id: 'mb06', brand: '벤츠', model: 'S-Class', slug: 'mercedes-s-class', category: '세단', segment: '대형 세단', fuel: '가솔린', imageKey: '', trims: [], seoTitle: '벤츠 S-Class 장기렌트 | 월 납부금 비교', seoDescription: '메르세데스-벤츠 S-Class 장기렌터카 견적. 플래그십 대형 세단 장기렌트.' },
+  { id: 'mb07', brand: '벤츠', model: 'SL', slug: 'mercedes-sl', category: '세단', segment: '로드스터', fuel: '가솔린', imageKey: '', trims: [], seoTitle: '벤츠 SL 장기렌트 | 월 납부금 비교', seoDescription: '메르세데스-벤츠 SL 로드스터 장기렌터카 견적.' },
+  { id: 'mb08', brand: '벤츠', model: 'GLA', slug: 'mercedes-gla', category: 'SUV', segment: '소형 SUV', fuel: '가솔린', imageKey: '', trims: [], seoTitle: '벤츠 GLA 장기렌트 | 월 납부금 비교', seoDescription: '메르세데스-벤츠 GLA 장기렌터카 견적. 소형 프리미엄 SUV 장기렌트.' },
+  { id: 'mb09', brand: '벤츠', model: 'GLB', slug: 'mercedes-glb', category: 'SUV', segment: '소형 SUV', fuel: '가솔린', imageKey: '', trims: [], seoTitle: '벤츠 GLB 장기렌트 | 월 납부금 비교', seoDescription: '메르세데스-벤츠 GLB 장기렌터카 견적. 7인승 소형 SUV 장기렌트.' },
+  { id: 'mb10', brand: '벤츠', model: 'GLC', slug: 'mercedes-glc', category: 'SUV', segment: '중형 SUV', fuel: '가솔린', imageKey: '', trims: [], seoTitle: '벤츠 GLC 장기렌트 | 월 납부금 비교', seoDescription: '메르세데스-벤츠 GLC 장기렌터카 최저가 견적. 인기 프리미엄 SUV 장기렌트 조건 비교.' },
+  { id: 'mb11', brand: '벤츠', model: 'GLC Coupé', slug: 'mercedes-glc-coupe', category: 'SUV', segment: '중형 SUV 쿠페', fuel: '가솔린', imageKey: '', trims: [], seoTitle: '벤츠 GLC 쿠페 장기렌트 | 월 납부금 비교', seoDescription: '메르세데스-벤츠 GLC 쿠페 장기렌터카 견적. SUV 쿠페 장기렌트.' },
+  { id: 'mb12', brand: '벤츠', model: 'GLE', slug: 'mercedes-gle', category: 'SUV', segment: '중형 SUV', fuel: '가솔린', imageKey: '', trims: [], seoTitle: '벤츠 GLE 장기렌트 | 월 납부금 비교', seoDescription: '메르세데스-벤츠 GLE 장기렌터카 견적. 중형 럭셔리 SUV 장기렌트 최저가.' },
+  { id: 'mb13', brand: '벤츠', model: 'GLE Coupé', slug: 'mercedes-gle-coupe', category: 'SUV', segment: '중형 SUV 쿠페', fuel: '가솔린', imageKey: '', trims: [], seoTitle: '벤츠 GLE 쿠페 장기렌트 | 월 납부금 비교', seoDescription: '메르세데스-벤츠 GLE 쿠페 장기렌터카 견적.' },
+  { id: 'mb14', brand: '벤츠', model: 'GLS', slug: 'mercedes-gls', category: 'SUV', segment: '대형 SUV', fuel: '가솔린', imageKey: '', trims: [], seoTitle: '벤츠 GLS 장기렌트 | 월 납부금 비교', seoDescription: '메르세데스-벤츠 GLS 장기렌터카 견적. 대형 7인승 프리미엄 SUV 장기렌트.' },
+  { id: 'mb15', brand: '벤츠', model: 'G-Class', slug: 'mercedes-g-class', category: 'SUV', segment: '오프로드 SUV', fuel: '가솔린', imageKey: '', trims: [], seoTitle: '벤츠 G-Class 장기렌트 | 월 납부금 비교', seoDescription: '메르세데스-벤츠 G-Class 장기렌터카 견적. G바겐 장기렌트 최저가.' },
+  { id: 'mb16', brand: '벤츠', model: 'EQA', slug: 'mercedes-eqa', category: 'EV', segment: 'EV 소형 SUV', fuel: '전기', imageKey: '', trims: [], seoTitle: '벤츠 EQA 장기렌트 | 월 납부금 비교', seoDescription: '메르세데스-벤츠 EQA 전기차 장기렌터카 견적. 소형 EV SUV 장기렌트.' },
+  { id: 'mb17', brand: '벤츠', model: 'EQB', slug: 'mercedes-eqb', category: 'EV', segment: 'EV 소형 SUV', fuel: '전기', imageKey: '', trims: [], seoTitle: '벤츠 EQB 장기렌트 | 월 납부금 비교', seoDescription: '메르세데스-벤츠 EQB 전기차 장기렌터카 견적. 소형 7인승 EV SUV 장기렌트.' },
+  { id: 'mb18', brand: '벤츠', model: 'EQE', slug: 'mercedes-eqe', category: 'EV', segment: 'EV 준대형 세단', fuel: '전기', imageKey: '', trims: [], seoTitle: '벤츠 EQE 장기렌트 | 월 납부금 비교', seoDescription: '메르세데스-벤츠 EQE 전기차 장기렌터카 견적. 프리미엄 EV 세단 장기렌트.' },
+  { id: 'mb19', brand: '벤츠', model: 'EQE SUV', slug: 'mercedes-eqe-suv', category: 'EV', segment: 'EV 중형 SUV', fuel: '전기', imageKey: '', trims: [], seoTitle: '벤츠 EQE SUV 장기렌트 | 월 납부금 비교', seoDescription: '메르세데스-벤츠 EQE SUV 전기차 장기렌터카 견적.' },
+  { id: 'mb20', brand: '벤츠', model: 'EQS', slug: 'mercedes-eqs', category: 'EV', segment: 'EV 대형 세단', fuel: '전기', imageKey: '', trims: [], seoTitle: '벤츠 EQS 장기렌트 | 월 납부금 비교', seoDescription: '메르세데스-벤츠 EQS 전기차 장기렌터카 견적. 플래그십 EV 세단 장기렌트.' },
+  { id: 'mb21', brand: '벤츠', model: 'EQS SUV', slug: 'mercedes-eqs-suv', category: 'EV', segment: 'EV 대형 SUV', fuel: '전기', imageKey: '', trims: [], seoTitle: '벤츠 EQS SUV 장기렌트 | 월 납부금 비교', seoDescription: '메르세데스-벤츠 EQS SUV 전기차 장기렌터카 견적. 플래그십 EV SUV 장기렌트.' },
 ];
 
 // 유틸리티 함수
 export function getVehicleBySlug(slug: string): Vehicle | undefined {
   return VEHICLE_LIST.find((v) => v.slug === slug);
 }
+
 
 export function getVehiclesByBrand(brand: Brand): Vehicle[] {
   return VEHICLE_LIST.filter((v) => v.brand === brand);
