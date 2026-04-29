@@ -1,5 +1,5 @@
 export type Category = '세단' | 'SUV' | 'EV' | '다목적' | '트럭';
-export type Brand = '현대' | '기아' | '제네시스' | '르노코리아' | 'KGM' | '테슬라' | 'BMW' | '벤츠' | '포르쉐' | '미니' | '랜드로버' | '폭스바겐' | '토요타' | '렉서스';
+export type Brand = '현대' | '기아' | '제네시스' | '르노코리아' | 'KGM' | '테슬라' | 'BMW' | '벤츠' | '포르쉐' | '미니' | '랜드로버' | '폭스바겐' | '토요타' | '렉서스' | '아우디' | '볼보';
 
 export interface Vehicle {
   id: string;
@@ -236,6 +236,33 @@ export const VEHICLE_LIST: Vehicle[] = [
   { id: 'lx05', brand: '렉서스', model: 'LS', slug: 'lexus-ls', category: '세단', segment: '대형 세단', fuel: '가솔린/하이브리드', imageKey: 'lexus-ls', trims: ['500 Luxury AWD', '500 Platinum AWD', '500h Luxury AWD', '500h Platinum AWD'], seoTitle: '렉서스 LS 장기렌트 | 월 납부금 비교', seoDescription: '렉서스 LS 플래그십 대형 세단 장기렌터카 견적. 최고급 럭셔리 세단 장기렌트 조건 비교.' },
   { id: 'lx06', brand: '렉서스', model: 'LM', slug: 'lexus-lm', category: '다목적', segment: '럭셔리 MPV', fuel: '하이브리드', imageKey: 'lexus-lm', trims: ['500h Executive', '500h Royal'], seoTitle: '렉서스 LM 장기렌트 | 월 납부금 비교', seoDescription: '렉서스 LM 럭셔리 MPV 장기렌터카 견적. 최고급 럭셔리 미니밴 장기렌트 조건 비교.' },
   { id: 'lx07', brand: '렉서스', model: 'LX', slug: 'lexus-lx', category: 'SUV', segment: '대형 SUV', fuel: '하이브리드', imageKey: 'lexus-lx', trims: ['700h Overtrail', '700h Luxury', '700h VIP'], seoTitle: '렉서스 LX 장기렌트 | 월 납부금 비교', seoDescription: '렉서스 LX 플래그십 대형 SUV 장기렌터카 견적. 최고급 대형 하이브리드 SUV 장기렌트 조건.' },
+
+  // ═══════════════════════════════════
+  // 아우디 (13종) — 2026-04-29 carnoon 기반
+  // ═══════════════════════════════════
+  { id: 'au01', brand: '아우디', model: 'A3',       slug: 'audi-a3',       category: '세단', segment: '준중형 세단',       fuel: '가솔린',     imageKey: 'audi-a3',       trims: ['40 TFSI Premium'], seoTitle: '아우디 A3 장기렌트 | 월 납부금 비교', seoDescription: '아우디 A3 장기렌터카 견적. 프리미엄 준중형 세단 장기렌트 조건을 비교하세요.' },
+  { id: 'au02', brand: '아우디', model: 'A5',       slug: 'audi-a5',       category: '세단', segment: '중형 세단',         fuel: '가솔린',     imageKey: '',       trims: ['40 TFSI Advanced', '40 TFSI S-line', '45 TFSI quattro S-line'], seoTitle: '아우디 A5 장기렌트 | 월 납부금 비교', seoDescription: '아우디 A5 장기렌터카 견적. 프리미엄 중형 세단 장기렌트 조건을 비교하세요.' },
+  { id: 'au03', brand: '아우디', model: 'A6',       slug: 'audi-a6',       category: '세단', segment: '준대형 세단',       fuel: '가솔린',     imageKey: 'audi-a6',       trims: ['40 TFSI Comfort', '40 TFSI Advanced', '40 TFSI S-line'], seoTitle: '아우디 A6 장기렌트 | 월 납부금 비교', seoDescription: '아우디 A6 장기렌터카 견적. 프리미엄 준대형 세단 장기렌트 조건을 비교하세요.' },
+  { id: 'au04', brand: '아우디', model: 'A7',       slug: 'audi-a7',       category: '세단', segment: '준대형 세단',       fuel: '가솔린',     imageKey: 'audi-a7',       trims: ['55 TFSI e Quattro Premium', '50 TDI Quattro Premium', '55 TFSI Quattro Premium'], seoTitle: '아우디 A7 장기렌트 | 월 납부금 비교', seoDescription: '아우디 A7 장기렌터카 견적. 스포트백 준대형 세단 장기렌트 조건을 비교하세요.' },
+  { id: 'au05', brand: '아우디', model: 'A8',       slug: 'audi-a8',       category: '세단', segment: '대형 세단',         fuel: '가솔린',     imageKey: '',       trims: ['50 TDI Quattro Premium', 'L 55 TFSI Quattro Premium'], seoTitle: '아우디 A8 장기렌트 | 월 납부금 비교', seoDescription: '아우디 A8 장기렌터카 견적. 플래그십 대형 세단 장기렌트 조건을 비교하세요.' },
+  { id: 'au06', brand: '아우디', model: 'Q3',       slug: 'audi-q3',       category: 'SUV', segment: '소형 SUV',           fuel: '가솔린/디젤', imageKey: '',       trims: ['35 TDI', '40 TFSI Quattro', '35 TDI Premium', '40 TFSI Quattro Premium'], seoTitle: '아우디 Q3 장기렌트 | 월 납부금 비교', seoDescription: '아우디 Q3 장기렌터카 견적. 프리미엄 소형 SUV 장기렌트 조건을 비교하세요.' },
+  { id: 'au07', brand: '아우디', model: 'Q4 e-tron', slug: 'audi-q4-etron', category: 'EV', segment: 'EV 소형 SUV',        fuel: '전기',       imageKey: '', trims: ['e-tron 45', 'e-tron 45 Premium'], seoTitle: '아우디 Q4 e-tron 장기렌트 | 월 납부금 비교', seoDescription: '아우디 Q4 e-tron 전기차 장기렌터카 견적. 프리미엄 EV SUV 장기렌트 조건 비교.' },
+  { id: 'au08', brand: '아우디', model: 'Q5',       slug: 'audi-q5',       category: 'SUV', segment: '중형 SUV',           fuel: '가솔린/디젤', imageKey: '',       trims: ['40 TFSI Quattro Advanced', '40 TDI Quattro Advanced', '40 TFSI Quattro S-line'], seoTitle: '아우디 Q5 장기렌트 | 월 납부금 비교', seoDescription: '아우디 Q5 장기렌터카 견적. 인기 프리미엄 중형 SUV 장기렌트 조건을 비교하세요.' },
+  { id: 'au09', brand: '아우디', model: 'Q6 e-tron', slug: 'audi-q6-etron', category: 'EV', segment: 'EV 중형 SUV',        fuel: '전기',       imageKey: '', trims: ['Performance', 'Performance premium', 'Quattro premium'], seoTitle: '아우디 Q6 e-tron 장기렌트 | 월 납부금 비교', seoDescription: '아우디 Q6 e-tron 전기차 장기렌터카 견적. 신형 프리미엄 EV 중형 SUV 장기렌트.' },
+  { id: 'au10', brand: '아우디', model: 'Q7',       slug: 'audi-q7',       category: 'SUV', segment: '대형 SUV',           fuel: '가솔린/디젤', imageKey: '',       trims: ['50 TDI Quattro', '55 TFSI Quattro', '50 TDI Quattro Premium', '55 TFSI Quattro Premium'], seoTitle: '아우디 Q7 장기렌트 | 월 납부금 비교', seoDescription: '아우디 Q7 장기렌터카 견적. 7인승 대형 프리미엄 SUV 장기렌트 조건을 비교하세요.' },
+  { id: 'au11', brand: '아우디', model: 'Q8 e-tron', slug: 'audi-q8-etron', category: 'EV', segment: 'EV 대형 SUV',        fuel: '전기',       imageKey: 'audi-q8-etron', trims: ['e-tron 55 Quattro', 'e-tron 55 Quattro Premium', 'e-tron 55 Quattro Premium Edition'], seoTitle: '아우디 Q8 e-tron 장기렌트 | 월 납부금 비교', seoDescription: '아우디 Q8 e-tron 전기차 장기렌터카 견적. 플래그십 EV 대형 SUV 장기렌트 조건.' },
+  { id: 'au12', brand: '아우디', model: 'e-tron GT', slug: 'audi-etron-gt', category: 'EV', segment: 'EV 그란 투리스모',  fuel: '전기',       imageKey: 'audi-etron-gt', trims: ['S e-tron GT', 'RS e-tron GT performance'], seoTitle: '아우디 e-tron GT 장기렌트 | 월 납부금 비교', seoDescription: '아우디 e-tron GT 전기차 장기렌터카 견적. 고성능 EV 그란투리스모 장기렌트.' },
+  { id: 'au13', brand: '아우디', model: 'RS3',      slug: 'audi-rs3',      category: '세단', segment: '고성능 세단',       fuel: '가솔린',     imageKey: '',      trims: ['RS3', 'RS3 Carbon Edition'], seoTitle: '아우디 RS3 장기렌트 | 월 납부금 비교', seoDescription: '아우디 RS3 장기렌터카 견적. 최고 성능의 프리미엄 세단 장기렌트 조건을 비교하세요.' },
+
+  // ═══════════════════════════════════
+  // 볼보 (6종) — 2026-04-29 carnoon 기반
+  // ═══════════════════════════════════
+  { id: 'vo01', brand: '볼보', model: 'XC40', slug: 'volvo-xc40', category: 'SUV', segment: '소형 SUV', fuel: '가솔린', imageKey: 'volvo-xc40', trims: ['B4 Plus Bright AWD', 'B4 Ultra Bright AWD', 'B4 Ultra Dark AWD', 'B4 Black Edition AWD'], seoTitle: '볼보 XC40 장기렌트 | 월 납부금 비교', seoDescription: '볼보 XC40 장기렌터카 견적. 안전한 스칸디나비아 소형 SUV 장기렌트 조건을 비교하세요.' },
+  { id: 'vo02', brand: '볼보', model: 'XC60', slug: 'volvo-xc60', category: 'SUV', segment: '중형 SUV', fuel: '가솔린', imageKey: 'volvo-xc60', trims: ['B5 AWD Plus Bright', 'B5 AWD Ultra Bright', 'B6 AWD Ultra Bright'], seoTitle: '볼보 XC60 장기렌트 | 월 납부금 비교', seoDescription: '볼보 XC60 장기렌터카 견적. 세계에서 가장 안전한 중형 SUV 장기렌트 조건을 비교하세요.' },
+  { id: 'vo03', brand: '볼보', model: 'XC90', slug: 'volvo-xc90', category: 'SUV', segment: '대형 SUV', fuel: '가솔린', imageKey: 'volvo-xc90', trims: ['B6 AWD Ultra Bright'], seoTitle: '볼보 XC90 장기렌트 | 월 납부금 비교', seoDescription: '볼보 XC90 장기렌터카 견적. 7인승 플래그십 대형 SUV 장기렌트 조건을 비교하세요.' },
+  { id: 'vo04', brand: '볼보', model: 'EX30', slug: 'volvo-ex30', category: 'EV', segment: 'EV 소형 SUV', fuel: '전기', imageKey: 'volvo-ex30', trims: ['Core', 'Ultra'], seoTitle: '볼보 EX30 장기렌트 | 월 납부금 비교', seoDescription: '볼보 EX30 전기차 장기렌터카 견적. 합리적인 프리미엄 EV 소형 SUV 장기렌트 조건 비교.' },
+  { id: 'vo05', brand: '볼보', model: 'EX90', slug: 'volvo-ex90', category: 'EV', segment: 'EV 대형 SUV', fuel: '전기', imageKey: 'volvo-ex90', trims: ['Twin Motor Plus (7-Seater)', 'Twin Motor Ultra (7-Seater)', 'Twin Motor Performance Ultra (7-Seater)'], seoTitle: '볼보 EX90 장기렌트 | 월 납부금 비교', seoDescription: '볼보 EX90 전기차 장기렌터카 견적. 7인승 플래그십 EV 대형 SUV 장기렌트 조건 비교.' },
+  { id: 'vo06', brand: '볼보', model: 'S90',  slug: 'volvo-s90',  category: '세단', segment: '대형 세단', fuel: '가솔린', imageKey: '', trims: ['B5 Ultra Bright', 'B6 AWD Ultra Bright'], seoTitle: '볼보 S90 장기렌트 | 월 납부금 비교', seoDescription: '볼보 S90 장기렌터카 견적. 스칸디나비아 감성의 프리미엄 대형 세단 장기렌트 조건 비교.' },
 ];
 
 // 유틸리티 함수
