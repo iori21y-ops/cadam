@@ -12,6 +12,14 @@ export const metadata: Metadata = {
 
 const CARDS = [
   {
+    href:  '/simulator/compare',
+    icon:  '⚖️',
+    title: '결제방식 비교',
+    sub:   '할부 vs 리스 vs 렌트 — 총비용 한눈에 비교',
+    badge: '✨ NEW',
+    accent: '#3b82f6',
+  },
+  {
     href:  '/simulator/tax',
     icon:  '💼',
     title: '사업자 절세 진단',

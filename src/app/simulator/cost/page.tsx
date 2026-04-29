@@ -142,6 +142,8 @@ function ResultScreen({ result }: { result: CostResult }) {
   const [barVisible, setBarVisible] = useState(false);
   const [showLeadForm, setShowLeadForm] = useState(false);
   const [leadSubmitted, setLeadSubmitted] = useState(false);
+  const [leadSubmitting, setLeadSubmitting] = useState(false);
+  const [leadError, setLeadError] = useState<string | null>(null);
   const [leadData, setLeadData] = useState({ name: '', phone: '' });
   const barRef = useRef<HTMLDivElement>(null);
 
@@ -160,10 +162,34 @@ function ResultScreen({ result }: { result: CostResult }) {
     'keep-car':      { text: '현재 유지가 더 경제적',             color: '#9ca3af', border: '#6b7280' },
   }[verdict];
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    console.log('[cost-simulator lead]', leadData);
-    setLeadSubmitted(true);
+    setLeadSubmitting(true);
+    setLeadError(null);
+    const financeSummary = [
+      `[유지비진단] 월 실비 ${w(result.totalCost)}`,
+      `인식비용 ${w(result.perceivedCost)}`,
+      `숨은비용 ${w(result.hiddenCost)}`,
+      `렌트 대비 차액 ${w(Math.abs(result.diff))}(${result.diff > 0 ? '렌트 유리' : '현 차 유리'})`,
+      `판정: ${result.verdict}`,
+    ].join(' / ');
+    try {
+      const res = await fetch('/api/consultation', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: leadData.name, phone: leadData.phone,
+          privacyAgreed: true, contactMethod: 'phone',
+          financeSummary, stepCompleted: 6,
+        }),
+      });
+      if (!res.ok) throw new Error('API 오류');
+      setLeadSubmitted(true);
+    } catch {
+      setLeadError('잠시 후 다시 시도해주세요.');
+    } finally {
+      setLeadSubmitting(false);
+    }
   }
 
   return (
@@ -316,11 +342,13 @@ function ResultScreen({ result }: { result: CostResult }) {
                   onChange={(e) => setLeadData({ ...leadData, phone: e.target.value })}
                   className="w-full px-4 py-3 bg-[#0c0c1d] border border-[#2a2a3e] rounded-xl text-white placeholder:text-slate-500 text-sm focus:outline-none focus:border-red-500 transition-colors"
                 />
+                {leadError && <p className="text-red-400 text-xs">{leadError}</p>}
                 <button
                   type="submit"
-                  className="w-full py-3 bg-red-600 hover:bg-red-500 text-white font-semibold rounded-xl transition-colors text-sm"
+                  disabled={leadSubmitting}
+                  className="w-full py-3 bg-red-600 hover:bg-red-500 text-white font-semibold rounded-xl transition-colors text-sm disabled:opacity-50"
                 >
-                  신청하기
+                  {leadSubmitting ? '전송 중…' : '신청하기'}
                 </button>
               </form>
             </>
