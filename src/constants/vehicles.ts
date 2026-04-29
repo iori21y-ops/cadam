@@ -1,5 +1,5 @@
 export type Category = '세단' | 'SUV' | 'EV' | '다목적' | '트럭';
-export type Brand = '현대' | '기아' | '제네시스' | '르노코리아' | 'KGM' | '테슬라' | 'BMW' | '벤츠' | '포르쉐' | '미니' | '랜드로버' | '폭스바겐' | '토요타' | '렉서스' | '아우디' | '볼보';
+export type Brand = '현대' | '기아' | '제네시스' | '르노코리아' | 'KGM' | '테슬라' | 'BMW' | '벤츠' | '포르쉐' | '미니' | '랜드로버' | '폭스바겐' | '토요타' | '렉서스' | '아우디' | '볼보' | '쉐보레' | '혼다' | '지프' | '푸조';
 
 export interface Vehicle {
   id: string;
@@ -263,6 +263,32 @@ export const VEHICLE_LIST: Vehicle[] = [
   { id: 'vo04', brand: '볼보', model: 'EX30', slug: 'volvo-ex30', category: 'EV', segment: 'EV 소형 SUV', fuel: '전기', imageKey: 'volvo-ex30', trims: ['Core', 'Ultra'], seoTitle: '볼보 EX30 장기렌트 | 월 납부금 비교', seoDescription: '볼보 EX30 전기차 장기렌터카 견적. 합리적인 프리미엄 EV 소형 SUV 장기렌트 조건 비교.' },
   { id: 'vo05', brand: '볼보', model: 'EX90', slug: 'volvo-ex90', category: 'EV', segment: 'EV 대형 SUV', fuel: '전기', imageKey: 'volvo-ex90', trims: ['Twin Motor Plus (7-Seater)', 'Twin Motor Ultra (7-Seater)', 'Twin Motor Performance Ultra (7-Seater)'], seoTitle: '볼보 EX90 장기렌트 | 월 납부금 비교', seoDescription: '볼보 EX90 전기차 장기렌터카 견적. 7인승 플래그십 EV 대형 SUV 장기렌트 조건 비교.' },
   { id: 'vo06', brand: '볼보', model: 'S90',  slug: 'volvo-s90',  category: '세단', segment: '대형 세단', fuel: '가솔린', imageKey: 'volvo-s90', trims: ['B5 Ultra Bright', 'B6 AWD Ultra Bright'], seoTitle: '볼보 S90 장기렌트 | 월 납부금 비교', seoDescription: '볼보 S90 장기렌터카 견적. 스칸디나비아 감성의 프리미엄 대형 세단 장기렌트 조건 비교.' },
+
+  // ═══════════════════════════════════
+  // 쉐보레 (3종 — 스파크/이쿼녹스/타호/이쿼녹스EV inactive)
+  // ═══════════════════════════════════
+  { id: 'ch01', brand: '쉐보레', model: '트랙스 크로스오버', slug: 'trax-crossover', category: 'SUV', segment: '소형 SUV', fuel: '가솔린', imageKey: 'chevrolet-trax', trims: ['LS', 'Redline', 'ACTIV', 'RS'], seoTitle: '트랙스 크로스오버 장기렌트 | 월 납부금 비교', seoDescription: '쉐보레 트랙스 크로스오버 장기렌터카. 합리적인 소형 SUV 장기렌트 견적을 확인하세요.' },
+  { id: 'ch02', brand: '쉐보레', model: '트레일블레이저', slug: 'trailblazer', category: 'SUV', segment: '준중형 SUV', fuel: '가솔린', imageKey: 'chevrolet-trailblazer', trims: ['Premier', 'RS', 'ACTIV Limited Edition'], seoTitle: '트레일블레이저 장기렌트 | 월 납부금 비교', seoDescription: '쉐보레 트레일블레이저 장기렌터카. 스타일리시한 준중형 SUV 장기렌트 견적을 비교하세요.' },
+  { id: 'ch03', brand: '쉐보레', model: '콜로라도', slug: 'colorado', category: '트럭', segment: '픽업트럭', fuel: '가솔린', imageKey: 'chevrolet-colorado', trims: ['Z71'], seoTitle: '콜로라도 장기렌트 | 월 납부금 비교', seoDescription: '쉐보레 콜로라도 장기렌터카. 픽업트럭 장기렌트 사업자 전용 견적을 확인하세요.' },
+
+  // ═══════════════════════════════════
+  // 혼다 (2종 — ZR-V/시빅 inactive)
+  // ═══════════════════════════════════
+  { id: 'ho01', brand: '혼다', model: 'CR-V', slug: 'honda-crv', category: 'SUV', segment: '중형 SUV', fuel: '가솔린/하이브리드', imageKey: 'honda-crv', trims: ['2WD Touring', '4WD Touring'], seoTitle: 'CR-V 장기렌트 | 월 납부금 비교', seoDescription: '혼다 CR-V 장기렌터카. 인기 중형 SUV 장기렌트 견적을 확인하세요.' },
+  { id: 'ho02', brand: '혼다', model: '어코드', slug: 'honda-accord', category: '세단', segment: '중형 세단', fuel: '가솔린/하이브리드', imageKey: 'honda-accord', trims: ['Touring'], seoTitle: '어코드 장기렌트 | 월 납부금 비교', seoDescription: '혼다 어코드 장기렌터카. 프리미엄 중형 세단 장기렌트 견적을 비교하세요.' },
+
+  // ═══════════════════════════════════
+  // 지프 (2종 — 컴패스 inactive)
+  // ═══════════════════════════════════
+  { id: 'jp01', brand: '지프', model: '그랜드 체로키', slug: 'jeep-grand-cherokee', category: 'SUV', segment: '중형 SUV', fuel: '가솔린', imageKey: 'jeep-grand-cherokee', trims: ['Limited', 'Overland', 'Limited 4xe', 'Summit Reserve 4xe'], seoTitle: '그랜드 체로키 장기렌트 | 월 납부금 비교', seoDescription: '지프 그랜드 체로키 장기렌터카. 정통 아메리칸 SUV 장기렌트 견적을 확인하세요.' },
+  { id: 'jp02', brand: '지프', model: '랭글러', slug: 'jeep-wrangler', category: 'SUV', segment: '오프로드 SUV', fuel: '가솔린', imageKey: 'jeep-wrangler', trims: ['Sport S 4 Door Hard Top', 'Rubicon 2 Door Hard Top', 'Sahara 4 Door Hard Top', 'Rubicon 4 Door Hard Top'], seoTitle: '랭글러 장기렌트 | 월 납부금 비교', seoDescription: '지프 랭글러 장기렌터카. 레전더리 오프로드 SUV 장기렌트 견적을 비교하세요.' },
+
+  // ═══════════════════════════════════
+  // 푸조 (3종)
+  // ═══════════════════════════════════
+  { id: 'pg01', brand: '푸조', model: '308', slug: 'peugeot-308', category: '세단', segment: '준중형 세단', fuel: '가솔린', imageKey: 'peugeot-308', trims: ['Allure', 'GT'], seoTitle: '푸조 308 장기렌트 | 월 납부금 비교', seoDescription: '푸조 308 장기렌터카. 프랑스 감성 준중형 세단 장기렌트 견적을 확인하세요.' },
+  { id: 'pg02', brand: '푸조', model: '3008', slug: 'peugeot-3008', category: 'SUV', segment: '중형 SUV', fuel: '가솔린', imageKey: 'peugeot-3008', trims: ['Allure', 'GT'], seoTitle: '푸조 3008 장기렌트 | 월 납부금 비교', seoDescription: '푸조 3008 장기렌터카. 독창적인 디자인의 중형 SUV 장기렌트 견적을 비교하세요.' },
+  { id: 'pg03', brand: '푸조', model: '5008', slug: 'peugeot-5008', category: 'SUV', segment: '대형 SUV', fuel: '가솔린', imageKey: 'peugeot-5008', trims: ['Allure', 'GT', 'French Edition'], seoTitle: '푸조 5008 장기렌트 | 월 납부금 비교', seoDescription: '푸조 5008 장기렌터카. 7인승 대형 SUV 장기렌트 견적을 확인하세요.' },
 ];
 
 // 유틸리티 함수
