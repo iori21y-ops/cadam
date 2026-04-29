@@ -1,5 +1,5 @@
 export type Category = '세단' | 'SUV' | 'EV' | '다목적' | '트럭';
-export type Brand = '현대' | '기아' | '제네시스' | '르노코리아' | 'KGM' | '테슬라' | 'BMW' | '벤츠' | '포르쉐';
+export type Brand = '현대' | '기아' | '제네시스' | '르노코리아' | 'KGM' | '테슬라' | 'BMW' | '벤츠' | '포르쉐' | '미니';
 
 export interface Vehicle {
   id: string;
@@ -190,6 +190,14 @@ export const VEHICLE_LIST: Vehicle[] = [
   { id: 'porsche07', brand: '포르쉐', model: 'Cayenne', slug: 'porsche-cayenne', category: 'SUV', segment: '대형 SUV', fuel: '가솔린/전기', imageKey: 'porsche-cayenne', trims: [], seoTitle: '포르쉐 Cayenne 장기렌트 | 월 납부금 비교', seoDescription: '포르쉐 Cayenne 장기렌터카 견적. 가솔린·하이브리드·전기 대형 SUV 장기렌트 비교.' },
   { id: 'porsche08', brand: '포르쉐', model: 'Cayenne Coupé', slug: 'porsche-cayenne-coupe', category: 'SUV', segment: '대형 SUV 쿠페', fuel: '가솔린', imageKey: 'porsche-cayenne-coupe', trims: [], seoTitle: '포르쉐 Cayenne Coupé 장기렌트 | 월 납부금 비교', seoDescription: '포르쉐 Cayenne Coupé 장기렌터카 견적. 스포티한 대형 SUV 쿠페 장기렌트.' },
   { id: 'porsche09', brand: '포르쉐', model: 'Panamera', slug: 'porsche-panamera', category: '세단', segment: '대형 스포츠 세단', fuel: '가솔린', imageKey: 'porsche-panamera', trims: [], seoTitle: '포르쉐 Panamera 장기렌트 | 월 납부금 비교', seoDescription: '포르쉐 Panamera 장기렌터카 견적. 대형 스포츠 세단 장기렌트 조건을 비교하세요.' },
+
+  { id: 'mini01', brand: '미니', model: 'Cooper 5-Door', slug: 'mini-cooper-5door', category: 'SUV', segment: '소형 해치백', fuel: '가솔린', imageKey: 'mini-cooper-5door', trims: [], seoTitle: 'MINI Cooper 5-Door 장기렌트 | 월 납부금 비교', seoDescription: 'MINI Cooper 5도어 장기렌터카 견적. 프리미엄 소형 해치백 장기렌트 조건을 비교하세요.' },
+  { id: 'mini02', brand: '미니', model: 'Cooper 3-Door', slug: 'mini-cooper-3door', category: '세단', segment: '소형 해치백', fuel: '가솔린', imageKey: 'mini-cooper-3door', trims: [], seoTitle: 'MINI Cooper 3-Door 장기렌트 | 월 납부금 비교', seoDescription: 'MINI Cooper 3도어 장기렌터카 견적. 클래식 소형 해치백 장기렌트.' },
+  { id: 'mini03', brand: '미니', model: 'Cooper Convertible', slug: 'mini-cooper-convertible', category: '세단', segment: '소형 컨버터블', fuel: '가솔린', imageKey: 'mini-cooper-convertible', trims: [], seoTitle: 'MINI Cooper Convertible 장기렌트 | 월 납부금 비교', seoDescription: 'MINI Cooper Convertible 장기렌터카 견적. 오픈탑 소형 컨버터블 장기렌트.' },
+  { id: 'mini04', brand: '미니', model: 'Countryman', slug: 'mini-countryman', category: 'SUV', segment: '소형 SUV', fuel: '가솔린', imageKey: 'mini-countryman', trims: [], seoTitle: 'MINI Countryman 장기렌트 | 월 납부금 비교', seoDescription: 'MINI Countryman 장기렌터카 견적. 소형 프리미엄 SUV 장기렌트 조건을 비교하세요.' },
+  { id: 'mini05', brand: '미니', model: 'Cooper Electric', slug: 'mini-cooper-electric', category: 'EV', segment: 'EV 소형 해치백', fuel: '전기', imageKey: 'mini-cooper-electric', trims: [], seoTitle: 'MINI Cooper Electric 장기렌트 | 월 납부금 비교', seoDescription: 'MINI Cooper 전기차 장기렌터카 견적. 프리미엄 EV 소형 해치백 장기렌트.' },
+  { id: 'mini06', brand: '미니', model: 'Aceman', slug: 'mini-aceman', category: 'EV', segment: 'EV 소형 크로스오버', fuel: '전기', imageKey: 'mini-aceman', trims: [], seoTitle: 'MINI Aceman 장기렌트 | 월 납부금 비교', seoDescription: 'MINI Aceman 전기차 장기렌터카 견적. EV 소형 크로스오버 장기렌트.' },
+  { id: 'mini07', brand: '미니', model: 'Countryman Electric', slug: 'mini-countryman-electric', category: 'EV', segment: 'EV 소형 SUV', fuel: '전기', imageKey: 'mini-countryman-electric', trims: [], seoTitle: 'MINI Countryman Electric 장기렌트 | 월 납부금 비교', seoDescription: 'MINI Countryman 전기차 장기렌터카 견적. EV 소형 SUV 장기렌트.' },
 ];
 
 // 유틸리티 함수
