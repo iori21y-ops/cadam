@@ -1,5 +1,5 @@
 export type Category = '세단' | 'SUV' | 'EV' | '다목적' | '트럭';
-export type Brand = '현대' | '기아' | '제네시스' | '르노코리아' | 'KGM' | '테슬라' | 'BMW' | '벤츠' | '포르쉐' | '미니';
+export type Brand = '현대' | '기아' | '제네시스' | '르노코리아' | 'KGM' | '테슬라' | 'BMW' | '벤츠' | '포르쉐' | '미니' | '랜드로버';
 
 export interface Vehicle {
   id: string;
@@ -198,6 +198,14 @@ export const VEHICLE_LIST: Vehicle[] = [
   { id: 'mini05', brand: '미니', model: 'Cooper Electric', slug: 'mini-cooper-electric', category: 'EV', segment: 'EV 소형 해치백', fuel: '전기', imageKey: 'mini-cooper-electric', trims: [], seoTitle: 'MINI Cooper Electric 장기렌트 | 월 납부금 비교', seoDescription: 'MINI Cooper 전기차 장기렌터카 견적. 프리미엄 EV 소형 해치백 장기렌트.' },
   { id: 'mini06', brand: '미니', model: 'Aceman', slug: 'mini-aceman', category: 'EV', segment: 'EV 소형 크로스오버', fuel: '전기', imageKey: 'mini-aceman', trims: [], seoTitle: 'MINI Aceman 장기렌트 | 월 납부금 비교', seoDescription: 'MINI Aceman 전기차 장기렌터카 견적. EV 소형 크로스오버 장기렌트.' },
   { id: 'mini07', brand: '미니', model: 'Countryman Electric', slug: 'mini-countryman-electric', category: 'EV', segment: 'EV 소형 SUV', fuel: '전기', imageKey: 'mini-countryman-electric', trims: [], seoTitle: 'MINI Countryman Electric 장기렌트 | 월 납부금 비교', seoDescription: 'MINI Countryman 전기차 장기렌터카 견적. EV 소형 SUV 장기렌트.' },
+
+  { id: 'lr01', brand: '랜드로버', model: 'Defender', slug: 'land-rover-defender', category: 'SUV', segment: '대형 오프로드 SUV', fuel: '가솔린/디젤', imageKey: 'land-rover-defender', trims: [], seoTitle: '랜드로버 Defender 장기렌트 | 월 납부금 비교', seoDescription: '랜드로버 Defender 장기렌터카 견적. 아이코닉 오프로드 SUV 장기렌트 조건을 비교하세요.' },
+  { id: 'lr02', brand: '랜드로버', model: 'Discovery', slug: 'land-rover-discovery', category: 'SUV', segment: '대형 SUV', fuel: '가솔린', imageKey: 'land-rover-discovery', trims: [], seoTitle: '랜드로버 Discovery 장기렌트 | 월 납부금 비교', seoDescription: '랜드로버 Discovery 장기렌터카 견적. 7인승 대형 SUV 장기렌트.' },
+  { id: 'lr03', brand: '랜드로버', model: 'Discovery Sport', slug: 'land-rover-discovery-sport', category: 'SUV', segment: '중형 SUV', fuel: '가솔린', imageKey: 'land-rover-discovery-sport', trims: [], seoTitle: '랜드로버 Discovery Sport 장기렌트 | 월 납부금 비교', seoDescription: '랜드로버 Discovery Sport 장기렌터카 견적. 5~7인승 중형 SUV 장기렌트.' },
+  { id: 'lr04', brand: '랜드로버', model: 'Range Rover', slug: 'land-rover-range-rover', category: 'SUV', segment: '풀사이즈 럭셔리 SUV', fuel: '가솔린', imageKey: 'land-rover-range-rover', trims: [], seoTitle: '랜드로버 Range Rover 장기렌트 | 월 납부금 비교', seoDescription: '랜드로버 Range Rover 장기렌터카 견적. 최고급 풀사이즈 럭셔리 SUV 장기렌트.' },
+  { id: 'lr05', brand: '랜드로버', model: 'Range Rover Sport', slug: 'land-rover-range-rover-sport', category: 'SUV', segment: '대형 스포츠 SUV', fuel: '가솔린', imageKey: 'land-rover-range-rover-sport', trims: [], seoTitle: '랜드로버 Range Rover Sport 장기렌트 | 월 납부금 비교', seoDescription: '랜드로버 Range Rover Sport 장기렌터카 견적. 스포티한 대형 럭셔리 SUV 장기렌트.' },
+  { id: 'lr06', brand: '랜드로버', model: 'Range Rover Velar', slug: 'land-rover-range-rover-velar', category: 'SUV', segment: '중형 SUV 쿠페', fuel: '가솔린', imageKey: 'land-rover-range-rover-velar', trims: [], seoTitle: '랜드로버 Range Rover Velar 장기렌트 | 월 납부금 비교', seoDescription: '랜드로버 Range Rover Velar 장기렌터카 견적. 디자인 중심 중형 SUV 장기렌트.' },
+  { id: 'lr07', brand: '랜드로버', model: 'Range Rover Evoque', slug: 'land-rover-range-rover-evoque', category: 'SUV', segment: '소형 럭셔리 SUV', fuel: '가솔린', imageKey: 'land-rover-range-rover-evoque', trims: [], seoTitle: '랜드로버 Range Rover Evoque 장기렌트 | 월 납부금 비교', seoDescription: '랜드로버 Range Rover Evoque 장기렌터카 견적. 프리미엄 소형 SUV 장기렌트.' },
 ];
 
 // 유틸리티 함수
