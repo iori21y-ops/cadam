@@ -1,5 +1,5 @@
 export type Category = '세단' | 'SUV' | 'EV' | '다목적' | '트럭';
-export type Brand = '현대' | '기아' | '제네시스' | '르노코리아' | 'KGM' | '테슬라' | 'BMW' | '벤츠' | '포르쉐' | '미니' | '랜드로버' | '폭스바겐';
+export type Brand = '현대' | '기아' | '제네시스' | '르노코리아' | 'KGM' | '테슬라' | 'BMW' | '벤츠' | '포르쉐' | '미니' | '랜드로버' | '폭스바겐' | '토요타' | '렉서스';
 
 export interface Vehicle {
   id: string;
@@ -215,6 +215,27 @@ export const VEHICLE_LIST: Vehicle[] = [
   { id: 'vw03', brand: '폭스바겐', model: 'Atlas', slug: 'volkswagen-atlas', category: 'SUV', segment: '대형 SUV', fuel: '가솔린', imageKey: 'volkswagen-atlas', trims: ['7인승', '6인승'], seoTitle: '폭스바겐 Atlas 장기렌트 | 월 납부금 비교', seoDescription: '폭스바겐 Atlas 장기렌터카 견적. 6·7인승 대형 SUV 장기렌트 조건을 비교하세요.' },
   { id: 'vw04', brand: '폭스바겐', model: 'ID.4', slug: 'volkswagen-id4', category: 'EV', segment: 'EV 중형 SUV', fuel: '전기', imageKey: 'volkswagen-id4', trims: ['Pro Lite', 'Pro'], seoTitle: '폭스바겐 ID.4 장기렌트 | 월 납부금 비교', seoDescription: '폭스바겐 ID.4 전기차 장기렌터카 견적. 1회 충전 424km EV SUV 장기렌트 조건 비교.' },
   { id: 'vw05', brand: '폭스바겐', model: 'Touareg', slug: 'volkswagen-touareg', category: 'SUV', segment: '대형 럭셔리 SUV', fuel: '디젤', imageKey: 'volkswagen-touareg', trims: ['Prestige', 'R-Line'], seoTitle: '폭스바겐 Touareg 장기렌트 | 월 납부금 비교', seoDescription: '폭스바겐 Touareg 장기렌터카 견적. 프리미엄 대형 SUV 장기렌트 조건을 비교하세요.' },
+
+  // ═══════════════════════════════════
+  // 토요타 (6종) — 2026-04-29 크롤러 적재 기반
+  // ═══════════════════════════════════
+  { id: 'ty01', brand: '토요타', model: 'Prius HEV', slug: 'toyota-prius-hev', category: '세단', segment: '준중형 세단', fuel: '하이브리드', imageKey: 'toyota-prius-hev', trims: ['PRIUS LE', 'PRIUS XLE', 'PRIUS AWD XLE'], seoTitle: '토요타 Prius HEV 장기렌트 | 월 납부금 비교', seoDescription: '토요타 Prius 하이브리드 장기렌터카 견적. 연비 최고의 하이브리드 장기렌트 조건을 비교하세요.' },
+  { id: 'ty02', brand: '토요타', model: 'Prius PHEV', slug: 'toyota-prius-phev', category: '세단', segment: '준중형 세단', fuel: '플러그인 하이브리드', imageKey: 'toyota-prius-phev', trims: ['PRIUS XSE'], seoTitle: '토요타 Prius PHEV 장기렌트 | 월 납부금 비교', seoDescription: '토요타 Prius PHEV 장기렌터카 견적. 플러그인 하이브리드 장기렌트 조건을 비교하세요.' },
+  { id: 'ty03', brand: '토요타', model: 'Camry', slug: 'toyota-camry', category: '세단', segment: '중형 세단', fuel: '하이브리드', imageKey: 'toyota-camry', trims: ['CAMRY XLE', 'CAMRY XLE PREMIUM'], seoTitle: '토요타 Camry 장기렌트 | 월 납부금 비교', seoDescription: '토요타 Camry 하이브리드 장기렌터카 견적. 중형 세단 장기렌트 조건을 비교하세요.' },
+  { id: 'ty04', brand: '토요타', model: 'Highlander', slug: 'toyota-highlander', category: 'SUV', segment: '대형 SUV', fuel: '하이브리드', imageKey: 'toyota-highlander', trims: ['PLATINUM'], seoTitle: '토요타 Highlander 장기렌트 | 월 납부금 비교', seoDescription: '토요타 Highlander 하이브리드 장기렌터카 견적. 대형 SUV 장기렌트 조건을 비교하세요.' },
+  { id: 'ty05', brand: '토요타', model: 'Crown', slug: 'toyota-crown', category: '세단', segment: '준대형 세단', fuel: '하이브리드', imageKey: 'toyota-crown', trims: ['CROWN HEV', 'CROWN Dual Boost HEV'], seoTitle: '토요타 Crown 장기렌트 | 월 납부금 비교', seoDescription: '토요타 Crown 하이브리드 장기렌터카 견적. 미래지향적 디자인 준대형 세단 장기렌트.' },
+  { id: 'ty06', brand: '토요타', model: 'Alphard', slug: 'toyota-alphard', category: '다목적', segment: 'MPV', fuel: '하이브리드', imageKey: 'toyota-alphard', trims: ['ALPHARD HEV PREMIUM', 'ALPHARD HEV EXECUTIVE'], seoTitle: '토요타 Alphard 장기렌트 | 월 납부금 비교', seoDescription: '토요타 Alphard 하이브리드 장기렌터카 견적. 프리미엄 MPV 장기렌트 조건을 비교하세요.' },
+
+  // ═══════════════════════════════════
+  // 렉서스 (7종) — 2026-04-29 스냅샷 기반 (lexus.co.kr JS전용으로 자동수집 불가)
+  // ═══════════════════════════════════
+  { id: 'lx01', brand: '렉서스', model: 'UX', slug: 'lexus-ux', category: 'SUV', segment: '소형 SUV', fuel: '하이브리드', imageKey: 'lexus-ux', trims: ['300h 2WD', '300h F Sport'], seoTitle: '렉서스 UX 장기렌트 | 월 납부금 비교', seoDescription: '렉서스 UX 하이브리드 장기렌터카 견적. 프리미엄 소형 SUV 장기렌트 조건을 비교하세요.' },
+  { id: 'lx02', brand: '렉서스', model: 'ES', slug: 'lexus-es', category: '세단', segment: '중형 세단', fuel: '하이브리드', imageKey: 'lexus-es', trims: ['300h Luxury+', '300h Executive'], seoTitle: '렉서스 ES 장기렌트 | 월 납부금 비교', seoDescription: '렉서스 ES 300h 장기렌터카 견적. 인기 프리미엄 중형 세단 장기렌트 조건을 비교하세요.' },
+  { id: 'lx03', brand: '렉서스', model: 'NX', slug: 'lexus-nx', category: 'SUV', segment: '소형 SUV', fuel: '하이브리드', imageKey: 'lexus-nx', trims: ['350h Premium', '350h Luxury', '450h+ Premium', '450h+ F Sport'], seoTitle: '렉서스 NX 장기렌트 | 월 납부금 비교', seoDescription: '렉서스 NX 하이브리드·PHEV 장기렌터카 견적. 소형 럭셔리 SUV 장기렌트 조건 비교.' },
+  { id: 'lx04', brand: '렉서스', model: 'RX', slug: 'lexus-rx', category: 'SUV', segment: '중형 SUV', fuel: '하이브리드', imageKey: 'lexus-rx', trims: ['350h Premium', '350h Luxury', '450h+ Luxury', '500h F Sport'], seoTitle: '렉서스 RX 장기렌트 | 월 납부금 비교', seoDescription: '렉서스 RX 장기렌터카 견적. 프리미엄 중형 SUV 장기렌트 조건을 비교하세요.' },
+  { id: 'lx05', brand: '렉서스', model: 'LS', slug: 'lexus-ls', category: '세단', segment: '대형 세단', fuel: '가솔린/하이브리드', imageKey: 'lexus-ls', trims: ['500 Luxury AWD', '500 Platinum AWD', '500h Luxury AWD', '500h Platinum AWD'], seoTitle: '렉서스 LS 장기렌트 | 월 납부금 비교', seoDescription: '렉서스 LS 플래그십 대형 세단 장기렌터카 견적. 최고급 럭셔리 세단 장기렌트 조건 비교.' },
+  { id: 'lx06', brand: '렉서스', model: 'LM', slug: 'lexus-lm', category: '다목적', segment: '럭셔리 MPV', fuel: '하이브리드', imageKey: 'lexus-lm', trims: ['500h Executive', '500h Royal'], seoTitle: '렉서스 LM 장기렌트 | 월 납부금 비교', seoDescription: '렉서스 LM 럭셔리 MPV 장기렌터카 견적. 최고급 럭셔리 미니밴 장기렌트 조건 비교.' },
+  { id: 'lx07', brand: '렉서스', model: 'LX', slug: 'lexus-lx', category: 'SUV', segment: '대형 SUV', fuel: '하이브리드', imageKey: 'lexus-lx', trims: ['700h Overtrail', '700h Luxury', '700h VIP'], seoTitle: '렉서스 LX 장기렌트 | 월 납부금 비교', seoDescription: '렉서스 LX 플래그십 대형 SUV 장기렌터카 견적. 최고급 대형 하이브리드 SUV 장기렌트 조건.' },
 ];
 
 // 유틸리티 함수
