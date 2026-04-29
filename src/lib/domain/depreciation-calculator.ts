@@ -785,7 +785,8 @@ export function calculateDepreciation(
         msrp:     tableEntry?.msrp ?? fallbackMsrp ?? null,
         category: tableEntry?.category ?? fallbackCategory,
         brand:    tableEntry?.brand ?? '',
-        prices:   customPrices,
+        // 테이블 연식 기반으로 DB 데이터를 덮어씀 — DB에 없는 연식은 테이블 값 유지
+        prices:   { ...tableEntry?.prices, ...customPrices },
       }
     : tableEntry;
 
@@ -880,7 +881,7 @@ export function getDepreciationCurve(
         msrp:     tableEntry?.msrp ?? fallbackMsrp ?? null,
         category: tableEntry?.category ?? fallbackCategory,
         brand:    tableEntry?.brand ?? '',
-        prices:   customPrices,
+        prices:   { ...tableEntry?.prices, ...customPrices },
       }
     : tableEntry;
   if (!entry) {
