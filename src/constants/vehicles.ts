@@ -1,5 +1,5 @@
 export type Category = '세단' | 'SUV' | 'EV' | '다목적' | '트럭';
-export type Brand = '현대' | '기아' | '제네시스' | '르노코리아' | 'KGM' | '테슬라' | 'BMW' | '벤츠';
+export type Brand = '현대' | '기아' | '제네시스' | '르노코리아' | 'KGM' | '테슬라' | 'BMW' | '벤츠' | '포르쉐';
 
 export interface Vehicle {
   id: string;
@@ -180,6 +180,16 @@ export const VEHICLE_LIST: Vehicle[] = [
   { id: 'mb19', brand: '벤츠', model: 'EQE SUV', slug: 'mercedes-eqe-suv', category: 'EV', segment: 'EV 중형 SUV', fuel: '전기', imageKey: 'mercedes-eqe-suv', trims: [], seoTitle: '벤츠 EQE SUV 장기렌트 | 월 납부금 비교', seoDescription: '메르세데스-벤츠 EQE SUV 전기차 장기렌터카 견적.' },
   { id: 'mb20', brand: '벤츠', model: 'EQS', slug: 'mercedes-eqs', category: 'EV', segment: 'EV 대형 세단', fuel: '전기', imageKey: 'mercedes-eqs', trims: [], seoTitle: '벤츠 EQS 장기렌트 | 월 납부금 비교', seoDescription: '메르세데스-벤츠 EQS 전기차 장기렌터카 견적. 플래그십 EV 세단 장기렌트.' },
   { id: 'mb21', brand: '벤츠', model: 'EQS SUV', slug: 'mercedes-eqs-suv', category: 'EV', segment: 'EV 대형 SUV', fuel: '전기', imageKey: 'mercedes-eqs-suv', trims: [], seoTitle: '벤츠 EQS SUV 장기렌트 | 월 납부금 비교', seoDescription: '메르세데스-벤츠 EQS SUV 전기차 장기렌터카 견적. 플래그십 EV SUV 장기렌트.' },
+
+  { id: 'porsche01', brand: '포르쉐', model: 'Macan', slug: 'porsche-macan', category: 'EV', segment: 'EV 소형 SUV', fuel: '전기', imageKey: 'porsche-macan', trims: [], seoTitle: '포르쉐 Macan 장기렌트 | 월 납부금 비교', seoDescription: '포르쉐 Macan 전기차 장기렌터카 견적. 프리미엄 EV 소형 SUV 장기렌트 조건을 비교하세요.' },
+  { id: 'porsche02', brand: '포르쉐', model: 'Taycan', slug: 'porsche-taycan', category: 'EV', segment: 'EV 스포츠 세단', fuel: '전기', imageKey: 'porsche-taycan', trims: [], seoTitle: '포르쉐 Taycan 장기렌트 | 월 납부금 비교', seoDescription: '포르쉐 Taycan 전기차 장기렌터카 견적. 스포츠 EV 세단 장기렌트 최저가.' },
+  { id: 'porsche03', brand: '포르쉐', model: 'Taycan Cross Turismo', slug: 'porsche-taycan-cross-turismo', category: 'EV', segment: 'EV 스포츠 왜건', fuel: '전기', imageKey: 'porsche-taycan-cross-turismo', trims: [], seoTitle: '포르쉐 Taycan Cross Turismo 장기렌트 | 월 납부금 비교', seoDescription: '포르쉐 Taycan Cross Turismo 전기차 장기렌터카 견적. EV 스포츠 왜건 장기렌트.' },
+  { id: 'porsche04', brand: '포르쉐', model: '911', slug: 'porsche-911', category: '세단', segment: '스포츠카', fuel: '가솔린', imageKey: 'porsche-911', trims: [], seoTitle: '포르쉐 911 장기렌트 | 월 납부금 비교', seoDescription: '포르쉐 911 장기렌터카 견적. 전설적인 스포츠카 장기렌트 조건을 비교하세요.' },
+  { id: 'porsche05', brand: '포르쉐', model: 'Cayman', slug: 'porsche-cayman', category: '세단', segment: '미드십 스포츠카', fuel: '가솔린', imageKey: 'porsche-cayman', trims: [], seoTitle: '포르쉐 Cayman 장기렌트 | 월 납부금 비교', seoDescription: '포르쉐 Cayman GTS 장기렌터카 견적. 미드십 스포츠쿠페 장기렌트.' },
+  { id: 'porsche06', brand: '포르쉐', model: 'Boxster', slug: 'porsche-boxster', category: '세단', segment: '로드스터', fuel: '가솔린', imageKey: 'porsche-boxster', trims: [], seoTitle: '포르쉐 Boxster 장기렌트 | 월 납부금 비교', seoDescription: '포르쉐 Boxster GTS 장기렌터카 견적. 오픈탑 스포츠 로드스터 장기렌트.' },
+  { id: 'porsche07', brand: '포르쉐', model: 'Cayenne', slug: 'porsche-cayenne', category: 'SUV', segment: '대형 SUV', fuel: '가솔린/전기', imageKey: 'porsche-cayenne', trims: [], seoTitle: '포르쉐 Cayenne 장기렌트 | 월 납부금 비교', seoDescription: '포르쉐 Cayenne 장기렌터카 견적. 가솔린·하이브리드·전기 대형 SUV 장기렌트 비교.' },
+  { id: 'porsche08', brand: '포르쉐', model: 'Cayenne Coupé', slug: 'porsche-cayenne-coupe', category: 'SUV', segment: '대형 SUV 쿠페', fuel: '가솔린', imageKey: 'porsche-cayenne-coupe', trims: [], seoTitle: '포르쉐 Cayenne Coupé 장기렌트 | 월 납부금 비교', seoDescription: '포르쉐 Cayenne Coupé 장기렌터카 견적. 스포티한 대형 SUV 쿠페 장기렌트.' },
+  { id: 'porsche09', brand: '포르쉐', model: 'Panamera', slug: 'porsche-panamera', category: '세단', segment: '대형 스포츠 세단', fuel: '가솔린', imageKey: 'porsche-panamera', trims: [], seoTitle: '포르쉐 Panamera 장기렌트 | 월 납부금 비교', seoDescription: '포르쉐 Panamera 장기렌터카 견적. 대형 스포츠 세단 장기렌트 조건을 비교하세요.' },
 ];
 
 // 유틸리티 함수
