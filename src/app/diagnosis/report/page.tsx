@@ -76,6 +76,7 @@ interface ReportData {
   autoTaxResult:  AutoTaxResult;
   acqTaxResult:   AcquisitionTaxResult;
   residual5yr:    number;   // 만원 (신차 기준 5년차 시세)
+  dbUsed:         boolean;  // vehicle_used_prices DB 시세 사용 여부
 }
 
 type Step = 'input' | 'calculating' | 'result';
@@ -97,6 +98,7 @@ function retentionColor(rate: number | null) {
 // ── 계산 로직 ─────────────────────────────────────────────────────────────
 
 function runCalculations(formData: DiagnosisFormData, dbPrices?: Record<number, YearPrices>): ReportData {
+  const dbUsed = !!dbPrices && Object.keys(dbPrices).length > 0;
   const { model, trimData, mileageGroup } = formData;
   const vehicleAge = DATA_YEAR - trimData.model_year;
   const isEV       = trimData.fuel_type === 'ev';
@@ -149,6 +151,7 @@ function runCalculations(formData: DiagnosisFormData, dbPrices?: Record<number, 
     autoTaxResult,
     acqTaxResult,
     residual5yr,
+    dbUsed,
   };
 }
 
@@ -310,7 +313,7 @@ export default function ReportPage() {
         <div className="max-w-lg mx-auto px-5 py-4 flex items-center justify-between">
           <div>
             <h1 className="text-[17px] font-bold text-[#1C1C1E]">차량 감가상각 진단</h1>
-            <p className="text-[11px] text-[#8E8E93]">엔카 실데이터 기반 · 2026-W17</p>
+            <p className="text-[11px] text-[#8E8E93]">엔카 실데이터 기반</p>
           </div>
           <div className="flex items-center gap-2">
             {step === 'result' && (
@@ -378,8 +381,14 @@ export default function ReportPage() {
               {/* ── 섹션1: 시세 요약 ─────────────────────────────── */}
               <ReportSection
                 title="내 차 시세 요약"
-                badgeColor="#007AFF"
-                badge={report.depResult.dataSource === 'market_trim' ? '실데이터' : '추정'}
+                badgeColor={report.dbUsed ? '#34C759' : '#8E8E93'}
+                badge={
+                  report.dbUsed
+                    ? '엔카 DB'
+                    : report.depResult.dataSource !== 'fallback'
+                    ? '시세 추정'
+                    : '카테고리 추정'
+                }
               >
                 <div className="flex items-end justify-between mb-4">
                   <div>

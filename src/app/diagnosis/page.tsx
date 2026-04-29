@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { usePathname, useRouter } from 'next/navigation';
 import { useRef, useState, useEffect } from 'react';
 import { SelectCard } from '@/components/ui/SelectCard';
-import { IconDiagnosis, IconCarSedan, IconMemo, IconShield, IconBolt, IconTarget, type IconProps } from '@/components/icons/RentailorIcons';
+import { IconDiagnosis, IconCarSedan, IconMemo, IconShield, IconBolt, IconTarget, IconDiagnosisChart, type IconProps } from '@/components/icons/RentailorIcons';
 import type React from 'react';
 import { ParkAI } from '@/components/diagnosis/ParkAI';
 import { createBrowserSupabaseClient } from '@/lib/supabase';
@@ -40,6 +40,15 @@ const SERVICES = [
     description: '원하는 차종과 조건을 선택하면 전문가가 무료로 견적을 드립니다.',
     color: 'text-success',
     bg: 'bg-[#34C759]/8',
+  },
+  {
+    href: '/diagnosis/report',
+    accent: '#007AFF',
+    Icon: IconDiagnosisChart,
+    title: '감가상각 분석',
+    description: '현재 내 차 시세와 감가 곡선을 확인하고, 지금 렌트로 전환할 최적 시점을 분석합니다.',
+    color: 'text-[#007AFF]',
+    bg: 'bg-[#007AFF]/8',
   },
 ];
 
