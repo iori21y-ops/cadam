@@ -1,5 +1,5 @@
 export type Category = '세단' | 'SUV' | 'EV' | '다목적' | '트럭';
-export type Brand = '현대' | '기아' | '제네시스' | '르노코리아' | 'KGM' | '테슬라' | 'BMW' | '벤츠' | '포르쉐' | '미니' | '랜드로버';
+export type Brand = '현대' | '기아' | '제네시스' | '르노코리아' | 'KGM' | '테슬라' | 'BMW' | '벤츠' | '포르쉐' | '미니' | '랜드로버' | '폭스바겐';
 
 export interface Vehicle {
   id: string;
@@ -206,6 +206,15 @@ export const VEHICLE_LIST: Vehicle[] = [
   { id: 'lr05', brand: '랜드로버', model: 'Range Rover Sport', slug: 'land-rover-range-rover-sport', category: 'SUV', segment: '대형 스포츠 SUV', fuel: '가솔린', imageKey: 'land-rover-range-rover-sport', trims: [], seoTitle: '랜드로버 Range Rover Sport 장기렌트 | 월 납부금 비교', seoDescription: '랜드로버 Range Rover Sport 장기렌터카 견적. 스포티한 대형 럭셔리 SUV 장기렌트.' },
   { id: 'lr06', brand: '랜드로버', model: 'Range Rover Velar', slug: 'land-rover-range-rover-velar', category: 'SUV', segment: '중형 SUV 쿠페', fuel: '가솔린', imageKey: 'land-rover-range-rover-velar', trims: [], seoTitle: '랜드로버 Range Rover Velar 장기렌트 | 월 납부금 비교', seoDescription: '랜드로버 Range Rover Velar 장기렌터카 견적. 디자인 중심 중형 SUV 장기렌트.' },
   { id: 'lr07', brand: '랜드로버', model: 'Range Rover Evoque', slug: 'land-rover-range-rover-evoque', category: 'SUV', segment: '소형 럭셔리 SUV', fuel: '가솔린', imageKey: 'land-rover-range-rover-evoque', trims: [], seoTitle: '랜드로버 Range Rover Evoque 장기렌트 | 월 납부금 비교', seoDescription: '랜드로버 Range Rover Evoque 장기렌터카 견적. 프리미엄 소형 SUV 장기렌트.' },
+
+  // ═══════════════════════════════════
+  // 폭스바겐 (5종) — 2026-04-29 크롤러 적재 기반
+  // ═══════════════════════════════════
+  { id: 'vw01', brand: '폭스바겐', model: 'Golf', slug: 'volkswagen-golf', category: '세단', segment: '준중형 해치백', fuel: '디젤', imageKey: 'volkswagen-golf', trims: ['Premium', 'Prestige'], seoTitle: '폭스바겐 Golf 장기렌트 | 월 납부금 비교', seoDescription: '폭스바겐 Golf 장기렌터카 견적. 해치백의 아이콘 Golf 장기렌트 조건을 비교하세요.' },
+  { id: 'vw02', brand: '폭스바겐', model: 'Golf GTI', slug: 'volkswagen-golf-gti', category: '세단', segment: '핫해치', fuel: '가솔린', imageKey: 'volkswagen-golf-gti', trims: ['Golf GTI'], seoTitle: '폭스바겐 Golf GTI 장기렌트 | 월 납부금 비교', seoDescription: '폭스바겐 Golf GTI 장기렌터카 견적. 스포티한 핫해치 장기렌트 조건을 비교하세요.' },
+  { id: 'vw03', brand: '폭스바겐', model: 'Atlas', slug: 'volkswagen-atlas', category: 'SUV', segment: '대형 SUV', fuel: '가솔린', imageKey: 'volkswagen-atlas', trims: ['7인승', '6인승'], seoTitle: '폭스바겐 Atlas 장기렌트 | 월 납부금 비교', seoDescription: '폭스바겐 Atlas 장기렌터카 견적. 6·7인승 대형 SUV 장기렌트 조건을 비교하세요.' },
+  { id: 'vw04', brand: '폭스바겐', model: 'ID.4', slug: 'volkswagen-id4', category: 'EV', segment: 'EV 중형 SUV', fuel: '전기', imageKey: 'volkswagen-id4', trims: ['Pro Lite', 'Pro'], seoTitle: '폭스바겐 ID.4 장기렌트 | 월 납부금 비교', seoDescription: '폭스바겐 ID.4 전기차 장기렌터카 견적. 1회 충전 424km EV SUV 장기렌트 조건 비교.' },
+  { id: 'vw05', brand: '폭스바겐', model: 'Touareg', slug: 'volkswagen-touareg', category: 'SUV', segment: '대형 럭셔리 SUV', fuel: '디젤', imageKey: 'volkswagen-touareg', trims: ['Prestige', 'R-Line'], seoTitle: '폭스바겐 Touareg 장기렌트 | 월 납부금 비교', seoDescription: '폭스바겐 Touareg 장기렌터카 견적. 프리미엄 대형 SUV 장기렌트 조건을 비교하세요.' },
 ];
 
 // 유틸리티 함수
