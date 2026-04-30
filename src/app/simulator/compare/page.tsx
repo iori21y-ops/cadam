@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { calculateComparison, type ComparisonInputs } from '@/lib/domain/comparison-engine';
 import { scoreDecision, type DecisionResult, type ScoredMethod } from '@/lib/domain/decision-scorer';
 import { getVehicleCC } from '@/lib/domain/vehicle-cc-map';
+import type { YearPrices } from '@/lib/domain/depreciation-calculator';
 import type { CustomerType, InsuranceHistory, PlatePreference, ContractEndOption } from '@/lib/domain/decision-scorer';
 import type { Industry, RevenueRange } from '@/lib/domain/tax-calculator';
 import type { AcquisitionVehicleType } from '@/lib/domain/acquisition-tax-calculator';
@@ -169,7 +170,15 @@ function NumberInput({
 
 // ── 결과 카드 ─────────────────────────────────────────────────────────
 
-function ResultCard({ scored, ownershipYears }: { scored: ScoredMethod; ownershipYears: number }) {
+function ResultCard({
+  scored,
+  ownershipYears,
+  rentalMarket,
+}: {
+  scored: ScoredMethod;
+  ownershipYears: number;
+  rentalMarket?: { monthlyPrice: number; source: string } | null;
+}) {
   const [open, setOpen] = useState(false);
   const { method, label, rank, excluded, excludeReason, keyReasons, result } = scored;
   const c = METHOD_COLORS[method];
@@ -227,6 +236,16 @@ function ResultCard({ scored, ownershipYears }: { scored: ScoredMethod; ownershi
               <div className="mt-2 px-3 py-2 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
                 <p className="text-yellow-300 text-xs font-medium">
                   💡 절세 효과 연 {fmtMkShort(result.annualTaxSaving)} 별도
+                </p>
+              </div>
+            )}
+
+            {/* 렌탈료 시장가 참고 */}
+            {method === 'rent' && rentalMarket && (
+              <div className="mt-2 px-3 py-2 rounded-lg bg-blue-500/10 border border-blue-500/20">
+                <p className="text-blue-300 text-xs">
+                  📊 시장 참고가 {Math.round(rentalMarket.monthlyPrice / 10_000)}만원/월
+                  <span className="text-blue-500 ml-1">({rentalMarket.source} · 48개월)</span>
                 </p>
               </div>
             )}
@@ -347,6 +366,19 @@ function CompareInner() {
   const [cmpResult, setCmpResult] = useState<ReturnType<typeof calculateComparison> | null>(null);
   const [assumptions, setAssumptions] = useState<string[]>([]);
 
+  // 중고시세 (used-prices API)
+  const [usedPrices, setUsedPrices] = useState<{
+    prices: Record<number, YearPrices>;
+    latestWeek: string | null;
+  } | null>(null);
+  const [dataWeek, setDataWeek] = useState<string | null>(null);
+
+  // 렌탈료 시장가 (rental-price API)
+  const [rentalMarket, setRentalMarket] = useState<{
+    monthlyPrice: number;
+    source: string;
+  } | null>(null);
+
   // 리드폼
   const [leadData, setLeadData]     = useState({ name: '', phone: '' });
   const [leadSubmitted, setLeadSubmitted] = useState(false);
@@ -363,6 +395,51 @@ function CompareInner() {
       .catch(() => setBrands([]))
       .finally(() => setLoadingBrands(false));
   }, []);
+
+  // ── 중고시세 + 렌탈료 시장가 로드 (브랜드·모델 변경 시) ──────────────
+  useEffect(() => {
+    if (!form.brand || !form.model || form.brand === '__manual__') {
+      setUsedPrices(null);
+      setRentalMarket(null);
+      return;
+    }
+    const ctrl = new AbortController();
+
+    fetch(
+      `/api/used-prices?brand=${encodeURIComponent(form.brand)}&model=${encodeURIComponent(form.model)}`,
+      { signal: ctrl.signal },
+    )
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d: { status?: string; prices?: Record<number, YearPrices>; latestWeek?: string } | null) => {
+        if (d?.status === 'ok' && d.prices) {
+          setUsedPrices({ prices: d.prices, latestWeek: d.latestWeek ?? null });
+        } else {
+          setUsedPrices(null);
+        }
+      })
+      .catch(() => setUsedPrices(null));
+
+    fetch('/api/rental-price', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ brand: form.brand, model: form.model, contractMonths: 48, annualKm: 20000 }),
+      signal: ctrl.signal,
+    })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d: { status?: string; data?: Array<{ monthly_price: number; source?: string }> } | null) => {
+        if (d?.status === 'ok' && d.data?.[0]) {
+          setRentalMarket({
+            monthlyPrice: d.data[0].monthly_price,
+            source: d.data[0].source ?? 'DB',
+          });
+        } else {
+          setRentalMarket(null);
+        }
+      })
+      .catch(() => setRentalMarket(null));
+
+    return () => ctrl.abort();
+  }, [form.brand, form.model]);
 
   // ── 모델 로드 ─────────────────────────────────────────────────────
   const loadModels = useCallback(async (brand: string) => {
@@ -452,7 +529,7 @@ function CompareInner() {
       businessUseRatio:       form.businessUseRatio / 100,
     };
 
-    const cmp = calculateComparison(inputs);
+    const cmp = calculateComparison(inputs, usedPrices?.prices);
     const dec = scoreDecision({
       customerType:      form.customerType,
       insuranceHistory:  form.insuranceHistory,
@@ -466,6 +543,7 @@ function CompareInner() {
     setCmpResult(cmp);
     setDecision(dec);
     setAssumptions(cmp.assumptions);
+    setDataWeek(usedPrices?.latestWeek ?? null);
     setDir(1);
     setPhase('result');
   }
@@ -939,11 +1017,25 @@ function CompareInner() {
                 <p className="text-slate-400 text-sm mt-1">
                   {displayBrand} {form.model} / {form.carPriceMk}만원 / {form.ownershipYears}년 보유
                 </p>
+                {dataWeek ? (
+                  <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+                    <span className="text-emerald-400 text-xs font-medium">📊 엔카 {dataWeek} 실시세 적용</span>
+                  </div>
+                ) : (
+                  <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-700/30 border border-slate-600/20">
+                    <span className="text-slate-500 text-xs">감가상각 내부 추산 기준</span>
+                  </div>
+                )}
               </div>
 
               {/* 3개 결과 카드 */}
               {decision.ranked.map((s) => (
-                <ResultCard key={s.method} scored={s} ownershipYears={form.ownershipYears} />
+                <ResultCard
+                  key={s.method}
+                  scored={s}
+                  ownershipYears={form.ownershipYears}
+                  rentalMarket={s.method === 'rent' ? rentalMarket : null}
+                />
               ))}
 
               {/* 계산 가정 */}
