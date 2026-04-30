@@ -146,34 +146,36 @@ export default function AdminFinancePage() {
     if (!row) return;
 
     const f = forms[productType] ?? {};
-    const update: Record<string, unknown> = {
+    const body: Record<string, unknown> = {
+      id: row.id,
       annual_rate: fromPercent(f.annual_rate),
       memo: f.memo || null,
-      updated_at: new Date().toISOString(),
     };
 
     if (productType === 'lease' || productType === 'rent') {
-      update.residual_rate = fromPercent(f.residual_rate);
+      body.residual_rate = fromPercent(f.residual_rate);
     }
     if (productType === 'lease') {
-      update.deposit_rate = fromPercent(f.deposit_rate);
+      body.deposit_rate = fromPercent(f.deposit_rate);
     }
     if (productType === 'rent') {
-      update.insurance_rate       = fromPercent(f.insurance_rate);
-      update.mileage_surcharge_rate = fromPercent(f.mileage_surcharge_rate);
-      update.mileage_base_km      = f.mileage_base_km ? parseInt(f.mileage_base_km) : null;
+      body.insurance_rate           = fromPercent(f.insurance_rate);
+      body.mileage_surcharge_rate   = fromPercent(f.mileage_surcharge_rate);
+      body.mileage_base_km          = f.mileage_base_km ? parseInt(f.mileage_base_km) : null;
     }
 
     setSaving(productType);
     setMsg(null);
     try {
-      const supabase = createBrowserSupabaseClient();
-      const { error } = await supabase
-        .from('finance_rates')
-        .update(update)
-        .eq('id', row.id);
-
-      if (error) throw error;
+      const res = await fetch('/api/admin/finance-rates', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error((data as { error?: string }).error ?? `HTTP ${res.status}`);
+      }
 
       if (andGenerate) {
         await handleGenerate();
