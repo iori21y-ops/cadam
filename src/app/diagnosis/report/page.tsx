@@ -64,6 +64,12 @@ function toInsuranceCarType(cc: number, isEV: boolean, msrp: number): '소형' |
   return '대형';
 }
 
+// 브랜드 → insurance_stats origin 매핑 (국산/외산)
+const DOMESTIC_BRANDS = new Set(['현대', '기아', '제네시스', 'KGM', '르노코리아', '쉐보레']);
+function toInsuranceOrigin(brand: string): '국산' | '외산' {
+  return DOMESTIC_BRANDS.has(brand) ? '국산' : '외산';
+}
+
 // ── 타입 ────────────────────────────────────────────────────────────────────
 
 interface ReportData {
@@ -200,10 +206,11 @@ export default function ReportPage() {
 
       // 보험료 비동기 조회 (리포트 렌더 후 백그라운드 fetch)
       const carType = toInsuranceCarType(data.cc, data.isEV, data.formData.trimData.msrp_price);
+      const origin  = toInsuranceOrigin(data.formData.brand);
       fetch('/api/insurance-stats', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ car_type: carType }),
+        body:    JSON.stringify({ car_type: carType, origin }),
       })
         .then((r) => r.ok ? r.json() : null)
         .then((json) => {

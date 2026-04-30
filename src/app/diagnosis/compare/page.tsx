@@ -386,14 +386,16 @@ function CompareInner() {
     const isHEV = ['hybrid', 'hev', 'phev'].includes(t.fuelType.toLowerCase());
     setForm((f) => ({ ...f, trimName, carPriceMkAuto: t.msrp, carPriceMk: String(t.msrp), isEV, isHEV }));
 
-    // 금융감독원 보험료 통계 백그라운드 로드
+    // 금융위원회 보험료 통계 백그라운드 로드 (차종 + 원산지 필터)
     const carType = getCarType(t.msrp);
+    const DOMESTIC_BRANDS = new Set(['현대', '기아', '제네시스', 'KGM', '르노코리아', '쉐보레']);
+    const origin = DOMESTIC_BRANDS.has(form.brand) ? '국산' : form.brand ? '외산' : undefined;
     setLoadingInsurance(true);
     setDbInsurance(null);
     fetch('/api/insurance-stats', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ car_type: carType }),
+      body: JSON.stringify({ car_type: carType, ...(origin && { origin }) }),
     })
       .then((r) => r.json())
       .then((d: { status: string; estimated_annual_won?: number; base_ym?: string }) => {
