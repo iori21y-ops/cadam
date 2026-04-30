@@ -1192,12 +1192,15 @@ export default function DiagnosisAdminPage() {
     setSaving(true);
     setError(null);
     try {
-      const supabase = createBrowserSupabaseClient();
-      const now = new Date().toISOString();
-      const res = await supabase
-        .from('diagnosis_config')
-        .upsert({ id: CONFIG_ID, data, updated_at: now }, { onConflict: 'id' });
-      if (res.error) throw new Error(res.error.message);
+      const apiRes = await fetch('/api/admin/diagnosis-config', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: CONFIG_ID, data }),
+      });
+      if (!apiRes.ok) {
+        const d = await apiRes.json().catch(() => ({}));
+        throw new Error((d as { error?: string }).error ?? `HTTP ${apiRes.status}`);
+      }
       setSavedTick((t) => t + 1);
       showToast('저장 완료', 'success');
     } catch (e) {

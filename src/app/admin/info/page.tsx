@@ -109,13 +109,12 @@ export default function AdminInfoPage() {
     setCatSaving(true);
     setCatError(null);
     try {
-      const supabase = createBrowserSupabaseClient();
-      const { error: err } = await supabase.from('info_categories').insert({
-        value: val,
-        label: lbl,
-        display_order: categories.length + 1,
+      const res = await fetch('/api/admin/info-categories', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ value: val, label: lbl, display_order: categories.length + 1 }),
       });
-      if (err) throw err;
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error ?? '추가 실패');
       setNewCatValue('');
       setNewCatLabel('');
       fetchCategories();
@@ -128,8 +127,11 @@ export default function AdminInfoPage() {
 
   const handleDeleteCategory = async (id: string) => {
     if (!confirm('카테고리를 삭제하시겠습니까?')) return;
-    const supabase = createBrowserSupabaseClient();
-    await supabase.from('info_categories').delete().eq('id', id);
+    await fetch('/api/admin/info-categories', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id }),
+    });
     fetchCategories();
   };
 
@@ -186,20 +188,25 @@ export default function AdminInfoPage() {
     setSubmitError(null);
     try {
       const { sourceType, thumbnailUrl } = parseUrl(url);
-      const supabase = createBrowserSupabaseClient();
-      const { error: err } = await supabase.from('info_articles').insert({
-        title,
-        excerpt: excerptInput.trim() || null,
-        link_url: url,
-        thumbnail_url: thumbnailUrl,
-        source_type: sourceType,
-        is_active: true,
-        display_order: articles.length,
-        category: categoryInput,
-        vehicle_slug: categoryInput === 'car' ? (vehicleSlugInput || null) : null,
+      const res = await fetch('/api/admin/info-articles', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title,
+          excerpt: excerptInput.trim() || null,
+          link_url: url,
+          thumbnail_url: thumbnailUrl,
+          source_type: sourceType,
+          is_active: true,
+          display_order: articles.length,
+          category: categoryInput,
+          vehicle_slug: categoryInput === 'car' ? (vehicleSlugInput || null) : null,
+        }),
       });
-
-      if (err) throw err;
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}));
+        throw new Error((d as { error?: string }).error ?? '등록 실패');
+      }
       setUrlInput('');
       setTitleInput('');
       setExcerptInput('');
@@ -218,11 +225,11 @@ export default function AdminInfoPage() {
 
   const handleToggleActive = async (id: string, isActive: boolean) => {
     try {
-      const supabase = createBrowserSupabaseClient();
-      await supabase
-        .from('info_articles')
-        .update({ is_active: !isActive, updated_at: new Date().toISOString() })
-        .eq('id', id);
+      await fetch('/api/admin/info-articles', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, is_active: !isActive }),
+      });
       fetchArticles();
     } catch {
       // ignore
@@ -235,18 +242,18 @@ export default function AdminInfoPage() {
     if (!title) return;
     setEditState((prev) => prev ? { ...prev, saving: true } : null);
     try {
-      const supabase = createBrowserSupabaseClient();
-      const { error: err } = await supabase
-        .from('info_articles')
-        .update({
+      const res = await fetch('/api/admin/info-articles', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: editState.id,
           title,
           excerpt: editState.excerpt.trim() || null,
           category: editState.category,
           vehicle_slug: editState.category === 'car' ? (editState.vehicle_slug || null) : null,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', editState.id);
-      if (err) throw err;
+        }),
+      });
+      if (!res.ok) throw new Error('저장 실패');
       setEditState(null);
       fetchArticles();
     } catch {
@@ -271,10 +278,17 @@ export default function AdminInfoPage() {
     const targetIdx = direction === 'up' ? idx - 1 : idx + 1;
     if (targetIdx < 0 || targetIdx >= sameType.length) return;
     const target = sameType[targetIdx];
-    const supabase = createBrowserSupabaseClient();
     await Promise.all([
-      supabase.from('info_articles').update({ display_order: target.display_order }).eq('id', id),
-      supabase.from('info_articles').update({ display_order: article.display_order }).eq('id', target.id),
+      fetch('/api/admin/info-articles', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, display_order: target.display_order }),
+      }),
+      fetch('/api/admin/info-articles', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: target.id, display_order: article.display_order }),
+      }),
     ]);
     fetchArticles();
   };
@@ -282,8 +296,12 @@ export default function AdminInfoPage() {
   const handleDelete = async (id: string) => {
     if (!confirm('정말 삭제하시겠습니까?')) return;
     try {
-      const supabase = createBrowserSupabaseClient();
-      await supabase.from('info_articles').delete().eq('id', id);
+      const res = await fetch('/api/admin/info-articles', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }),
+      });
+      if (!res.ok) throw new Error('삭제 실패');
       fetchArticles();
     } catch {
       setError('삭제 실패');

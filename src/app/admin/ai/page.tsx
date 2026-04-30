@@ -51,7 +51,7 @@ export default function AdminAIPage() {
     setError(null);
     try {
       const supabase = createBrowserSupabaseClient();
-      // 기존 데이터를 먼저 로드하여 aiConfig만 덮어씀
+      // 기존 데이터를 먼저 로드하여 aiConfig만 덮어씀 (읽기는 anon SELECT 허용)
       const res = await supabase
         .from('diagnosis_config')
         .select('data')
@@ -59,10 +59,16 @@ export default function AdminAIPage() {
         .maybeSingle();
       const existing = isRecord(res.data?.data) ? res.data!.data as Record<string, unknown> : {};
       const updated = { ...existing, aiConfig: cfg };
-      const upsertRes = await supabase
-        .from('diagnosis_config')
-        .upsert({ id: CONFIG_ID, data: updated, updated_at: new Date().toISOString() }, { onConflict: 'id' });
-      if (upsertRes.error) throw new Error(upsertRes.error.message);
+      // 쓰기는 service_role API route 경유
+      const apiRes = await fetch('/api/admin/diagnosis-config', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: CONFIG_ID, data: updated }),
+      });
+      if (!apiRes.ok) {
+        const d = await apiRes.json().catch(() => ({}));
+        throw new Error((d as { error?: string }).error ?? `HTTP ${apiRes.status}`);
+      }
       showToast('저장 완료', 'success');
     } catch (e) {
       const msg = e instanceof Error ? e.message : '저장에 실패했습니다.';
