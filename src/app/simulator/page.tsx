@@ -12,6 +12,22 @@ export const metadata: Metadata = {
 
 const CARDS = [
   {
+    href:  '/simulator/compare',
+    icon:  '⚖️',
+    title: '결제방식 비교',
+    sub:   '할부·리스·렌트 총비용을 한눈에 비교',
+    badge: '✨ NEW',
+    accent: '#3b82f6',
+  },
+  {
+    href:  '/market/sell-price',
+    icon:  '📊',
+    title: '내 차 시세 조회',
+    sub:   '엔카 실거래 기준 연식·주행거리별 시세',
+    badge: '중고차',
+    accent: '#a855f7',
+  },
+  {
     href:  '/simulator/tax',
     icon:  '💼',
     title: '사업자 절세 진단',
