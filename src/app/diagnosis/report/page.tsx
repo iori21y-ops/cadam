@@ -17,6 +17,7 @@ import { TaxSummaryCard }      from '@/components/diagnosis/report/TaxSummaryCar
 import { TaxSavingCard }       from '@/components/diagnosis/report/TaxSavingCard';
 import { EvChargingCard, type EvChargingStats } from '@/components/diagnosis/report/EvChargingCard';
 import { LeasePenaltyCard }    from '@/components/diagnosis/report/LeasePenaltyCard';
+import { InsuranceInsightCard } from '@/components/diagnosis/report/InsuranceInsightCard';
 import { SwitchTimingCard }    from '@/components/diagnosis/report/SwitchTimingCard';
 import { ReportSection }       from '@/components/diagnosis/report/ReportSection';
 import { Button }              from '@/components/ui/Button';
@@ -174,9 +175,12 @@ const FUEL_LABEL: Record<string, string> = {
 };
 
 export default function ReportPage() {
-  const [step, setStep]                     = useState<Step>('input');
-  const [report, setReport]                 = useState<ReportData | null>(null);
-  const [annualInsuranceMk, setAnnInsurMk]  = useState<number | null>(null);
+  const [step, setStep]       = useState<Step>('input');
+  const [report, setReport]   = useState<ReportData | null>(null);
+  const [insuranceData, setInsuranceData] = useState<{
+    annual:    number;
+    breakdown: Record<string, number>;
+  } | null>(null);
   const [evStats, setEvStats]               = useState<EvChargingStats | null>(null);
   const [monthlyFuelMk, setMonthlyFuelMk]   = useState<number | null>(null);
   const [pdfToast, setPdfToast]             = useState(false);
@@ -189,7 +193,7 @@ export default function ReportPage() {
 
   function handleSubmit(formData: DiagnosisFormData) {
     setStep('calculating');
-    setAnnInsurMk(null);
+    setInsuranceData(null);
     setMonthlyFuelMk(null);
 
     // "계산 중..." 600ms 동안 DB 시세 조회를 병렬 실행
@@ -220,7 +224,10 @@ export default function ReportPage() {
         .then((r) => r.ok ? r.json() : null)
         .then((json) => {
           if (json?.status === 'ok' && json.estimated_annual_mk) {
-            setAnnInsurMk(json.estimated_annual_mk);
+            setInsuranceData({
+              annual:    json.estimated_annual_mk,
+              breakdown: json.breakdown_monthly ?? {},
+            });
           }
         })
         .catch(() => { /* 보험료 로드 실패 시 미표시 */ });
@@ -266,7 +273,7 @@ export default function ReportPage() {
   function handleReset() {
     setStep('input');
     setReport(null);
-    setAnnInsurMk(null);
+    setInsuranceData(null);
     setEvStats(null);
     setMonthlyFuelMk(null);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -296,7 +303,7 @@ export default function ReportPage() {
       `현재시세 추정: ${report.depResult.currentValue.toLocaleString()}만원 (${retentionPct}, 차령 ${report.vehicleAge}년)`,
       `연간 자동차세: ${Math.round(report.autoTaxResult.discountedTotal / 10000)}만원`,
       `취득세: ${Math.round(report.acqTaxResult.finalTax / 10000)}만원`,
-      annualInsuranceMk != null ? `보험료(추정): 연 ${annualInsuranceMk}만원` : null,
+      insuranceData != null ? `보험료(추정): 연 ${insuranceData.annual}만원` : null,
       monthlyFuelMk     != null ? `유류비(추정): 월 ${monthlyFuelMk}만원` : null,
     ].filter(Boolean).join(' / ');
 
@@ -521,7 +528,7 @@ export default function ReportPage() {
                   vehicleAge={report.vehicleAge}
                   curve={report.curve}
                   annualAutoTax={Math.round(report.autoTaxResult.discountedTotal / 10000)}
-                  annualInsurance={annualInsuranceMk ?? undefined}
+                  annualInsurance={insuranceData?.annual ?? undefined}
                   monthlyFuel={monthlyFuelMk ?? undefined}
                 />
               </ReportSection>
@@ -564,7 +571,7 @@ export default function ReportPage() {
                     acquisitionTax={Math.round(report.acqTaxResult.finalTax / 10000)}
                     annualAutoTax={Math.round(report.autoTaxResult.discountedTotal / 10000)}
                     residual5yr={report.residual5yr}
-                    annualInsurance={annualInsuranceMk ?? undefined}
+                    annualInsurance={insuranceData?.annual ?? undefined}
                     monthlyFuel={monthlyFuelMk ?? undefined}
                     preCalcMonthly={(() => {
                       const cmp = calculateComparison({
@@ -592,13 +599,25 @@ export default function ReportPage() {
                   />
                 </div>
 
-                <div className="border-t border-[#F2F2F7] pt-4">
+                {/* 보험료 분석 카드 — 보험 데이터 로드 후 표시 */}
+                {insuranceData && (
+                  <div className="mt-5">
+                    <InsuranceInsightCard
+                      annualMk={insuranceData.annual}
+                      breakdown={insuranceData.breakdown}
+                      ageGroup={report.formData.ageGroup}
+                      sex={report.formData.sex}
+                    />
+                  </div>
+                )}
+
+                <div className="border-t border-[#F2F2F7] pt-4 mt-5">
                   <CostComparisonTable
                     msrp={report.formData.trimData.msrp_price}
                     acquisitionTax={Math.round(report.acqTaxResult.finalTax / 10000)}
                     annualAutoTax={Math.round(report.autoTaxResult.discountedTotal / 10000)}
                     residual5yr={report.residual5yr}
-                    annualInsurance={annualInsuranceMk ?? undefined}
+                    annualInsurance={insuranceData?.annual ?? undefined}
                     ageGroup={report.formData.ageGroup}
                     monthlyFuel={monthlyFuelMk ?? undefined}
                     preCalcMonthly={(() => {
