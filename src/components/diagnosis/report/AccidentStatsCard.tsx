@@ -173,6 +173,9 @@ export function AccidentStatsCard({ carType, stats, year, isAnnual, trend }: Pro
               % · 8개년 변동 폭{' '}
               <span className="font-semibold text-[#1C1C1E]">{trendDiff}%p</span>
             </p>
+            <p className="text-[9px] text-[#8E8E93]">
+              코로나 영향으로 2021~23년 손해율 하락 후 2024~25년 회복 추세
+            </p>
           </div>
         )}
 
