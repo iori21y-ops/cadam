@@ -18,6 +18,7 @@ import { TaxSavingCard }       from '@/components/diagnosis/report/TaxSavingCard
 import { EvChargingCard, type EvChargingStats } from '@/components/diagnosis/report/EvChargingCard';
 import { LeasePenaltyCard }    from '@/components/diagnosis/report/LeasePenaltyCard';
 import { InsuranceInsightCard } from '@/components/diagnosis/report/InsuranceInsightCard';
+import { AccidentStatsCard }   from '@/components/diagnosis/report/AccidentStatsCard';
 import { SwitchTimingCard }    from '@/components/diagnosis/report/SwitchTimingCard';
 import { ReportSection }       from '@/components/diagnosis/report/ReportSection';
 import { Button }              from '@/components/ui/Button';
@@ -181,6 +182,10 @@ export default function ReportPage() {
     annual:    number;
     breakdown: Record<string, number>;
   } | null>(null);
+  const [accidentStats, setAccidentStats] = useState<{
+    year: string; isAnnual: boolean;
+    stats: Record<string, { lossRate: number; injuredPer10k: number; deathPer10k: number; totalInjured: number; totalDeath: number }>;
+  } | null>(null);
   const [evStats, setEvStats]               = useState<EvChargingStats | null>(null);
   const [monthlyFuelMk, setMonthlyFuelMk]   = useState<number | null>(null);
   const [pdfToast, setPdfToast]             = useState(false);
@@ -194,6 +199,7 @@ export default function ReportPage() {
   function handleSubmit(formData: DiagnosisFormData) {
     setStep('calculating');
     setInsuranceData(null);
+    setAccidentStats(null);
     setMonthlyFuelMk(null);
 
     // "계산 중..." 600ms 동안 DB 시세 조회를 병렬 실행
@@ -231,6 +237,16 @@ export default function ReportPage() {
           }
         })
         .catch(() => { /* 보험료 로드 실패 시 미표시 */ });
+
+      // 사고 통계 비동기 조회 (모든 차종)
+      fetch('/api/accident-stats')
+        .then((r) => r.ok ? r.json() : null)
+        .then((json) => {
+          if (json?.status === 'ok' && json.stats) {
+            setAccidentStats({ year: json.year, isAnnual: json.is_annual, stats: json.stats });
+          }
+        })
+        .catch(() => { /* 사고 통계 로드 실패 시 미표시 */ });
 
       // EV 충전 통계 비동기 조회 (EV 차량일 때만)
       if (data.isEV) {
@@ -274,6 +290,7 @@ export default function ReportPage() {
     setStep('input');
     setReport(null);
     setInsuranceData(null);
+    setAccidentStats(null);
     setEvStats(null);
     setMonthlyFuelMk(null);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -548,19 +565,31 @@ export default function ReportPage() {
               </ReportSection>
 
               {/* ── 섹션4-b: 보험료 분석 (보험 데이터 로드 후 표시) ── */}
-              {insuranceData && (
+              {(insuranceData || accidentStats) && (
                 <ReportSection
                   title="보험료 분석"
                   subtitle="금융위원회 자동차보험 통계 기반 맞춤 추정"
                   badgeColor="#FF9500"
                   badge={report.formData.ageGroup ? `${report.formData.ageGroup} 기준` : '통계 기반'}
                 >
-                  <InsuranceInsightCard
-                    annualMk={insuranceData.annual}
-                    breakdown={insuranceData.breakdown}
-                    ageGroup={report.formData.ageGroup}
-                    sex={report.formData.sex}
-                  />
+                  {insuranceData && (
+                    <InsuranceInsightCard
+                      annualMk={insuranceData.annual}
+                      breakdown={insuranceData.breakdown}
+                      ageGroup={report.formData.ageGroup}
+                      sex={report.formData.sex}
+                    />
+                  )}
+                  {accidentStats && (
+                    <div className={insuranceData ? 'mt-4' : ''}>
+                      <AccidentStatsCard
+                        carType={toInsuranceCarType(report.cc, report.isEV, report.formData.trimData.msrp_price)}
+                        stats={accidentStats.stats}
+                        year={accidentStats.year}
+                        isAnnual={accidentStats.isAnnual}
+                      />
+                    </div>
+                  )}
                 </ReportSection>
               )}
 
