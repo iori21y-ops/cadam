@@ -187,6 +187,7 @@ export default function ReportPage() {
   const [accidentStats, setAccidentStats] = useState<{
     year: string; isAnnual: boolean;
     stats: Record<string, { lossRate: number; injuredPer10k: number; deathPer10k: number; totalInjured: number; totalDeath: number }>;
+    trend?: { year: string; lossRates: Record<string, number> }[];
   } | null>(null);
   const [victimStats, setVictimStats] = useState<VictimStats | null>(null);
   const [evStats, setEvStats]               = useState<EvChargingStats | null>(null);
@@ -243,12 +244,12 @@ export default function ReportPage() {
         })
         .catch(() => { /* 보험료 로드 실패 시 미표시 */ });
 
-      // 사고 통계 비동기 조회 (모든 차종)
-      fetch('/api/accident-stats')
+      // 사고 통계 비동기 조회 (모든 차종, 8개년 추이 포함)
+      fetch('/api/accident-stats?trend=true')
         .then((r) => r.ok ? r.json() : null)
         .then((json) => {
           if (json?.status === 'ok' && json.stats) {
-            setAccidentStats({ year: json.year, isAnnual: json.is_annual, stats: json.stats });
+            setAccidentStats({ year: json.year, isAnnual: json.is_annual, stats: json.stats, trend: json.trend });
           }
         })
         .catch(() => { /* 사고 통계 로드 실패 시 미표시 */ });
@@ -607,6 +608,7 @@ export default function ReportPage() {
                         stats={accidentStats.stats}
                         year={accidentStats.year}
                         isAnnual={accidentStats.isAnnual}
+                        trend={accidentStats.trend}
                       />
                     </div>
                   )}

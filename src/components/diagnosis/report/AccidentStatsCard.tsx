@@ -13,6 +13,7 @@ interface Props {
   stats:    Record<string, CarTypeStat>;
   year:     string;   // '2025' 등
   isAnnual: boolean;  // true = 연간 전체 데이터
+  trend?:   { year: string; lossRates: Record<string, number> }[];
 }
 
 const CAR_TYPE_ORDER: Array<'소형' | '중형' | '대형' | '다인승'> = ['소형', '중형', '대형', '다인승'];
@@ -28,7 +29,7 @@ function fmtNum(n: number): string {
   return n.toLocaleString();
 }
 
-export function AccidentStatsCard({ carType, stats, year, isAnnual }: Props) {
+export function AccidentStatsCard({ carType, stats, year, isAnnual, trend }: Props) {
   const availTypes = CAR_TYPE_ORDER.filter((ct) => stats[ct] != null);
   if (availTypes.length === 0) return null;
 
@@ -39,6 +40,15 @@ export function AccidentStatsCard({ carType, stats, year, isAnnual }: Props) {
   const maxLossRate = Math.max(...lossRates, 1);
   const minLossRate = Math.min(...lossRates);
   const diffPp      = Math.round((maxLossRate - minLossRate) * 10) / 10;
+
+  // 현재 차종의 8개년 손해율 추이
+  const myTrend = trend
+    ?.map((t) => ({ year: t.year, lossRate: t.lossRates[carType] ?? null }))
+    .filter((t): t is { year: string; lossRate: number } => t.lossRate !== null)
+    ?? [];
+  const trendMax = myTrend.length > 0 ? Math.max(...myTrend.map((t) => t.lossRate)) : 100;
+  const trendMin = myTrend.length > 0 ? Math.min(...myTrend.map((t) => t.lossRate)) : 0;
+  const trendDiff = Math.round((trendMax - trendMin) * 10) / 10;
 
   const periodLabel = isAnnual ? `${year}년 연간` : `${year}년 ${/* month */''} 기준`;
 
@@ -123,6 +133,48 @@ export function AccidentStatsCard({ carType, stats, year, isAnnual }: Props) {
             </div>
           </div>
         </div>
+
+        {/* 8개년 손해율 추이 */}
+        {myTrend.length >= 3 && (
+          <div className="space-y-1.5">
+            <p className="text-[10px] font-bold text-[#8E8E93] uppercase tracking-wide">
+              이 차종 손해율 추이 (8개년)
+            </p>
+            <div className="h-[48px] flex items-end gap-[3px]">
+              {myTrend.map(({ year: y, lossRate }, i) => {
+                const isLast = i === myTrend.length - 1;
+                const barPx  = Math.min(Math.max(Math.round((lossRate / 100) * 48), 3), 48);
+                return (
+                  <div key={y} className="flex-1 flex flex-col items-center justify-end">
+                    <div
+                      className="w-full rounded-t-[2px]"
+                      style={{ height: barPx, background: isLast ? BAR_COLORS[carType] : `${BAR_COLORS[carType]}44` }}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+            <div className="flex gap-[3px]">
+              {myTrend.map(({ year: y, lossRate }, i) => {
+                const isLast = i === myTrend.length - 1;
+                return (
+                  <div key={y} className="flex-1 text-center">
+                    <p className="text-[8px] leading-none" style={{ color: isLast ? BAR_COLORS[carType] : '#8E8E93' }}>
+                      {y.slice(2)}
+                    </p>
+                    <p className="text-[8px] font-semibold leading-tight" style={{ color: isLast ? BAR_COLORS[carType] : '#3C3C43' }}>
+                      {lossRate}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+            <p className="text-[9px] text-[#8E8E93] text-right">
+              % · 8개년 변동 폭{' '}
+              <span className="font-semibold text-[#1C1C1E]">{trendDiff}%p</span>
+            </p>
+          </div>
+        )}
 
         {/* 솔직한 해석 */}
         <div className="flex items-start gap-2 px-3 py-2.5 rounded-xl bg-[#007AFF08] border border-[#007AFF15]">

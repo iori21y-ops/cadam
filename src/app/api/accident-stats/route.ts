@@ -24,6 +24,8 @@ const supabase = createClient(
 
 const TARGET_CAR_TYPES = ['소형', '중형', '대형', '다인승'] as const;
 const COVERAGES = ['대인배상1', '대인배상2', '대물배상', '자기신체사고', '자기차량손해'] as const;
+// 연도별 추이용: 각 연도 12월 (누적 기준 — ratio = 연간 손해율 직접)
+const TREND_YMS = ['201812','201912','202012','202112','202212','202312','202412','202512'] as const;
 
 export async function GET(req: NextRequest) {
   const rl = await applyRateLimit(req);
@@ -107,12 +109,53 @@ export async function GET(req: NextRequest) {
       };
     }
 
+    // 연도별 손해율 추이 (trend=true 일 때만)
+    const includeTrend = new URL(req.url).searchParams.get('trend') === 'true';
+    let trend: { year: string; lossRates: Record<string, number> }[] | undefined;
+
+    if (includeTrend) {
+      // 연도별 개별 쿼리 (메인 라우트와 동일한 패턴, 8개 병렬)
+      const yearResults = await Promise.all(
+        TREND_YMS.map(async (ym) => {
+          const [lRes, cRes] = await Promise.all([
+            supabase.from('insurance_stats')
+              .select('car_type, coverage_type, loss_amount')
+              .eq('stat_kind', 'loss')
+              .eq('base_ym', ym)
+              .in('car_type', [...TARGET_CAR_TYPES]),
+            supabase.from('insurance_stats')
+              .select('car_type, coverage_type, elapsed_premium')
+              .eq('stat_kind', 'contract')
+              .eq('insurance_type', '개인용')
+              .eq('base_ym', ym)
+              .in('car_type', [...TARGET_CAR_TYPES]),
+          ]);
+          return { ym, lossData: lRes.data ?? [], contrData: cRes.data ?? [] };
+        }),
+      );
+
+      trend = [];
+      for (const { ym, lossData: ld, contrData: cd } of yearResults) {
+        const lossRates: Record<string, number> = {};
+        for (const ct of TARGET_CAR_TYPES) {
+          const lRows = ld.filter((r) => r.car_type === ct && COVERAGES.includes(r.coverage_type as typeof COVERAGES[number]));
+          const cRows = cd.filter((r) => r.car_type === ct && COVERAGES.includes(r.coverage_type as typeof COVERAGES[number]));
+          const totalLoss = lRows.reduce((s, r) => s + (r.loss_amount    ?? 0), 0);
+          const totalPrem = cRows.reduce((s, r) => s + (r.elapsed_premium ?? 0), 0);
+          if (totalPrem > 0) lossRates[ct] = Math.round((totalLoss / totalPrem) * 1000) / 10;
+        }
+        if (Object.keys(lossRates).length > 0) trend.push({ year: ym.slice(0, 4), lossRates });
+      }
+      if (trend.length === 0) trend = undefined;
+    }
+
     return NextResponse.json({
       status:   'ok',
       base_ym,
       year:     base_ym.slice(0, 4),
       is_annual: base_ym.endsWith('12'),
       stats,
+      ...(trend ? { trend } : {}),
     });
   } catch (err) {
     return secureError(err, 500);

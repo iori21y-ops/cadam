@@ -7,6 +7,8 @@ import { calculateComparison, type ComparisonInputs, type ComparisonResult, type
 import { scoreDecision, type DecisionResult, type ScoredMethod } from '@/lib/domain/decision-scorer';
 import { getVehicleCC } from '@/lib/domain/vehicle-cc-map';
 import { InsuranceInsightCard } from '@/components/diagnosis/report/InsuranceInsightCard';
+import { AccidentStatsCard }   from '@/components/diagnosis/report/AccidentStatsCard';
+import { VictimStatsCard, type VictimStats } from '@/components/diagnosis/report/VictimStatsCard';
 import type { CustomerType, InsuranceHistory, PlatePreference, ContractEndOption } from '@/lib/domain/decision-scorer';
 import type { Industry, RevenueRange } from '@/lib/domain/tax-calculator';
 import type { AcquisitionVehicleType } from '@/lib/domain/acquisition-tax-calculator';
@@ -25,6 +27,7 @@ interface DbInsurance {
   breakdown: Record<string, number>;     // 담보별 월 보험료 (원)
   ageGroup:  string | null;
   sex:       string | null;
+  trend?:    { year: string; annual_mk: number }[];
 }
 
 interface AdvancedSettings {
@@ -361,6 +364,13 @@ function CompareInner() {
   const [dbUsedPrices, setDbUsedPrices]   = useState<Record<number, YearPrices> | null>(null);
   const [loadingInsurance, setLoadingInsurance] = useState(false);
   const [loadingUsedPrices, setLoadingUsedPrices] = useState(false);
+  // 결과 화면용 추가 통계
+  const [accidentStats, setAccidentStats] = useState<{
+    year: string; isAnnual: boolean;
+    stats: Record<string, { lossRate: number; injuredPer10k: number; deathPer10k: number; totalInjured: number; totalDeath: number }>;
+    trend?: { year: string; lossRates: Record<string, number> }[];
+  } | null>(null);
+  const [victimStats, setVictimStats]     = useState<VictimStats | null>(null);
 
   // 고급 설정 토글
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -436,7 +446,7 @@ function CompareInner() {
     if (!carPriceMk || carPriceMk <= 0) return;
     const carType = getCarType(carPriceMk);
     const origin  = DOMESTIC_BRANDS.has(brand) ? '국산' : brand && brand !== '__manual__' ? '외산' : undefined;
-    const payload: Record<string, string> = { car_type: carType };
+    const payload: Record<string, string | boolean> = { car_type: carType, include_trend: true };
     if (origin)   payload.origin    = origin;
     if (ageGroup) payload.age_group = ageGroup;
     if (sex)      payload.sex       = sex;
@@ -449,7 +459,7 @@ function CompareInner() {
       body: JSON.stringify(payload),
     })
       .then((r) => r.json())
-      .then((d: { status: string; estimated_annual_won?: number; base_ym?: string; breakdown_monthly?: Record<string, number>; age_group?: string; sex?: string }) => {
+      .then((d: { status: string; estimated_annual_won?: number; base_ym?: string; breakdown_monthly?: Record<string, number>; age_group?: string; sex?: string; trend?: { year: string; annual_mk: number }[] }) => {
         if (d.status === 'ok' && d.estimated_annual_won) {
           setDbInsurance({
             amount:    d.estimated_annual_won,
@@ -457,6 +467,7 @@ function CompareInner() {
             breakdown: d.breakdown_monthly ?? {},
             ageGroup:  d.age_group ?? null,
             sex:       d.sex       ?? null,
+            trend:     d.trend,
           });
         }
       })
@@ -514,6 +525,19 @@ function CompareInner() {
 
     setCmpResult(cmp); setDecision(dec);
     setDir(1); setPhase('result');
+
+    // 결과 화면용 사고·피해자 통계 비동기 조회
+    setAccidentStats(null); setVictimStats(null);
+    fetch('/api/accident-stats?trend=true')
+      .then((r) => r.ok ? r.json() : null)
+      .then((json) => {
+        if (json?.status === 'ok') setAccidentStats({ year: json.year, isAnnual: json.is_annual, stats: json.stats, trend: json.trend });
+      })
+      .catch(() => {});
+    fetch('/api/victim-stats')
+      .then((r) => r.ok ? r.json() : null)
+      .then((json) => { if (json?.status === 'ok') setVictimStats(json as VictimStats); })
+      .catch(() => {});
   }
 
   // 리드폼 제출
@@ -955,18 +979,33 @@ function CompareInner() {
               ))}
 
               {/* 보험료 분석 카드 — 금융위원회 통계 데이터 가용 시 */}
-              {dbInsurance && Object.keys(dbInsurance.breakdown).length > 0 && (
+              {(dbInsurance || accidentStats || victimStats) && (
                 <div className="rounded-2xl bg-white border border-[#E5E7EB] shadow-sm overflow-hidden">
                   <div className="px-4 py-3 border-b border-[#F2F2F7]">
                     <p className="text-[12px] font-bold text-[#8E8E93] uppercase tracking-wide">보험료 분석</p>
                   </div>
-                  <div className="p-4">
-                    <InsuranceInsightCard
-                      annualMk={Math.round(dbInsurance.amount / 10_000)}
-                      breakdown={dbInsurance.breakdown}
-                      ageGroup={dbInsurance.ageGroup}
-                      sex={dbInsurance.sex}
-                    />
+                  <div className="p-4 space-y-4">
+                    {dbInsurance && Object.keys(dbInsurance.breakdown).length > 0 && (
+                      <InsuranceInsightCard
+                        annualMk={Math.round(dbInsurance.amount / 10_000)}
+                        breakdown={dbInsurance.breakdown}
+                        ageGroup={dbInsurance.ageGroup}
+                        sex={dbInsurance.sex}
+                        trend={dbInsurance.trend}
+                      />
+                    )}
+                    {victimStats && (
+                      <VictimStatsCard stats={victimStats} />
+                    )}
+                    {accidentStats && (
+                      <AccidentStatsCard
+                        carType={getCarType(Number(form.carPriceMk))}
+                        stats={accidentStats.stats}
+                        year={accidentStats.year}
+                        isAnnual={accidentStats.isAnnual}
+                        trend={accidentStats.trend}
+                      />
+                    )}
                   </div>
                 </div>
               )}
