@@ -16,7 +16,7 @@ import {
   type AcquisitionVehicleType,
 } from '@/lib/domain/acquisition-tax-calculator';
 import { calculateAutoTax } from '@/lib/domain/auto-tax-calculator';
-import { calculateDepreciation } from '@/lib/domain/depreciation-calculator';
+import { calculateDepreciation, type YearPrices } from '@/lib/domain/depreciation-calculator';
 import {
   calculateTaxSaving,
   type Industry,
@@ -126,7 +126,10 @@ function calcAnnualTaxSaving(
 
 // ── 공개 계산 함수 ─────────────────────────────────────────────────────
 
-export function calculateComparison(inputs: ComparisonInputs): ComparisonResult {
+export function calculateComparison(
+  inputs: ComparisonInputs,
+  customPrices?: Record<number, YearPrices>,
+): ComparisonResult {
   const {
     carPriceMk, modelName, vehicleAge, isEV, isHEV,
     acquisitionVehicleType, cc, ownershipYears, annualKm, insuranceAnnual,
@@ -166,6 +169,7 @@ export function calculateComparison(inputs: ComparisonInputs): ComparisonResult 
     'mid',
     'domestic_suv',
     carPriceMk,
+    customPrices,
   );
   const salvageMid  = depResult.currentValue * 10_000;
   const salvageLow  = Math.round(salvageMid * (1 - TOLERANCE.depreciation));

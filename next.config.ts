@@ -8,6 +8,11 @@ const nextConfig: NextConfig = {
         destination: '/cars/grandeur',
         permanent: true,
       },
+      {
+        source: '/simulator/compare',
+        destination: '/diagnosis/compare',
+        permanent: true,
+      },
     ];
   },
   compress: true,
