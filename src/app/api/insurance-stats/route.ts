@@ -1,7 +1,7 @@
 /**
  * /api/insurance-stats — 차종·원산지·연령대별 연간 보험료 추정치 조회
  *
- * 데이터 소스: Supabase insurance_stats (금융위원회 자동차보험 통계, 15,133건)
+ * 데이터 소스: Supabase insurance_stats (금융위원회 자동차보험 통계, 117,033건)
  *   - 수집: cadam-pipeline/scripts/api-hub/domestic/insurance/fetch_insurance_stats.py
  *   - 갱신: 매일 09시 check_and_fetch_insurance.py (신규 월 데이터 감지 시 자동 적재)
  *
@@ -39,6 +39,8 @@ const ORIGIN_TYPES = ['국산', '외산'] as const;
 const AGE_GROUPS   = ['20대 이하', '30대', '40대', '50대', '60대', '70대 이상'] as const;
 const BIZ_TYPES    = ['personal', 'individual_business', 'corporation'] as const;
 const SEX_TYPES    = ['남자', '여자'] as const;
+// 연도별 추이용: 각 연도 12월 (누적 기준이라 ratio = 연간 보험료 직접)
+const TREND_YMS    = ['201812','201912','202012','202112','202212','202312','202412','202512'] as const;
 
 const BIZ_TO_INSURANCE: Record<typeof BIZ_TYPES[number], string> = {
   personal:            '개인용',
@@ -52,6 +54,7 @@ const InsuranceStatsRequest = z.object({
   age_group:     z.enum(AGE_GROUPS).optional(),
   sex:           z.enum(SEX_TYPES).optional(),
   business_type: z.enum(BIZ_TYPES).optional(),
+  include_trend: z.boolean().optional(),
 });
 
 const COVERAGES = ['대인배상1', '대인배상2', '대물배상', '자기신체사고', '자기차량손해'] as const;
@@ -71,7 +74,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: '잘못된 요청' }, { status: 400 });
     }
 
-    const { car_type, origin, age_group, sex, business_type } = parsed.data;
+    const { car_type, origin, age_group, sex, business_type, include_trend } = parsed.data;
     const insurance_type = BIZ_TO_INSURANCE[business_type ?? 'personal'];
 
     // 최신 base_ym 조회
@@ -153,6 +156,47 @@ export async function POST(req: NextRequest) {
 
     const estimated_annual_won = Math.round(totalMonthly * 12);
 
+    // 연도별 추이 (include_trend=true일 때만)
+    let trend: { year: string; annual_mk: number }[] | undefined;
+    if (include_trend) {
+      let trendQuery = supabase
+        .from('insurance_stats')
+        .select('base_ym, coverage_type, elapsed_premium, join_count')
+        .eq('car_type', car_type)
+        .eq('insurance_type', insurance_type)
+        .eq('stat_kind', 'contract')
+        .in('base_ym', [...TREND_YMS])
+        .gt('join_count', 0);
+      if (origin)    trendQuery = trendQuery.eq('origin',    origin);
+      if (age_group) trendQuery = trendQuery.eq('age_group', age_group);
+      if (sex)       trendQuery = trendQuery.eq('sex',       sex);
+      const { data: trendData } = await trendQuery;
+      if (trendData && trendData.length > 0) {
+        // base_ym × coverage → premium/join 집계
+        const ymCovMap = new Map<string, Map<string, { p: number; j: number }>>();
+        for (const row of trendData) {
+          if (!ymCovMap.has(row.base_ym)) ymCovMap.set(row.base_ym, new Map());
+          const covMap = ymCovMap.get(row.base_ym)!;
+          const cov = row.coverage_type as string;
+          const cur = covMap.get(cov) ?? { p: 0, j: 0 };
+          covMap.set(cov, { p: cur.p + (row.elapsed_premium ?? 0), j: cur.j + (row.join_count ?? 0) });
+        }
+        trend = [];
+        for (const ym of TREND_YMS) {
+          const covMap = ymCovMap.get(ym);
+          if (!covMap) continue;
+          let total = 0;
+          for (const cov of COVERAGES) {
+            const entry = covMap.get(cov);
+            // 12월 누적 데이터: elapsed/join = 연간 보험료 (×12 불필요)
+            if (entry && entry.j > 0) total += entry.p / entry.j;
+          }
+          if (total > 0) trend.push({ year: ym.slice(0, 4), annual_mk: Math.round(total / 10000) });
+        }
+        if (trend.length === 0) trend = undefined;
+      }
+    }
+
     return allowCors(req, NextResponse.json({
       status:              'ok',
       car_type,
@@ -164,6 +208,7 @@ export async function POST(req: NextRequest) {
       estimated_annual_won,
       estimated_annual_mk: Math.round(estimated_annual_won / 10000),
       breakdown_monthly:   breakdown,  // 담보별 월 보험료 (원)
+      ...(trend !== undefined ? { trend } : {}),
     }));
   } catch (err) {
     return secureError(err, 500);

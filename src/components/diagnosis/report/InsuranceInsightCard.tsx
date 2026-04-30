@@ -1,10 +1,13 @@
 'use client';
 
+interface TrendPoint { year: string; annual_mk: number; }
+
 interface Props {
   annualMk:  number;
   breakdown: Record<string, number>;  // 담보별 월 보험료 (원) — insurance-stats API
   ageGroup?: string | null;
   sex?:      string | null;
+  trend?:    TrendPoint[];
 }
 
 const COVERAGE_ORDER  = ['대인배상1', '대인배상2', '대물배상', '자기신체사고', '자기차량손해'] as const;
@@ -28,7 +31,7 @@ function fmtWon(won: number): string {
   return `${won.toLocaleString()}원`;
 }
 
-export function InsuranceInsightCard({ annualMk, breakdown, ageGroup, sex }: Props) {
+export function InsuranceInsightCard({ annualMk, breakdown, ageGroup, sex, trend }: Props) {
   const monthlyMk = Math.round(annualMk / 12);
 
   const severity: 'high' | 'mid' | 'low' =
@@ -101,6 +104,44 @@ export function InsuranceInsightCard({ annualMk, breakdown, ageGroup, sex }: Pro
                 </span>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* 연도별 보험료 추이 미니 차트 */}
+        {trend && trend.length >= 3 && (
+          <div className="space-y-1.5">
+            <p className="text-[10px] font-bold text-[#8E8E93] uppercase tracking-wide">연도별 보험료 추이</p>
+            {/* Y축 0~70 고정 (차이가 작음을 시각적으로 표현) */}
+            <div className="h-[56px] flex items-end gap-[3px]">
+              {trend.map(({ year, annual_mk }, i) => {
+                const isLast  = i === trend!.length - 1;
+                const barPx   = Math.max(Math.round((annual_mk / 70) * 56), 3);
+                return (
+                  <div key={year} className="flex-1 flex flex-col items-center justify-end">
+                    <div
+                      className="w-full rounded-t-[2px]"
+                      style={{ height: barPx, background: isLast ? '#007AFF' : '#007AFF33' }}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+            <div className="flex gap-[3px]">
+              {trend.map(({ year, annual_mk }, i) => {
+                const isLast = i === trend!.length - 1;
+                return (
+                  <div key={year} className="flex-1 text-center">
+                    <p className="text-[8px] leading-none" style={{ color: isLast ? '#007AFF' : '#8E8E93' }}>
+                      {year.slice(2)}
+                    </p>
+                    <p className="text-[8px] font-semibold leading-tight" style={{ color: isLast ? '#007AFF' : '#3C3C43' }}>
+                      {annual_mk}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+            <p className="text-[9px] text-[#8E8E93] text-right">만원/년 · {trend[0].year}~{trend[trend.length-1].year}년</p>
           </div>
         )}
 

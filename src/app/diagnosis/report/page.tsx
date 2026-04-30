@@ -181,6 +181,7 @@ export default function ReportPage() {
   const [insuranceData, setInsuranceData] = useState<{
     annual:    number;
     breakdown: Record<string, number>;
+    trend?:    { year: string; annual_mk: number }[];
   } | null>(null);
   const [accidentStats, setAccidentStats] = useState<{
     year: string; isAnnual: boolean;
@@ -217,7 +218,7 @@ export default function ReportPage() {
       // 보험료 비동기 조회 (리포트 렌더 후 백그라운드 fetch)
       const carType = toInsuranceCarType(data.cc, data.isEV, data.formData.trimData.msrp_price);
       const origin  = toInsuranceOrigin(data.formData.brand);
-      const insurancePayload: Record<string, string> = { car_type: carType, origin };
+      const insurancePayload: Record<string, string | boolean> = { car_type: carType, origin, include_trend: true };
       if (data.formData.ageGroup)     insurancePayload.age_group     = data.formData.ageGroup;
       if (data.formData.sex)          insurancePayload.sex            = data.formData.sex;
       if (data.formData.businessType !== 'personal')
@@ -233,6 +234,7 @@ export default function ReportPage() {
             setInsuranceData({
               annual:    json.estimated_annual_mk,
               breakdown: json.breakdown_monthly ?? {},
+              trend:     json.trend ?? undefined,
             });
           }
         })
@@ -578,6 +580,7 @@ export default function ReportPage() {
                       breakdown={insuranceData.breakdown}
                       ageGroup={report.formData.ageGroup}
                       sex={report.formData.sex}
+                      trend={insuranceData.trend}
                     />
                   )}
                   {accidentStats && (
