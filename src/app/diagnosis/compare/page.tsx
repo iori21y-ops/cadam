@@ -3,14 +3,19 @@
 import { useState, useEffect, useCallback, useRef, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { calculateComparison, type ComparisonInputs, type ComparisonResult, type MethodResult } from '@/lib/domain/comparison-engine';
+import { calculateComparison, type ComparisonInputs, type ComparisonResult } from '@/lib/domain/comparison-engine';
 import { scoreDecision, type DecisionResult, type ScoredMethod } from '@/lib/domain/decision-scorer';
 import { getVehicleCC } from '@/lib/domain/vehicle-cc-map';
 import { InsuranceInsightCard } from '@/components/diagnosis/report/InsuranceInsightCard';
 import { AccidentStatsCard }   from '@/components/diagnosis/report/AccidentStatsCard';
 import { VictimStatsCard, type VictimStats } from '@/components/diagnosis/report/VictimStatsCard';
-import type { CustomerType, InsuranceHistory, PlatePreference, ContractEndOption } from '@/lib/domain/decision-scorer';
-import type { Industry, RevenueRange } from '@/lib/domain/tax-calculator';
+import { DepreciationChart } from '@/components/diagnosis/report/DepreciationChart';
+import { getDepreciationCurve } from '@/lib/domain/depreciation-calculator';
+import { calculateAcquisitionTax } from '@/lib/domain/acquisition-tax-calculator';
+import { calculateAutoTax } from '@/lib/domain/auto-tax-calculator';
+import { calculateTaxSaving } from '@/lib/domain/tax-calculator';
+import type { CustomerType, InsuranceHistory, PlatePreference, ContractEndOption, ProductMethod } from '@/lib/domain/decision-scorer';
+import type { Industry, RevenueRange, MonthlyBudgetRange } from '@/lib/domain/tax-calculator';
 import type { AcquisitionVehicleType } from '@/lib/domain/acquisition-tax-calculator';
 import type { YearPrices } from '@/lib/domain/depreciation-calculator';
 
@@ -186,142 +191,731 @@ function SelectField({ value, onChange, disabled, children, loading }: {
   );
 }
 
-// ── 결과 카드 ─────────────────────────────────────────────────────────
+// ── 요약 탭 (상단 미니 카드) ─────────────────────────────────────────
 
-function MethodCard({ scored, ownershipYears, insuranceSource }:
-  { scored: ScoredMethod; ownershipYears: number; insuranceSource: string }) {
-  const [open, setOpen] = useState(false);
-  const { method, rank, excluded, excludeReason, keyReasons, result } = scored;
+function SummaryTab({ scored, displayRank, ownershipYears, selected, onClick }: {
+  scored: ScoredMethod; displayRank: number; ownershipYears: number;
+  selected: boolean; onClick: () => void;
+}) {
+  const { method, excluded, result } = scored;
   const m = METHOD_META[method];
-  const bd = result.breakdown;
-  const isBest = rank === 1 && !excluded;
+  const rankEmoji = ['🥇', '🥈', '🥉'][displayRank - 1] ?? '';
 
   return (
-    <div className="rounded-2xl border overflow-hidden shadow-sm"
-      style={{ backgroundColor: m.bg, borderColor: isBest ? m.accent + 'AA' : m.border }}>
-      <div className="px-5 pt-5 pb-4">
-        {/* 헤더 */}
-        <div className="flex items-center justify-between mb-3">
-          <span className="text-xs font-semibold" style={{ color: m.accent }}>
-            {m.rankLabel[rank - 1]}
-          </span>
-          <span className="text-xs px-2 py-1 rounded-full font-semibold"
-            style={{ color: m.accent, backgroundColor: m.accent + '20' }}>
-            {m.label}
-          </span>
-        </div>
-
-        {excluded ? (
-          <p className="text-[#6B7280] text-sm py-2">{excludeReason}</p>
-        ) : (
-          <>
-            {/* 핵심 수치 */}
-            <div className="flex items-end gap-4 mb-4">
-              <div>
-                <p className="text-[#6B7280] text-xs mb-0.5">월 납입</p>
-                <p className="text-[#1C1C1E] text-2xl font-bold">{fmtMk(result.monthlyPayment)}</p>
-              </div>
-              <div className="flex-1 text-right">
-                <p className="text-[#6B7280] text-xs mb-0.5">{ownershipYears}년 총비용</p>
-                <p className="text-xl font-semibold" style={{ color: m.accent }}>
-                  {fmtMk(result.totalCostLow)} ~ {fmtMk(result.totalCostHigh)}
-                </p>
-              </div>
-            </div>
-
-            {/* 핵심 이유 */}
-            <div className="space-y-1.5 mb-3">
-              {keyReasons.map((r, i) => (
-                <div key={i} className="flex items-start gap-2">
-                  <span className="text-xs mt-0.5 shrink-0" style={{ color: m.accent }}>✓</span>
-                  <span className="text-[#374151] text-xs leading-relaxed">{r}</span>
-                </div>
-              ))}
-            </div>
-
-            {/* 절세효과 */}
-            {result.annualTaxSaving > 100_000 && (
-              <div className="mt-2 px-3 py-2 rounded-lg bg-yellow-50 border border-yellow-200">
-                <p className="text-yellow-700 text-xs font-medium">
-                  💡 절세 효과 연 {fmtMk(result.annualTaxSaving)} 별도 (업무사용비율 적용)
-                </p>
-              </div>
-            )}
-
-            {/* 계산 근거 토글 */}
-            <button type="button" onClick={() => setOpen((p) => !p)}
-              className="mt-3 text-[#8E8E93] text-xs hover:text-[#6B7280] transition-colors">
-              계산 근거 {open ? '▲' : '▼'}
-            </button>
-
-            {open && (
-              <div className="mt-2 pt-3 border-t border-black/5 space-y-1.5">
-                {([
-                  ['납입금 합계', bd.payments, null],
-                  ['취등록세', bd.initialCost, '지방세법 §12'],
-                  ['자동차세', bd.autoTax, '지방세법 §127'],
-                  ['보험료', bd.insurance, insuranceSource],
-                  ['정비비', bd.maintenance, '차령·가격 추산'],
-                ] as [string, number, string | null][]).map(([lbl, val, src]) =>
-                  val > 0 ? (
-                    <div key={lbl} className="flex justify-between items-center text-xs">
-                      <span className="text-[#6B7280] flex items-center gap-1">
-                        {lbl}
-                        {src && <DataBadge>{src}</DataBadge>}
-                      </span>
-                      <span className="text-[#374151] font-medium">{fmtMk(val)}</span>
-                    </div>
-                  ) : null,
-                )}
-                {bd.salvageValue > 0 && (
-                  <div className="flex justify-between items-center text-xs">
-                    <span className="text-[#6B7280] flex items-center gap-1">
-                      중고 매각가 (차감)
-                      <DataBadge>엔카 시세</DataBadge>
-                    </span>
-                    <span className="text-green-600 font-medium">−{fmtMk(bd.salvageValue)}</span>
-                  </div>
-                )}
-                {method === 'rent' && (
-                  <p className="text-[#8E8E93] text-xs pt-1">* 보험·정비·세금이 월납입에 포함됨</p>
-                )}
-                <div className="flex justify-between items-center text-xs pt-1.5 border-t border-black/5 font-semibold">
-                  <span className="text-[#6B7280]">추정 총비용 (중간값)</span>
-                  <span style={{ color: m.accent }}>{fmtMk(result.totalCostMid)}</span>
-                </div>
-              </div>
-            )}
-          </>
-        )}
+    <button type="button" onClick={onClick}
+      className="flex-1 rounded-xl border-2 p-2.5 text-left transition-all"
+      style={{
+        backgroundColor: selected ? m.bg : 'white',
+        borderColor: selected ? m.accent : '#E5E7EB',
+      }}>
+      <div className="flex items-center gap-1 mb-1 flex-wrap">
+        <span className="text-[10px] font-bold shrink-0" style={{ color: m.accent }}>{rankEmoji} {displayRank}위</span>
+        <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full shrink-0"
+          style={{ color: m.accent, backgroundColor: m.accent + '20' }}>{m.label}</span>
       </div>
+      {excluded ? (
+        <p className="text-[#8E8E93] text-[10px]">해당없음</p>
+      ) : (
+        <>
+          <p className="text-[#1C1C1E] text-sm font-bold leading-tight">
+            {fmtMk(result.monthlyPayment)}<span className="text-[9px] text-[#8E8E93] font-normal">/월</span>
+          </p>
+          <p className="text-[9px] mt-0.5 leading-tight" style={{ color: m.accent }}>
+            총 {fmtMk(result.totalCostLow)}~{fmtMk(result.totalCostHigh)}
+          </p>
+        </>
+      )}
+    </button>
+  );
+}
 
-      {/* 다이렉트 링크 */}
-      {!excluded && rank === 1 && (
-        <div className="px-5 pb-4 flex gap-2 flex-wrap border-t border-black/5 pt-3">
-          {method === 'rent' && (<>
-            <a href="https://www.skrentacar.com" target="_blank" rel="noopener noreferrer"
-              className="text-xs px-3 py-1.5 rounded-lg border border-[#E5E7EB] text-[#6B7280] hover:text-[#1C1C1E] hover:border-[#C9A84C] transition-colors">
-              SK렌터카 →
-            </a>
-            <a href="https://www.lotterentacar.net" target="_blank" rel="noopener noreferrer"
-              className="text-xs px-3 py-1.5 rounded-lg border border-[#E5E7EB] text-[#6B7280] hover:text-[#1C1C1E] hover:border-[#C9A84C] transition-colors">
-              롯데렌터카 →
-            </a>
-          </>)}
-          {method === 'lease' && (
-            <a href="https://www.kbcapital.co.kr" target="_blank" rel="noopener noreferrer"
-              className="text-xs px-3 py-1.5 rounded-lg border border-[#E5E7EB] text-[#6B7280] hover:text-[#1C1C1E] hover:border-[#C9A84C] transition-colors">
-              KB캐피탈 →
-            </a>
+// ── 상세 패널 컨텍스트 타입 ──────────────────────────────────────────
+
+interface DetailPanelCtx {
+  form:          FormState;
+  cmpResult:     ComparisonResult;
+  dbInsurance:   DbInsurance | null;
+  accidentStats: { year: string; isAnnual: boolean; stats: Record<string, { lossRate: number; injuredPer10k: number; deathPer10k: number; totalInjured: number; totalDeath: number }>; trend?: { year: string; lossRates: Record<string, number> }[] } | null;
+  victimStats:   VictimStats | null;
+  dbUsedPrices:  Record<number, YearPrices> | null;
+}
+
+// ── 공통 서브 컴포넌트 ────────────────────────────────────────────────
+
+function SectionCard({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="bg-white rounded-xl border border-[#E5E7EB] overflow-hidden">
+      <div className="px-4 py-2.5 border-b border-[#F2F2F7]">
+        <p className="text-[11px] font-bold text-[#8E8E93] uppercase tracking-wide">{title}</p>
+      </div>
+      <div className="px-4 py-3">{children}</div>
+    </div>
+  );
+}
+
+function CostRow({ label, value, badge, negative, bold }: {
+  label: string; value: number; badge?: string; negative?: boolean; bold?: boolean;
+}) {
+  if (value <= 0 && !bold) return null;
+  return (
+    <div className={['flex justify-between items-center text-xs', bold ? 'font-semibold pt-1.5 border-t border-black/5' : ''].join(' ')}>
+      <span className="text-[#6B7280] flex items-center gap-1">
+        {label}{badge && <DataBadge>{badge}</DataBadge>}
+      </span>
+      <span className={negative ? 'text-green-600 font-medium' : 'text-[#374151] font-medium'}>
+        {negative ? '−' : ''}{fmtMk(Math.abs(value))}
+      </span>
+    </div>
+  );
+}
+
+function DirectLinks({ method }: { method: ProductMethod }) {
+  return (
+    <div className="flex gap-2 flex-wrap pt-3 border-t border-[#E5E7EB]">
+      {method === 'rent' && (<>
+        <a href="https://www.skrentacar.com" target="_blank" rel="noopener noreferrer"
+          className="text-xs px-3 py-1.5 rounded-lg border border-[#E5E7EB] text-[#6B7280] hover:text-[#1C1C1E] hover:border-[#C9A84C] transition-colors">SK렌터카 →</a>
+        <a href="https://www.lotterentacar.net" target="_blank" rel="noopener noreferrer"
+          className="text-xs px-3 py-1.5 rounded-lg border border-[#E5E7EB] text-[#6B7280] hover:text-[#1C1C1E] hover:border-[#C9A84C] transition-colors">롯데렌터카 →</a>
+      </>)}
+      {method === 'lease' && (
+        <a href="https://www.kbcapital.co.kr" target="_blank" rel="noopener noreferrer"
+          className="text-xs px-3 py-1.5 rounded-lg border border-[#E5E7EB] text-[#6B7280] hover:text-[#1C1C1E] hover:border-[#C9A84C] transition-colors">KB캐피탈 →</a>
+      )}
+      {method === 'installment' && (
+        <a href="https://www.hyundaicapital.com" target="_blank" rel="noopener noreferrer"
+          className="text-xs px-3 py-1.5 rounded-lg border border-[#E5E7EB] text-[#6B7280] hover:text-[#1C1C1E] hover:border-[#C9A84C] transition-colors">현대캐피탈 →</a>
+      )}
+    </div>
+  );
+}
+
+function InsuranceBanner({ color, text }: { color: 'orange' | 'green'; text: string }) {
+  return (
+    <div className={[
+      'px-3 py-2 rounded-lg text-xs font-medium',
+      color === 'orange'
+        ? 'bg-orange-50 border border-orange-200 text-orange-700'
+        : 'bg-green-50 border border-green-200 text-green-700',
+    ].join(' ')}>{text}</div>
+  );
+}
+
+function CommonInsuranceAccordion({ bannerColor, bannerText, dbInsurance, accidentStats, victimStats, ownershipYears, carPriceMk }: {
+  bannerColor: 'orange' | 'green';
+  bannerText: string;
+  dbInsurance: DbInsurance | null;
+  accidentStats: DetailPanelCtx['accidentStats'];
+  victimStats: VictimStats | null;
+  ownershipYears: number;
+  carPriceMk: number;
+}) {
+  const [open, setOpen] = useState(false);
+  const hasData = dbInsurance && Object.keys(dbInsurance.breakdown).length > 0;
+  const total4yMk = dbInsurance ? Math.round((dbInsurance.amount / 10_000) * ownershipYears) : null;
+  const carType = getCarType(carPriceMk);
+
+  return (
+    <div className="bg-white rounded-2xl shadow-sm border border-[#E5E7EB] overflow-hidden">
+      <button type="button" onClick={() => setOpen((p) => !p)}
+        className="w-full px-5 py-4 flex justify-between items-center">
+        <span className="text-[#6B7280] text-sm">
+          🔍 보험료 & 사고통계 상세{dbInsurance ? ` — 연 ${Math.round(dbInsurance.amount / 10_000)}만원 추정` : ''}
+        </span>
+        <span className="text-[#8E8E93] text-xs">{open ? '▲' : '▼'}</span>
+      </button>
+      {open && (
+        <div className="px-4 pb-4 pt-1 border-t border-[#F0F0F5] space-y-4">
+          <InsuranceBanner color={bannerColor} text={bannerText} />
+          {hasData ? (
+            <>
+              <InsuranceInsightCard
+                annualMk={Math.round(dbInsurance!.amount / 10_000)}
+                breakdown={dbInsurance!.breakdown}
+                ageGroup={dbInsurance!.ageGroup}
+                sex={dbInsurance!.sex}
+                trend={dbInsurance!.trend}
+              />
+              {total4yMk && (
+                <p className="text-[#6B7280] text-xs">
+                  {ownershipYears}년간 보험료 총액: 약 <strong>{total4yMk.toLocaleString()}만원</strong> (총비용에 포함됨)
+                </p>
+              )}
+            </>
+          ) : (
+            <p className="text-[#8E8E93] text-xs">보험료 통계 데이터가 없습니다. 보험 경력 기준으로 추산됩니다.</p>
           )}
-          {method === 'installment' && (
-            <a href="https://www.hyundaicapital.com" target="_blank" rel="noopener noreferrer"
-              className="text-xs px-3 py-1.5 rounded-lg border border-[#E5E7EB] text-[#6B7280] hover:text-[#1C1C1E] hover:border-[#C9A84C] transition-colors">
-              현대캐피탈 →
-            </a>
+          {(accidentStats || victimStats) && (
+            <div className="space-y-3 pt-2 border-t border-[#F2F2F7]">
+              {victimStats && <VictimStatsCard stats={victimStats} />}
+              {accidentStats && (
+                <AccidentStatsCard
+                  carType={carType}
+                  stats={accidentStats.stats}
+                  year={accidentStats.year}
+                  isAnnual={accidentStats.isAnnual}
+                  trend={accidentStats.trend}
+                />
+              )}
+            </div>
           )}
         </div>
       )}
+    </div>
+  );
+}
+
+function MethodHeader({ scored, displayRank, ownershipYears }: {
+  scored: ScoredMethod; displayRank: number; ownershipYears: number;
+}) {
+  const { result, keyReasons } = scored;
+  const m = METHOD_META[scored.method];
+  const rankEmoji = ['🥇', '🥈', '🥉'][displayRank - 1] ?? '';
+  return (
+    <>
+      <div className="flex items-center gap-2">
+        <span className="text-xs font-bold" style={{ color: m.accent }}>{rankEmoji} {displayRank}위</span>
+        <span className="text-xs font-semibold px-2 py-0.5 rounded-full"
+          style={{ color: m.accent, backgroundColor: m.accent + '20' }}>{m.label}</span>
+      </div>
+      <div className="flex items-end gap-4">
+        <div>
+          <p className="text-[#6B7280] text-[10px] mb-0.5">월 납입</p>
+          <p className="text-[#1C1C1E] text-2xl font-bold">{fmtMk(result.monthlyPayment)}</p>
+        </div>
+        <div className="flex-1 text-right">
+          <p className="text-[#6B7280] text-[10px] mb-0.5">{ownershipYears}년 총비용 범위</p>
+          <p className="text-lg font-semibold" style={{ color: m.accent }}>
+            {fmtMk(result.totalCostLow)} ~ {fmtMk(result.totalCostHigh)}
+          </p>
+        </div>
+      </div>
+      <div className="space-y-1">
+        {keyReasons.map((r, i) => (
+          <div key={i} className="flex items-start gap-2">
+            <span className="text-xs mt-0.5 shrink-0" style={{ color: m.accent }}>✓</span>
+            <span className="text-[#374151] text-xs leading-relaxed">{r}</span>
+          </div>
+        ))}
+      </div>
+    </>
+  );
+}
+
+// ── 아코디언 섹션 ────────────────────────────────────────────────────
+
+function AccordionSection({ title, preview, defaultOpen = false, children }: {
+  title: string; preview?: string; defaultOpen?: boolean; children: React.ReactNode;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    <div className="bg-white rounded-xl border border-[#E5E7EB] overflow-hidden">
+      <button type="button" onClick={() => setOpen((p) => !p)}
+        className="w-full px-4 py-2.5 flex items-center justify-between text-left gap-2">
+        <div className="flex-1 min-w-0">
+          <p className="text-[11px] font-bold text-[#8E8E93] uppercase tracking-wide">{title}</p>
+          {!open && preview && (
+            <p className="text-[10px] text-[#8E8E93] mt-0.5">{preview}</p>
+          )}
+        </div>
+        <span className="text-[#8E8E93] text-xs shrink-0">{open ? '▲' : '▼'}</span>
+      </button>
+      {open && <div className="px-4 pt-2.5 pb-3 border-t border-[#F2F2F7]">{children}</div>}
+    </div>
+  );
+}
+
+// ── 할부 상세 ─────────────────────────────────────────────────────────
+
+function InstallmentDetail({ scored, displayRank, ownershipYears, insuranceSource, ctx }: {
+  scored: ScoredMethod; displayRank: number; ownershipYears: number; insuranceSource: string;
+  ctx: DetailPanelCtx;
+}) {
+  const { result } = scored;
+  const bd = result.breakdown;
+  const m = METHOD_META.installment;
+  const carPriceMk = Number(ctx.form.carPriceMk);
+
+  // 취등록세 상세
+  const acqTax = calculateAcquisitionTax({
+    vehiclePrice: carPriceMk * 10_000,
+    vehicleType:  '승용',
+    isEV:   ctx.form.isEV,
+    isHEV:  ctx.form.isHEV && !ctx.form.isEV,
+    isUsed: ctx.form.advanced.vehicleAge > 0,
+  });
+
+  // 자동차세 연차별
+  const cc = getVehicleCC(ctx.form.model) ?? 1998;
+  const autoTaxRows = Array.from({ length: ownershipYears }, (_, i) => {
+    const ageYears = ctx.form.advanced.vehicleAge + i + 1;
+    const r = calculateAutoTax({ cc, vehicleType: 'passenger', ageYears, isElectric: ctx.form.isEV, isHybrid: ctx.form.isHEV && !ctx.form.isEV });
+    return { year: i + 1, ageYears, discountRate: r.discountRate, total: r.discountedTotal };
+  });
+  const autoTaxSum = autoTaxRows.reduce((s, r) => s + r.total, 0);
+
+  // 감가상각 커브
+  const depCurve = getDepreciationCurve(ctx.form.model, 'mid', 'domestic_suv', carPriceMk, ctx.dbUsedPrices ?? undefined);
+  const maintMonthly = ownershipYears > 0 ? Math.round(bd.maintenance / (ownershipYears * 12)) : 0;
+
+  return (
+    <div className="space-y-3">
+      <MethodHeader scored={scored} displayRank={displayRank} ownershipYears={ownershipYears} />
+
+      {/* ① 계산 근거 */}
+      <AccordionSection title="계산 근거" defaultOpen={true}>
+        <div className="space-y-1.5">
+          <CostRow label="할부원리금 합계" value={bd.payments} />
+          <CostRow label="취등록세" value={bd.initialCost} badge="지방세법 §12" />
+          <CostRow label="자동차세 합계" value={bd.autoTax} badge="지방세법 §127" />
+          <CostRow label="보험료 합계" value={bd.insurance} badge={insuranceSource} />
+          <CostRow label="정비비 합계" value={bd.maintenance} badge="차령·가격 추산" />
+          {bd.salvageValue > 0 && (
+            <div className="flex justify-between text-xs">
+              <span className="text-[#6B7280] flex items-center gap-1">중고 매각가 (차감)<DataBadge>엔카 시세</DataBadge></span>
+              <span className="text-green-600 font-medium">−{fmtMk(bd.salvageValue)}</span>
+            </div>
+          )}
+          <CostRow label="추정 총비용 (중간값)" value={result.totalCostMid} bold />
+        </div>
+      </AccordionSection>
+
+      {/* ② 취등록세 상세 */}
+      <AccordionSection title="취등록세 상세" preview={`약 ${fmtMk(acqTax.finalTax)}`}>
+        <div className="space-y-1.5">
+          <div className="flex justify-between text-xs">
+            <span className="text-[#6B7280]">차종</span>
+            <span className="text-[#374151] font-medium">{ctx.form.isEV ? '전기차 (취득세 감면)' : '승용 비영업'}</span>
+          </div>
+          <div className="flex justify-between text-xs">
+            <span className="text-[#6B7280]">기본 세율</span>
+            <span className="text-[#374151] font-medium">{Math.round(acqTax.taxRate * 100)}%</span>
+          </div>
+          <div className="flex justify-between text-xs">
+            <span className="text-[#6B7280]">산출세액</span>
+            <span className="text-[#374151] font-medium">{fmtMk(acqTax.acquisitionTax)}</span>
+          </div>
+          {acqTax.evDiscount > 0 && (
+            <div className="flex justify-between text-xs">
+              <span className="text-[#6B7280]">전기차 감면 (최대 140만원)</span>
+              <span className="text-green-600 font-medium">−{fmtMk(acqTax.evDiscount)}</span>
+            </div>
+          )}
+          {acqTax.hevDiscount > 0 && (
+            <div className="flex justify-between text-xs">
+              <span className="text-[#6B7280]">하이브리드 감면 (최대 40만원)</span>
+              <span className="text-green-600 font-medium">−{fmtMk(acqTax.hevDiscount)}</span>
+            </div>
+          )}
+          <div className="flex justify-between text-xs font-semibold pt-1.5 border-t border-black/5">
+            <span className="text-[#6B7280]">최종 납부액</span>
+            <span style={{ color: m.accent }}>{fmtMk(acqTax.finalTax)}</span>
+          </div>
+        </div>
+        <p className="text-[#8E8E93] text-[10px] mt-2">할부는 구매 시점에 취등록세를 일시 납부해야 합니다 (렌트·리스는 면제)</p>
+      </AccordionSection>
+
+      {/* ③ 보험료 안내 */}
+      <InsuranceBanner color="orange" text="⚠️ 보험료는 본인이 직접 가입·납부해야 합니다" />
+
+      {/* ④ 자동차세 분석 */}
+      <AccordionSection title="자동차세 분석" preview={`${ownershipYears}년간 약 ${fmtMk(autoTaxSum)}`}>
+        <div className="space-y-1.5">
+          {autoTaxRows.map((row) => (
+            <div key={row.year} className="flex justify-between text-xs">
+              <span className="text-[#6B7280]">
+                {row.year}년차 (차령 {row.ageYears}년)
+                {row.discountRate > 0 && <span className="ml-1 text-green-600">−{Math.round(row.discountRate * 100)}%</span>}
+              </span>
+              <span className="text-[#374151] font-medium">{fmtMk(row.total)}</span>
+            </div>
+          ))}
+          <div className="flex justify-between text-xs font-semibold pt-1.5 border-t border-black/5">
+            <span className="text-[#6B7280]">{ownershipYears}년간 합계</span>
+            <span style={{ color: m.accent }}>{fmtMk(autoTaxSum)}</span>
+          </div>
+        </div>
+        <p className="text-[#8E8E93] text-[10px] mt-2">3년차부터 차령 1년당 5% 경감 적용 (최대 50%) / 할부는 매년 직접 납부</p>
+      </AccordionSection>
+
+      {/* ⑤ 감가상각 & 중고 매각 */}
+      <AccordionSection title="감가상각 & 중고 매각 예상" preview={`${ownershipYears}년 후 잔존가 약 ${fmtMk(bd.salvageValue)}`}>
+        {depCurve.length > 0 && (
+          <DepreciationChart
+            curve={depCurve}
+            currentAge={ctx.form.advanced.vehicleAge + ownershipYears}
+            msrp={carPriceMk}
+          />
+        )}
+        <div className="space-y-1.5 mt-3">
+          <div className="flex justify-between text-xs">
+            <span className="text-[#6B7280]">{ownershipYears}년 후 예상 잔존가치 (중간값)</span>
+            <span className="text-[#374151] font-medium">{fmtMk(bd.salvageValue)}</span>
+          </div>
+          <div className="flex justify-between text-xs">
+            <span className="text-[#6B7280]">예상 범위 (±15%)</span>
+            <span className="text-[#374151] font-medium">
+              {fmtMk(Math.round(bd.salvageValue * 0.85))} ~ {fmtMk(Math.round(bd.salvageValue * 1.15))}
+            </span>
+          </div>
+        </div>
+        {bd.salvageValue > 0 && (
+          <p className="text-[#8E8E93] text-[10px] mt-2">보유 종료 후 중고 매각으로 약 {fmtMk(bd.salvageValue)} 회수 예상 (총비용에서 차감됨)</p>
+        )}
+      </AccordionSection>
+
+      {/* ⑥ 정비비 예상 */}
+      <AccordionSection title="정비비 예상" preview={`${ownershipYears}년간 약 ${fmtMk(bd.maintenance)}`}>
+        <div className="space-y-1.5">
+          <div className="flex justify-between text-xs">
+            <span className="text-[#6B7280]">월 평균 정비비 추산 <DataBadge>차령·가격 기준</DataBadge></span>
+            <span className="text-[#374151] font-medium">{fmtMk(maintMonthly)}</span>
+          </div>
+          <div className="flex justify-between text-xs font-semibold pt-1.5 border-t border-black/5">
+            <span className="text-[#6B7280]">{ownershipYears}년간 정비비 합계</span>
+            <span style={{ color: m.accent }}>{fmtMk(bd.maintenance)}</span>
+          </div>
+        </div>
+        <p className="text-[#8E8E93] text-[10px] mt-2">할부는 정비비를 본인이 부담합니다 (±20% 오차 포함)</p>
+      </AccordionSection>
+
+      {/* ⑦ 총비용 요약 */}
+      <SectionCard title={`${ownershipYears}년 총비용 요약`}>
+        <div className="space-y-1.5">
+          <CostRow label="할부원리금 합계" value={bd.payments} />
+          <CostRow label="취등록세" value={bd.initialCost} />
+          <CostRow label="보험료 합계" value={bd.insurance} />
+          <CostRow label="자동차세 합계" value={bd.autoTax} />
+          <CostRow label="정비비 합계" value={bd.maintenance} />
+          {bd.salvageValue > 0 && (
+            <div className="flex justify-between text-xs">
+              <span className="text-[#6B7280]">중고 매각가 (차감)</span>
+              <span className="text-green-600 font-medium">−{fmtMk(bd.salvageValue)}</span>
+            </div>
+          )}
+          <div className="flex justify-between text-xs font-semibold pt-1.5 border-t border-[#E5E7EB]">
+            <span className="text-[#1C1C1E]">실질 총비용 범위</span>
+            <span style={{ color: m.accent }}>{fmtMk(result.totalCostLow)} ~ {fmtMk(result.totalCostHigh)}</span>
+          </div>
+        </div>
+      </SectionCard>
+
+      <DirectLinks method="installment" />
+    </div>
+  );
+}
+
+// ── 장기렌트 상세 ─────────────────────────────────────────────────────
+
+function RentDetail({ scored, displayRank, ownershipYears, insuranceSource, ctx }: {
+  scored: ScoredMethod; displayRank: number; ownershipYears: number; insuranceSource: string;
+  ctx: DetailPanelCtx;
+}) {
+  const { result } = scored;
+  const bd = result.breakdown;
+  const m = METHOD_META.rent;
+
+  // 렌트 올인원 — 할부 대비 포함 내역 참고값
+  const refBd = ctx.cmpResult.installment.breakdown;
+  const annualInsurance  = ownershipYears > 0 ? Math.round(refBd.insurance  / ownershipYears) : 0;
+  const annualAutoTax    = ownershipYears > 0 ? Math.round(refBd.autoTax    / ownershipYears) : 0;
+  const annualMaintenance= ownershipYears > 0 ? Math.round(refBd.maintenance/ ownershipYears) : 0;
+  const acqTaxOnce       = refBd.initialCost;
+  const monthlyIncluded  = ownershipYears > 0
+    ? Math.round((annualInsurance + annualAutoTax + annualMaintenance + acqTaxOnce / ownershipYears) / 12)
+    : 0;
+
+  const showPlate = ctx.form.advanced.platePreference === 'standard';
+
+  return (
+    <div className="space-y-3">
+      <MethodHeader scored={scored} displayRank={displayRank} ownershipYears={ownershipYears} />
+
+      {/* ① 계산 근거 */}
+      <AccordionSection title="계산 근거" defaultOpen={true}>
+        <div className="space-y-1.5">
+          <CostRow label="월렌트료 합계" value={bd.payments} />
+          <p className="text-[#8E8E93] text-[10px]">* 보험·정비·세금이 월납입에 모두 포함됨</p>
+          <CostRow label="추정 총비용 (중간값)" value={result.totalCostMid} bold />
+        </div>
+      </AccordionSection>
+
+      {/* ② 올인원 포함 내역 */}
+      <AccordionSection title="월납입금 포함 내역 (올인원)"
+        preview={monthlyIncluded > 0 ? `월 ${fmtMk(monthlyIncluded)} 상당 포함` : undefined}>
+        <div className="space-y-2.5">
+          {([
+            { icon: '✅', label: '자동차보험',  annual: annualInsurance,   note: '별도 가입 불필요' },
+            { icon: '✅', label: '자동차세',    annual: annualAutoTax,     note: '별도 납부 불필요' },
+            { icon: '✅', label: '정기 정비',   annual: annualMaintenance, note: '정비소 방문 부담 없음' },
+            { icon: '✅', label: '취등록세',    annual: 0,                 note: acqTaxOnce > 0 ? `총 ${fmtMk(acqTaxOnce)} 렌트사 부담` : '렌트사 부담' },
+          ] as const).map(({ icon, label, annual, note }) => (
+            <div key={label} className="flex items-start justify-between gap-2">
+              <div className="flex items-start gap-2">
+                <span>{icon}</span>
+                <div>
+                  <p className="text-[#1C1C1E] text-xs font-medium">{label}</p>
+                  <p className="text-[#8E8E93] text-[10px]">{note}</p>
+                </div>
+              </div>
+              {annual > 0 && (
+                <span className="text-[#6B7280] text-xs shrink-0">연 {fmtMk(annual)} 상당</span>
+              )}
+            </div>
+          ))}
+        </div>
+        {(annualInsurance + annualAutoTax + annualMaintenance) > 0 && (
+          <div className="mt-3 pt-2 border-t border-[#F2F2F7] text-xs text-[#6B7280]">
+            포함 항목 합산 약{' '}
+            <strong className="text-[#1C1C1E]">{fmtMk(monthlyIncluded)}</strong>/월 상당의 비용이 이미 포함
+          </div>
+        )}
+      </AccordionSection>
+
+      {/* ③ 보험료 안내 */}
+      <InsuranceBanner color="green" text="✅ 보험료가 월납입금에 포함되어 별도 부담이 없습니다" />
+
+      {/* ④ 만기 후 선택지 */}
+      <AccordionSection title="만기 후 선택지">
+        <div className="grid grid-cols-3 gap-2">
+          {([
+            { label: '반납', emoji: '↩️', desc: '추가 비용 없음', highlight: true },
+            { label: '인수', emoji: '🏠', desc: '잔존가치로 구매', highlight: false },
+            { label: '연장', emoji: '🔄', desc: '월납입 할인 가능', highlight: false },
+          ] as const).map(({ label, emoji, desc, highlight }) => (
+            <div key={label} className={[
+              'rounded-lg border p-2.5 text-center',
+              highlight ? 'border-[#3B82F6] bg-[#EFF6FF]' : 'border-[#E5E7EB] bg-[#FAFAFA]',
+            ].join(' ')}>
+              <p className="text-base">{emoji}</p>
+              <p className="text-xs font-semibold text-[#1C1C1E] mt-0.5">{label}</p>
+              <p className="text-[9px] text-[#6B7280] mt-0.5">{desc}</p>
+            </div>
+          ))}
+        </div>
+        <p className="text-[#8E8E93] text-[10px] mt-2">소유에 관심 없다면 반납이 가장 경제적</p>
+      </AccordionSection>
+
+      {/* ⑤ 번호판 안내 */}
+      {showPlate && (
+        <AccordionSection title="번호판 안내">
+          <p className="text-[#374151] text-xs leading-relaxed">
+            장기렌트는 <strong>허·하·호 번호판</strong>이 부여됩니다. 2024년부터 일반번호판 장기렌트 시범 사업이 시행 중이나, 렌트사별 조건이 상이합니다.
+          </p>
+          <p className="text-[#8E8E93] text-[10px] mt-1.5">일반번호판을 원한다면 운용리스를 고려하세요</p>
+        </AccordionSection>
+      )}
+
+      {/* ⑥ 총비용 요약 */}
+      <SectionCard title={`${ownershipYears}년 총비용 요약`}>
+        <div className="space-y-1.5">
+          <CostRow label="월렌트료 합계 (보험·세금·정비 포함)" value={bd.payments} />
+          <div className="flex justify-between text-xs font-semibold pt-1.5 border-t border-[#E5E7EB]">
+            <span className="text-[#1C1C1E]">실질 총비용 범위</span>
+            <span style={{ color: m.accent }}>{fmtMk(result.totalCostLow)} ~ {fmtMk(result.totalCostHigh)}</span>
+          </div>
+        </div>
+      </SectionCard>
+
+      <DirectLinks method="rent" />
+    </div>
+  );
+}
+
+// ── 운용리스 상세 ─────────────────────────────────────────────────────
+
+function LeaseDetail({ scored, displayRank, ownershipYears, insuranceSource, ctx }: {
+  scored: ScoredMethod; displayRank: number; ownershipYears: number; insuranceSource: string;
+  ctx: DetailPanelCtx;
+}) {
+  const { result } = scored;
+  const bd = result.breakdown;
+  const m = METHOD_META.lease;
+  const carPriceMk = Number(ctx.form.carPriceMk);
+  const isBusiness = ctx.form.customerType === 'corporation' || ctx.form.customerType === 'individual';
+  const isCorp     = ctx.form.customerType === 'corporation';
+
+  // 절세 상세
+  const taxDetail = isBusiness ? calculateTaxSaving({
+    businessType:  ctx.form.customerType as 'corporation' | 'individual',
+    industry:      ctx.form.industry,
+    revenue:       DEFAULT_REVENUE[ctx.form.customerType as 'corporation' | 'individual'],
+    vehicleStatus: 'planning',
+    monthlyBudget: ((): MonthlyBudgetRange => {
+      const mp = result.monthlyPayment;
+      if (mp < 400_000)   return 'w300k';
+      if (mp < 600_000)   return 'w500k';
+      if (mp < 850_000)   return 'w700k';
+      if (mp < 1_250_000) return 'w1m';
+      return 'over1p5m';
+    })(),
+  }) : null;
+  const tax4y = taxDetail ? taxDetail.annualTaxSaving * ownershipYears : 0;
+
+  // 잔존가치 참고 (시세 비교)
+  const residualMk = Math.round(carPriceMk * 0.35);
+  const depCurve   = getDepreciationCurve(ctx.form.model, 'mid', 'domestic_suv', carPriceMk, ctx.dbUsedPrices ?? undefined);
+  const marketMk   = depCurve.find((r) => r.age === ownershipYears)?.value ?? null;
+
+  return (
+    <div className="space-y-3">
+      <MethodHeader scored={scored} displayRank={displayRank} ownershipYears={ownershipYears} />
+
+      {/* ① 계산 근거 */}
+      <AccordionSection title="계산 근거" defaultOpen={true}>
+        <div className="space-y-1.5">
+          <CostRow label="리스료 합계" value={bd.payments} />
+          <CostRow label="자동차세 합계" value={bd.autoTax} badge="지방세법 §127" />
+          <CostRow label="보험료 합계" value={bd.insurance} badge={insuranceSource} />
+          <CostRow label="정비비 합계" value={bd.maintenance} badge="차령·가격 추산" />
+          <CostRow label="추정 총비용 (중간값)" value={result.totalCostMid} bold />
+        </div>
+      </AccordionSection>
+
+      {/* ② 보험료 안내 */}
+      <InsuranceBanner color="green" text="✅ 운용리스는 보험료가 리스료에 포함됩니다" />
+
+      {/* ③ 절세 효과 */}
+      {isBusiness && taxDetail ? (
+        <AccordionSection title="절세 효과 상세"
+          preview={tax4y > 0 ? `${ownershipYears}년간 약 ${fmtMk(tax4y)} 절세` : undefined}>
+          <div className="space-y-1.5">
+            <div className="flex justify-between text-xs">
+              <span className="text-[#6B7280]">업종별 업무사용비율</span>
+              <span className="text-[#374151] font-medium">{Math.round(taxDetail.businessUseRatio * 100)}%</span>
+            </div>
+            <div className="flex justify-between text-xs">
+              <span className="text-[#6B7280]">연간 비용처리 가능액</span>
+              <span className="text-[#374151] font-medium">{fmtMk(taxDetail.deductibleExpense)}</span>
+            </div>
+            {taxDetail.expenseLimitApplied && (
+              <p className="text-[10px] text-orange-600">연 1,500만원 한도 적용됨 (법인세법 시행령 §50의2)</p>
+            )}
+            <div className="flex justify-between text-xs">
+              <span className="text-[#6B7280]">{isCorp ? '법인세' : '종합소득세'} 한계세율</span>
+              <span className="text-[#374151] font-medium">{Math.round(taxDetail.marginalTaxRate * 100)}%</span>
+            </div>
+            <div className="flex justify-between text-xs font-semibold pt-1.5 border-t border-black/5">
+              <span className="text-[#6B7280]">연간 절세 예상</span>
+              <span className="text-green-600">{fmtMk(taxDetail.annualTaxSaving)}</span>
+            </div>
+            <div className="flex justify-between text-xs font-semibold">
+              <span className="text-[#6B7280]">{ownershipYears}년간 절세 총액</span>
+              <span className="text-green-600">{fmtMk(tax4y)}</span>
+            </div>
+          </div>
+          <div className="mt-2 px-3 py-2 rounded-lg bg-green-50 border border-green-200">
+            <p className="text-green-700 text-xs font-medium">
+              💡 절세 반영 실질 총비용: {fmtMk(result.totalCostMid - tax4y)}
+            </p>
+          </div>
+        </AccordionSection>
+      ) : !isBusiness ? (
+        <AccordionSection title="절세 효과">
+          <p className="text-[#6B7280] text-xs">개인(직장인)은 리스료 비용처리가 불가합니다. 법인·개인사업자는 월 리스료 전액을 비용처리할 수 있습니다.</p>
+        </AccordionSection>
+      ) : null}
+
+      {/* ④ 잔존가치 설정 안내 */}
+      <AccordionSection title="잔존가치 설정 안내" preview="차량가의 30~40% 설정">
+        <p className="text-[#374151] text-xs leading-relaxed mb-2">
+          리스 계약 시 잔존가치(잔가)를 설정하면 그 금액만큼 월납입에서 제외됩니다. 일반적으로 차량가의 30~40% 설정 (차량가 {fmtMk(carPriceMk * 10_000)} 기준 약 {fmtMk(residualMk * 10_000)} 수준).
+        </p>
+        <div className="grid grid-cols-2 gap-2">
+          <div className="rounded-lg border border-[#E5E7EB] p-2.5 bg-[#FAFAFA]">
+            <p className="text-[10px] text-[#8E8E93]">잔가 높게 (40%)</p>
+            <p className="text-sm font-bold text-[#1C1C1E]">월납입 ↓</p>
+            <p className="text-[9px] text-orange-600 mt-0.5">만기 시 정산 부담 ↑</p>
+          </div>
+          <div className="rounded-lg border border-[#E5E7EB] p-2.5 bg-[#FAFAFA]">
+            <p className="text-[10px] text-[#8E8E93]">잔가 낮게 (30%)</p>
+            <p className="text-sm font-bold text-[#1C1C1E]">월납입 ↑</p>
+            <p className="text-[9px] text-green-600 mt-0.5">만기 시 정산 부담 ↓</p>
+          </div>
+        </div>
+      </AccordionSection>
+
+      {/* ⑤ 만기 후 선택지 */}
+      <AccordionSection title="만기 후 선택지"
+        preview={marketMk !== null ? `${ownershipYears}년 후 예상 시세 ${fmtMk(marketMk * 10_000)}` : undefined}>
+        <div className="grid grid-cols-3 gap-2">
+          {([
+            { label: '반납', emoji: '↩️', desc: '잔가 정산 없음', highlight: marketMk !== null && marketMk < residualMk },
+            { label: '인수', emoji: '🏠', desc: '잔가로 취득',   highlight: marketMk !== null && marketMk >= residualMk },
+            { label: '재리스', emoji: '🔄', desc: '새 조건으로 계약', highlight: false },
+          ] as const).map(({ label, emoji, desc, highlight }) => (
+            <div key={label} className={[
+              'rounded-lg border p-2.5 text-center',
+              highlight ? 'border-[#8B5CF6] bg-[#F5F3FF]' : 'border-[#E5E7EB] bg-[#FAFAFA]',
+            ].join(' ')}>
+              <p className="text-base">{emoji}</p>
+              <p className="text-xs font-semibold text-[#1C1C1E] mt-0.5">{label}</p>
+              <p className="text-[9px] text-[#6B7280] mt-0.5">{desc}</p>
+            </div>
+          ))}
+        </div>
+        {marketMk !== null && (
+          <p className="text-[#8E8E93] text-[10px] mt-2">
+            {ownershipYears}년 후 예상 시세 {fmtMk(marketMk * 10_000)} vs 잔존가치 약 {fmtMk(residualMk * 10_000)} —
+            {marketMk >= residualMk ? ' 시세 ≥ 잔가이면 인수 후 매각이 유리할 수 있습니다' : ' 시세 < 잔가이면 반납이 유리합니다'}
+          </p>
+        )}
+      </AccordionSection>
+
+      {/* ⑥ 번호판 안내 */}
+      <AccordionSection title="번호판 안내">
+        <p className="text-[#374151] text-xs leading-relaxed">
+          <strong>운용리스는 일반번호판 사용 가능</strong> — 장기렌트(허·하·호)와의 핵심 차이입니다. 소유자는 리스사이지만 일반번호판이 부여되어 외관상 구분되지 않습니다.
+        </p>
+      </AccordionSection>
+
+      {/* ⑦ 총비용 요약 */}
+      <SectionCard title={`${ownershipYears}년 총비용 요약`}>
+        <div className="space-y-1.5">
+          <CostRow label="리스료 합계" value={bd.payments} />
+          <CostRow label="자동차세 합계" value={bd.autoTax} />
+          <CostRow label="보험료 합계" value={bd.insurance} />
+          <CostRow label="정비비 합계" value={bd.maintenance} />
+          <div className="flex justify-between text-xs font-semibold pt-1.5 border-t border-[#E5E7EB]">
+            <span className="text-[#1C1C1E]">실질 총비용 범위</span>
+            <span style={{ color: m.accent }}>{fmtMk(result.totalCostLow)} ~ {fmtMk(result.totalCostHigh)}</span>
+          </div>
+          {isBusiness && tax4y > 0 && (
+            <div className="flex justify-between text-xs font-semibold text-green-600">
+              <span>절세 반영 실질 비용</span>
+              <span>{fmtMk(result.totalCostMid - tax4y)}</span>
+            </div>
+          )}
+        </div>
+      </SectionCard>
+
+      <DirectLinks method="lease" />
+    </div>
+  );
+}
+
+// ── DetailPanel 디스패처 ──────────────────────────────────────────────
+
+function DetailPanel({ scored, displayRank, ownershipYears, insuranceSource, ctx }: {
+  scored: ScoredMethod; displayRank: number; ownershipYears: number; insuranceSource: string;
+  ctx: DetailPanelCtx;
+}) {
+  const { method, excluded, excludeReason } = scored;
+  const m = METHOD_META[method];
+  if (excluded) {
+    return (
+      <div className="rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] px-4 py-4">
+        <p className="text-[#6B7280] text-sm">{excludeReason}</p>
+      </div>
+    );
+  }
+  const props = { scored, displayRank, ownershipYears, insuranceSource, ctx };
+  return (
+    <div className="rounded-xl border px-4 py-4"
+      style={{ backgroundColor: m.bg, borderColor: m.accent + '44' }}>
+      {method === 'installment' && <InstallmentDetail {...props} />}
+      {method === 'rent'        && <RentDetail        {...props} />}
+      {method === 'lease'       && <LeaseDetail       {...props} />}
     </div>
   );
 }
@@ -379,6 +973,10 @@ function CompareInner() {
   const [decision, setDecision]   = useState<DecisionResult | null>(null);
   const [cmpResult, setCmpResult] = useState<ComparisonResult | null>(null);
   const [showAssumptions, setShowAssumptions] = useState(false);
+
+  // 탭 선택 — null이면 총비용 1위 자동 선택
+  const [selectedType, setSelectedType] = useState<ProductMethod | null>(null);
+  useEffect(() => { setSelectedType(null); }, [decision]);
 
   // 리드폼
   const [leadData, setLeadData]       = useState({ name: '', phone: '' });
@@ -764,8 +1362,8 @@ function CompareInner() {
                     <SelectField value={form.trimName} disabled={!form.model} loading={loadingTrims}
                       onChange={onTrimSelect}>
                       <option value="">트림 선택</option>
-                      {trims.map((t) => (
-                        <option key={t.name} value={t.name}>
+                      {trims.map((t, idx) => (
+                        <option key={`${t.name}-${idx}`} value={t.name}>
                           {t.name} — {t.msrp.toLocaleString()}만원
                         </option>
                       ))}
@@ -971,44 +1569,70 @@ function CompareInner() {
                 </p>
               </div>
 
-              {/* 3개 결과 카드 */}
-              {decision.ranked.map((s) => (
-                <MethodCard key={s.method} scored={s}
-                  ownershipYears={form.advanced.ownershipYears}
-                  insuranceSource={insuranceSource} />
-              ))}
+              {/* 탭 UI — 총비용 중간값 기준 오름차순 정렬 */}
+              {(() => {
+                const sortedRanked = [...decision.ranked].sort((a, b) => {
+                  if (a.excluded !== b.excluded) return a.excluded ? 1 : -1;
+                  return a.result.totalCostMid - b.result.totalCostMid;
+                });
+                const effectiveSelected = (selectedType && sortedRanked.some((s) => s.method === selectedType))
+                  ? selectedType
+                  : sortedRanked[0]?.method ?? null;
+                const selectedScored = sortedRanked.find((s) => s.method === effectiveSelected);
+                const selectedDisplayRank = sortedRanked.findIndex((s) => s.method === effectiveSelected) + 1;
 
-              {/* 보험료 분석 카드 — 금융위원회 통계 데이터 가용 시 */}
-              {(dbInsurance || accidentStats || victimStats) && (
-                <div className="rounded-2xl bg-white border border-[#E5E7EB] shadow-sm overflow-hidden">
-                  <div className="px-4 py-3 border-b border-[#F2F2F7]">
-                    <p className="text-[12px] font-bold text-[#8E8E93] uppercase tracking-wide">보험료 분석</p>
-                  </div>
-                  <div className="p-4 space-y-4">
-                    {dbInsurance && Object.keys(dbInsurance.breakdown).length > 0 && (
-                      <InsuranceInsightCard
-                        annualMk={Math.round(dbInsurance.amount / 10_000)}
-                        breakdown={dbInsurance.breakdown}
-                        ageGroup={dbInsurance.ageGroup}
-                        sex={dbInsurance.sex}
-                        trend={dbInsurance.trend}
+                return (
+                  <>
+                    {/* 상단 요약 탭 3개 */}
+                    <div className="flex gap-2">
+                      {sortedRanked.map((s, idx) => (
+                        <SummaryTab key={s.method} scored={s}
+                          displayRank={idx + 1}
+                          ownershipYears={form.advanced.ownershipYears}
+                          selected={s.method === effectiveSelected}
+                          onClick={() => setSelectedType(s.method)} />
+                      ))}
+                    </div>
+
+                    {/* 하단 상세 패널 — 탭 전환 시 페이드 */}
+                    <AnimatePresence mode="wait">
+                      {selectedScored && (
+                        <motion.div key={effectiveSelected}
+                          initial={{ opacity: 0, y: 6 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -6 }}
+                          transition={{ duration: 0.15 }}>
+                          <DetailPanel
+                            scored={selectedScored}
+                            displayRank={selectedDisplayRank}
+                            ownershipYears={form.advanced.ownershipYears}
+                            insuranceSource={insuranceSource}
+                            ctx={{ form, cmpResult, dbInsurance, accidentStats, victimStats, dbUsedPrices }} />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+
+                    {/* 공통: 보험료 & 사고통계 아코디언 */}
+                    {(dbInsurance || accidentStats || victimStats) && (
+                      <CommonInsuranceAccordion
+                        bannerColor={effectiveSelected === 'installment' ? 'orange' : 'green'}
+                        bannerText={
+                          effectiveSelected === 'installment'
+                            ? '⚠️ 보험료는 본인이 직접 가입·납부해야 합니다'
+                            : effectiveSelected === 'rent'
+                              ? '✅ 보험료가 월납입금에 포함되어 별도 부담이 없습니다'
+                              : '✅ 운용리스는 보험료가 리스료에 포함됩니다'
+                        }
+                        dbInsurance={dbInsurance}
+                        accidentStats={accidentStats}
+                        victimStats={victimStats}
+                        ownershipYears={form.advanced.ownershipYears}
+                        carPriceMk={Number(form.carPriceMk)}
                       />
                     )}
-                    {victimStats && (
-                      <VictimStatsCard stats={victimStats} />
-                    )}
-                    {accidentStats && (
-                      <AccidentStatsCard
-                        carType={getCarType(Number(form.carPriceMk))}
-                        stats={accidentStats.stats}
-                        year={accidentStats.year}
-                        isAnnual={accidentStats.isAnnual}
-                        trend={accidentStats.trend}
-                      />
-                    )}
-                  </div>
-                </div>
-              )}
+                  </>
+                );
+              })()}
 
               {/* 계산 가정 */}
               <div className="bg-white rounded-2xl shadow-sm border border-[#E5E7EB] overflow-hidden">
