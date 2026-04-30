@@ -32,6 +32,8 @@ interface VehicleDbRow {
   id: string;
   min_price: number | null;
   max_price: number | null;
+  gallery_image_path: string | null;
+  gallery_image_count: number | null;
 }
 
 interface ArticleRow {
@@ -91,7 +93,7 @@ async function CarPageContent({ slug }: { slug: string }) {
   // vehicles 먼저 조회 (vehicle_id 확보)
   const { data: vehicleDb } = await supabase
     .from('vehicles')
-    .select('id, min_price, max_price')
+    .select('id, min_price, max_price, gallery_image_path, gallery_image_count')
     .eq('slug', vehicle.slug)
     .maybeSingle();
 
@@ -158,7 +160,7 @@ async function CarPageContent({ slug }: { slug: string }) {
     <div className="max-w-lg mx-auto">
       <ScrollToTop />
       {/* 1. 히어로: 이미지 + 모델명 */}
-      <CarHero vehicle={vehicle} />
+      <CarHero vehicle={vehicle} galleryPath={vs?.gallery_image_path} galleryCount={vs?.gallery_image_count} />
 
       {/* 2. 트림 & 옵션 선택 (차량 사진 아래, 데이터 있을 때만) */}
       {vs?.id && (

@@ -5,22 +5,30 @@ import Image from 'next/image';
 import type { Vehicle } from '@/constants/vehicles';
 import { IconCarSedan } from '@/components/icons/RentailorIcons';
 import { CarSpinViewer } from './CarSpinViewer';
+import { GallerySlider } from './GallerySlider';
 
 interface CarHeroProps {
   vehicle: Vehicle;
+  galleryPath?: string | null;
+  galleryCount?: number | null;
 }
 
-export function CarHero({ vehicle }: CarHeroProps) {
+export function CarHero({ vehicle, galleryPath, galleryCount }: CarHeroProps) {
   const [imageError, setImageError] = useState(false);
   const [spinFailed, setSpinFailed] = useState(false);
 
   const showSpin = vehicle.has360Spin && !spinFailed;
+  const showGallery = !showSpin && !!galleryPath && !!galleryCount && galleryCount > 0;
 
   return (
     <section>
       {/* 차량 이미지 영역 */}
       {showSpin ? (
         <CarSpinViewer slug={vehicle.slug} startFrame={vehicle.spinStartFrame ?? 0} frameCount={vehicle.frameCount ?? 61} onFailed={() => setSpinFailed(true)} />
+      ) : showGallery ? (
+        <div className="mx-4 mt-4 rounded-2xl overflow-hidden shadow-sm">
+          <GallerySlider path={galleryPath!} count={galleryCount!} />
+        </div>
       ) : (
         <div className="mx-4 mt-4 relative aspect-[4/3] bg-white rounded-2xl overflow-hidden shadow-sm">
           {imageError ? (
