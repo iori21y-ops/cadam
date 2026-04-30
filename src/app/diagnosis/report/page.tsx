@@ -19,6 +19,7 @@ import { EvChargingCard, type EvChargingStats } from '@/components/diagnosis/rep
 import { LeasePenaltyCard }    from '@/components/diagnosis/report/LeasePenaltyCard';
 import { InsuranceInsightCard } from '@/components/diagnosis/report/InsuranceInsightCard';
 import { AccidentStatsCard }   from '@/components/diagnosis/report/AccidentStatsCard';
+import { VictimStatsCard, type VictimStats } from '@/components/diagnosis/report/VictimStatsCard';
 import { SwitchTimingCard }    from '@/components/diagnosis/report/SwitchTimingCard';
 import { ReportSection }       from '@/components/diagnosis/report/ReportSection';
 import { Button }              from '@/components/ui/Button';
@@ -187,6 +188,7 @@ export default function ReportPage() {
     year: string; isAnnual: boolean;
     stats: Record<string, { lossRate: number; injuredPer10k: number; deathPer10k: number; totalInjured: number; totalDeath: number }>;
   } | null>(null);
+  const [victimStats, setVictimStats] = useState<VictimStats | null>(null);
   const [evStats, setEvStats]               = useState<EvChargingStats | null>(null);
   const [monthlyFuelMk, setMonthlyFuelMk]   = useState<number | null>(null);
   const [pdfToast, setPdfToast]             = useState(false);
@@ -201,6 +203,7 @@ export default function ReportPage() {
     setStep('calculating');
     setInsuranceData(null);
     setAccidentStats(null);
+    setVictimStats(null);
     setMonthlyFuelMk(null);
 
     // "계산 중..." 600ms 동안 DB 시세 조회를 병렬 실행
@@ -250,6 +253,14 @@ export default function ReportPage() {
         })
         .catch(() => { /* 사고 통계 로드 실패 시 미표시 */ });
 
+      // 피해자 부상 통계 비동기 조회 (한 번만 로드)
+      fetch('/api/victim-stats')
+        .then((r) => r.ok ? r.json() : null)
+        .then((json) => {
+          if (json?.status === 'ok') setVictimStats(json as VictimStats);
+        })
+        .catch(() => { /* 피해자 통계 로드 실패 시 미표시 */ });
+
       // EV 충전 통계 비동기 조회 (EV 차량일 때만)
       if (data.isEV) {
         fetch('/api/ev-charger-stats')
@@ -293,6 +304,7 @@ export default function ReportPage() {
     setReport(null);
     setInsuranceData(null);
     setAccidentStats(null);
+    setVictimStats(null);
     setEvStats(null);
     setMonthlyFuelMk(null);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -567,7 +579,7 @@ export default function ReportPage() {
               </ReportSection>
 
               {/* ── 섹션4-b: 보험료 분석 (보험 데이터 로드 후 표시) ── */}
-              {(insuranceData || accidentStats) && (
+              {(insuranceData || accidentStats || victimStats) && (
                 <ReportSection
                   title="보험료 분석"
                   subtitle="금융위원회 자동차보험 통계 기반 맞춤 추정"
@@ -583,8 +595,13 @@ export default function ReportPage() {
                       trend={insuranceData.trend}
                     />
                   )}
-                  {accidentStats && (
+                  {victimStats && (
                     <div className={insuranceData ? 'mt-4' : ''}>
+                      <VictimStatsCard stats={victimStats} />
+                    </div>
+                  )}
+                  {accidentStats && (
+                    <div className={(insuranceData || victimStats) ? 'mt-4' : ''}>
                       <AccidentStatsCard
                         carType={toInsuranceCarType(report.cc, report.isEV, report.formData.trimData.msrp_price)}
                         stats={accidentStats.stats}
