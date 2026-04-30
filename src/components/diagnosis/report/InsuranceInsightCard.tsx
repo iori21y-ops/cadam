@@ -32,7 +32,11 @@ function fmtWon(won: number): string {
 }
 
 export function InsuranceInsightCard({ annualMk, breakdown, ageGroup, sex, trend }: Props) {
-  const monthlyMk = Math.round(annualMk / 12);
+  const monthlyMk  = Math.round(annualMk / 12);
+  // Y축 상단값: 최솟값 70, trend 최댓값이 초과하면 동적 확장
+  const trendYMax  = trend && trend.length >= 3
+    ? Math.max(70, ...trend.map((t) => t.annual_mk))
+    : 70;
 
   const severity: 'high' | 'mid' | 'low' =
     annualMk >= 150 ? 'high' :
@@ -66,7 +70,7 @@ export function InsuranceInsightCard({ annualMk, breakdown, ageGroup, sex, trend
           {severityLabel}
         </span>
         <p className="text-[13px] font-bold text-[#1C1C1E]">보험료 분석</p>
-        <span className="ml-auto text-[11px] text-[#8E8E93]">연간 추정</span>
+        <span className="ml-auto text-[11px] text-[#8E8E93]">2026년 추정</span>
       </div>
 
       {/* 핵심 수치 */}
@@ -111,11 +115,10 @@ export function InsuranceInsightCard({ annualMk, breakdown, ageGroup, sex, trend
         {trend && trend.length >= 3 && (
           <div className="space-y-1.5">
             <p className="text-[10px] font-bold text-[#8E8E93] uppercase tracking-wide">연도별 보험료 추이</p>
-            {/* Y축 0~70 고정 (차이가 작음을 시각적으로 표현) */}
             <div className="h-[56px] flex items-end gap-[3px]">
               {trend.map(({ year, annual_mk }, i) => {
-                const isLast  = i === trend!.length - 1;
-                const barPx   = Math.max(Math.round((annual_mk / 70) * 56), 3);
+                const isLast = i === trend!.length - 1;
+                const barPx  = Math.min(Math.max(Math.round((annual_mk / trendYMax) * 56), 3), 56);
                 return (
                   <div key={year} className="flex-1 flex flex-col items-center justify-end">
                     <div
