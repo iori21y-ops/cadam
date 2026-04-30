@@ -233,14 +233,24 @@ function VehResult({ answers, mode, restart, toDetail, onHome, vehicles }: {
                     </div>
                     <p className="text-xs text-text-muted">{v.class} · {v.price.toLocaleString()}만원~</p>
                   </div>
-                  {slug && (
-                    <button
-                      onClick={() => router.push(`/cars/${slug}`)}
-                      className="text-[11px] font-semibold px-2.5 py-1 rounded-lg text-vehicle border border-vehicle/20 hover:bg-vehicle/5 transition-colors shrink-0"
-                    >
-                      상세 →
-                    </button>
-                  )}
+                  <div className="flex flex-col gap-1 shrink-0">
+                    {slug && (
+                      <button
+                        onClick={() => router.push(`/cars/${slug}`)}
+                        className="text-[11px] font-semibold px-2.5 py-1 rounded-lg text-vehicle border border-vehicle/20 hover:bg-vehicle/5 transition-colors"
+                      >
+                        상세 →
+                      </button>
+                    )}
+                    {isBest && (
+                      <button
+                        onClick={() => router.push(`/simulator/compare?brand=${encodeURIComponent(v.brand)}&model=${encodeURIComponent(v.name)}`)}
+                        className="text-[11px] font-semibold px-2.5 py-1 rounded-lg text-primary border border-primary/20 hover:bg-primary/5 transition-colors"
+                      >
+                        비교 →
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 {/* 상품별 월 비용 (동적 계산) */}

@@ -36,6 +36,7 @@ import { calculateAutoTax,        type AutoTaxResult }        from '@/lib/domain
 import { calculateAcquisitionTax, type AcquisitionTaxResult } from '@/lib/domain/acquisition-tax-calculator';
 import { getVehicleCC }                         from '@/lib/domain/vehicle-cc-map';
 import { calcMonthly }                          from '@/lib/calc-monthly';
+import { calculateComparison }                  from '@/lib/domain/comparison-engine';
 import type { DiagnosisFormData }               from '@/components/diagnosis/report/DiagnosisForm';
 import { useQuoteStore }                        from '@/store/quoteStore';
 import type { Brand }                           from '@/constants/vehicles';
@@ -553,6 +554,29 @@ export default function ReportPage() {
                     residual5yr={report.residual5yr}
                     annualInsurance={annualInsuranceMk ?? undefined}
                     monthlyFuel={monthlyFuelMk ?? undefined}
+                    preCalcMonthly={(() => {
+                      const cmp = calculateComparison({
+                        carPriceMk: report.formData.trimData.msrp_price,
+                        modelName: report.formData.model,
+                        vehicleAge: 0,
+                        isEV: report.isEV,
+                        isHEV: report.isHybrid,
+                        acquisitionVehicleType: '승용',
+                        cc: report.cc,
+                        ownershipYears: 5,
+                        annualKm: 20000,
+                        insuranceAnnual: 0,
+                        businessType: 'none',
+                        industry: 'service',
+                        revenueRange: '5k-1eok',
+                        businessUseRatio: 0,
+                      });
+                      return {
+                        installment: Math.round(cmp.installment.monthlyPayment / 10000),
+                        lease:       Math.round(cmp.lease.monthlyPayment       / 10000),
+                        rent:        Math.round(cmp.rent.monthlyPayment        / 10000),
+                      };
+                    })()}
                   />
                 </div>
 
@@ -564,6 +588,29 @@ export default function ReportPage() {
                     residual5yr={report.residual5yr}
                     annualInsurance={annualInsuranceMk ?? undefined}
                     monthlyFuel={monthlyFuelMk ?? undefined}
+                    preCalcMonthly={(() => {
+                      const cmp = calculateComparison({
+                        carPriceMk: report.formData.trimData.msrp_price,
+                        modelName: report.formData.model,
+                        vehicleAge: 0,
+                        isEV: report.isEV,
+                        isHEV: report.isHybrid,
+                        acquisitionVehicleType: '승용',
+                        cc: report.cc,
+                        ownershipYears: 5,
+                        annualKm: 20000,
+                        insuranceAnnual: 0,
+                        businessType: 'none',
+                        industry: 'service',
+                        revenueRange: '5k-1eok',
+                        businessUseRatio: 0,
+                      });
+                      return {
+                        installment: Math.round(cmp.installment.monthlyPayment / 10000),
+                        lease:       Math.round(cmp.lease.monthlyPayment       / 10000),
+                        rent:        Math.round(cmp.rent.monthlyPayment        / 10000),
+                      };
+                    })()}
                   />
                 </div>
               </ReportSection>

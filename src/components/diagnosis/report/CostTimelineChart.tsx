@@ -20,6 +20,8 @@ interface Props {
   residual5yr:     number;   // 5년차 잔존가치 (만원)
   annualInsurance?: number;  // 연간 보험료 (만원)
   monthlyFuel?:    number;   // 월 유류비 (만원)
+  /** comparison-engine에서 계산된 월납입 (만원). 제공 시 내부 calcMonthly 대신 사용 */
+  preCalcMonthly?: { installment: number; lease: number; rent: number };
 }
 
 interface YearPoint {
@@ -105,11 +107,12 @@ export function CostTimelineChart({
   residual5yr,
   annualInsurance,
   monthlyFuel,
+  preCalcMonthly,
 }: Props) {
   const PERIOD   = 60;
-  const mInstall = calcMonthly(msrp, 'installment', PERIOD, 0, 20000);
-  const mLease   = calcMonthly(msrp, 'lease',       PERIOD, 0, 20000);
-  const mRent    = calcMonthly(msrp, 'rent',         PERIOD, 0, 20000);
+  const mInstall = preCalcMonthly?.installment ?? calcMonthly(msrp, 'installment', PERIOD, 0, 20000);
+  const mLease   = preCalcMonthly?.lease       ?? calcMonthly(msrp, 'lease',       PERIOD, 0, 20000);
+  const mRent    = preCalcMonthly?.rent        ?? calcMonthly(msrp, 'rent',         PERIOD, 0, 20000);
 
   const annualIns  = (annualInsurance ?? 0);
   const annualFuel = (monthlyFuel ?? 0) * 12;

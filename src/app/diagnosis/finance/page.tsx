@@ -236,6 +236,25 @@ function FinResult({ answers, questions, mode, restart, toDetail, onHome }: {
           <NextMission current="finance" />
         </motion.div>
 
+        {/* 비교 시뮬레이터 carry-over CTA */}
+        <motion.div
+          initial={{ opacity: 0, x: 40 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.55, duration: 0.35, ease: 'easeOut' }}
+          className="mb-4"
+        >
+          <button
+            onClick={() => router.push('/simulator/compare')}
+            className="w-full flex items-center justify-between px-5 py-4 rounded-2xl border border-[rgba(16,185,129,0.25)] bg-[rgba(16,185,129,0.06)] hover:bg-[rgba(16,185,129,0.1)] transition-colors"
+          >
+            <div className="text-left">
+              <p className="text-sm font-bold text-[#1C1C1E]">할부·리스·렌트 총비용 비교</p>
+              <p className="text-xs text-[#8E8E93] mt-0.5">이 진단 결과를 바탕으로 결제방식을 비교해보세요</p>
+            </div>
+            <span className="text-[#10B981] font-bold text-sm ml-3 shrink-0">비교하기 →</span>
+          </button>
+        </motion.div>
+
         {/* 피드백 */}
         <motion.div
           initial={{ opacity: 0, x: 40 }}

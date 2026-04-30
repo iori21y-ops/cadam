@@ -10,6 +10,8 @@ interface Props {
   annualInsurance?:   number;  // 연간 보험료 (만원) — insurance-stats API
   monthlyFuel?:       number;  // 월 유류비 (만원) — fuel-prices API
   annualMaintenance?: number;  // Phase 3 예정: 연간 정비비 (만원)
+  /** comparison-engine에서 계산된 월납입 (만원). 제공 시 내부 calcMonthly 대신 사용 */
+  preCalcMonthly?:    { installment: number; lease: number; rent: number };
 }
 
 interface CostRow {
@@ -168,15 +170,16 @@ export function CostComparisonTable({
   annualInsurance,
   monthlyFuel,
   annualMaintenance: _maint, // Phase 3 예정
+  preCalcMonthly,
 }: Props) {
   const PERIOD       = 60;
   const autoTax5yr   = annualAutoTax * 5;
   const insurance5yr = annualInsurance != null ? Math.round(annualInsurance * 5) : 0;
   const fuel5yr      = monthlyFuel    != null ? monthlyFuel * PERIOD : 0;
 
-  const mInstall = calcMonthly(msrp, 'installment', PERIOD, 0, 20000);
-  const mLease   = calcMonthly(msrp, 'lease',       PERIOD, 0, 20000);
-  const mRent    = calcMonthly(msrp, 'rent',         PERIOD, 0, 20000);
+  const mInstall = preCalcMonthly?.installment ?? calcMonthly(msrp, 'installment', PERIOD, 0, 20000);
+  const mLease   = preCalcMonthly?.lease       ?? calcMonthly(msrp, 'lease',       PERIOD, 0, 20000);
+  const mRent    = preCalcMonthly?.rent        ?? calcMonthly(msrp, 'rent',         PERIOD, 0, 20000);
 
   const rows: CostRow[] = [
     {
