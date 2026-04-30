@@ -23,8 +23,9 @@ import type { LegalRefKey } from '@/data/legal-references';
 
 // ── 타입 ──────────────────────────────────────────────────────────────
 
-type Phase = 'group1' | 'group2' | 'result';
-type TrimOption = { name: string; msrp: number; fuelType: string };
+type Phase = 'group1' | 'currentCost' | 'group2' | 'result';
+type TrimOption = { name: string; msrp: number; fuelType: string | null; cc: number };
+type VehicleModel = { id: string; name: string; fuel_type: string | null };
 type AgeGroup = '20대 이하' | '30대' | '40대' | '50대' | '60대' | '70대 이상';
 type SexType  = '남자' | '여자';
 
@@ -46,6 +47,21 @@ interface AdvancedSettings {
   businessUseRatio:  number;
 }
 
+interface CurrentCost {
+  monthlyPayment:    number;  // 만원/월 (할부·리스·렌트료)
+  annualInsurance:   number;  // 만원/년
+  annualAutoTax:     number;  // 만원/년
+  monthlyFuel:       number;  // 만원/월
+  annualMaintenance: number;  // 만원/년
+  monthlyParking:    number;  // 만원/월
+}
+
+interface CurrentTransport {
+  monthlyTransit:  number;  // 만원/월
+  monthlyTaxi:     number;  // 만원/월
+  monthlyCarShare: number;  // 만원/월
+}
+
 interface FormState {
   // Group 1 (필수)
   customerType:     CustomerType;
@@ -53,9 +69,17 @@ interface FormState {
   insuranceHistory: InsuranceHistory;
   ageGroup:         AgeGroup | null;
   sex:              SexType | null;
+  // currentCost (선택 — null = 스킵)
+  hasCurrentVehicle: boolean | null;
+  currentCost:       CurrentCost;
+  currentTransport:  CurrentTransport;
   // Group 2 (필수)
   brand:            string;
   model:            string;
+  vehicleId:        string;          // vehicles.id (트림 조회용)
+  vehicleFuelType:  string | null;   // vehicles.fuel_type (EV/HEV 1차 감지)
+  fuelTypeResolved: boolean;         // true = 자동감지 성공, false = null → 체크박스 노출
+  trimCc:           number;          // 배기량 cc (vehicle_trims.displacement * 1000), 0 = 미확인
   trimName:         string;
   carPriceMk:       string;
   carPriceMkAuto:   number;
@@ -96,6 +120,15 @@ const METHOD_META = {
 const DEFAULT_ADVANCED: AdvancedSettings = {
   vehicleAge: 0, ownershipYears: 4, annualKm: 24_000,
   contractEndOption: 'return', platePreference: 'any', businessUseRatio: 0,
+};
+
+const DEFAULT_CURRENT_COST: CurrentCost = {
+  monthlyPayment: 0, annualInsurance: 0, annualAutoTax: 0,
+  monthlyFuel: 0, annualMaintenance: 0, monthlyParking: 0,
+};
+
+const DEFAULT_CURRENT_TRANSPORT: CurrentTransport = {
+  monthlyTransit: 0, monthlyTaxi: 0, monthlyCarShare: 0,
 };
 
 const AGE_OPTIONS: { value: AgeGroup; label: string }[] = [
@@ -165,6 +198,54 @@ function AgeChip({ selected, onClick, children }: {
 
 function Label({ children }: { children: React.ReactNode }) {
   return <p className="text-[#1C1C1E] text-sm font-semibold mb-2">{children}</p>;
+}
+
+function MoneyChipInput({ label, value, onChange, chips, note }: {
+  label: string; value: number; onChange: (v: number) => void;
+  chips: number[]; note?: string;
+}) {
+  const [raw, setRaw] = useState(value === 0 ? '' : String(value));
+  const handleRaw = (s: string) => {
+    setRaw(s);
+    const n = Number(s);
+    if (!isNaN(n) && n >= 0) onChange(n);
+  };
+  const handleChip = (v: number) => { setRaw(v === 0 ? '' : String(v)); onChange(v); };
+  return (
+    <div>
+      <Label>{label}{note && <span className="ml-1.5 text-[11px] font-normal text-[#8E8E93]">{note}</span>}</Label>
+      <div className="flex flex-wrap gap-1.5 mb-2">
+        {chips.map((v) => (
+          <Chip key={v} selected={value === v && (v !== 0 || raw === '')}
+            onClick={() => handleChip(v)}>
+            {v === 0 ? '없음' : `${v}만`}
+          </Chip>
+        ))}
+      </div>
+      <input type="number" value={raw} onChange={(e) => handleRaw(e.target.value)}
+        placeholder="직접 입력 (만원)"
+        className="w-full px-4 py-2.5 rounded-xl border border-[#E5E7EB] bg-white text-[#1C1C1E] text-sm focus:outline-none focus:border-[#C9A84C] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
+    </div>
+  );
+}
+
+function calcCurrentMonthly(
+  hasVehicle: boolean | null,
+  cost: CurrentCost,
+  transport: CurrentTransport,
+): number {
+  if (hasVehicle === true) {
+    return cost.monthlyPayment
+      + cost.annualInsurance / 12
+      + cost.annualAutoTax / 12
+      + cost.monthlyFuel
+      + cost.annualMaintenance / 12
+      + cost.monthlyParking;
+  }
+  if (hasVehicle === false) {
+    return transport.monthlyTransit + transport.monthlyTaxi + transport.monthlyCarShare;
+  }
+  return 0;
 }
 
 function DataBadge({ children }: { children: React.ReactNode }) {
@@ -1039,8 +1120,12 @@ function CompareInner() {
     customerType: 'employee', industry: 'service',
     insuranceHistory: '3y+normal',
     ageGroup: null, sex: null,
+    hasCurrentVehicle: null,
+    currentCost: { ...DEFAULT_CURRENT_COST },
+    currentTransport: { ...DEFAULT_CURRENT_TRANSPORT },
     brand: searchParams.get('brand') ?? '',
     model: searchParams.get('model') ?? '',
+    vehicleId: '', vehicleFuelType: null, fuelTypeResolved: false, trimCc: 0,
     trimName: '', carPriceMk: '', carPriceMkAuto: 0,
     isEV: false, isHEV: false,
     advanced: { ...DEFAULT_ADVANCED },
@@ -1048,7 +1133,7 @@ function CompareInner() {
 
   // 드롭다운 API 상태
   const [brands, setBrands]   = useState<string[]>([]);
-  const [models, setModels]   = useState<string[]>([]);
+  const [models, setModels]   = useState<VehicleModel[]>([]);
   const [trims, setTrims]     = useState<TrimOption[]>([]);
   const [loadingBrands, setLoadingBrands] = useState(false);
   const [loadingModels, setLoadingModels] = useState(false);
@@ -1086,43 +1171,50 @@ function CompareInner() {
   const [leadSubmitting, setLeadSubmitting] = useState(false);
   const [leadError, setLeadError]     = useState<string | null>(null);
 
-  // 브랜드 로드
+  // 브랜드 로드 (vehicles 테이블)
   useEffect(() => {
     setLoadingBrands(true);
-    fetch('/api/vehicle-msrp/brands')
+    fetch('/api/vehicles/brands')
       .then((r) => r.json())
       .then((d: { brands?: string[] }) => setBrands(d.brands ?? []))
       .catch(() => setBrands([]))
       .finally(() => setLoadingBrands(false));
   }, []);
 
-  // 모델 로드
+  // 모델 로드 (vehicles 테이블)
   const loadModels = useCallback(async (brand: string) => {
     if (!brand || brand === '__manual__') { setModels([]); return; }
     setLoadingModels(true);
     setModels([]); setTrims([]);
-    setForm((f) => ({ ...f, model: '', trimName: '', carPriceMk: '', carPriceMkAuto: 0 }));
+    setForm((f) => ({ ...f, model: '', vehicleId: '', vehicleFuelType: null, fuelTypeResolved: false, trimCc: 0, trimName: '', carPriceMk: '', carPriceMkAuto: 0 }));
     try {
-      const d = await fetch(`/api/vehicle-msrp/models?brand=${encodeURIComponent(brand)}`).then((r) => r.json()) as { models?: string[] };
+      const d = await fetch(`/api/vehicles/models?brand=${encodeURIComponent(brand)}`).then((r) => r.json()) as { models?: VehicleModel[] };
       setModels(d.models ?? []);
     } catch { setModels([]); }
     setLoadingModels(false);
   }, []);
 
-  // 트림 로드 + used-prices 자동 호출
-  const loadTrims = useCallback(async (brand: string, model: string) => {
-    if (!brand || !model) { setTrims([]); return; }
+  // 트림 로드 (vehicle_trims 테이블) + used-prices 백그라운드
+  const loadTrims = useCallback(async (vehicleId: string, brand: string, model: string) => {
+    if (!vehicleId) { setTrims([]); return; }
     setLoadingTrims(true);
     setTrims([]);
-    setForm((f) => ({ ...f, trimName: '', carPriceMk: '', carPriceMkAuto: 0 }));
+    setForm((f) => ({ ...f, trimName: '', carPriceMk: '', carPriceMkAuto: 0, trimCc: 0 }));
     try {
-      const d = await fetch(`/api/vehicle-msrp?brand=${encodeURIComponent(brand)}&model=${encodeURIComponent(model)}`).then((r) => r.json()) as { trims?: Array<{ trim_name: string; msrp_price: number; fuel_type: string }> };
-      setTrims((d.trims ?? []).map((t) => ({ name: t.trim_name, msrp: t.msrp_price, fuelType: t.fuel_type })));
+      const d = await fetch(`/api/vehicles/trims?vehicle_id=${encodeURIComponent(vehicleId)}`).then((r) => r.json()) as {
+        trims?: Array<{ trim_name: string; base_price: number; fuel_type: string | null; displacement: number | null; fuel_eff_combined: number | null; co2_emission: number | null; drive_type: string | null }>;
+      };
+      setTrims((d.trims ?? []).map((t) => ({
+        name:     t.trim_name,
+        msrp:     Math.round(t.base_price / 10_000),
+        fuelType: t.fuel_type,
+        cc:       t.displacement ? Math.round(t.displacement * 1000) : 0,
+      })));
     } catch { setTrims([]); }
     setLoadingTrims(false);
 
-    // 엔카 중고시세 백그라운드 로드
-    if (brand !== '__manual__') {
+    // 엔카 중고시세 백그라운드 로드 (감가상각 계산용)
+    if (brand && brand !== '__manual__' && model) {
       setLoadingUsedPrices(true);
       setDbUsedPrices(null);
       fetch(`/api/used-prices?brand=${encodeURIComponent(brand)}&model=${encodeURIComponent(model)}`)
@@ -1175,13 +1267,23 @@ function CompareInner() {
       .finally(() => setLoadingInsurance(false));
   }, []);
 
-  // 트림 선택 → MSRP + 연료 자동채움 + 보험료 조회
+  // 트림 선택 → MSRP + 연료 자동채움 + 배기량 + 보험료 조회
   function onTrimSelect(trimName: string) {
     const t = trims.find((x) => x.name === trimName);
     if (!t) { setForm((f) => ({ ...f, trimName })); return; }
-    const isEV  = ['electric', 'ev', 'bev'].includes(t.fuelType.toLowerCase());
-    const isHEV = ['hybrid', 'hev', 'phev'].includes(t.fuelType.toLowerCase());
-    setForm((f) => ({ ...f, trimName, carPriceMkAuto: t.msrp, carPriceMk: String(t.msrp), isEV, isHEV }));
+
+    // fuel_type 우선순위: trim > vehicle > null
+    const resolvedFuel = t.fuelType ?? formRef.current.vehicleFuelType;
+    const fuelTypeResolved = resolvedFuel !== null;
+    const isEV  = resolvedFuel !== null && ['전기', 'electric', 'ev', 'bev'].some((k) => resolvedFuel.toLowerCase().includes(k));
+    const isHEV = resolvedFuel !== null && ['하이브리드', 'hybrid', 'hev', 'phev'].some((k) => resolvedFuel.toLowerCase().includes(k));
+
+    setForm((f) => ({
+      ...f, trimName,
+      carPriceMkAuto: t.msrp, carPriceMk: String(t.msrp),
+      isEV, isHEV, fuelTypeResolved,
+      trimCc: t.cc,
+    }));
     fetchInsuranceStats(formRef.current.brand, t.msrp, formRef.current.ageGroup, formRef.current.sex);
   }
 
@@ -1198,7 +1300,7 @@ function CompareInner() {
   function runCalculation() {
     const carPriceMk = Number(form.carPriceMk);
     if (!carPriceMk || carPriceMk <= 0) return;
-    const cc = getVehicleCC(form.model) ?? 1998;
+    const cc = form.trimCc > 0 ? form.trimCc : (getVehicleCC(form.model) ?? 1998);
     const isBusiness = form.customerType === 'corporation' || form.customerType === 'individual';
     const businessType = isBusiness ? (form.customerType as 'corporation' | 'individual') : 'none';
     const adv = form.advanced;
@@ -1279,7 +1381,7 @@ function CompareInner() {
     exit:   (d: number) => ({ x: d > 0 ? -32 : 32, opacity: 0 }),
   };
 
-  const progress = phase === 'group1' ? 1 : phase === 'group2' ? 2 : 2;
+  const progress = phase === 'group1' ? 1 : phase === 'currentCost' ? 2 : phase === 'group2' ? 3 : 3;
 
   return (
     <>
@@ -1290,13 +1392,13 @@ function CompareInner() {
         {phase !== 'result' && (
           <div className="mb-6">
             <div className="flex gap-1.5 mb-4">
-              {[1, 2].map((n) => (
+              {[1, 2, 3].map((n) => (
                 <div key={n} className="h-1 flex-1 rounded-full transition-all duration-300"
                   style={{ backgroundColor: n <= progress ? ACCENT : '#D1D1D6' }} />
               ))}
             </div>
             <p className="text-[#8E8E93] text-xs font-medium mb-1">
-              {progress}/2 — {progress === 1 ? '내 상황 파악' : '차량 정보'}
+              {progress}/3 — {progress === 1 ? '내 상황 파악' : progress === 2 ? '현재 비용' : '희망 신차'}
             </p>
             <h1 className="text-[#1C1C1E] text-2xl font-bold">결제방식 비교</h1>
             <p className="text-[#6B7280] text-sm mt-1">5번의 선택으로 최적 방법을 확인하세요</p>
@@ -1415,15 +1517,164 @@ function CompareInner() {
                 </p>
               </div>
 
-              <button type="button" onClick={() => { setDir(1); setPhase('group2'); }} disabled={!g1Valid}
+              <button type="button" onClick={() => { setDir(1); setPhase('currentCost'); }} disabled={!g1Valid}
                 className="w-full py-4 rounded-2xl text-white font-semibold text-base transition-all disabled:opacity-40"
                 style={{ backgroundColor: g1Valid ? ACCENT : '#D1D1D6' }}>
-                다음 — 차량 정보 →
+                다음 — 현재 비용 →
               </button>
             </motion.div>
           )}
 
-          {/* ═══ GROUP 2 — 차량 정보 ═══════════════════════════════════ */}
+          {/* ═══ CURRENT COST — 현재 비용 ══════════════════════════════ */}
+          {phase === 'currentCost' && (
+            <motion.div key="cc" custom={dir} variants={variants}
+              initial="enter" animate="center" exit="exit" transition={{ duration: 0.22 }}
+              className="flex flex-col gap-5">
+
+              {/* 분기 질문 */}
+              <div className="bg-white rounded-2xl shadow-sm border border-[#E5E7EB] p-5">
+                <Label>현재 차량을 보유하고 계신가요?</Label>
+                <div className="grid grid-cols-2 gap-2">
+                  <Chip selected={form.hasCurrentVehicle === true}
+                    onClick={() => setForm((f) => ({ ...f, hasCurrentVehicle: true }))}>
+                    🚗 네, 차량 보유 중
+                  </Chip>
+                  <Chip selected={form.hasCurrentVehicle === false}
+                    onClick={() => setForm((f) => ({ ...f, hasCurrentVehicle: false }))}>
+                    🚶 아니요, 대중교통/택시
+                  </Chip>
+                </div>
+              </div>
+
+              {/* 케이스 A — 차량 보유자 */}
+              {form.hasCurrentVehicle === true && (
+                <div className="bg-white rounded-2xl shadow-sm border border-[#E5E7EB] p-5 flex flex-col gap-5">
+                  <MoneyChipInput
+                    label="월 할부/리스/렌트료" note="현재 납부 중인 금액"
+                    value={form.currentCost.monthlyPayment}
+                    onChange={(v) => setForm((f) => ({ ...f, currentCost: { ...f.currentCost, monthlyPayment: v } }))}
+                    chips={[0, 30, 50, 80]}
+                  />
+                  {form.currentCost.monthlyPayment === 0 && (
+                    <p className="text-[#8E8E93] text-xs -mt-3">차량 대금 완납 상태로 계산됩니다</p>
+                  )}
+
+                  <MoneyChipInput
+                    label="연간 자동차보험료" note="만원/년 — 월 환산 자동 표시"
+                    value={form.currentCost.annualInsurance}
+                    onChange={(v) => setForm((f) => ({ ...f, currentCost: { ...f.currentCost, annualInsurance: v } }))}
+                    chips={[50, 70, 100, 150]}
+                  />
+                  {form.currentCost.annualInsurance > 0 && (
+                    <p className="text-[#8E8E93] text-xs -mt-3">월 {Math.round(form.currentCost.annualInsurance / 12)}만원 상당</p>
+                  )}
+
+                  <MoneyChipInput
+                    label="연간 자동차세" note="만원/년"
+                    value={form.currentCost.annualAutoTax}
+                    onChange={(v) => setForm((f) => ({ ...f, currentCost: { ...f.currentCost, annualAutoTax: v } }))}
+                    chips={[15, 30, 50, 80]}
+                  />
+
+                  <MoneyChipInput
+                    label="월 유류비/충전비"
+                    value={form.currentCost.monthlyFuel}
+                    onChange={(v) => setForm((f) => ({ ...f, currentCost: { ...f.currentCost, monthlyFuel: v } }))}
+                    chips={[10, 20, 30, 50]}
+                  />
+
+                  <MoneyChipInput
+                    label="연간 정비비" note="타이어, 소모품 등"
+                    value={form.currentCost.annualMaintenance}
+                    onChange={(v) => setForm((f) => ({ ...f, currentCost: { ...f.currentCost, annualMaintenance: v } }))}
+                    chips={[20, 50, 80, 100]}
+                  />
+
+                  <MoneyChipInput
+                    label="월 주차비" note="선택"
+                    value={form.currentCost.monthlyParking}
+                    onChange={(v) => setForm((f) => ({ ...f, currentCost: { ...f.currentCost, monthlyParking: v } }))}
+                    chips={[0, 5, 10, 15]}
+                  />
+
+                  {/* 실시간 합계 */}
+                  {(() => {
+                    const total = calcCurrentMonthly(true, form.currentCost, form.currentTransport);
+                    return total > 0 ? (
+                      <div className="pt-3 border-t border-[#F2F2F7]">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[#6B7280] text-sm">현재 월 총 차량비용</span>
+                          <span className="text-[#1C1C1E] text-lg font-bold">약 {Math.round(total)}만원</span>
+                        </div>
+                      </div>
+                    ) : null;
+                  })()}
+                </div>
+              )}
+
+              {/* 케이스 B — 차량 미보유자 */}
+              {form.hasCurrentVehicle === false && (
+                <div className="bg-white rounded-2xl shadow-sm border border-[#E5E7EB] p-5 flex flex-col gap-5">
+                  <MoneyChipInput
+                    label="월 대중교통비" note="버스, 지하철, 기차"
+                    value={form.currentTransport.monthlyTransit}
+                    onChange={(v) => setForm((f) => ({ ...f, currentTransport: { ...f.currentTransport, monthlyTransit: v } }))}
+                    chips={[5, 10, 15, 20]}
+                  />
+
+                  <MoneyChipInput
+                    label="월 택시비"
+                    value={form.currentTransport.monthlyTaxi}
+                    onChange={(v) => setForm((f) => ({ ...f, currentTransport: { ...f.currentTransport, monthlyTaxi: v } }))}
+                    chips={[5, 10, 20, 30]}
+                  />
+
+                  <MoneyChipInput
+                    label="월 카셰어링/렌터카비" note="선택"
+                    value={form.currentTransport.monthlyCarShare}
+                    onChange={(v) => setForm((f) => ({ ...f, currentTransport: { ...f.currentTransport, monthlyCarShare: v } }))}
+                    chips={[0, 5, 10, 20]}
+                  />
+
+                  {/* 실시간 합계 */}
+                  {(() => {
+                    const total = calcCurrentMonthly(false, form.currentCost, form.currentTransport);
+                    return total > 0 ? (
+                      <div className="pt-3 border-t border-[#F2F2F7]">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[#6B7280] text-sm">현재 월 총 교통비</span>
+                          <span className="text-[#1C1C1E] text-lg font-bold">약 {Math.round(total)}만원</span>
+                        </div>
+                      </div>
+                    ) : null;
+                  })()}
+                </div>
+              )}
+
+              {/* 이전 / 다음 + 스킵 */}
+              <div className="flex gap-3">
+                <button type="button" onClick={() => { setDir(-1); setPhase('group1'); }}
+                  className="flex-1 py-3.5 rounded-2xl border border-[#E5E7EB] bg-white text-[#6B7280] hover:text-[#1C1C1E] font-medium transition-colors">
+                  ← 이전
+                </button>
+                <button type="button" onClick={() => { setDir(1); setPhase('group2'); }}
+                  disabled={form.hasCurrentVehicle === null}
+                  className="flex-[2] py-3.5 rounded-2xl text-white font-semibold transition-all disabled:opacity-40"
+                  style={{ backgroundColor: form.hasCurrentVehicle !== null ? ACCENT : '#D1D1D6' }}>
+                  다음 — 희망 신차 →
+                </button>
+              </div>
+
+              <button type="button" onClick={() => {
+                setForm((f) => ({ ...f, hasCurrentVehicle: null }));
+                setDir(1); setPhase('group2');
+              }} className="text-[#8E8E93] text-sm text-center hover:text-[#6B7280] transition-colors">
+                이 단계 건너뛰기
+              </button>
+            </motion.div>
+          )}
+
+          {/* ═══ GROUP 2 — 희망 신차 ════════════════════════════════════ */}
           {phase === 'group2' && (
             <motion.div key="g2" custom={dir} variants={variants}
               initial="enter" animate="center" exit="exit" transition={{ duration: 0.22 }}
@@ -1451,9 +1702,24 @@ function CompareInner() {
                       className="w-full px-4 py-3 rounded-xl border border-[#E5E7EB] bg-white text-[#1C1C1E] text-sm focus:outline-none focus:border-[#C9A84C]" />
                   ) : (
                     <SelectField value={form.model} disabled={!form.brand} loading={loadingModels}
-                      onChange={(v) => { setForm((f) => ({ ...f, model: v })); loadTrims(form.brand, v); }}>
+                      onChange={(v) => {
+                        const selected = models.find((m) => m.name === v);
+                        const vid  = selected?.id ?? '';
+                        const vft  = selected?.fuel_type ?? null;
+                        // 모델 선택 시 vehicles.fuel_type으로 1차 EV/HEV 감지
+                        const isEV  = vft !== null && ['전기', 'electric', 'ev', 'bev'].some((k) => vft.toLowerCase().includes(k));
+                        const isHEV = vft !== null && ['하이브리드', 'hybrid', 'hev', 'phev'].some((k) => vft.toLowerCase().includes(k));
+                        setForm((f) => ({
+                          ...f, model: v,
+                          vehicleId: vid, vehicleFuelType: vft,
+                          fuelTypeResolved: vft !== null,
+                          isEV, isHEV,
+                          trimName: '', carPriceMk: '', carPriceMkAuto: 0, trimCc: 0,
+                        }));
+                        loadTrims(vid, form.brand, v);
+                      }}>
                       <option value="">모델 선택</option>
-                      {models.map((m) => <option key={m} value={m}>{m}</option>)}
+                      {models.map((m) => <option key={m.id} value={m.name}>{m.name}</option>)}
                     </SelectField>
                   )}
                 </div>
@@ -1462,15 +1728,21 @@ function CompareInner() {
                 {form.brand !== '__manual__' && (
                   <div>
                     <Label>트림 <span className="text-[#8E8E93] font-normal text-xs">(선택 — 신차가 자동 채움)</span></Label>
-                    <SelectField value={form.trimName} disabled={!form.model} loading={loadingTrims}
-                      onChange={onTrimSelect}>
-                      <option value="">트림 선택</option>
-                      {trims.map((t, idx) => (
-                        <option key={`${t.name}-${idx}`} value={t.name}>
-                          {t.name} — {t.msrp.toLocaleString()}만원
-                        </option>
-                      ))}
-                    </SelectField>
+                    {!loadingTrims && form.model && form.vehicleId && trims.length === 0 ? (
+                      <p className="text-[#8E8E93] text-xs px-1 py-2">
+                        이 모델의 트림 데이터가 없습니다. 아래에서 차량 가격을 직접 입력해주세요.
+                      </p>
+                    ) : (
+                      <SelectField value={form.trimName} disabled={!form.model} loading={loadingTrims}
+                        onChange={onTrimSelect}>
+                        <option value="">트림 선택</option>
+                        {trims.map((t, idx) => (
+                          <option key={`${t.name}-${idx}`} value={t.name}>
+                            {t.name} — {t.msrp.toLocaleString()}만원
+                          </option>
+                        ))}
+                      </SelectField>
+                    )}
                   </div>
                 )}
 
@@ -1497,13 +1769,35 @@ function CompareInner() {
                   )}
                 </div>
 
-                {/* EV/HEV 감지 */}
-                {(form.isEV || form.isHEV) && (
+                {/* EV/HEV — 자동감지 배너 */}
+                {(form.isEV || form.isHEV) && form.fuelTypeResolved && (
                   <div className="px-3 py-2 rounded-lg bg-green-50 border border-green-100">
                     <p className="text-green-700 text-xs">
                       {form.isEV ? '⚡ 전기차 감지 — 자동차세 10만원·취등록세 최대 140만원 감면 자동 적용'
                         : '🔋 하이브리드 감지 — 취등록세 최대 40만원 감면 자동 적용'}
                     </p>
+                  </div>
+                )}
+
+                {/* EV/HEV — fuel_type 미확인 시 수동 체크박스 */}
+                {form.model && form.brand !== '__manual__' && !form.fuelTypeResolved && (
+                  <div className="px-3 py-3 rounded-lg bg-amber-50 border border-amber-200">
+                    <p className="text-amber-700 text-xs font-medium mb-2">이 차량은 전기차 또는 하이브리드인가요?</p>
+                    <div className="flex gap-4">
+                      <label className="flex items-center gap-1.5 cursor-pointer">
+                        <input type="checkbox" checked={form.isEV}
+                          onChange={(e) => setForm((f) => ({ ...f, isEV: e.target.checked, isHEV: e.target.checked ? false : f.isHEV }))}
+                          className="w-4 h-4 accent-[#C9A84C]" />
+                        <span className="text-xs text-amber-800">⚡ 전기차</span>
+                      </label>
+                      <label className="flex items-center gap-1.5 cursor-pointer">
+                        <input type="checkbox" checked={form.isHEV}
+                          onChange={(e) => setForm((f) => ({ ...f, isHEV: e.target.checked, isEV: e.target.checked ? false : f.isEV }))}
+                          className="w-4 h-4 accent-[#C9A84C]" />
+                        <span className="text-xs text-amber-800">🔋 하이브리드</span>
+                      </label>
+                    </div>
+                    <p className="text-amber-600 text-[10px] mt-1.5">해당 없으면 그냥 두세요 — 가솔린/디젤로 처리됩니다</p>
                   </div>
                 )}
 
@@ -1645,7 +1939,7 @@ function CompareInner() {
               </div>
 
               <div className="flex gap-3">
-                <button type="button" onClick={() => { setDir(-1); setPhase('group1'); }}
+                <button type="button" onClick={() => { setDir(-1); setPhase('currentCost'); }}
                   className="flex-1 py-3.5 rounded-2xl border border-[#E5E7EB] bg-white text-[#6B7280] hover:text-[#1C1C1E] font-medium transition-colors">
                   ← 이전
                 </button>
@@ -1671,6 +1965,45 @@ function CompareInner() {
                   {form.brand === '__manual__' ? '직접입력' : form.brand} {form.model} / {form.carPriceMk}만원 / {form.advanced.ownershipYears}년
                 </p>
               </div>
+
+              {/* 현재 vs 신차 비교 카드 */}
+              {form.hasCurrentVehicle !== null && (() => {
+                const currentMk = calcCurrentMonthly(form.hasCurrentVehicle, form.currentCost, form.currentTransport);
+                if (currentMk <= 0) return null;
+                const methods = ['rent', 'lease', 'installment'] as const;
+                const lowestMonthlyMk = Math.min(
+                  ...methods.map((k) => cmpResult[k].totalCostMid / cmpResult[k].contractMonths / 10_000),
+                );
+                const diffMk = Math.round(currentMk - lowestMonthlyMk);
+                const isAhead = diffMk > 0;
+                return (
+                  <div className="bg-white rounded-2xl shadow-sm border border-[#E5E7EB] p-5">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="text-center flex-1">
+                        <p className="text-[#8E8E93] text-[11px] font-medium mb-1">
+                          {form.hasCurrentVehicle ? '현재 차량 월비용' : '현재 교통비'}
+                        </p>
+                        <p className="text-[#1C1C1E] text-xl font-bold">{Math.round(currentMk)}만원</p>
+                      </div>
+                      <div className="text-[#D1D1D6] text-lg px-2">vs</div>
+                      <div className="text-center flex-1">
+                        <p className="text-[#8E8E93] text-[11px] font-medium mb-1">신차 최저 월비용</p>
+                        <p className="text-[#1C1C1E] text-xl font-bold">{Math.round(lowestMonthlyMk)}만원</p>
+                      </div>
+                    </div>
+                    <div className={[
+                      'rounded-xl px-4 py-2.5 text-center text-sm font-semibold',
+                      isAhead
+                        ? 'bg-green-50 border border-green-200 text-green-700'
+                        : 'bg-blue-50 border border-blue-200 text-blue-700',
+                    ].join(' ')}>
+                      {isAhead
+                        ? `💚 월 ${Math.abs(diffMk)}만원 절약!`
+                        : `💙 월 ${Math.abs(diffMk)}만원만 추가하면 신차 이용 가능`}
+                    </div>
+                  </div>
+                );
+              })()}
 
               {/* 탭 UI — 총비용 중간값 기준 오름차순 정렬 */}
               {(() => {
