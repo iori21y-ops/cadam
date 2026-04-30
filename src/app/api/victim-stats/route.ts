@@ -10,6 +10,7 @@
  *   중증(01-05) · 중상(06-11) · 경상(12-14) · 사망(death_inj_type='사망')
  *
  * ※ 차종별 필터 없음 (스키마에 car_type 컬럼 미존재 — 전체 자동차 통계)
+ * ※ person_count는 담보·등급 조합별 합산값 (동일 사고자 중복 계상 가능) — 비율만 의미 있음
  */
 
 import { NextRequest, NextResponse } from 'next/server';

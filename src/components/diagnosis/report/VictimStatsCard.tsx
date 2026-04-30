@@ -34,7 +34,6 @@ function fmtYm(ym: string): string {
 export function VictimStatsCard({ stats }: Props) {
   const { severity, period } = stats;
   const minorPct = severity.minor.pct;
-  const nonCriticalPct = Math.round((severity.minor.pct + severity.moderate.pct) * 10) / 10;
 
   return (
     <div className="rounded-2xl border border-[#F2F2F7] overflow-hidden">
@@ -49,14 +48,9 @@ export function VictimStatsCard({ stats }: Props) {
 
       <div className="px-4 pt-4 pb-4 space-y-3.5">
         {/* 핵심 수치 */}
-        <div className="flex items-end gap-3">
-          <div>
-            <p className="text-[11px] text-[#8E8E93] mb-0.5">경상(가벼운 부상) 비율</p>
-            <p className="text-[28px] font-bold text-[#34C759] leading-tight">{minorPct}%</p>
-          </div>
-          <p className="text-[13px] text-[#8E8E93] mb-1.5">
-            경상+중상 합계 {nonCriticalPct}%
-          </p>
+        <div>
+          <p className="text-[11px] text-[#8E8E93] mb-0.5">경상(가벼운 부상) 비율</p>
+          <p className="text-[28px] font-bold text-[#34C759] leading-tight">{minorPct}%</p>
         </div>
 
         {/* 스택형 가로 바 */}
