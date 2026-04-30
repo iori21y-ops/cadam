@@ -207,10 +207,15 @@ export default function ReportPage() {
       // 보험료 비동기 조회 (리포트 렌더 후 백그라운드 fetch)
       const carType = toInsuranceCarType(data.cc, data.isEV, data.formData.trimData.msrp_price);
       const origin  = toInsuranceOrigin(data.formData.brand);
+      const insurancePayload: Record<string, string> = { car_type: carType, origin };
+      if (data.formData.ageGroup)     insurancePayload.age_group     = data.formData.ageGroup;
+      if (data.formData.sex)          insurancePayload.sex            = data.formData.sex;
+      if (data.formData.businessType !== 'personal')
+        insurancePayload.business_type = data.formData.businessType;
       fetch('/api/insurance-stats', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ car_type: carType, origin }),
+        body:    JSON.stringify(insurancePayload),
       })
         .then((r) => r.ok ? r.json() : null)
         .then((json) => {
@@ -594,6 +599,7 @@ export default function ReportPage() {
                     annualAutoTax={Math.round(report.autoTaxResult.discountedTotal / 10000)}
                     residual5yr={report.residual5yr}
                     annualInsurance={annualInsuranceMk ?? undefined}
+                    ageGroup={report.formData.ageGroup}
                     monthlyFuel={monthlyFuelMk ?? undefined}
                     preCalcMonthly={(() => {
                       const cmp = calculateComparison({

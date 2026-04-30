@@ -10,6 +10,7 @@ interface Props {
   annualInsurance?:   number;  // 연간 보험료 (만원) — insurance-stats API
   monthlyFuel?:       number;  // 월 유류비 (만원) — fuel-prices API
   annualMaintenance?: number;  // Phase 3 예정: 연간 정비비 (만원)
+  ageGroup?:          string | null;  // 운전자 연령대 (표시용)
   /** comparison-engine에서 계산된 월납입 (만원). 제공 시 내부 calcMonthly 대신 사용 */
   preCalcMonthly?:    { installment: number; lease: number; rent: number };
 }
@@ -170,6 +171,7 @@ export function CostComparisonTable({
   annualInsurance,
   monthlyFuel,
   annualMaintenance: _maint, // Phase 3 예정
+  ageGroup,
   preCalcMonthly,
 }: Props) {
   const PERIOD       = 60;
@@ -243,7 +245,16 @@ export function CostComparisonTable({
     <div>
       <p className="text-[11px] text-[#8E8E93] mb-3">
         신차가 {msrp.toLocaleString()}만원 기준 · 60개월 · 연 2만km · 선납금 없음
-        {annualInsurance != null && ` · 보험료 연 ${annualInsurance.toLocaleString()}만원`}
+        {annualInsurance != null && (
+          <>
+            {` · 보험료 연 ${annualInsurance.toLocaleString()}만원`}
+            {ageGroup && (
+              <span className="ml-1 inline-flex items-center text-[10px] font-semibold text-[#FF9500] bg-[#FF950015] px-1.5 py-0.5 rounded-full">
+                {ageGroup} 기준
+              </span>
+            )}
+          </>
+        )}
         {monthlyFuel != null && ` · 유류비 월 ${monthlyFuel.toLocaleString()}만원`}
       </p>
 
@@ -261,7 +272,7 @@ export function CostComparisonTable({
         {annualInsurance != null ? ' + 보험료 5년' : ''}
         {monthlyFuel != null ? ' + 유류비 5년' : ''}
         {' − 만기 잔존가치.'}
-        {annualInsurance != null && ' 보험료는 금융감독원 통계 기반 추정치. 장기렌트는 월납입금에 포함.'}
+        {annualInsurance != null && ` 보험료는 금융위원회 통계 기반 추정치${ageGroup ? ` (${ageGroup} 개인용 기준)` : ''}. 장기렌트는 월납입금에 포함.`}
         {monthlyFuel != null && ' 유류비는 오피넷 전국 평균가 기준 추정치.'}
         {annualInsurance == null && monthlyFuel == null && ' 보험료·유류비·정비비 미포함.'}
         {' '}자동차세는 연식 경감 미반영. 유류비는 3개 옵션 동일 적용.

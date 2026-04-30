@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/Button';
 import type { MileageGroup, TrimMsrpResult } from '@/lib/domain/depreciation-calculator';
 
 export type BusinessType = 'personal' | 'individual_business' | 'corporation';
+export type AgeGroup     = '20대 이하' | '30대' | '40대' | '50대' | '60대' | '70대 이상';
+export type SexType      = '남자' | '여자';
 
 export interface DiagnosisFormData {
   brand: string;
@@ -12,6 +14,8 @@ export interface DiagnosisFormData {
   trimData: TrimMsrpResult;
   mileageGroup: MileageGroup;
   businessType: BusinessType;
+  ageGroup: AgeGroup | null;
+  sex: SexType | null;
 }
 
 interface Props {
@@ -31,6 +35,20 @@ const BUSINESS_OPTIONS: { value: BusinessType; label: string }[] = [
   { value: 'corporation',        label: '법인' },
 ];
 
+const AGE_OPTIONS: { value: AgeGroup; label: string }[] = [
+  { value: '20대 이하', label: '20대↓' },
+  { value: '30대',      label: '30대'  },
+  { value: '40대',      label: '40대'  },
+  { value: '50대',      label: '50대'  },
+  { value: '60대',      label: '60대'  },
+  { value: '70대 이상', label: '70대↑' },
+];
+
+const SEX_OPTIONS: { value: SexType; label: string }[] = [
+  { value: '남자', label: '남성' },
+  { value: '여자', label: '여성' },
+];
+
 export function DiagnosisForm({ onSubmit, loading = false }: Props) {
   const [brand, setBrand]           = useState('');
   const [model, setModel]           = useState('');
@@ -38,6 +56,8 @@ export function DiagnosisForm({ onSubmit, loading = false }: Props) {
   const [trimName, setTrimName]     = useState('');
   const [mileageGroup, setMileage]  = useState<MileageGroup>('mid');
   const [businessType, setBusiness] = useState<BusinessType>('personal');
+  const [ageGroup, setAgeGroup]     = useState<AgeGroup | null>(null);
+  const [sex, setSex]               = useState<SexType | null>(null);
 
   const [brands, setBrands]   = useState<string[]>([]);
   const [models, setModels]   = useState<string[]>([]);
@@ -103,7 +123,7 @@ export function DiagnosisForm({ onSubmit, loading = false }: Props) {
 
   function handleSubmit() {
     if (!selectedTrim) return;
-    onSubmit({ brand, model, trimData: selectedTrim, mileageGroup, businessType });
+    onSubmit({ brand, model, trimData: selectedTrim, mileageGroup, businessType, ageGroup, sex });
   }
 
   return (
@@ -236,6 +256,64 @@ export function DiagnosisForm({ onSubmit, loading = false }: Props) {
           })}
         </div>
       </div>
+
+      {/* 연령대 — 보험료 맞춤 추정용 (선택) */}
+      <div>
+        <label className="block text-[13px] font-semibold text-[#1C1C1E] mb-1.5">
+          운전자 연령대
+          <span className="ml-1.5 text-[11px] font-normal text-[#8E8E93]">선택 시 맞춤 보험료 추정</span>
+        </label>
+        <div className="grid grid-cols-6 gap-1.5">
+          {AGE_OPTIONS.map((opt) => {
+            const sel = ageGroup === opt.value;
+            return (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => setAgeGroup(sel ? null : opt.value)}
+                className={[
+                  'py-2 rounded-xl border-2 text-[12px] font-semibold transition-all text-center',
+                  sel
+                    ? 'border-[#FF9500] bg-[#FF9500]/10 text-[#FF9500]'
+                    : 'border-[#E5E7EB] bg-white text-[#6D6D72] hover:border-[#FF9500]/40',
+                ].join(' ')}
+              >
+                {opt.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* 성별 — 연령대 선택 시만 표시 (20대는 성별 차이가 큼) */}
+      {ageGroup !== null && (
+        <div>
+          <label className="block text-[13px] font-semibold text-[#1C1C1E] mb-2">
+            성별
+            <span className="ml-1.5 text-[11px] font-normal text-[#8E8E93]">선택</span>
+          </label>
+          <div className="flex gap-2">
+            {SEX_OPTIONS.map((opt) => {
+              const sel = sex === opt.value;
+              return (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => setSex(sel ? null : opt.value)}
+                  className={[
+                    'flex-1 py-2.5 rounded-xl border-2 text-[13px] font-semibold transition-all',
+                    sel
+                      ? 'border-[#FF9500] bg-[#FF9500]/10 text-[#FF9500]'
+                      : 'border-[#E5E7EB] bg-white text-[#6D6D72] hover:border-[#FF9500]/40',
+                  ].join(' ')}
+                >
+                  {opt.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* 선택 요약 */}
       {selectedTrim && (
