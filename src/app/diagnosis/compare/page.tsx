@@ -18,6 +18,8 @@ import type { CustomerType, InsuranceHistory, PlatePreference, ContractEndOption
 import type { Industry, RevenueRange, MonthlyBudgetRange } from '@/lib/domain/tax-calculator';
 import type { AcquisitionVehicleType } from '@/lib/domain/acquisition-tax-calculator';
 import type { YearPrices } from '@/lib/domain/depreciation-calculator';
+import { LEGAL_REFS } from '@/data/legal-references';
+import type { LegalRefKey } from '@/data/legal-references';
 
 // ── 타입 ──────────────────────────────────────────────────────────────
 
@@ -173,6 +175,15 @@ function DataBadge({ children }: { children: React.ReactNode }) {
   );
 }
 
+function ClickableBadge({ children, onClick }: { children: React.ReactNode; onClick: () => void }) {
+  return (
+    <button type="button" onClick={onClick}
+      className="inline-flex items-center gap-0.5 text-[10px] text-[#C9A84C] bg-[#FFF8E7] px-2 py-0.5 rounded-full border border-[#C9A84C]/40 hover:bg-[#FFF0CC] transition-colors">
+      {children} ⓘ
+    </button>
+  );
+}
+
 function SelectField({ value, onChange, disabled, children, loading }: {
   value: string; onChange: (v: string) => void;
   disabled?: boolean; children: React.ReactNode; loading?: boolean;
@@ -238,6 +249,7 @@ interface DetailPanelCtx {
   accidentStats: { year: string; isAnnual: boolean; stats: Record<string, { lossRate: number; injuredPer10k: number; deathPer10k: number; totalInjured: number; totalDeath: number }>; trend?: { year: string; lossRates: Record<string, number> }[] } | null;
   victimStats:   VictimStats | null;
   dbUsedPrices:  Record<number, YearPrices> | null;
+  onShowRef:     (key: LegalRefKey) => void;
 }
 
 // ── 공통 서브 컴포넌트 ────────────────────────────────────────────────
@@ -253,14 +265,19 @@ function SectionCard({ title, children }: { title: string; children: React.React
   );
 }
 
-function CostRow({ label, value, badge, negative, bold }: {
-  label: string; value: number; badge?: string; negative?: boolean; bold?: boolean;
+function CostRow({ label, value, badge, badgeKey, negative, bold, onShowRef }: {
+  label: string; value: number; badge?: string; badgeKey?: LegalRefKey;
+  negative?: boolean; bold?: boolean; onShowRef?: (key: LegalRefKey) => void;
 }) {
   if (value <= 0 && !bold) return null;
   return (
     <div className={['flex justify-between items-center text-xs', bold ? 'font-semibold pt-1.5 border-t border-black/5' : ''].join(' ')}>
       <span className="text-[#6B7280] flex items-center gap-1">
-        {label}{badge && <DataBadge>{badge}</DataBadge>}
+        {label}
+        {badge && badgeKey && onShowRef
+          ? <ClickableBadge onClick={() => onShowRef(badgeKey)}>{badge}</ClickableBadge>
+          : badge && <DataBadge>{badge}</DataBadge>
+        }
       </span>
       <span className={negative ? 'text-green-600 font-medium' : 'text-[#374151] font-medium'}>
         {negative ? '−' : ''}{fmtMk(Math.abs(value))}
@@ -404,8 +421,10 @@ function MethodHeader({ scored, displayRank, ownershipYears }: {
 
 // ── 아코디언 섹션 ────────────────────────────────────────────────────
 
-function AccordionSection({ title, preview, defaultOpen = false, children }: {
-  title: string; preview?: string; defaultOpen?: boolean; children: React.ReactNode;
+function AccordionSection({ title, preview, defaultOpen = false, infoKey, onShowRef, children }: {
+  title: string; preview?: string; defaultOpen?: boolean;
+  infoKey?: LegalRefKey; onShowRef?: (key: LegalRefKey) => void;
+  children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
@@ -413,7 +432,16 @@ function AccordionSection({ title, preview, defaultOpen = false, children }: {
       <button type="button" onClick={() => setOpen((p) => !p)}
         className="w-full px-4 py-2.5 flex items-center justify-between text-left gap-2">
         <div className="flex-1 min-w-0">
-          <p className="text-[11px] font-bold text-[#8E8E93] uppercase tracking-wide">{title}</p>
+          <div className="flex items-center gap-1.5">
+            <p className="text-[11px] font-bold text-[#8E8E93] uppercase tracking-wide">{title}</p>
+            {infoKey && onShowRef && (
+              <span role="button" tabIndex={0}
+                onClick={(e) => { e.stopPropagation(); onShowRef(infoKey); }}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); onShowRef(infoKey); } }}
+                className="text-[#8E8E93] text-[11px] hover:text-[#C9A84C] transition-colors shrink-0 cursor-pointer"
+                aria-label="근거 보기">ⓘ</span>
+            )}
+          </div>
           {!open && preview && (
             <p className="text-[10px] text-[#8E8E93] mt-0.5">{preview}</p>
           )}
@@ -422,6 +450,61 @@ function AccordionSection({ title, preview, defaultOpen = false, children }: {
       </button>
       {open && <div className="px-4 pt-2.5 pb-3 border-t border-[#F2F2F7]">{children}</div>}
     </div>
+  );
+}
+
+// ── 법령 근거 모달 ───────────────────────────────────────────────────
+
+function ReferenceModal({ refKey, onClose }: { refKey: LegalRefKey | null; onClose: () => void }) {
+  useEffect(() => {
+    if (!refKey) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', onKey);
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      document.body.style.overflow = '';
+    };
+  }, [refKey, onClose]);
+
+  const ref = refKey ? LEGAL_REFS[refKey] : null;
+
+  return (
+    <AnimatePresence>
+      {refKey && ref && (
+        <motion.div
+          className="fixed inset-0 z-50 flex items-end"
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+          transition={{ duration: 0.15 }}
+          onClick={onClose}>
+          <div className="absolute inset-0 bg-black/40" />
+          <motion.div
+            className="relative w-full bg-white rounded-t-2xl shadow-xl max-h-[80vh] overflow-y-auto"
+            initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
+            transition={{ duration: 0.25, ease: 'easeOut' }}
+            onClick={(e) => e.stopPropagation()}>
+            {/* 핸들 */}
+            <div className="flex justify-center pt-3 pb-1">
+              <div className="w-10 h-1 rounded-full bg-[#D1D5DB]" />
+            </div>
+            {/* 헤더 */}
+            <div className="flex items-center justify-between px-5 py-3 border-b border-[#F2F2F7]">
+              <h3 className="text-[#1C1C1E] font-bold text-sm">{ref.title}</h3>
+              <button type="button" onClick={onClose}
+                className="text-[#8E8E93] text-lg leading-none hover:text-[#1C1C1E] transition-colors">✕</button>
+            </div>
+            {/* 내용 */}
+            <div className="px-5 py-4 space-y-3 pb-8">
+              <span className="inline-block text-[11px] text-[#8E8E93] bg-[#F2F2F7] px-2.5 py-1 rounded-full">
+                {ref.law}
+              </span>
+              <p className="text-[#1C1C1E] text-sm font-semibold leading-relaxed">{ref.summary}</p>
+              <p className="text-[#6B7280] text-xs leading-relaxed">{ref.detail}</p>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
 
@@ -466,13 +549,16 @@ function InstallmentDetail({ scored, displayRank, ownershipYears, insuranceSourc
       <AccordionSection title="계산 근거" defaultOpen={true}>
         <div className="space-y-1.5">
           <CostRow label="할부원리금 합계" value={bd.payments} />
-          <CostRow label="취등록세" value={bd.initialCost} badge="지방세법 §12" />
-          <CostRow label="자동차세 합계" value={bd.autoTax} badge="지방세법 §127" />
-          <CostRow label="보험료 합계" value={bd.insurance} badge={insuranceSource} />
-          <CostRow label="정비비 합계" value={bd.maintenance} badge="차령·가격 추산" />
+          <CostRow label="취등록세" value={bd.initialCost} badge="지방세법 §12" badgeKey="acquisitionTax" onShowRef={ctx.onShowRef} />
+          <CostRow label="자동차세 합계" value={bd.autoTax} badge="지방세법 §127" badgeKey="autoTax" onShowRef={ctx.onShowRef} />
+          <CostRow label="보험료 합계" value={bd.insurance} badge={insuranceSource} badgeKey="insurance" onShowRef={ctx.onShowRef} />
+          <CostRow label="정비비 합계" value={bd.maintenance} badge="차령·가격 추산" badgeKey="maintenance" onShowRef={ctx.onShowRef} />
           {bd.salvageValue > 0 && (
             <div className="flex justify-between text-xs">
-              <span className="text-[#6B7280] flex items-center gap-1">중고 매각가 (차감)<DataBadge>엔카 시세</DataBadge></span>
+              <span className="text-[#6B7280] flex items-center gap-1">
+                중고 매각가 (차감)
+                <ClickableBadge onClick={() => ctx.onShowRef('depreciation')}>엔카 시세</ClickableBadge>
+              </span>
               <span className="text-green-600 font-medium">−{fmtMk(bd.salvageValue)}</span>
             </div>
           )}
@@ -481,7 +567,8 @@ function InstallmentDetail({ scored, displayRank, ownershipYears, insuranceSourc
       </AccordionSection>
 
       {/* ② 취등록세 상세 */}
-      <AccordionSection title="취등록세 상세" preview={`약 ${fmtMk(acqTax.finalTax)}`}>
+      <AccordionSection title="취등록세 상세" preview={`약 ${fmtMk(acqTax.finalTax)}`}
+        infoKey="acquisitionTax" onShowRef={ctx.onShowRef}>
         <div className="space-y-1.5">
           <div className="flex justify-between text-xs">
             <span className="text-[#6B7280]">차종</span>
@@ -519,7 +606,8 @@ function InstallmentDetail({ scored, displayRank, ownershipYears, insuranceSourc
       <InsuranceBanner color="orange" text="⚠️ 보험료는 본인이 직접 가입·납부해야 합니다" />
 
       {/* ④ 자동차세 분석 */}
-      <AccordionSection title="자동차세 분석" preview={`${ownershipYears}년간 약 ${fmtMk(autoTaxSum)}`}>
+      <AccordionSection title="자동차세 분석" preview={`${ownershipYears}년간 약 ${fmtMk(autoTaxSum)}`}
+        infoKey="autoTax" onShowRef={ctx.onShowRef}>
         <div className="space-y-1.5">
           {autoTaxRows.map((row) => (
             <div key={row.year} className="flex justify-between text-xs">
@@ -539,7 +627,8 @@ function InstallmentDetail({ scored, displayRank, ownershipYears, insuranceSourc
       </AccordionSection>
 
       {/* ⑤ 감가상각 & 중고 매각 */}
-      <AccordionSection title="감가상각 & 중고 매각 예상" preview={`${ownershipYears}년 후 잔존가 약 ${fmtMk(bd.salvageValue)}`}>
+      <AccordionSection title="감가상각 & 중고 매각 예상" preview={`${ownershipYears}년 후 잔존가 약 ${fmtMk(bd.salvageValue)}`}
+        infoKey="depreciation" onShowRef={ctx.onShowRef}>
         {depCurve.length > 0 && (
           <DepreciationChart
             curve={depCurve}
@@ -565,7 +654,8 @@ function InstallmentDetail({ scored, displayRank, ownershipYears, insuranceSourc
       </AccordionSection>
 
       {/* ⑥ 정비비 예상 */}
-      <AccordionSection title="정비비 예상" preview={`${ownershipYears}년간 약 ${fmtMk(bd.maintenance)}`}>
+      <AccordionSection title="정비비 예상" preview={`${ownershipYears}년간 약 ${fmtMk(bd.maintenance)}`}
+        infoKey="maintenance" onShowRef={ctx.onShowRef}>
         <div className="space-y-1.5">
           <div className="flex justify-between text-xs">
             <span className="text-[#6B7280]">월 평균 정비비 추산 <DataBadge>차령·가격 기준</DataBadge></span>
@@ -642,19 +732,28 @@ function RentDetail({ scored, displayRank, ownershipYears, insuranceSource, ctx 
 
       {/* ② 올인원 포함 내역 */}
       <AccordionSection title="월납입금 포함 내역 (올인원)"
-        preview={monthlyIncluded > 0 ? `월 ${fmtMk(monthlyIncluded)} 상당 포함` : undefined}>
+        preview={monthlyIncluded > 0 ? `월 ${fmtMk(monthlyIncluded)} 상당 포함` : undefined}
+        infoKey="insurance" onShowRef={ctx.onShowRef}>
         <div className="space-y-2.5">
           {([
-            { icon: '✅', label: '자동차보험',  annual: annualInsurance,   note: '별도 가입 불필요' },
-            { icon: '✅', label: '자동차세',    annual: annualAutoTax,     note: '별도 납부 불필요' },
-            { icon: '✅', label: '정기 정비',   annual: annualMaintenance, note: '정비소 방문 부담 없음' },
-            { icon: '✅', label: '취등록세',    annual: 0,                 note: acqTaxOnce > 0 ? `총 ${fmtMk(acqTaxOnce)} 렌트사 부담` : '렌트사 부담' },
-          ] as const).map(({ icon, label, annual, note }) => (
+            { icon: '✅', label: '자동차보험',  annual: annualInsurance,   note: '별도 가입 불필요', infoKey: 'insuranceCredit' as LegalRefKey | null },
+            { icon: '✅', label: '자동차세',    annual: annualAutoTax,     note: '별도 납부 불필요', infoKey: null },
+            { icon: '✅', label: '정기 정비',   annual: annualMaintenance, note: '정비소 방문 부담 없음', infoKey: null },
+            { icon: '✅', label: '취등록세',    annual: 0,                 note: acqTaxOnce > 0 ? `총 ${fmtMk(acqTaxOnce)} 렌트사 부담` : '렌트사 부담', infoKey: null },
+          ]).map(({ icon, label, annual, note, infoKey: itemKey }) => (
             <div key={label} className="flex items-start justify-between gap-2">
               <div className="flex items-start gap-2">
                 <span>{icon}</span>
                 <div>
-                  <p className="text-[#1C1C1E] text-xs font-medium">{label}</p>
+                  <p className="text-[#1C1C1E] text-xs font-medium flex items-center gap-1">
+                    {label}
+                    {itemKey && (
+                      <span role="button" tabIndex={0}
+                        onClick={() => ctx.onShowRef(itemKey)}
+                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); ctx.onShowRef(itemKey); } }}
+                        className="text-[#8E8E93] text-[10px] hover:text-[#C9A84C] transition-colors cursor-pointer">ⓘ</span>
+                    )}
+                  </p>
                   <p className="text-[#8E8E93] text-[10px]">{note}</p>
                 </div>
               </div>
@@ -698,7 +797,7 @@ function RentDetail({ scored, displayRank, ownershipYears, insuranceSource, ctx 
 
       {/* ⑤ 번호판 안내 */}
       {showPlate && (
-        <AccordionSection title="번호판 안내">
+        <AccordionSection title="번호판 안내" infoKey="plateInfo" onShowRef={ctx.onShowRef}>
           <p className="text-[#374151] text-xs leading-relaxed">
             장기렌트는 <strong>허·하·호 번호판</strong>이 부여됩니다. 2024년부터 일반번호판 장기렌트 시범 사업이 시행 중이나, 렌트사별 조건이 상이합니다.
           </p>
@@ -765,9 +864,9 @@ function LeaseDetail({ scored, displayRank, ownershipYears, insuranceSource, ctx
       <AccordionSection title="계산 근거" defaultOpen={true}>
         <div className="space-y-1.5">
           <CostRow label="리스료 합계" value={bd.payments} />
-          <CostRow label="자동차세 합계" value={bd.autoTax} badge="지방세법 §127" />
-          <CostRow label="보험료 합계" value={bd.insurance} badge={insuranceSource} />
-          <CostRow label="정비비 합계" value={bd.maintenance} badge="차령·가격 추산" />
+          <CostRow label="자동차세 합계" value={bd.autoTax} badge="지방세법 §127" badgeKey="autoTax" onShowRef={ctx.onShowRef} />
+          <CostRow label="보험료 합계" value={bd.insurance} badge={insuranceSource} badgeKey="insurance" onShowRef={ctx.onShowRef} />
+          <CostRow label="정비비 합계" value={bd.maintenance} badge="차령·가격 추산" badgeKey="maintenance" onShowRef={ctx.onShowRef} />
           <CostRow label="추정 총비용 (중간값)" value={result.totalCostMid} bold />
         </div>
       </AccordionSection>
@@ -778,7 +877,8 @@ function LeaseDetail({ scored, displayRank, ownershipYears, insuranceSource, ctx
       {/* ③ 절세 효과 */}
       {isBusiness && taxDetail ? (
         <AccordionSection title="절세 효과 상세"
-          preview={tax4y > 0 ? `${ownershipYears}년간 약 ${fmtMk(tax4y)} 절세` : undefined}>
+          preview={tax4y > 0 ? `${ownershipYears}년간 약 ${fmtMk(tax4y)} 절세` : undefined}
+          infoKey="taxSaving" onShowRef={ctx.onShowRef}>
           <div className="space-y-1.5">
             <div className="flex justify-between text-xs">
               <span className="text-[#6B7280]">업종별 업무사용비율</span>
@@ -811,13 +911,14 @@ function LeaseDetail({ scored, displayRank, ownershipYears, insuranceSource, ctx
           </div>
         </AccordionSection>
       ) : !isBusiness ? (
-        <AccordionSection title="절세 효과">
+        <AccordionSection title="절세 효과" infoKey="taxSaving" onShowRef={ctx.onShowRef}>
           <p className="text-[#6B7280] text-xs">개인(직장인)은 리스료 비용처리가 불가합니다. 법인·개인사업자는 월 리스료 전액을 비용처리할 수 있습니다.</p>
         </AccordionSection>
       ) : null}
 
       {/* ④ 잔존가치 설정 안내 */}
-      <AccordionSection title="잔존가치 설정 안내" preview="차량가의 30~40% 설정">
+      <AccordionSection title="잔존가치 설정 안내" preview="차량가의 30~40% 설정"
+        infoKey="residualValue" onShowRef={ctx.onShowRef}>
         <p className="text-[#374151] text-xs leading-relaxed mb-2">
           리스 계약 시 잔존가치(잔가)를 설정하면 그 금액만큼 월납입에서 제외됩니다. 일반적으로 차량가의 30~40% 설정 (차량가 {fmtMk(carPriceMk * 10_000)} 기준 약 {fmtMk(residualMk * 10_000)} 수준).
         </p>
@@ -863,7 +964,7 @@ function LeaseDetail({ scored, displayRank, ownershipYears, insuranceSource, ctx
       </AccordionSection>
 
       {/* ⑥ 번호판 안내 */}
-      <AccordionSection title="번호판 안내">
+      <AccordionSection title="번호판 안내" infoKey="plateInfo" onShowRef={ctx.onShowRef}>
         <p className="text-[#374151] text-xs leading-relaxed">
           <strong>운용리스는 일반번호판 사용 가능</strong> — 장기렌트(허·하·호)와의 핵심 차이입니다. 소유자는 리스사이지만 일반번호판이 부여되어 외관상 구분되지 않습니다.
         </p>
@@ -973,6 +1074,7 @@ function CompareInner() {
   const [decision, setDecision]   = useState<DecisionResult | null>(null);
   const [cmpResult, setCmpResult] = useState<ComparisonResult | null>(null);
   const [showAssumptions, setShowAssumptions] = useState(false);
+  const [modalKey, setModalKey]   = useState<LegalRefKey | null>(null);
 
   // 탭 선택 — null이면 총비용 1위 자동 선택
   const [selectedType, setSelectedType] = useState<ProductMethod | null>(null);
@@ -1180,6 +1282,7 @@ function CompareInner() {
   const progress = phase === 'group1' ? 1 : phase === 'group2' ? 2 : 2;
 
   return (
+    <>
     <div className="min-h-screen bg-[#F2F2F7] pb-24">
       <div className="max-w-[520px] mx-auto px-4 pt-8">
 
@@ -1607,7 +1710,7 @@ function CompareInner() {
                             displayRank={selectedDisplayRank}
                             ownershipYears={form.advanced.ownershipYears}
                             insuranceSource={insuranceSource}
-                            ctx={{ form, cmpResult, dbInsurance, accidentStats, victimStats, dbUsedPrices }} />
+                            ctx={{ form, cmpResult, dbInsurance, accidentStats, victimStats, dbUsedPrices, onShowRef: setModalKey }} />
                         </motion.div>
                       )}
                     </AnimatePresence>
@@ -1696,5 +1799,8 @@ function CompareInner() {
         </AnimatePresence>
       </div>
     </div>
+
+    <ReferenceModal refKey={modalKey} onClose={() => setModalKey(null)} />
+    </>
   );
 }
