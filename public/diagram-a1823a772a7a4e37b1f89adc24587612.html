@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>렌테일러 시스템 다이어그램</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard/dist/web/static/pretendard.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d1117;
+      --bg-card: #161b22;
+      --bg-card2: #21262d;
+      --border: #30363d;
+      --border-light: #21262d;
+      --text: #e6edf3;
+      --muted: #7d8590;
+      --dim: #484f58;
+      --blue: #388bfd;
+      --purple: #a371f7;
+      --green: #3fb950;
+      --orange: #d29922;
+      --red: #f85149;
+    }
+
+    body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    /* ── Header ── */
+    .header {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+    }
+    .header-top {
+      padding: 14px 0 0;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .header-icon {
+      width: 34px; height: 34px; border-radius: 8px; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--blue), var(--purple));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+    }
+    .header-title { font-size: 17px; font-weight: 700; }
+    .header-sub { font-size: 11px; color: var(--muted); margin-top: 1px; }
+
+    /* ── Tabs ── */
+    .tabs {
+      display: flex; margin-top: 10px;
+      overflow-x: auto; scrollbar-width: none;
+    }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tab-btn {
+      padding: 9px 18px; border: none; background: none;
+      color: var(--muted); font-family: inherit; font-size: 13px; font-weight: 500;
+      cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .tab-btn:hover { color: var(--text); }
+    .tab-btn.active { color: var(--blue); border-bottom-color: var(--blue); }
+
+    /* ── Content ── */
+    .content { max-width: 1400px; margin: 0 auto; padding: 24px 24px 80px; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── Tags ── */
+    .tag {
+      display: inline-flex; align-items: center; padding: 2px 7px;
+      border-radius: 4px; font-size: 11px; font-weight: 600; white-space: nowrap;
+    }
+    .tag-db     { background: #196c2e; color: #56d364; }
+    .tag-api    { background: #0a3069; color: #79c0ff; }
+    .tag-static { background: #5a3e1a; color: #e3b341; }
+    .tag-write  { background: #5a1616; color: #ff7b72; }
+
+    .legend {
+      display: flex; flex-wrap: wrap; gap: 8px;
+      align-items: center; margin-bottom: 20px;
+    }
+    .legend-label { font-size: 12px; color: var(--muted); margin-right: 2px; }
+
+    /* ── Architecture ── */
+    .arch-grid {
+      display: grid; grid-template-columns: 1fr; gap: 14px;
+    }
+    @media (min-width: 900px) {
+      .arch-grid { grid-template-columns: 1.5fr 1fr; }
+      .cluster-mac { grid-row: 1 / 3; }
+    }
+
+    .cluster {
+      border-radius: 10px; border: 1px solid var(--border); overflow: hidden;
+    }
+    .cluster-mac     { border-color: #1f6feb50; }
+    .cluster-gpu     { border-color: #a371f750; }
+    .cluster-cloud   { border-color: #3fb95050; }
+
+    .cluster-header {
+      padding: 9px 14px; display: flex; align-items: center; gap: 8px;
+      font-size: 12px; font-weight: 700; border-bottom: 1px solid var(--border);
+    }
+    .cluster-mac   .cluster-header { background: #0d1f3e; color: #79c0ff; }
+    .cluster-gpu   .cluster-header { background: #150d2e; color: #d2a8ff; }
+    .cluster-cloud .cluster-header { background: #091a09; color: #56d364; }
+
+    .host-badge {
+      margin-left: auto; font-size: 10px; font-weight: 400;
+      color: var(--dim); font-family: 'SF Mono', monospace;
+    }
+
+    .cluster-body {
+      padding: 12px;
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(148px, 1fr)); gap: 10px;
+    }
+    .cluster-gpu .cluster-body,
+    .cluster-cloud .cluster-body {
+      grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+    }
+
+    .svc {
+      background: var(--bg-card2); border: 1px solid var(--border);
+      border-radius: 8px; padding: 11px 12px; cursor: pointer; position: relative;
+      transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
+    }
+    .svc:hover {
+      border-color: var(--blue);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(56,139,253,0.12);
+    }
+    .svc-port  { font-size: 10px; color: var(--dim); font-family: 'SF Mono', monospace; margin-bottom: 3px; }
+    .svc-name  { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+    .svc-desc  { font-size: 11px; color: var(--muted); line-height: 1.4; margin-bottom: 7px; }
+    .svc-tags  { display: flex; flex-wrap: wrap; gap: 3px; }
+
+    /* ── Flow section ── */
+    .flow-box {
+      margin-top: 16px; background: var(--bg-card);
+      border: 1px solid var(--border); border-radius: 10px; padding: 14px 18px;
+    }
+    .flow-box h3 {
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.06em; color: var(--muted); margin-bottom: 10px;
+    }
+    .flow-row {
+      display: flex; flex-wrap: wrap; align-items: center;
+      gap: 6px; margin-bottom: 8px; font-size: 12px;
+    }
+    .flow-row:last-child { margin-bottom: 0; }
+    .fn  { background: var(--bg-card2); border: 1px solid var(--border); border-radius: 4px; padding: 2px 8px; font-size: 12px; }
+    .fa  { color: var(--dim); }
+    .fl  { font-size: 11px; color: var(--dim); }
+
+    /* ── Page Map ── */
+    .page-section { margin-bottom: 28px; }
+    .sec-title {
+      font-size: 13px; font-weight: 700; color: var(--muted);
+      margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+    }
+    .sec-count {
+      background: var(--bg-card2); border: 1px solid var(--border);
+      border-radius: 20px; padding: 1px 8px; font-size: 11px; color: var(--muted);
+    }
+    .page-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px;
+    }
+    .pc {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 8px; padding: 11px 14px; cursor: pointer;
+      transition: border-color 0.15s, transform 0.15s;
+    }
+    .pc:hover { border-color: var(--blue); transform: translateY(-1px); }
+    .pc.admin { border-color: #5a161620; }
+    .pc.admin:hover { border-color: var(--red); }
+    .pc-route { font-family: 'SF Mono', monospace; font-size: 11px; color: var(--blue); margin-bottom: 3px; }
+    .pc.admin .pc-route { color: var(--red); }
+    .pc-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+    .pc-tags  { display: flex; flex-wrap: wrap; gap: 3px; }
+
+    /* ── Data Flow ── */
+    .data-section { margin-bottom: 30px; }
+    .data-title {
+      font-size: 14px; font-weight: 700;
+      margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+    }
+    .tbl-wrap {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 10px; overflow: hidden; overflow-x: auto;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th {
+      text-align: left; padding: 8px 12px;
+      background: var(--bg-card2); color: var(--muted);
+      font-size: 11px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.05em; border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    td { padding: 8px 12px; border-bottom: 1px solid var(--border-light); vertical-align: top; }
+    tr:hover td { background: #ffffff06; }
+    tr:last-child td { border-bottom: none; }
+    .mono { font-family: 'SF Mono', monospace; font-size: 11px; }
+
+    /* ── Write Flow ── */
+    .wf-grid {
+      display: grid; grid-template-columns: 1fr; gap: 28px;
+    }
+    @media (min-width: 760px) {
+      .wf-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    .wf-steps { display: flex; flex-direction: column; }
+    .wf-step  { display: flex; gap: 14px; }
+    .wf-line  { display: flex; flex-direction: column; align-items: center; width: 28px; flex-shrink: 0; }
+    .wf-dot   { width: 10px; height: 10px; border-radius: 50%; background: var(--blue); margin-top: 5px; flex-shrink: 0; }
+    .wf-vline { width: 2px; flex: 1; min-height: 20px; background: var(--border); margin: 3px 0; }
+    .wf-body  { flex: 1; padding-bottom: 16px; }
+
+    .wc {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 8px; padding: 11px 14px; cursor: pointer;
+      transition: border-color 0.15s;
+    }
+    .wc:hover { border-color: var(--blue); }
+    .wc-route { font-family: 'SF Mono', monospace; font-size: 11px; color: var(--blue); margin-bottom: 3px; }
+    .wc-title { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+    .wc-desc  { font-size: 12px; color: var(--muted); line-height: 1.5; }
+    .wc-tags  { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 7px; }
+
+    .pipeline-box {
+      margin-top: 10px; background: var(--bg-card2);
+      border-radius: 6px; border-left: 3px solid var(--blue); padding: 10px 12px;
+    }
+    .pipeline-title {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.06em; color: var(--muted); margin-bottom: 7px;
+    }
+    .pipeline-item {
+      display: flex; align-items: flex-start; gap: 8px;
+      font-size: 12px; color: var(--muted); margin-bottom: 4px;
+    }
+    .pipeline-item:last-child { margin-bottom: 0; }
+    .pipeline-num {
+      font-size: 10px; font-weight: 700; color: var(--dim); width: 14px; flex-shrink: 0; margin-top: 1px;
+    }
+
+    .small-cards { display: flex; flex-direction: column; gap: 9px; }
+
+    .divider { height: 1px; background: var(--border); margin: 18px 0; }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+      background: var(--bg-card2); border: 1px solid var(--border);
+      border-radius: 8px; padding: 9px 18px; font-size: 12px; color: var(--muted);
+      z-index: 999; opacity: 0; pointer-events: none;
+      transition: opacity 0.2s; white-space: nowrap;
+    }
+    .toast.show { opacity: 1; }
+
+    @media (max-width: 600px) {
+      .content { padding: 14px 14px 60px; }
+      .header  { padding: 0 14px; }
+      .cluster-body { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════ HEADER ══════════════════════ -->
+<header class="header">
+  <div class="header-top">
+    <div class="header-icon">🗺️</div>
+    <div>
+      <div class="header-title">렌테일러 시스템 다이어그램</div>
+      <div class="header-sub">인터랙티브 아키텍처 맵 · 2026-04-30 기준</div>
+    </div>
+  </div>
+  <nav class="tabs">
+    <button class="tab-btn active" data-tab="architecture">🏗️ 아키텍처</button>
+    <button class="tab-btn" data-tab="pagemap">📄 페이지 맵</button>
+    <button class="tab-btn" data-tab="dataflow">🔄 데이터 흐름</button>
+    <button class="tab-btn" data-tab="writeflow">✍️ 쓰기 흐름</button>
+  </nav>
+</header>
+
+<main class="content">
+
+<!-- ══════════════════════ TAB: 아키텍처 ══════════════════════ -->
+<div class="tab-panel active" id="panel-architecture">
+
+  <div class="arch-grid">
+
+    <!-- Mac Mini -->
+    <div class="cluster cluster-mac">
+      <div class="cluster-header">
+        🖥️ Mac Mini M4 (로컬)
+        <span class="host-badge">gimgyeongnyeon-ui-Macmini / kim</span>
+      </div>
+      <div class="cluster-body">
+
+        <div class="svc" onclick="openNotion('cadam-web')">
+          <div class="svc-port">:3000</div>
+          <div class="svc-name">cadam-web</div>
+          <div class="svc-desc">메인 고객 웹앱<br>Next.js 16 + Vercel 배포</div>
+          <div class="svc-tags">
+            <span class="tag tag-db">Supabase</span>
+            <span class="tag tag-write">리드 수집</span>
+          </div>
+        </div>
+
+        <div class="svc" onclick="openNotion('n8n')">
+          <div class="svc-port">:5678</div>
+          <div class="svc-name">n8n</div>
+          <div class="svc-desc">콘텐츠 자동화<br>Docker (n8nio/n8n)</div>
+          <div class="svc-tags">
+            <span class="tag tag-api">워크플로우</span>
+            <span class="tag tag-write">발행</span>
+          </div>
+        </div>
+
+        <div class="svc" onclick="openNotion('cadam-pipeline')">
+          <div class="svc-port">:9721</div>
+          <div class="svc-name">cadam-pipeline</div>
+          <div class="svc-desc">Python FastAPI<br>크롤러 · 큐레이터</div>
+          <div class="svc-tags">
+            <span class="tag tag-db">Supabase</span>
+            <span class="tag tag-api">FastAPI</span>
+          </div>
+        </div>
+
+        <div class="svc" onclick="openNotion('ollama')">
+          <div class="svc-port">:11434</div>
+          <div class="svc-name">Ollama (로컬)</div>
+          <div class="svc-desc">glm4 · cadam-writer<br>LLM 최종 폴백</div>
+          <div class="svc-tags">
+            <span class="tag tag-static">LLM 폴백</span>
+          </div>
+        </div>
+
+        <div class="svc" onclick="openNotion('cadam-dashboard')">
+          <div class="svc-port">:3101</div>
+          <div class="svc-name">cadam-dashboard</div>
+          <div class="svc-desc">내부 운영 대시보드<br>Next.js 16</div>
+          <div class="svc-tags">
+            <span class="tag tag-db">Supabase</span>
+            <span class="tag tag-api">모니터링</span>
+          </div>
+        </div>
+
+        <div class="svc" onclick="openNotion('cadam-naver')">
+          <div class="svc-port">:3100</div>
+          <div class="svc-name">cadam-naver</div>
+          <div class="svc-desc">네이버 블로그 발행<br>Express + Playwright</div>
+          <div class="svc-tags">
+            <span class="tag tag-write">자동발행</span>
+          </div>
+        </div>
+
+        <div class="svc" onclick="openNotion('md-dashboard')">
+          <div class="svc-port">:9725</div>
+          <div class="svc-name">md-dashboard</div>
+          <div class="svc-desc">마크다운 대시보드<br>Flask (로컬 전용)</div>
+          <div class="svc-tags">
+            <span class="tag tag-static">Flask</span>
+          </div>
+        </div>
+
+        <div class="svc" onclick="openNotion('prompt-bff')">
+          <div class="svc-port">:3099</div>
+          <div class="svc-name">prompt-bff</div>
+          <div class="svc-desc">프롬프트 동기화<br>Docker (n8n compose)</div>
+          <div class="svc-tags">
+            <span class="tag tag-api">BFF</span>
+          </div>
+        </div>
+
+        <div class="svc" onclick="openNotion('launchagents')">
+          <div class="svc-port">×25개</div>
+          <div class="svc-name">LaunchAgents</div>
+          <div class="svc-desc">price_crawler · Docker<br>백업 스케줄러 등</div>
+          <div class="svc-tags">
+            <span class="tag tag-static">launchd</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- GPU Server -->
+    <div class="cluster cluster-gpu">
+      <div class="cluster-header">
+        🎮 GPU 서버 (Windows)
+        <span class="host-badge">100.80.136.112</span>
+      </div>
+      <div class="cluster-body">
+
+        <div class="svc" onclick="openNotion('gpu-server')">
+          <div class="svc-port">RTX 4070 Ti SUPER</div>
+          <div class="svc-name">GPU 서버</div>
+          <div class="svc-desc">Windows OS<br>Tailscale VPN 연결</div>
+          <div class="svc-tags">
+            <span class="tag tag-static">Windows</span>
+            <span class="tag tag-api">Tailscale</span>
+          </div>
+        </div>
+
+        <div class="svc" onclick="openNotion('gpu-ollama')">
+          <div class="svc-port">:11434</div>
+          <div class="svc-name">Ollama (GPU)</div>
+          <div class="svc-desc">glm4 · qwen3:14b<br>고성능 LLM 추론</div>
+          <div class="svc-tags">
+            <span class="tag tag-static">LLM 고성능</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- External Services -->
+    <div class="cluster cluster-cloud">
+      <div class="cluster-header">☁️ 외부 서비스 (클라우드)</div>
+      <div class="cluster-body">
+
+        <div class="svc" onclick="openNotion('supabase')">
+          <div class="svc-name">Supabase</div>
+          <div class="svc-desc">PostgreSQL DB<br>46개 테이블</div>
+          <div class="svc-tags">
+            <span class="tag tag-db">PostgreSQL</span>
+            <span class="tag tag-api">REST/RPC</span>
+          </div>
+        </div>
+
+        <div class="svc" onclick="openNotion('vercel')">
+          <div class="svc-name">Vercel</div>
+          <div class="svc-desc">cadam-web 배포<br>CDN + Edge Network</div>
+          <div class="svc-tags">
+            <span class="tag tag-static">배포</span>
+          </div>
+        </div>
+
+        <div class="svc" onclick="openNotion('wordpress')">
+          <div class="svc-name">WordPress</div>
+          <div class="svc-desc">cadam21y.mycafe24.com<br>SEO 블로그 발행</div>
+          <div class="svc-tags">
+            <span class="tag tag-write">발행</span>
+            <span class="tag tag-api">REST API</span>
+          </div>
+        </div>
+
+        <div class="svc" onclick="openNotion('llm-api')">
+          <div class="svc-name">LLM API</div>
+          <div class="svc-desc">Kimi(Moonshot) 1차<br>Gemini 2차 · OpenAI 검증</div>
+          <div class="svc-tags">
+            <span class="tag tag-api">AI 생성</span>
+          </div>
+        </div>
+
+        <div class="svc" onclick="openNotion('resend')">
+          <div class="svc-name">Resend</div>
+          <div class="svc-desc">이메일 발송<br>상담 알림</div>
+          <div class="svc-tags">
+            <span class="tag tag-write">알림</span>
+          </div>
+        </div>
+
+        <div class="svc" onclick="openNotion('upstash')">
+          <div class="svc-name">Upstash Redis</div>
+          <div class="svc-desc">API Rate Limit<br>IP 기반 보호</div>
+          <div class="svc-tags">
+            <span class="tag tag-api">보안</span>
+          </div>
+        </div>
+
+        <div class="svc" onclick="openNotion('ga4')">
+          <div class="svc-name">GA4</div>
+          <div class="svc-desc">웹 트래킹<br>방문자 분석</div>
+          <div class="svc-tags">
+            <span class="tag tag-static">분석</span>
+          </div>
+        </div>
+
+        <div class="svc" onclick="openNotion('google-sheets-crm')">
+          <div class="svc-name">Google Sheets CRM</div>
+          <div class="svc-desc">상담 CRM<br>(구 동기화 워크플로우 inactive)</div>
+          <div class="svc-tags">
+            <span class="tag tag-db">CRM</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div><!-- /arch-grid -->
+
+  <!-- Connection flow -->
+  <div class="flow-box">
+    <h3>주요 데이터 흐름</h3>
+    <div class="flow-row">
+      <span class="fn">방문자</span><span class="fa">→</span>
+      <span class="fn">WordPress / 네이버</span><span class="fa">→</span>
+      <span class="fn">cadam-web :3000</span><span class="fa">→</span>
+      <span class="fn">consultations (Supabase)</span>
+      <span class="fl">― 리드 수집 메인 경로</span>
+    </div>
+    <div class="flow-row">
+      <span class="fn">n8n :5678</span><span class="fa">→</span>
+      <span class="fn">pipeline :9721</span><span class="fa">→</span>
+      <span class="fn">Supabase</span><span class="fa">→</span>
+      <span class="fn">Kimi / Gemini API</span><span class="fa">→</span>
+      <span class="fn">WordPress</span>
+      <span class="fl">― 콘텐츠 자동화</span>
+    </div>
+    <div class="flow-row">
+      <span class="fn">n8n :5678</span><span class="fa">→</span>
+      <span class="fn">cadam-naver :3100</span><span class="fa">→</span>
+      <span class="fn">네이버 블로그</span>
+      <span class="fl">― 네이버 발행</span>
+    </div>
+    <div class="flow-row">
+      <span class="fn">Mac Ollama :11434</span><span class="fa">←→ Tailscale →</span>
+      <span class="fn">GPU Ollama :11434</span>
+      <span class="fl">― LLM 폴백 체인</span>
+    </div>
+    <div class="flow-row">
+      <span class="fn">cadam-dashboard :3101</span><span class="fa">→ 핑 →</span>
+      <span class="fn">web · n8n · pipeline · ollama</span>
+      <span class="fl">― 헬스체크</span>
+    </div>
+  </div>
+
+</div><!-- /panel-architecture -->
+
+
+<!-- ══════════════════════ TAB: 페이지 맵 ══════════════════════ -->
+<div class="tab-panel" id="panel-pagemap">
+
+  <div class="legend">
+    <span class="legend-label">데이터 소스:</span>
+    <span class="tag tag-db">DB (Supabase)</span>
+    <span class="tag tag-api">API Route</span>
+    <span class="tag tag-static">정적/하드코딩</span>
+    <span class="tag tag-write">쓰기 (INSERT)</span>
+  </div>
+
+  <!-- 공개 페이지 -->
+  <div class="page-section">
+    <div class="sec-title">🌐 공개 페이지 <span class="sec-count">12</span></div>
+    <div class="page-grid">
+
+      <div class="pc" onclick="openNotion('page-home')">
+        <div class="pc-route">/</div>
+        <div class="pc-title">홈 — 인기 차량 견적</div>
+        <div class="pc-tags">
+          <span class="tag tag-db">vehicles</span>
+          <span class="tag tag-db">pricing</span>
+          <span class="tag tag-static">ISR 60s</span>
+        </div>
+      </div>
+
+      <div class="pc" onclick="openNotion('page-popular-estimates')">
+        <div class="pc-route">/popular-estimates</div>
+        <div class="pc-title">인기 견적 목록</div>
+        <div class="pc-tags">
+          <span class="tag tag-db">vehicles</span>
+          <span class="tag tag-db">pricing</span>
+          <span class="tag tag-static">ISR 60s</span>
+        </div>
+      </div>
+
+      <div class="pc" onclick="openNotion('page-cars-slug')">
+        <div class="pc-route">/cars/[slug]</div>
+        <div class="pc-title">차량 상세 — 360뷰어 · 견적</div>
+        <div class="pc-tags">
+          <span class="tag tag-db">vehicles</span>
+          <span class="tag tag-db">pricing</span>
+          <span class="tag tag-db">info_articles</span>
+          <span class="tag tag-static">ISR 60s</span>
+        </div>
+      </div>
+
+      <div class="pc" onclick="openNotion('page-cars-options')">
+        <div class="pc-route">/cars/[slug]/options</div>
+        <div class="pc-title">차량 트림/옵션 상세</div>
+        <div class="pc-tags">
+          <span class="tag tag-db">vehicle_trims</span>
+          <span class="tag tag-db">trim_options</span>
+          <span class="tag tag-static">service_role ISR</span>
+        </div>
+      </div>
+
+      <div class="pc" onclick="openNotion('page-quote')">
+        <div class="pc-route">/quote</div>
+        <div class="pc-title">견적 신청 (다단계 폼)</div>
+        <div class="pc-tags">
+          <span class="tag tag-static">Zustand quoteStore</span>
+        </div>
+      </div>
+
+      <div class="pc" onclick="openNotion('page-result')">
+        <div class="pc-route">/result</div>
+        <div class="pc-title">견적 결과</div>
+        <div class="pc-tags">
+          <span class="tag tag-api">/api/fuel-prices</span>
+          <span class="tag tag-static">quoteStore</span>
+        </div>
+      </div>
+
+      <div class="pc" onclick="openNotion('page-direct')">
+        <div class="pc-route">/direct</div>
+        <div class="pc-title">간편 견적 신청</div>
+        <div class="pc-tags">
+          <span class="tag tag-api">/api/consultation</span>
+          <span class="tag tag-write">consultation INSERT</span>
+        </div>
+      </div>
+
+      <div class="pc" onclick="openNotion('page-promotions')">
+        <div class="pc-route">/promotions</div>
+        <div class="pc-title">프로모션 목록</div>
+        <div class="pc-tags">
+          <span class="tag tag-db">promotions</span>
+          <span class="tag tag-static">ISR 600s</span>
+        </div>
+      </div>
+
+      <div class="pc" onclick="openNotion('page-blog')">
+        <div class="pc-route">/blog/[slug]</div>
+        <div class="pc-title">블로그 포스트</div>
+        <div class="pc-tags">
+          <span class="tag tag-api">WordPress REST API</span>
+        </div>
+      </div>
+
+      <div class="pc" onclick="openNotion('page-info')">
+        <div class="pc-route">/info</div>
+        <div class="pc-title">이용방법 목록</div>
+        <div class="pc-tags">
+          <span class="tag tag-db">info_categories</span>
+          <span class="tag tag-db">info_articles</span>
+          <span class="tag tag-api">WordPress API</span>
+        </div>
+      </div>
+
+      <div class="pc" onclick="openNotion('page-info-map')">
+        <div class="pc-route">/info/map</div>
+        <div class="pc-title">주변 지도</div>
+        <div class="pc-tags">
+          <span class="tag tag-api">Kakao Map API</span>
+          <span class="tag tag-api">/api/gas-stations</span>
+          <span class="tag tag-api">/api/ev-chargers</span>
+        </div>
+      </div>
+
+      <div class="pc" onclick="openNotion('page-market-sell')">
+        <div class="pc-route">/market/sell-price</div>
+        <div class="pc-title">내 차 시세 조회 (B1)</div>
+        <div class="pc-tags">
+          <span class="tag tag-api">/api/vehicle-msrp</span>
+          <span class="tag tag-api">/api/used-prices</span>
+          <span class="tag tag-write">consultation INSERT</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 진단 모듈 -->
+  <div class="page-section">
+    <div class="sec-title">🔬 진단 모듈 <span class="sec-count">8</span></div>
+    <div class="page-grid">
+
+      <div class="pc" onclick="openNotion('page-diagnosis')">
+        <div class="pc-route">/diagnosis</div>
+        <div class="pc-title">진단 허브 (금융/차종 선택)</div>
+        <div class="pc-tags">
+          <span class="tag tag-db">diagnosis_config</span>
+          <span class="tag tag-static">클라이언트 anon</span>
+        </div>
+      </div>
+
+      <div class="pc" onclick="openNotion('page-diagnosis-finance')">
+        <div class="pc-route">/diagnosis/finance</div>
+        <div class="pc-title">금융 진단 퀴즈</div>
+        <div class="pc-tags">
+          <span class="tag tag-static">diagnosis-finance.ts</span>
+          <span class="tag tag-db">diagnosis_config</span>
+        </div>
+      </div>
+
+      <div class="pc" onclick="openNotion('page-diagnosis-vehicle')">
+        <div class="pc-route">/diagnosis/vehicle</div>
+        <div class="pc-title">차종 진단 퀴즈</div>
+        <div class="pc-tags">
+          <span class="tag tag-static">diagnosis-vehicle.ts</span>
+          <span class="tag tag-db">diagnosis_config</span>
+        </div>
+      </div>
+
+      <div class="pc" onclick="openNotion('page-diagnosis-option')">
+        <div class="pc-route">/diagnosis/vehicle/option</div>
+        <div class="pc-title">옵션 추천 퀴즈</div>
+        <div class="pc-tags">
+          <span class="tag tag-static">diagnosis-option.ts</span>
+        </div>
+      </div>
+
+      <div class="pc" onclick="openNotion('page-diagnosis-calculator')">
+        <div class="pc-route">/diagnosis/calculator</div>
+        <div class="pc-title">월납입금 계산기</div>
+        <div class="pc-tags">
+          <span class="tag tag-static">calc-monthly.ts</span>
+        </div>
+      </div>
+
+      <div class="pc" onclick="openNotion('page-diagnosis-compare')">
+        <div class="pc-route">/diagnosis/compare</div>
+        <div class="pc-title">금융상품 비교 진단</div>
+        <div class="pc-tags">
+          <span class="tag tag-api">/api/vehicle-msrp</span>
+          <span class="tag tag-api">/api/insurance-stats</span>
+          <span class="tag tag-api">/api/accident-stats</span>
+        </div>
+      </div>
+
+      <div class="pc" onclick="openNotion('page-diagnosis-report')">
+        <div class="pc-route">/diagnosis/report</div>
+        <div class="pc-title">종합 진단 리포트</div>
+        <div class="pc-tags">
+          <span class="tag tag-api">/api/fuel-prices</span>
+          <span class="tag tag-api">/api/accident-stats</span>
+          <span class="tag tag-static">quoteStore</span>
+        </div>
+      </div>
+
+      <div class="pc" onclick="openNotion('page-diagnosis-models')">
+        <div class="pc-route">/diagnosis/models/[slug]</div>
+        <div class="pc-title">차종별 가격/트림 상세</div>
+        <div class="pc-tags">
+          <span class="tag tag-db">vehicle_msrp</span>
+          <span class="tag tag-static">ISR 3600s</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 시뮬레이터 -->
+  <div class="page-section">
+    <div class="sec-title">🧮 시뮬레이터 <span class="sec-count">4</span></div>
+    <div class="page-grid">
+
+      <div class="pc" onclick="openNotion('page-simulator')">
+        <div class="pc-route">/simulator</div>
+        <div class="pc-title">시뮬레이터 허브 (4카드)</div>
+        <div class="pc-tags">
+          <span class="tag tag-static">정적 링크</span>
+        </div>
+      </div>
+
+      <div class="pc" onclick="openNotion('page-simulator-tax')">
+        <div class="pc-route">/simulator/tax</div>
+        <div class="pc-title">사업자 세무 절세 (A2)</div>
+        <div class="pc-tags">
+          <span class="tag tag-static">tax-calculator.ts</span>
+          <span class="tag tag-write">consultation INSERT</span>
+        </div>
+      </div>
+
+      <div class="pc" onclick="openNotion('page-simulator-cost')">
+        <div class="pc-route">/simulator/cost</div>
+        <div class="pc-title">유지비 시뮬레이터</div>
+        <div class="pc-tags">
+          <span class="tag tag-static">cost-calculator.ts</span>
+          <span class="tag tag-write">consultation INSERT</span>
+        </div>
+      </div>
+
+      <div class="pc" onclick="openNotion('page-simulator-compare')">
+        <div class="pc-route">/simulator/compare</div>
+        <div class="pc-title">비교 시뮬레이터 (A3, Phase 2)</div>
+        <div class="pc-tags">
+          <span class="tag tag-api">/api/vehicle-msrp</span>
+          <span class="tag tag-api">/api/used-prices</span>
+          <span class="tag tag-static">comparison-engine.ts</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 관리자 -->
+  <div class="page-section">
+    <div class="sec-title">🔐 관리자 페이지 (인증 필요) <span class="sec-count">9</span></div>
+    <div class="page-grid">
+
+      <div class="pc admin" onclick="openNotion('page-admin-login')">
+        <div class="pc-route">/admin/login</div>
+        <div class="pc-title">관리자 로그인</div>
+        <div class="pc-tags">
+          <span class="tag tag-api">Supabase Auth</span>
+        </div>
+      </div>
+
+      <div class="pc admin" onclick="openNotion('page-admin')">
+        <div class="pc-route">/admin</div>
+        <div class="pc-title">관리자 대시보드</div>
+        <div class="pc-tags">
+          <span class="tag tag-api">/api/admin/dashboard</span>
+          <span class="tag tag-api">/api/admin/callbacks</span>
+        </div>
+      </div>
+
+      <div class="pc admin" onclick="openNotion('page-admin-consultations')">
+        <div class="pc-route">/admin/consultations</div>
+        <div class="pc-title">상담 관리</div>
+        <div class="pc-tags">
+          <span class="tag tag-db">consultations</span>
+        </div>
+      </div>
+
+      <div class="pc admin" onclick="openNotion('page-admin-finance')">
+        <div class="pc-route">/admin/finance</div>
+        <div class="pc-title">금융상품 요율 관리</div>
+        <div class="pc-tags">
+          <span class="tag tag-api">/api/admin/finance-rates</span>
+          <span class="tag tag-write">PATCH (service_role)</span>
+        </div>
+      </div>
+
+      <div class="pc admin" onclick="openNotion('page-admin-prices')">
+        <div class="pc-route">/admin/prices</div>
+        <div class="pc-title">차량 · 가격 관리</div>
+        <div class="pc-tags">
+          <span class="tag tag-db">vehicles</span>
+          <span class="tag tag-db">pricing</span>
+          <span class="tag tag-write">CSV import / upsert</span>
+        </div>
+      </div>
+
+      <div class="pc admin" onclick="openNotion('page-admin-promotions')">
+        <div class="pc-route">/admin/promotions</div>
+        <div class="pc-title">프로모션 관리</div>
+        <div class="pc-tags">
+          <span class="tag tag-db">promotions</span>
+          <span class="tag tag-write">CRUD (⚠️ RLS 확인)</span>
+        </div>
+      </div>
+
+      <div class="pc admin" onclick="openNotion('page-admin-info')">
+        <div class="pc-route">/admin/info</div>
+        <div class="pc-title">이용방법 관리</div>
+        <div class="pc-tags">
+          <span class="tag tag-api">/api/admin/info-articles</span>
+          <span class="tag tag-write">service_role</span>
+        </div>
+      </div>
+
+      <div class="pc admin" onclick="openNotion('page-admin-ai')">
+        <div class="pc-route">/admin/ai</div>
+        <div class="pc-title">AI 설정 관리</div>
+        <div class="pc-tags">
+          <span class="tag tag-api">/api/admin/diagnosis-config</span>
+          <span class="tag tag-write">service_role</span>
+        </div>
+      </div>
+
+      <div class="pc admin" onclick="openNotion('page-admin-diagnosis')">
+        <div class="pc-route">/admin/diagnosis</div>
+        <div class="pc-title">진단 설정 관리</div>
+        <div class="pc-tags">
+          <span class="tag tag-db">diagnosis_config</span>
+          <span class="tag tag-write">service_role</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div><!-- /panel-pagemap -->
+
+
+<!-- ══════════════════════ TAB: 데이터 흐름 ══════════════════════ -->
+<div class="tab-panel" id="panel-dataflow">
+
+  <div class="data-section">
+    <div class="data-title">🗃️ Supabase 테이블 → 페이지 매핑</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>테이블</th>
+            <th>사용 페이지</th>
+            <th>접근 방식</th>
+            <th>ISR</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag tag-db">vehicles</span></td>
+            <td class="mono">/, /popular-estimates, /cars/[slug], /info/clips</td>
+            <td class="mono">anon (서버)</td>
+            <td class="mono">60s</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-db">pricing</span></td>
+            <td class="mono">/popular-estimates, /cars/[slug], /info/clips</td>
+            <td class="mono">anon (서버)</td>
+            <td class="mono">60s</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-db">vehicle_trims</span></td>
+            <td class="mono">/cars/[slug]/options</td>
+            <td class="mono">service_role</td>
+            <td class="mono">60s</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-db">trim_options</span></td>
+            <td class="mono">/cars/[slug]/options</td>
+            <td class="mono">service_role</td>
+            <td class="mono">60s</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-db">info_categories</span></td>
+            <td class="mono">/info, /info/clips</td>
+            <td class="mono">anon (서버)</td>
+            <td class="mono">60s</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-db">info_articles</span></td>
+            <td class="mono">/info, /info/[id], /info/clips</td>
+            <td class="mono">anon (서버)</td>
+            <td class="mono">60s</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-db">promotions</span></td>
+            <td class="mono">/promotions</td>
+            <td class="mono">anon (서버)</td>
+            <td class="mono">600s</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-db">vehicle_msrp</span></td>
+            <td class="mono">/diagnosis/models/[slug]</td>
+            <td class="mono">service_role</td>
+            <td class="mono">3600s</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-db">diagnosis_config</span></td>
+            <td class="mono">/diagnosis, /diagnosis/finance, /diagnosis/vehicle</td>
+            <td class="mono">anon (클라이언트)</td>
+            <td class="mono">—</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-write">consultations</span></td>
+            <td class="mono">/api/consultation (INSERT), /admin/consultations (READ)</td>
+            <td class="mono">서버 API → service_role</td>
+            <td class="mono">—</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="data-section">
+    <div class="data-title">🔌 API Route 목록 (24개)</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>API Route</th>
+            <th>DB 테이블 / 외부 서비스</th>
+            <th>설명</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><span class="tag tag-write mono">/api/consultation</span></td><td class="mono">consultations · pricing · notification_log</td><td>상담 접수 + Resend + Telegram</td></tr>
+          <tr><td><span class="tag tag-api mono">/api/fuel-prices</span></td><td class="mono">fuel_prices</td><td>오피넷 유가 조회</td></tr>
+          <tr><td><span class="tag tag-api mono">/api/ev-chargers</span></td><td class="mono">ev_chargers</td><td>전기차 충전소</td></tr>
+          <tr><td><span class="tag tag-api mono">/api/gas-stations</span></td><td class="mono">gas_stations</td><td>주유소</td></tr>
+          <tr><td><span class="tag tag-api mono">/api/repair-shops</span></td><td class="mono">repair_shops</td><td>정비소</td></tr>
+          <tr><td><span class="tag tag-api mono">/api/used-prices</span></td><td class="mono">vehicle_used_prices</td><td>중고차 시세 (엔카 기반)</td></tr>
+          <tr><td><span class="tag tag-api mono">/api/vehicle-msrp</span></td><td class="mono">vehicle_msrp</td><td>차량 출고가/MSRP</td></tr>
+          <tr><td><span class="tag tag-api mono">/api/vehicle-msrp/brands</span></td><td class="mono">vehicle_msrp</td><td>브랜드 목록</td></tr>
+          <tr><td><span class="tag tag-api mono">/api/vehicle-msrp/models</span></td><td class="mono">vehicle_msrp</td><td>모델 목록</td></tr>
+          <tr><td><span class="tag tag-api mono">/api/rental-price</span></td><td class="mono">rental_prices</td><td>렌탈 가격 (⚠️ 501 — 데이터 없음)</td></tr>
+          <tr><td><span class="tag tag-api mono">/api/insurance-stats</span></td><td class="mono">insurance_stats</td><td>자동차보험 통계</td></tr>
+          <tr><td><span class="tag tag-api mono">/api/accident-stats</span></td><td class="mono">insurance_stats</td><td>사고 통계 (동일 테이블 다른 집계)</td></tr>
+          <tr><td><span class="tag tag-api mono">/api/ev-charger-stats</span></td><td class="mono">ev_chargers</td><td>충전소 통계</td></tr>
+          <tr><td><span class="tag tag-api mono">/api/generate-pricing</span></td><td class="mono">vehicles · vehicle_trims · pricing</td><td>PMT 자동 계산</td></tr>
+          <tr><td><span class="tag tag-api mono">/api/price-range</span></td><td class="mono">pricing</td><td>가격 범위 조회</td></tr>
+          <tr><td><span class="tag tag-api mono">/api/promotions</span></td><td class="mono">promotions</td><td>프로모션 목록</td></tr>
+          <tr><td><span class="tag tag-api mono">/api/info-articles</span></td><td class="mono">info_articles</td><td>이용방법 기사</td></tr>
+          <tr><td><span class="tag tag-write mono">/api/sync-wp</span></td><td class="mono">info_articles ↔ WordPress REST API</td><td>WP ↔ Supabase 동기화</td></tr>
+          <tr><td><span class="tag tag-api mono">/api/admin/dashboard</span></td><td class="mono">consultations (집계)</td><td>관리자 통계</td></tr>
+          <tr><td><span class="tag tag-api mono">/api/admin/callbacks</span></td><td class="mono">consultations</td><td>콜백 목록</td></tr>
+          <tr><td><span class="tag tag-write mono">/api/admin/finance-rates</span></td><td class="mono">finance_rates</td><td>금융요율 수정 (service_role)</td></tr>
+          <tr><td><span class="tag tag-write mono">/api/admin/diagnosis-config</span></td><td class="mono">diagnosis_config</td><td>진단 설정 수정 (service_role)</td></tr>
+          <tr><td><span class="tag tag-write mono">/api/admin/info-categories</span></td><td class="mono">info_categories</td><td>카테고리 관리 (service_role)</td></tr>
+          <tr><td><span class="tag tag-write mono">/api/admin/info-articles</span></td><td class="mono">info_articles</td><td>기사 관리 (service_role)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div><!-- /panel-dataflow -->
+
+
+<!-- ══════════════════════ TAB: 쓰기 흐름 ══════════════════════ -->
+<div class="tab-panel" id="panel-writeflow">
+  <div class="wf-grid">
+
+    <!-- 메인 리드 수집 흐름 -->
+    <div>
+      <div class="data-title" style="margin-bottom:18px">✍️ 메인 리드 수집 흐름</div>
+      <div class="wf-steps">
+
+        <div class="wf-step">
+          <div class="wf-line">
+            <div class="wf-dot"></div>
+            <div class="wf-vline"></div>
+          </div>
+          <div class="wf-body">
+            <div class="wc" onclick="openNotion('page-quote')">
+              <div class="wc-route">/quote</div>
+              <div class="wc-title">견적 신청 폼 (다단계)</div>
+              <div class="wc-desc">5단계 폼 — Zustand quoteStore에 상태 저장<br>DB 쓰기 없음 (세션 내 유지)</div>
+              <div class="wc-tags">
+                <span class="tag tag-static">Zustand</span>
+                <span class="tag tag-static">sessionStorage</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="wf-step">
+          <div class="wf-line">
+            <div class="wf-dot"></div>
+            <div class="wf-vline"></div>
+          </div>
+          <div class="wf-body">
+            <div class="wc" onclick="openNotion('page-result')">
+              <div class="wc-route">/result</div>
+              <div class="wc-title">견적 결과 표시</div>
+              <div class="wc-desc">quoteStore 읽기 + 연료비 API 호출<br>DB 저장 없음 — 최종 신청 버튼이 트리거</div>
+              <div class="wc-tags">
+                <span class="tag tag-api">/api/fuel-prices</span>
+                <span class="tag tag-static">quoteStore 읽기</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="wf-step">
+          <div class="wf-line">
+            <div class="wf-dot" style="background:var(--red)"></div>
+            <div class="wf-vline"></div>
+          </div>
+          <div class="wf-body">
+            <div class="wc" onclick="openNotion('api-consultation')">
+              <div class="wc-route">POST /api/consultation</div>
+              <div class="wc-title">상담 INSERT — 핵심 API</div>
+              <div class="wc-desc">10단계 파이프라인 실행</div>
+              <div class="wc-tags">
+                <span class="tag tag-write">consultations INSERT</span>
+                <span class="tag tag-api">Upstash Rate Limit</span>
+              </div>
+              <div class="pipeline-box">
+                <div class="pipeline-title">파이프라인 단계</div>
+                <div class="pipeline-item"><span class="pipeline-num">1</span>IP rate limit (Upstash Redis)</div>
+                <div class="pipeline-item"><span class="pipeline-num">2</span>zod 입력 검증</div>
+                <div class="pipeline-item"><span class="pipeline-num">3</span>SHA-256 IP 해시</div>
+                <div class="pipeline-item"><span class="pipeline-num">4</span>24h 동일 IP 중복 체크</div>
+                <div class="pipeline-item"><span class="pipeline-num">5</span>calculateLeadScore 5차원 계산</div>
+                <div class="pipeline-item"><span class="pipeline-num">6</span>쿠키 파싱 (device / utm / inflow)</div>
+                <div class="pipeline-item"><span class="pipeline-num">7</span>consultations INSERT</div>
+                <div class="pipeline-item"><span class="pipeline-num">8</span>pricing 매칭 → min/max UPDATE</div>
+                <div class="pipeline-item"><span class="pipeline-num">9</span>Resend 이메일 (관리자 + 고객)</div>
+                <div class="pipeline-item"><span class="pipeline-num">10</span>Telegram 즉시 알림</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="wf-step">
+          <div class="wf-line">
+            <div class="wf-dot" style="background:var(--green)"></div>
+          </div>
+          <div class="wf-body">
+            <div class="wc" onclick="openNotion('supabase-consultations')">
+              <div class="wc-route">Supabase · consultations</div>
+              <div class="wc-title">상담 저장 완료</div>
+              <div class="wc-desc">리드 등급: ≥80 HOT · ≥50 WARM · ≥20 COOL · 그 외 COLD</div>
+              <div class="wc-tags">
+                <span class="tag tag-db">consultations</span>
+                <span class="tag tag-db">notification_log</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 오른쪽: 추가 진입점 + 알림 + CRM -->
+    <div>
+      <div class="data-title" style="margin-bottom:18px">🚪 추가 진입점 (동일 API)</div>
+      <div class="small-cards">
+
+        <div class="wc" onclick="openNotion('page-direct')">
+          <div class="wc-route">/direct</div>
+          <div class="wc-title">간편 견적 신청</div>
+          <div class="wc-desc">단일 폼 → POST /api/consultation</div>
+          <div class="wc-tags"><span class="tag tag-write">consultation INSERT</span></div>
+        </div>
+
+        <div class="wc" onclick="openNotion('page-simulator-tax')">
+          <div class="wc-route">/simulator/tax</div>
+          <div class="wc-title">사업자 세무 절세 (A2)</div>
+          <div class="wc-desc">계산 완료 → 상담 신청 → POST /api/consultation</div>
+          <div class="wc-tags"><span class="tag tag-write">리드 수집</span></div>
+        </div>
+
+        <div class="wc" onclick="openNotion('page-simulator-cost')">
+          <div class="wc-route">/simulator/cost</div>
+          <div class="wc-title">유지비 시뮬레이터</div>
+          <div class="wc-desc">계산 완료 → 상담 신청 → POST /api/consultation</div>
+          <div class="wc-tags"><span class="tag tag-write">리드 수집</span></div>
+        </div>
+
+        <div class="wc" onclick="openNotion('page-market-sell')">
+          <div class="wc-route">/market/sell-price</div>
+          <div class="wc-title">내 차 시세 조회 (B1)</div>
+          <div class="wc-desc">시세 확인 후 → POST /api/consultation</div>
+          <div class="wc-tags"><span class="tag tag-write">리드 수집</span></div>
+        </div>
+
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="data-title" style="margin-bottom:14px">📤 알림 채널</div>
+      <div class="small-cards">
+
+        <div class="wc" onclick="openNotion('resend')">
+          <div class="wc-title">Resend 이메일</div>
+          <div class="wc-desc">
+            관리자 이메일 (항상)<br>
+            고객 리포트 이메일 (contactMethod === 'email'인 경우만)
+          </div>
+          <div class="wc-tags"><span class="tag tag-db">notification_log</span></div>
+        </div>
+
+        <div class="wc" onclick="openNotion('telegram')">
+          <div class="wc-title">Telegram 알림</div>
+          <div class="wc-desc">
+            즉시 푸시 · chat_id: 8070953108<br>
+            HOT/WARM 등급 강조 표시
+          </div>
+          <div class="wc-tags"><span class="tag tag-db">notification_log</span></div>
+        </div>
+
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="data-title" style="margin-bottom:14px">🔄 CRM 동기화</div>
+      <div class="wc" onclick="openNotion('google-sheets-crm')">
+        <div class="wc-title">Google Sheets CRM</div>
+        <div class="wc-desc">
+          /admin/consultations → 상담 관리<br>
+          구 GS↔Supabase 워크플로우는 inactive 전환됨
+        </div>
+        <div class="wc-tags">
+          <span class="tag tag-db">consultations</span>
+          <span class="tag tag-static">수동 관리</span>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div><!-- /panel-writeflow -->
+
+</main>
+
+<!-- Toast -->
+<div class="toast" id="toast">Notion URL을 입력하려면 파일 하단 NOTION_URLS 객체를 편집하세요</div>
+
+<script>
+// ════════════════════════════════════════════════════════════════
+// NOTION_URLS
+// 각 노드 ID에 해당하는 Notion 페이지 URL을 입력하세요.
+// 비워두면 클릭 시 안내 토스트가 표시됩니다.
+// ════════════════════════════════════════════════════════════════
+const NOTION_URLS = {
+
+  // ── Mac Mini 서비스 → 아키텍처/전용 문서 ──────────────────────
+  'cadam-web':            'https://www.notion.so/3529fc8f3ff281818644c48b35addb11', // 아키텍처
+  'n8n':                  'https://www.notion.so/3529fc8f3ff28160aca3e116d9f1a7e7', // n8n 편집 가이드
+  'cadam-pipeline':       'https://www.notion.so/3529fc8f3ff281c18953d79c7ec5f40b', // 파이프라인
+  'ollama':               'https://www.notion.so/3529fc8f3ff281818644c48b35addb11', // 아키텍처
+  'cadam-dashboard':      'https://www.notion.so/3529fc8f3ff281818644c48b35addb11', // 아키텍처
+  'cadam-naver':          'https://www.notion.so/3529fc8f3ff281818644c48b35addb11', // 아키텍처
+  'md-dashboard':         'https://www.notion.so/3529fc8f3ff281818644c48b35addb11', // 아키텍처
+  'prompt-bff':           'https://www.notion.so/3529fc8f3ff28160aca3e116d9f1a7e7', // n8n 편집 가이드
+  'launchagents':         'https://www.notion.so/3529fc8f3ff2814492f7fb0c7aa796b7', // 운영 매뉴얼
+
+  // ── GPU 서버 ─────────────────────────────────────────────────
+  'gpu-server':           'https://www.notion.so/3529fc8f3ff281818644c48b35addb11', // 아키텍처
+  'gpu-ollama':           'https://www.notion.so/3529fc8f3ff281818644c48b35addb11', // 아키텍처
+
+  // ── 외부 서비스 ──────────────────────────────────────────────
+  'supabase':             'https://www.notion.so/3529fc8f3ff281438e05f751d0ce6d46', // DB 스키마
+  'vercel':               'https://www.notion.so/3529fc8f3ff281d89c9ad82844e6e394', // 배포 가이드
+  'wordpress':            'https://www.notion.so/3529fc8f3ff281818644c48b35addb11', // 아키텍처
+  'llm-api':              'https://www.notion.so/3529fc8f3ff281c18953d79c7ec5f40b', // 파이프라인
+  'resend':               'https://www.notion.so/3529fc8f3ff281818644c48b35addb11', // 아키텍처
+  'upstash':              'https://www.notion.so/3529fc8f3ff281fa8103de8066c3789e', // 보안 규칙
+  'ga4':                  'https://www.notion.so/3529fc8f3ff281818644c48b35addb11', // 아키텍처
+  'google-sheets-crm':    'https://www.notion.so/3529fc8f3ff281bf9305fdc55574a698', // 데이터 흐름
+  'telegram':             'https://www.notion.so/3529fc8f3ff2814492f7fb0c7aa796b7', // 운영 매뉴얼
+
+  // ── 공개 페이지 → 페이지 맵 ──────────────────────────────────
+  'page-home':                  'https://www.notion.so/3529fc8f3ff281e1b4b6cf74aefb6348',
+  'page-popular-estimates':     'https://www.notion.so/3529fc8f3ff281e1b4b6cf74aefb6348',
+  'page-cars-slug':             'https://www.notion.so/3529fc8f3ff281e1b4b6cf74aefb6348',
+  'page-cars-options':          'https://www.notion.so/3529fc8f3ff281e1b4b6cf74aefb6348',
+  'page-quote':                 'https://www.notion.so/3529fc8f3ff281e1b4b6cf74aefb6348',
+  'page-result':                'https://www.notion.so/3529fc8f3ff281e1b4b6cf74aefb6348',
+  'page-direct':                'https://www.notion.so/3529fc8f3ff281e1b4b6cf74aefb6348',
+  'page-promotions':            'https://www.notion.so/3529fc8f3ff281e1b4b6cf74aefb6348',
+  'page-blog':                  'https://www.notion.so/3529fc8f3ff281e1b4b6cf74aefb6348',
+  'page-info':                  'https://www.notion.so/3529fc8f3ff281e1b4b6cf74aefb6348',
+  'page-info-map':              'https://www.notion.so/3529fc8f3ff281e1b4b6cf74aefb6348',
+  'page-market-sell':           'https://www.notion.so/3529fc8f3ff281e1b4b6cf74aefb6348',
+
+  // ── 진단 모듈 → 페이지 맵 ────────────────────────────────────
+  'page-diagnosis':             'https://www.notion.so/3529fc8f3ff281e1b4b6cf74aefb6348',
+  'page-diagnosis-finance':     'https://www.notion.so/3529fc8f3ff281e1b4b6cf74aefb6348',
+  'page-diagnosis-vehicle':     'https://www.notion.so/3529fc8f3ff281e1b4b6cf74aefb6348',
+  'page-diagnosis-option':      'https://www.notion.so/3529fc8f3ff281e1b4b6cf74aefb6348',
+  'page-diagnosis-calculator':  'https://www.notion.so/3529fc8f3ff281e1b4b6cf74aefb6348',
+  'page-diagnosis-compare':     'https://www.notion.so/3529fc8f3ff281e1b4b6cf74aefb6348',
+  'page-diagnosis-report':      'https://www.notion.so/3529fc8f3ff281e1b4b6cf74aefb6348',
+  'page-diagnosis-models':      'https://www.notion.so/3529fc8f3ff281e1b4b6cf74aefb6348',
+
+  // ── 시뮬레이터 → 페이지 맵 ───────────────────────────────────
+  'page-simulator':             'https://www.notion.so/3529fc8f3ff281e1b4b6cf74aefb6348',
+  'page-simulator-tax':         'https://www.notion.so/3529fc8f3ff281e1b4b6cf74aefb6348',
+  'page-simulator-cost':        'https://www.notion.so/3529fc8f3ff281e1b4b6cf74aefb6348',
+  'page-simulator-compare':     'https://www.notion.so/3529fc8f3ff281e1b4b6cf74aefb6348',
+
+  // ── 관리자 페이지 → 페이지 맵 ────────────────────────────────
+  'page-admin-login':           'https://www.notion.so/3529fc8f3ff281e1b4b6cf74aefb6348',
+  'page-admin':                 'https://www.notion.so/3529fc8f3ff281e1b4b6cf74aefb6348',
+  'page-admin-consultations':   'https://www.notion.so/3529fc8f3ff281e1b4b6cf74aefb6348',
+  'page-admin-finance':         'https://www.notion.so/3529fc8f3ff281e1b4b6cf74aefb6348',
+  'page-admin-prices':          'https://www.notion.so/3529fc8f3ff281e1b4b6cf74aefb6348',
+  'page-admin-promotions':      'https://www.notion.so/3529fc8f3ff281e1b4b6cf74aefb6348',
+  'page-admin-info':            'https://www.notion.so/3529fc8f3ff281e1b4b6cf74aefb6348',
+  'page-admin-ai':              'https://www.notion.so/3529fc8f3ff281e1b4b6cf74aefb6348',
+  'page-admin-diagnosis':       'https://www.notion.so/3529fc8f3ff281e1b4b6cf74aefb6348',
+
+  // ── API / DB ─────────────────────────────────────────────────
+  'api-consultation':           'https://www.notion.so/3529fc8f3ff281bf9305fdc55574a698', // 데이터 흐름
+  'supabase-consultations':     'https://www.notion.so/3529fc8f3ff281438e05f751d0ce6d46', // DB 스키마
+
+};
+
+// ── Tab switching ───────────────────────────────────────────────
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const tab = btn.dataset.tab;
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('panel-' + tab).classList.add('active');
+  });
+});
+
+// ── Notion link handler ─────────────────────────────────────────
+let toastTimer;
+function openNotion(id) {
+  const url = NOTION_URLS[id];
+  if (url) {
+    window.open(url, '_blank', 'noopener');
+  } else {
+    const toast = document.getElementById('toast');
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 2600);
+  }
+}
+</script>
+
+</body>
+</html>
