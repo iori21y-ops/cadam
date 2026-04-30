@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useEffect, useCallback, Suspense } from 'react';
+import { useState, useEffect, useCallback, useRef, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { calculateComparison, type ComparisonInputs, type ComparisonResult, type MethodResult } from '@/lib/domain/comparison-engine';
 import { scoreDecision, type DecisionResult, type ScoredMethod } from '@/lib/domain/decision-scorer';
 import { getVehicleCC } from '@/lib/domain/vehicle-cc-map';
+import { InsuranceInsightCard } from '@/components/diagnosis/report/InsuranceInsightCard';
 import type { CustomerType, InsuranceHistory, PlatePreference, ContractEndOption } from '@/lib/domain/decision-scorer';
 import type { Industry, RevenueRange } from '@/lib/domain/tax-calculator';
 import type { AcquisitionVehicleType } from '@/lib/domain/acquisition-tax-calculator';
@@ -15,14 +16,24 @@ import type { YearPrices } from '@/lib/domain/depreciation-calculator';
 
 type Phase = 'group1' | 'group2' | 'result';
 type TrimOption = { name: string; msrp: number; fuelType: string };
+type AgeGroup = '20대 이하' | '30대' | '40대' | '50대' | '60대' | '70대 이상';
+type SexType  = '남자' | '여자';
+
+interface DbInsurance {
+  amount:    number;                     // 연간 보험료 (원)
+  baseYm:    string;                     // 기준연월 (예: 202601)
+  breakdown: Record<string, number>;     // 담보별 월 보험료 (원)
+  ageGroup:  string | null;
+  sex:       string | null;
+}
 
 interface AdvancedSettings {
-  vehicleAge:        number;    // 0=신차, 1-4
-  ownershipYears:    number;    // 1-7
-  annualKm:          number;    // 12000/24000/36000/42000
+  vehicleAge:        number;
+  ownershipYears:    number;
+  annualKm:          number;
   contractEndOption: ContractEndOption;
   platePreference:   PlatePreference;
-  businessUseRatio:  number;    // 0-100 (%)
+  businessUseRatio:  number;
 }
 
 interface FormState {
@@ -30,6 +41,8 @@ interface FormState {
   customerType:     CustomerType;
   industry:         Industry;
   insuranceHistory: InsuranceHistory;
+  ageGroup:         AgeGroup | null;
+  sex:              SexType | null;
   // Group 2 (필수)
   brand:            string;
   model:            string;
@@ -38,13 +51,15 @@ interface FormState {
   carPriceMkAuto:   number;
   isEV:             boolean;
   isHEV:            boolean;
-  // 고급 설정 (선택, 스마트 디폴트 적용)
+  // 고급 설정
   advanced:         AdvancedSettings;
 }
 
 // ── 상수 ──────────────────────────────────────────────────────────────
 
 const ACCENT = '#C9A84C';
+
+const DOMESTIC_BRANDS = new Set(['현대', '기아', '제네시스', 'KGM', '르노코리아', '쉐보레']);
 
 const INSURANCE_PRESETS: Record<InsuranceHistory, { label: string; amount: number }> = {
   none:        { label: '처음 (경력 없음)', amount: 1_800_000 },
@@ -73,6 +88,20 @@ const DEFAULT_ADVANCED: AdvancedSettings = {
   contractEndOption: 'return', platePreference: 'any', businessUseRatio: 0,
 };
 
+const AGE_OPTIONS: { value: AgeGroup; label: string }[] = [
+  { value: '20대 이하', label: '20대↓' },
+  { value: '30대',      label: '30대'  },
+  { value: '40대',      label: '40대'  },
+  { value: '50대',      label: '50대'  },
+  { value: '60대',      label: '60대'  },
+  { value: '70대 이상', label: '70대↑' },
+];
+
+const SEX_OPTIONS: { value: SexType; label: string }[] = [
+  { value: '남자', label: '남성' },
+  { value: '여자', label: '여성' },
+];
+
 // ── 유틸 ──────────────────────────────────────────────────────────────
 
 function fmtMk(won: number): string {
@@ -100,6 +129,23 @@ function Chip({ selected, onClick, children, disabled }: {
         selected
           ? 'border-[#C9A84C] bg-[#C9A84C]/10 text-[#92702A] ring-1 ring-[#C9A84C]/30'
           : 'border-[#E5E7EB] bg-white text-[#6B7280] hover:border-[#C9A84C]/50',
+      ].join(' ')}
+    >
+      {children}
+    </button>
+  );
+}
+
+function AgeChip({ selected, onClick, children }: {
+  selected: boolean; onClick: () => void; children: React.ReactNode;
+}) {
+  return (
+    <button type="button" onClick={onClick}
+      className={[
+        'py-2 rounded-xl border-2 text-[12px] font-semibold transition-all text-center',
+        selected
+          ? 'border-[#FF9500] bg-[#FF9500]/10 text-[#FF9500]'
+          : 'border-[#E5E7EB] bg-white text-[#6D6D72] hover:border-[#FF9500]/40',
       ].join(' ')}
     >
       {children}
@@ -294,6 +340,7 @@ function CompareInner() {
   const [form, setForm]     = useState<FormState>(() => ({
     customerType: 'employee', industry: 'service',
     insuranceHistory: '3y+normal',
+    ageGroup: null, sex: null,
     brand: searchParams.get('brand') ?? '',
     model: searchParams.get('model') ?? '',
     trimName: '', carPriceMk: '', carPriceMkAuto: 0,
@@ -310,8 +357,8 @@ function CompareInner() {
   const [loadingTrims, setLoadingTrims]   = useState(false);
 
   // 자동채움 API 상태
-  const [dbInsurance, setDbInsurance]   = useState<{ amount: number; baseYm: string } | null>(null);
-  const [dbUsedPrices, setDbUsedPrices] = useState<Record<number, YearPrices> | null>(null);
+  const [dbInsurance, setDbInsurance]     = useState<DbInsurance | null>(null);
+  const [dbUsedPrices, setDbUsedPrices]   = useState<Record<number, YearPrices> | null>(null);
   const [loadingInsurance, setLoadingInsurance] = useState(false);
   const [loadingUsedPrices, setLoadingUsedPrices] = useState(false);
 
@@ -378,34 +425,63 @@ function CompareInner() {
     }
   }, []);
 
-  // 트림 선택 → MSRP + 연료 자동채움 + 보험료 DB 조회
+  // 보험료 통계 조회 헬퍼 — 트림 선택 시 & ageGroup/sex 변경 시 호출
+  const formRef = useRef(form);
+  formRef.current = form;
+
+  const fetchInsuranceStats = useCallback((
+    brand: string, carPriceMk: number,
+    ageGroup: string | null, sex: string | null,
+  ) => {
+    if (!carPriceMk || carPriceMk <= 0) return;
+    const carType = getCarType(carPriceMk);
+    const origin  = DOMESTIC_BRANDS.has(brand) ? '국산' : brand && brand !== '__manual__' ? '외산' : undefined;
+    const payload: Record<string, string> = { car_type: carType };
+    if (origin)   payload.origin    = origin;
+    if (ageGroup) payload.age_group = ageGroup;
+    if (sex)      payload.sex       = sex;
+
+    setLoadingInsurance(true);
+    setDbInsurance(null);
+    fetch('/api/insurance-stats', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+      .then((r) => r.json())
+      .then((d: { status: string; estimated_annual_won?: number; base_ym?: string; breakdown_monthly?: Record<string, number>; age_group?: string; sex?: string }) => {
+        if (d.status === 'ok' && d.estimated_annual_won) {
+          setDbInsurance({
+            amount:    d.estimated_annual_won,
+            baseYm:    d.base_ym ?? '',
+            breakdown: d.breakdown_monthly ?? {},
+            ageGroup:  d.age_group ?? null,
+            sex:       d.sex       ?? null,
+          });
+        }
+      })
+      .catch(() => {})
+      .finally(() => setLoadingInsurance(false));
+  }, []);
+
+  // 트림 선택 → MSRP + 연료 자동채움 + 보험료 조회
   function onTrimSelect(trimName: string) {
     const t = trims.find((x) => x.name === trimName);
     if (!t) { setForm((f) => ({ ...f, trimName })); return; }
     const isEV  = ['electric', 'ev', 'bev'].includes(t.fuelType.toLowerCase());
     const isHEV = ['hybrid', 'hev', 'phev'].includes(t.fuelType.toLowerCase());
     setForm((f) => ({ ...f, trimName, carPriceMkAuto: t.msrp, carPriceMk: String(t.msrp), isEV, isHEV }));
-
-    // 금융위원회 보험료 통계 백그라운드 로드 (차종 + 원산지 필터)
-    const carType = getCarType(t.msrp);
-    const DOMESTIC_BRANDS = new Set(['현대', '기아', '제네시스', 'KGM', '르노코리아', '쉐보레']);
-    const origin = DOMESTIC_BRANDS.has(form.brand) ? '국산' : form.brand ? '외산' : undefined;
-    setLoadingInsurance(true);
-    setDbInsurance(null);
-    fetch('/api/insurance-stats', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ car_type: carType, ...(origin && { origin }) }),
-    })
-      .then((r) => r.json())
-      .then((d: { status: string; estimated_annual_won?: number; base_ym?: string }) => {
-        if (d.status === 'ok' && d.estimated_annual_won) {
-          setDbInsurance({ amount: d.estimated_annual_won, baseYm: d.base_ym ?? '' });
-        }
-      })
-      .catch(() => {})
-      .finally(() => setLoadingInsurance(false));
+    fetchInsuranceStats(formRef.current.brand, t.msrp, formRef.current.ageGroup, formRef.current.sex);
   }
+
+  // ageGroup / sex 변경 시 보험료 재조회 (트림이 이미 선택된 경우에만)
+  useEffect(() => {
+    const price = Number(formRef.current.carPriceMk);
+    if (price > 0 && formRef.current.brand) {
+      fetchInsuranceStats(formRef.current.brand, price, form.ageGroup, form.sex);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form.ageGroup, form.sex]);
 
   // 계산 실행
   function runCalculation() {
@@ -416,7 +492,6 @@ function CompareInner() {
     const businessType = isBusiness ? (form.customerType as 'corporation' | 'individual') : 'none';
     const adv = form.advanced;
 
-    // 보험료: DB 통계 > 경력 추산 우선순위
     const insuranceAnnual = dbInsurance?.amount ?? INSURANCE_PRESETS[form.insuranceHistory].amount;
 
     const inputs: ComparisonInputs = {
@@ -452,7 +527,8 @@ function CompareInner() {
       `추천: ${decision.topMethod} / 월 ${Math.round(top.monthlyPayment / 10_000)}만원`,
       `총비용 ${Math.round(top.totalCostMid / 10_000)}만원 (${form.advanced.ownershipYears}년)`,
       `고객: ${form.customerType} / 보험: ${form.insuranceHistory}`,
-    ].join(' / ');
+      dbInsurance?.ageGroup ? `연령: ${dbInsurance.ageGroup}${dbInsurance.sex ? ' ' + dbInsurance.sex : ''}` : null,
+    ].filter(Boolean).join(' / ');
     try {
       const res = await fetch('/api/consultation', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -468,8 +544,9 @@ function CompareInner() {
   const g1Valid = !!form.customerType && !!form.insuranceHistory;
   const g2Valid = !!form.model && Number(form.carPriceMk) > 0;
 
+  const contextLabel  = [dbInsurance?.ageGroup, dbInsurance?.sex].filter(Boolean).join(' ');
   const insuranceSource = dbInsurance
-    ? `금융감독원 통계 (${dbInsurance.baseYm})`
+    ? `금융위원회 통계 (${dbInsurance.baseYm}${contextLabel ? ` · ${contextLabel}` : ''})`
     : `보험경력 기준 추산`;
 
   const variants = {
@@ -570,6 +647,49 @@ function CompareInner() {
                 )}
               </div>
 
+              {/* 운전자 연령대 (선택 — 맞춤 보험료 추정용) */}
+              <div className="bg-white rounded-2xl shadow-sm border border-[#E5E7EB] p-5">
+                <Label>
+                  운전자 연령대
+                  <span className="ml-1.5 text-[11px] font-normal text-[#8E8E93]">선택 — 맞춤 보험료 추정</span>
+                </Label>
+                <div className="grid grid-cols-6 gap-1.5">
+                  {AGE_OPTIONS.map((opt) => {
+                    const sel = form.ageGroup === opt.value;
+                    return (
+                      <AgeChip key={opt.value} selected={sel}
+                        onClick={() => setForm((f) => ({ ...f, ageGroup: sel ? null : opt.value, sex: sel ? null : f.sex }))}>
+                        {opt.label}
+                      </AgeChip>
+                    );
+                  })}
+                </div>
+
+                {form.ageGroup !== null && (
+                  <div className="mt-3">
+                    <p className="text-[#1C1C1E] text-[12px] font-semibold mb-1.5">
+                      성별
+                      <span className="ml-1 text-[11px] font-normal text-[#8E8E93]">선택</span>
+                    </p>
+                    <div className="flex gap-2">
+                      {SEX_OPTIONS.map((opt) => {
+                        const sel = form.sex === opt.value;
+                        return (
+                          <AgeChip key={opt.value} selected={sel}
+                            onClick={() => setForm((f) => ({ ...f, sex: sel ? null : opt.value }))}>
+                            {opt.label}
+                          </AgeChip>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                <p className="text-[10px] text-[#8E8E93] mt-2">
+                  * 차량 선택 후 금융위원회 통계로 연령별 보험료가 자동 조회됩니다.
+                </p>
+              </div>
+
               <button type="button" onClick={() => { setDir(1); setPhase('group2'); }} disabled={!g1Valid}
                 className="w-full py-4 rounded-2xl text-white font-semibold text-base transition-all disabled:opacity-40"
                 style={{ backgroundColor: g1Valid ? ACCENT : '#D1D1D6' }}>
@@ -664,18 +784,28 @@ function CompareInner() {
 
                 {/* 보험료 DB 표시 */}
                 {(loadingInsurance || dbInsurance) && (
-                  <div className="px-3 py-2 rounded-lg bg-[#F9F9F9] border border-[#E5E7EB]">
+                  <div className="px-3 py-2.5 rounded-lg bg-[#F9F9F9] border border-[#E5E7EB]">
                     {loadingInsurance ? (
                       <p className="text-[#8E8E93] text-xs">보험료 통계 조회 중…</p>
                     ) : dbInsurance ? (
-                      <div className="flex items-center justify-between">
-                        <p className="text-[#374151] text-xs">
-                          <span className="font-semibold">금융감독원 평균 보험료</span>
-                          <span className="text-[#8E8E93]"> ({dbInsurance.baseYm})</span>
-                        </p>
-                        <p className="text-[#1C1C1E] text-sm font-bold">
-                          연 {Math.round(dbInsurance.amount / 10_000)}만원
-                        </p>
+                      <div>
+                        <div className="flex items-center justify-between mb-0.5">
+                          <div className="flex items-center gap-1.5">
+                            <p className="text-[#374151] text-xs font-semibold">금융위원회 평균 보험료</p>
+                            <span className="text-[#8E8E93] text-[10px]">{dbInsurance.baseYm}</span>
+                          </div>
+                          <p className="text-[#1C1C1E] text-sm font-bold">
+                            연 {Math.round(dbInsurance.amount / 10_000)}만원
+                          </p>
+                        </div>
+                        {contextLabel && (
+                          <div className="flex items-center gap-1 mt-1">
+                            <span className="inline-flex items-center text-[10px] font-semibold text-[#FF9500] bg-[#FF950015] px-1.5 py-0.5 rounded-full">
+                              {contextLabel} 기준
+                            </span>
+                            <span className="text-[10px] text-[#8E8E93]">연령별 맞춤 추정치 적용됨</span>
+                          </div>
+                        )}
                       </div>
                     ) : null}
                   </div>
@@ -823,6 +953,23 @@ function CompareInner() {
                   ownershipYears={form.advanced.ownershipYears}
                   insuranceSource={insuranceSource} />
               ))}
+
+              {/* 보험료 분석 카드 — 금융위원회 통계 데이터 가용 시 */}
+              {dbInsurance && Object.keys(dbInsurance.breakdown).length > 0 && (
+                <div className="rounded-2xl bg-white border border-[#E5E7EB] shadow-sm overflow-hidden">
+                  <div className="px-4 py-3 border-b border-[#F2F2F7]">
+                    <p className="text-[12px] font-bold text-[#8E8E93] uppercase tracking-wide">보험료 분석</p>
+                  </div>
+                  <div className="p-4">
+                    <InsuranceInsightCard
+                      annualMk={Math.round(dbInsurance.amount / 10_000)}
+                      breakdown={dbInsurance.breakdown}
+                      ageGroup={dbInsurance.ageGroup}
+                      sex={dbInsurance.sex}
+                    />
+                  </div>
+                </div>
+              )}
 
               {/* 계산 가정 */}
               <div className="bg-white rounded-2xl shadow-sm border border-[#E5E7EB] overflow-hidden">

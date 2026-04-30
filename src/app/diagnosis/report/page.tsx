@@ -547,6 +547,23 @@ export default function ReportPage() {
                 />
               </ReportSection>
 
+              {/* ── 섹션4-b: 보험료 분석 (보험 데이터 로드 후 표시) ── */}
+              {insuranceData && (
+                <ReportSection
+                  title="보험료 분석"
+                  subtitle="금융위원회 자동차보험 통계 기반 맞춤 추정"
+                  badgeColor="#FF9500"
+                  badge={report.formData.ageGroup ? `${report.formData.ageGroup} 기준` : '통계 기반'}
+                >
+                  <InsuranceInsightCard
+                    annualMk={insuranceData.annual}
+                    breakdown={insuranceData.breakdown}
+                    ageGroup={report.formData.ageGroup}
+                    sex={report.formData.sex}
+                  />
+                </ReportSection>
+              )}
+
               {/* ── 섹션5: 5년 총비용 비교 ───────────────────────── */}
               <ReportSection
                 title="5년 총비용 비교"
@@ -599,19 +616,7 @@ export default function ReportPage() {
                   />
                 </div>
 
-                {/* 보험료 분석 카드 — 보험 데이터 로드 후 표시 */}
-                {insuranceData && (
-                  <div className="mt-5">
-                    <InsuranceInsightCard
-                      annualMk={insuranceData.annual}
-                      breakdown={insuranceData.breakdown}
-                      ageGroup={report.formData.ageGroup}
-                      sex={report.formData.sex}
-                    />
-                  </div>
-                )}
-
-                <div className="border-t border-[#F2F2F7] pt-4 mt-5">
+                <div className="border-t border-[#F2F2F7] pt-4">
                   <CostComparisonTable
                     msrp={report.formData.trimData.msrp_price}
                     acquisitionTax={Math.round(report.acqTaxResult.finalTax / 10000)}
