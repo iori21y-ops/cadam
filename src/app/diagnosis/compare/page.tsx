@@ -20,6 +20,7 @@ import type { AcquisitionVehicleType } from '@/lib/domain/acquisition-tax-calcul
 import type { YearPrices } from '@/lib/domain/depreciation-calculator';
 import { LEGAL_REFS } from '@/data/legal-references';
 import type { LegalRefKey } from '@/data/legal-references';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, LabelList } from 'recharts';
 
 // ── 타입 ──────────────────────────────────────────────────────────────
 
@@ -2017,8 +2018,55 @@ function CompareInner() {
                 const selectedScored = sortedRanked.find((s) => s.method === effectiveSelected);
                 const selectedDisplayRank = sortedRanked.findIndex((s) => s.method === effectiveSelected) + 1;
 
+                const _oy = form.advanced.ownershipYears;
+                const _curMkM = calcCurrentMonthly(form.hasCurrentVehicle, form.currentCost, form.currentTransport);
+                const _curTotalMk = _curMkM > 0 ? Math.round(_curMkM * 12 * _oy) : 0;
+                const _bestMethod = sortedRanked.find((s) => !s.excluded)?.method ?? null;
+                const _barData: { name: string; total: number; color: string; isBest: boolean; excluded: boolean }[] = [
+                  ...(_curTotalMk > 0 ? [{ name: '현재 유지', total: _curTotalMk, color: '#9CA3AF', isBest: false, excluded: false }] : []),
+                  ...sortedRanked.map((s) => ({
+                    name: METHOD_META[s.method].label,
+                    total: Math.round(s.result.totalCostMid / 10_000),
+                    color: METHOD_META[s.method].accent,
+                    isBest: s.method === _bestMethod,
+                    excluded: s.excluded,
+                  })),
+                ];
+
                 return (
                   <>
+                    {/* N년 총비용 비교 막대그래프 */}
+                    <div className="bg-white rounded-2xl shadow-sm border border-[#E5E7EB] p-4">
+                      <p className="text-[#1C1C1E] text-sm font-semibold mb-0.5">{_oy}년 총비용 비교</p>
+                      <p className="text-[#8E8E93] text-[11px] mb-3">단위: 만원 · 중간값 기준</p>
+                      <ResponsiveContainer width="100%" height={180}>
+                        <BarChart data={_barData} margin={{ top: 22, right: 8, left: 8, bottom: 0 }}>
+                          <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#6B7280' }} axisLine={false} tickLine={false} />
+                          <YAxis hide />
+                          <Tooltip
+                            formatter={(v: unknown) => [`${typeof v === 'number' ? v.toLocaleString() : v}만원`, `${_oy}년 총비용`]}
+                            contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #E5E7EB' }}
+                            cursor={{ fill: '#F9FAFB' }}
+                          />
+                          <Bar dataKey="total" radius={[6, 6, 0, 0]} maxBarSize={52}>
+                            {_barData.map((entry, i) => (
+                              <Cell
+                                key={i}
+                                fill={entry.color}
+                                fillOpacity={entry.excluded ? 0.2 : (entry.isBest || entry.color === '#9CA3AF' ? 1 : 0.45)}
+                              />
+                            ))}
+                            <LabelList
+                              dataKey="total"
+                              position="top"
+                              formatter={(v: unknown) => typeof v === 'number' ? `${v.toLocaleString()}만` : String(v)}
+                              style={{ fontSize: 10, fill: '#6B7280' }}
+                            />
+                          </Bar>
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+
                     {/* 상단 요약 탭 3개 */}
                     <div className="flex gap-2">
                       {sortedRanked.map((s, idx) => (
