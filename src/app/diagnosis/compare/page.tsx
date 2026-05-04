@@ -146,6 +146,44 @@ const SEX_OPTIONS: { value: SexType; label: string }[] = [
   { value: '여자', label: '여성' },
 ];
 
+// ── localStorage 유틸 ────────────────────────────────────────────────
+
+const LS_KEY     = 'rentailor:compare:v1';
+const LS_TTL_MS  = 7 * 24 * 60 * 60 * 1000; // 7일
+
+interface SavedCompare { form: FormState; phase: Phase; savedAt: number }
+
+function saveCompareState(form: FormState, phase: Phase): void {
+  if (typeof window === 'undefined') return;
+  try {
+    const payload: SavedCompare = { form, phase, savedAt: Date.now() };
+    localStorage.setItem(LS_KEY, JSON.stringify(payload));
+  } catch { /* 용량 초과 등 무시 */ }
+}
+
+function loadCompareState(): { form: FormState; phase: Phase } | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as SavedCompare;
+    if (Date.now() - parsed.savedAt > LS_TTL_MS) {
+      localStorage.removeItem(LS_KEY);
+      return null;
+    }
+    // result 상태로 저장됐으면 group2로 복원 (결과는 재계산 필요)
+    const phase: Phase = parsed.phase === 'result' ? 'group2' : parsed.phase;
+    return { form: parsed.form, phase };
+  } catch {
+    return null;
+  }
+}
+
+function clearCompareState(): void {
+  if (typeof window === 'undefined') return;
+  try { localStorage.removeItem(LS_KEY); } catch { /* 무시 */ }
+}
+
 // ── 유틸 ──────────────────────────────────────────────────────────────
 
 function fmtMk(won: number): string {
@@ -1115,13 +1153,24 @@ export default function CompareDiagnosisPage() {
 
 function CompareInner() {
   const searchParams = useSearchParams();
-  const [phase, setPhase]   = useState<Phase>('group1');
-  const [dir, setDir]       = useState(1);
-  const [form, setForm]     = useState<FormState>(() => {
-    const ct  = searchParams.get('ct')  as CustomerType | null;
-    const ih  = searchParams.get('ih')  as InsuranceHistory | null;
-    const ag  = searchParams.get('ag')  as AgeGroup | null;
-    const sx  = searchParams.get('sx')  as SexType | null;
+  const URL_PARAM_KEYS = ['brand', 'model', 'ct', 'ih', 'ag', 'sx', 'price'];
+  const hasUrlParams = URL_PARAM_KEYS.some((k) => searchParams.has(k));
+
+  const [restored, setRestored] = useState(false); // 복원 토스트용
+  const [phase, setPhase] = useState<Phase>(() => {
+    if (hasUrlParams) return 'group1';
+    return loadCompareState()?.phase ?? 'group1';
+  });
+  const [dir, setDir] = useState(1);
+  const [form, setForm] = useState<FormState>(() => {
+    if (!hasUrlParams) {
+      const saved = loadCompareState();
+      if (saved) return saved.form;
+    }
+    const ct    = searchParams.get('ct')    as CustomerType | null;
+    const ih    = searchParams.get('ih')    as InsuranceHistory | null;
+    const ag    = searchParams.get('ag')    as AgeGroup | null;
+    const sx    = searchParams.get('sx')    as SexType | null;
     const price = searchParams.get('price') ?? '';
     return {
       customerType:     ct ?? 'employee',
@@ -1180,6 +1229,16 @@ function CompareInner() {
   const [leadSubmitted, setLeadSubmitted] = useState(false);
   const [leadSubmitting, setLeadSubmitting] = useState(false);
   const [leadError, setLeadError]     = useState<string | null>(null);
+
+  // 복원 토스트 (localStorage에서 복원됐을 때 잠깐 표시)
+  useEffect(() => {
+    if (!hasUrlParams && loadCompareState()) {
+      setRestored(true);
+      const t = setTimeout(() => setRestored(false), 3000);
+      return () => clearTimeout(t);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // 공유 링크 toast
   const [shareToast, setShareToast] = useState(false);
@@ -1355,6 +1414,7 @@ function CompareInner() {
     });
 
     setCmpResult(cmp); setDecision(dec);
+    saveCompareState(form, 'result');
     setDir(1); setPhase('result');
 
     // 결과 화면용 사고·피해자 통계 비동기 조회
@@ -1391,6 +1451,7 @@ function CompareInner() {
       });
       if (!res.ok) throw new Error();
       setLeadSubmitted(true);
+      clearCompareState();
     } catch { setLeadError('잠시 후 다시 시도해주세요.'); }
     setLeadSubmitting(false);
   }
@@ -1416,6 +1477,13 @@ function CompareInner() {
     <>
     <div className="min-h-screen bg-[#F2F2F7] pb-24">
       <div className="max-w-[520px] mx-auto px-4 pt-8">
+
+        {/* 이전 작성 복원 토스트 */}
+        {restored && (
+          <div className="mb-4 flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#F0FDF4] border border-green-200 text-green-700 text-sm font-medium diagnosis-no-print">
+            ✓ 이전에 작성하던 내용을 복원했습니다.
+          </div>
+        )}
 
         {/* 헤더 */}
         {phase !== 'result' && (
@@ -1546,7 +1614,7 @@ function CompareInner() {
                 </p>
               </div>
 
-              <button type="button" onClick={() => { setDir(1); setPhase('currentCost'); }} disabled={!g1Valid}
+              <button type="button" onClick={() => { saveCompareState(form, 'currentCost'); setDir(1); setPhase('currentCost'); }} disabled={!g1Valid}
                 className="w-full py-4 rounded-2xl text-white font-semibold text-base transition-all disabled:opacity-40"
                 style={{ backgroundColor: g1Valid ? ACCENT : '#D1D1D6' }}>
                 다음 — 현재 비용 →
@@ -1686,7 +1754,7 @@ function CompareInner() {
                   className="flex-1 py-3.5 rounded-2xl border border-[#E5E7EB] bg-white text-[#6B7280] hover:text-[#1C1C1E] font-medium transition-colors">
                   ← 이전
                 </button>
-                <button type="button" onClick={() => { setDir(1); setPhase('group2'); }}
+                <button type="button" onClick={() => { saveCompareState(form, 'group2'); setDir(1); setPhase('group2'); }}
                   disabled={form.hasCurrentVehicle === null}
                   className="flex-[2] py-3.5 rounded-2xl text-white font-semibold transition-all disabled:opacity-40"
                   style={{ backgroundColor: form.hasCurrentVehicle !== null ? ACCENT : '#D1D1D6' }}>
@@ -1695,7 +1763,11 @@ function CompareInner() {
               </div>
 
               <button type="button" onClick={() => {
-                setForm((f) => ({ ...f, hasCurrentVehicle: null }));
+                setForm((f) => {
+                  const next = { ...f, hasCurrentVehicle: null };
+                  saveCompareState(next, 'group2');
+                  return next;
+                });
                 setDir(1); setPhase('group2');
               }} className="text-[#8E8E93] text-sm text-center hover:text-[#6B7280] transition-colors">
                 이 단계 건너뛰기
