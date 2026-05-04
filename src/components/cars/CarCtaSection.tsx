@@ -1,10 +1,11 @@
 'use client';
 
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useQuoteStore } from '@/store/quoteStore';
 import { gtag } from '@/lib/gtag';
 import type { Vehicle } from '@/constants/vehicles';
-import { Phone, MessageCircle } from 'lucide-react';
+import { Phone, MessageCircle, BarChart2 } from 'lucide-react';
 
 interface CarCtaSectionProps {
   vehicle: Vehicle;
@@ -43,6 +44,14 @@ export function CarCtaSection({ vehicle }: CarCtaSectionProps) {
         >
           이 차량으로 무료 견적 받기
         </button>
+        <Link
+          href={`/diagnosis/compare?brand=${encodeURIComponent(vehicle.brand)}&model=${encodeURIComponent(vehicle.model)}`}
+          onClick={() => gtag.seoCtaClick(vehicle.slug, 'compare')}
+          className="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl border-2 border-primary text-primary font-semibold text-sm hover:bg-primary/5 transition-colors"
+        >
+          <BarChart2 size={16} />
+          이 차로 할부·리스·렌트 비교해보기
+        </Link>
         <div className="grid grid-cols-2 gap-2.5">
           <a
             href={KAKAO_URL}

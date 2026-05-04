@@ -1117,20 +1117,29 @@ function CompareInner() {
   const searchParams = useSearchParams();
   const [phase, setPhase]   = useState<Phase>('group1');
   const [dir, setDir]       = useState(1);
-  const [form, setForm]     = useState<FormState>(() => ({
-    customerType: 'employee', industry: 'service',
-    insuranceHistory: '3y+normal',
-    ageGroup: null, sex: null,
-    hasCurrentVehicle: null,
-    currentCost: { ...DEFAULT_CURRENT_COST },
-    currentTransport: { ...DEFAULT_CURRENT_TRANSPORT },
-    brand: searchParams.get('brand') ?? '',
-    model: searchParams.get('model') ?? '',
-    vehicleId: '', vehicleFuelType: null, fuelTypeResolved: false, trimCc: 0,
-    trimName: '', carPriceMk: '', carPriceMkAuto: 0,
-    isEV: false, isHEV: false,
-    advanced: { ...DEFAULT_ADVANCED },
-  }));
+  const [form, setForm]     = useState<FormState>(() => {
+    const ct  = searchParams.get('ct')  as CustomerType | null;
+    const ih  = searchParams.get('ih')  as InsuranceHistory | null;
+    const ag  = searchParams.get('ag')  as AgeGroup | null;
+    const sx  = searchParams.get('sx')  as SexType | null;
+    const price = searchParams.get('price') ?? '';
+    return {
+      customerType:     ct ?? 'employee',
+      industry:         'service',
+      insuranceHistory: ih ?? '3y+normal',
+      ageGroup:         ag ?? null,
+      sex:              sx ?? null,
+      hasCurrentVehicle: null,
+      currentCost:       { ...DEFAULT_CURRENT_COST },
+      currentTransport:  { ...DEFAULT_CURRENT_TRANSPORT },
+      brand:            searchParams.get('brand') ?? '',
+      model:            searchParams.get('model') ?? '',
+      vehicleId: '', vehicleFuelType: null, fuelTypeResolved: false, trimCc: 0,
+      trimName: '', carPriceMk: price, carPriceMkAuto: 0,
+      isEV: false, isHEV: false,
+      advanced: { ...DEFAULT_ADVANCED },
+    };
+  });
 
   // 드롭다운 API 상태
   const [brands, setBrands]   = useState<string[]>([]);
@@ -1171,6 +1180,25 @@ function CompareInner() {
   const [leadSubmitted, setLeadSubmitted] = useState(false);
   const [leadSubmitting, setLeadSubmitting] = useState(false);
   const [leadError, setLeadError]     = useState<string | null>(null);
+
+  // 공유 링크 toast
+  const [shareToast, setShareToast] = useState(false);
+  const handleShare = useCallback(() => {
+    const p = new URLSearchParams({
+      brand: form.brand,
+      model: form.model,
+      ct:    form.customerType,
+      ih:    form.insuranceHistory,
+      ...(form.ageGroup ? { ag: form.ageGroup } : {}),
+      ...(form.sex      ? { sx: form.sex }      : {}),
+      ...(form.carPriceMk ? { price: form.carPriceMk } : {}),
+    });
+    const url = `${window.location.origin}/diagnosis/compare?${p.toString()}`;
+    navigator.clipboard.writeText(url).then(() => {
+      setShareToast(true);
+      setTimeout(() => setShareToast(false), 2500);
+    });
+  }, [form]);
 
   // 브랜드 로드 (vehicles 테이블)
   useEffect(() => {
@@ -2140,8 +2168,21 @@ function CompareInner() {
                 )}
               </div>
 
+              {/* 공유 / PDF 버튼 */}
+              <div className="grid grid-cols-2 gap-2.5 diagnosis-no-print">
+                <button type="button" onClick={handleShare}
+                  className="flex items-center justify-center gap-1.5 py-3 rounded-xl border border-[#E5E7EB] bg-white text-[#1C1C1E] text-sm font-medium hover:bg-[#F2F2F7] transition-colors">
+                  🔗 {shareToast ? '복사됨!' : '링크 공유'}
+                </button>
+                <button type="button"
+                  onClick={() => { setTimeout(() => window.print(), 100); }}
+                  className="flex items-center justify-center gap-1.5 py-3 rounded-xl border border-[#E5E7EB] bg-white text-[#1C1C1E] text-sm font-medium hover:bg-[#F2F2F7] transition-colors">
+                  ↓ PDF 저장
+                </button>
+              </div>
+
               <button type="button" onClick={() => { setDir(-1); setPhase('group1'); }}
-                className="text-[#8E8E93] text-sm hover:text-[#6B7280] transition-colors text-center">
+                className="text-[#8E8E93] text-sm hover:text-[#6B7280] transition-colors text-center diagnosis-no-print">
                 ← 조건 변경하기
               </button>
 
