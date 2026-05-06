@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { ArticleContent } from '@/components/ArticleContent';
+import { ImageZoom } from '@/components/ImageZoom';
 import { fetchWpPostBySlug } from '@/lib/wp-client';
 
 export const revalidate = 60;
@@ -96,12 +97,10 @@ export default async function BlogPostPage({
         </header>
 
         {featured && (
-          /* eslint-disable-next-line @next/next/no-img-element */
-          <img
+          <ImageZoom
             src={featured}
             alt={title}
             className="mt-6 w-full rounded-2xl object-cover"
-            loading="eager"
           />
         )}
 
