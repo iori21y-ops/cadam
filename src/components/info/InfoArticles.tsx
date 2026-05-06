@@ -16,6 +16,8 @@ interface Article {
   vehicleSlug: string | null;
 }
 
+type Section = 'article' | 'card-news';
+
 function getDisplayType(article: Article): 'blog' | 'youtube' | 'shorts' {
   if (article.linkUrl.includes('youtube.com/shorts/')) return 'shorts';
   if (article.sourceType === 'youtube') return 'youtube';
@@ -34,7 +36,6 @@ function CardNewsHorizontal({ articles }: { articles: Article[] }) {
       <div className="flex-1 flex items-center justify-center px-5">
         <div className="text-center py-16">
           <p className="text-gray-500">카드뉴스가 없습니다</p>
-          <p className="text-gray-400 text-sm mt-1">다른 카테고리를 선택해보세요</p>
         </div>
       </div>
     );
@@ -42,14 +43,14 @@ function CardNewsHorizontal({ articles }: { articles: Article[] }) {
   return (
     <div className="flex-1 min-h-0">
       <div
-        className="flex gap-4 overflow-x-auto snap-x snap-mandatory px-5 pt-5 pb-8 scrollbar-hide"
+        className="flex gap-3 overflow-x-auto snap-x snap-mandatory px-5 scroll-pl-5 pt-5 pb-8 scrollbar-hide"
         style={{ WebkitOverflowScrolling: 'touch' }}
       >
         {articles.map((article) => (
           <CardLink
             key={article.id}
             href={article.linkUrl}
-            className="snap-start shrink-0 w-[72vw] max-w-[280px] flex flex-col"
+            className="snap-start shrink-0 w-[90vw] flex flex-col"
           >
             <div className="aspect-square rounded-2xl overflow-hidden bg-gray-100 shadow-md">
               {article.thumbnailUrl ? (
@@ -130,6 +131,20 @@ function CategoryPill({ active, onClick, children }: { active: boolean; onClick:
   );
 }
 
+function ContentTab({ active, onClick, children }: { active: boolean; onClick: () => void; children: ReactNode }) {
+  return (
+    <button
+      onClick={onClick}
+      className={[
+        'px-4 py-3 text-sm font-semibold border-b-2 -mb-px transition-colors whitespace-nowrap',
+        active ? 'border-gray-900 text-gray-900' : 'border-transparent text-gray-400 hover:text-gray-900',
+      ].join(' ')}
+    >
+      {children}
+    </button>
+  );
+}
+
 export function InfoArticles({ initialArticles, categories = [] }: {
   initialArticles?: Article[];
   categories?: { value: string; label: string }[];
@@ -137,6 +152,7 @@ export function InfoArticles({ initialArticles, categories = [] }: {
   const pathname = usePathname();
   const [articles, setArticles] = useState<Article[]>(initialArticles ?? []);
   const [loading, setLoading] = useState(!initialArticles);
+  const [section, setSection] = useState<Section>('article');
   const [selectedKeyword, setSelectedKeyword] = useState('all');
 
   useEffect(() => {
@@ -148,13 +164,21 @@ export function InfoArticles({ initialArticles, categories = [] }: {
       .finally(() => setLoading(false));
   }, [initialArticles]);
 
-  const categoryFilters = useMemo(() => [{ value: 'all', label: '전체' }, ...categories], [categories]);
+  // 카드뉴스는 별도 탭이므로 아티클 카테고리 필터에서 제거
+  const categoryFilters = useMemo(() => [
+    { value: 'all', label: '전체' },
+    ...categories.filter((c) => c.value !== 'card-news'),
+  ], [categories]);
 
   const filteredArticles = useMemo(() => {
-    let result = articles.filter((a) => getDisplayType(a) === 'blog');
+    if (section === 'card-news') {
+      return articles.filter((a) => getDisplayType(a) === 'blog' && a.category === 'card-news');
+    }
+    // 아티클 탭: 카드뉴스 제외
+    let result = articles.filter((a) => getDisplayType(a) === 'blog' && a.category !== 'card-news');
     if (selectedKeyword !== 'all') result = result.filter((a) => a.category === selectedKeyword);
     return result;
-  }, [articles, selectedKeyword]);
+  }, [articles, section, selectedKeyword]);
 
   return (
     <div className="min-h-[100dvh] flex flex-col bg-white pb-24">
@@ -162,8 +186,8 @@ export function InfoArticles({ initialArticles, categories = [] }: {
       <div className="shrink-0 border-b border-gray-200 bg-white">
         <div className="flex max-w-lg mx-auto px-5">
           {[
-            { href: '/info',                  label: '이용정보' },
-            { href: '/info/terms-comparison',  label: '약관 비교' },
+            { href: '/info', label: '이용정보' },
+            { href: '/info/terms-comparison', label: '약관 비교' },
           ].map((t) => (
             <Link key={t.href} href={t.href} className={[
               'px-4 py-3 text-sm font-semibold border-b-2 -mb-px transition-colors whitespace-nowrap',
@@ -175,46 +199,53 @@ export function InfoArticles({ initialArticles, categories = [] }: {
         </div>
       </div>
 
-      {/* 아티클 ↔ 클립 탭 */}
+      {/* 아티클 | 클립 | 카드뉴스 탭 */}
       <div className="shrink-0 border-b border-gray-200 bg-white">
         <div className="flex max-w-lg mx-auto px-5">
-          {[
-            { href: '/info',        label: '아티클' },
-            { href: '/info/clips',  label: '클립' },
-          ].map((t) => (
-            <Link key={t.href} href={t.href} className={[
-              'px-4 py-3 text-sm font-semibold border-b-2 -mb-px transition-colors whitespace-nowrap',
-              pathname === t.href ? 'border-gray-900 text-gray-900' : 'border-transparent text-gray-400 hover:text-gray-900',
-            ].join(' ')}>
-              {t.label}
-            </Link>
-          ))}
+          <ContentTab active={section === 'article'} onClick={() => setSection('article')}>
+            아티클
+          </ContentTab>
+          <Link
+            href="/info/clips"
+            className="px-4 py-3 text-sm font-semibold border-b-2 -mb-px border-transparent text-gray-400 hover:text-gray-900 transition-colors whitespace-nowrap"
+          >
+            클립
+          </Link>
+          <ContentTab active={section === 'card-news'} onClick={() => setSection('card-news')}>
+            카드뉴스
+          </ContentTab>
         </div>
       </div>
 
       {/* 타이틀 */}
       <div className="max-w-lg mx-auto w-full px-5 pt-6 pb-2">
-        <h1 className="text-xl font-bold text-gray-900">렌테일러 아티클</h1>
+        <h1 className="text-xl font-bold text-gray-900">
+          {section === 'card-news' ? '렌테일러 카드뉴스' : '렌테일러 아티클'}
+        </h1>
       </div>
 
-      {/* 카테고리 필터 */}
-      <div className="shrink-0 w-full max-w-lg mx-auto px-5 pt-3 pb-3">
-        <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
-          {categoryFilters.map((f) => (
-            <CategoryPill key={f.value} active={selectedKeyword === f.value} onClick={() => setSelectedKeyword(f.value)}>
-              {f.label}
-            </CategoryPill>
-          ))}
-        </div>
-      </div>
+      {/* 카테고리 필터 — 아티클 탭에서만 표시 */}
+      {section === 'article' && (
+        <>
+          <div className="shrink-0 w-full max-w-lg mx-auto px-5 pt-3 pb-3">
+            <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
+              {categoryFilters.map((f) => (
+                <CategoryPill key={f.value} active={selectedKeyword === f.value} onClick={() => setSelectedKeyword(f.value)}>
+                  {f.label}
+                </CategoryPill>
+              ))}
+            </div>
+          </div>
+          <div className="max-w-lg mx-auto w-full"><div className="h-px bg-gray-100" /></div>
+        </>
+      )}
 
-      <div className="max-w-lg mx-auto w-full"><div className="h-px bg-gray-100" /></div>
-
+      {/* 콘텐츠 */}
       {loading ? (
         <div className="flex-1 flex items-center justify-center">
           <div className="w-8 h-8 border-2 border-gray-900 border-t-transparent rounded-full animate-spin" />
         </div>
-      ) : selectedKeyword === 'card-news' ? (
+      ) : section === 'card-news' ? (
         <CardNewsHorizontal articles={filteredArticles} />
       ) : filteredArticles.length === 0 ? (
         <div className="flex-1 flex items-center justify-center px-5">
