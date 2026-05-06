@@ -81,6 +81,17 @@ function pickThumbnail(post: WpPost): string | null {
   return extractFirstBodyImage(post.content.rendered);
 }
 
+const WP_CATEGORY_MAP: Record<number, string> = {
+  3: 'card-news',
+};
+
+function wpCategory(post: WpPost): string {
+  for (const id of post.categories ?? []) {
+    if (WP_CATEGORY_MAP[id]) return WP_CATEGORY_MAP[id];
+  }
+  return 'rental';
+}
+
 export function toInfoArticle(post: WpPost): InfoArticleShape {
   return {
     id: `wp-${post.id}`,
@@ -90,7 +101,7 @@ export function toInfoArticle(post: WpPost): InfoArticleShape {
     thumbnailUrl: pickThumbnail(post),
     sourceType: 'blog',
     publishedAt: post.date,
-    category: 'rental',
+    category: wpCategory(post),
     vehicleSlug: null,
   };
 }

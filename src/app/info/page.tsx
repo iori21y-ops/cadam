@@ -56,9 +56,15 @@ async function getArticles(): Promise<InfoArticleShape[]> {
 }
 
 function mergeArticles(supabaseArticles: InfoArticleShape[], wpArticles: InfoArticleShape[]): InfoArticleShape[] {
+  // DB category가 WP 기본값보다 정확하므로 DB 값을 우선 적용
+  const dbCategoryMap = new Map(supabaseArticles.map(a => [a.linkUrl, a.category]));
   const wpLinks = new Set(wpArticles.map(a => a.linkUrl));
   const uniqueSupabase = supabaseArticles.filter(a => !wpLinks.has(a.linkUrl));
-  return [...wpArticles, ...uniqueSupabase].sort((a, b) => {
+  const mergedWp = wpArticles.map(a => ({
+    ...a,
+    category: dbCategoryMap.get(a.linkUrl) ?? a.category,
+  }));
+  return [...mergedWp, ...uniqueSupabase].sort((a, b) => {
     const ta = a.publishedAt ? Date.parse(a.publishedAt) : 0;
     const tb = b.publishedAt ? Date.parse(b.publishedAt) : 0;
     return tb - ta;
