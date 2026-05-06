@@ -80,7 +80,7 @@ export default function RootLayout({
     <html lang="ko" className={`${pretendard.variable} ${cormorant.variable} ${outfit.variable} bg-white`}>
       <body className={`${pretendard.className} antialiased`}>
         <GoldDefs />
-        <div className="max-w-[1024px] mx-auto w-full min-w-0 bg-white shadow-2xl">
+        <div className="w-full min-w-0">
           <GAPageView />
           <NavBar />
           <PageTransition>{children}</PageTransition>

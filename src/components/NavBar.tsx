@@ -10,7 +10,7 @@ export function NavBar() {
 
   return (
     <nav className="sticky top-0 z-50 glass border-b border-border-solid overflow-hidden">
-      <div className="max-w-[1024px] mx-auto px-5 py-3 flex items-center w-full">
+      <div className="max-w-2xl mx-auto px-4 py-3 flex items-center w-full">
         <Link
           href="/"
           className="flex items-center gap-2 shrink-0 hover:opacity-80 transition-opacity"

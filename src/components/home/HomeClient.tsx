@@ -145,8 +145,8 @@ export function HomeClient({ vehicles }: Props) {
     <>
       <main className="pb-24 bg-background min-h-screen">
         {/* 헤더 카피 */}
-        <div className="bg-primary text-white px-5 py-10">
-          <div className="max-w-lg mx-auto">
+        <div className="bg-primary text-white py-10">
+          <div className="max-w-2xl mx-auto px-4">
             <p className="text-xs text-accent font-semibold mb-3 tracking-widest uppercase">RenTailor</p>
             <h1 className="text-2xl font-bold leading-snug">
               내 차에 맞는<br />최적의 장기렌트를<br />찾아보세요
@@ -159,7 +159,7 @@ export function HomeClient({ vehicles }: Props) {
 
         {/* 브랜드 필터 */}
         <div className="sticky top-0 z-10 bg-background border-b border-border shadow-sm">
-          <div className="max-w-lg mx-auto px-4 py-3 flex gap-2 overflow-x-auto scrollbar-hide">
+          <div className="max-w-2xl mx-auto px-4 py-3 flex gap-2 overflow-x-auto scrollbar-hide">
             {BRAND_FILTERS.map((b) => (
               <button
                 key={b.label}
@@ -177,7 +177,7 @@ export function HomeClient({ vehicles }: Props) {
         </div>
 
         {/* 차량 그리드 */}
-        <div className="max-w-lg mx-auto px-4 py-5">
+        <div className="max-w-2xl mx-auto px-4 py-5">
           <p className="text-xs text-text-muted mb-4">{filtered.length}개 차종</p>
           <div className="grid grid-cols-2 gap-3">
             {filtered.map((vehicle, index) => (
@@ -192,7 +192,7 @@ export function HomeClient({ vehicles }: Props) {
                     alt={`${vehicle.brand} ${vehicle.model}`}
                     fill
                     className="object-contain p-3"
-                    sizes="(max-width: 640px) 50vw, 300px"
+                    sizes="(max-width: 640px) 50vw, 320px"
                   />
                 </div>
                 <div className="p-3">
@@ -249,7 +249,7 @@ export function HomeClient({ vehicles }: Props) {
         {submitResult === 'success' ? (
           <>
             <div className="flex-1 overflow-y-auto px-5">
-              <div className="max-w-lg mx-auto py-8 text-center">
+              <div className="max-w-2xl mx-auto py-8 text-center">
                 <div className="text-5xl mb-4">✅</div>
                 <p className="text-xl font-bold text-text mb-2">신청이 완료됐습니다</p>
                 <p className="text-sm text-text-sub mb-1">
@@ -259,7 +259,7 @@ export function HomeClient({ vehicles }: Props) {
               </div>
             </div>
             <div className="shrink-0 px-5 pt-3 pb-24 bg-white border-t border-border">
-              <div className="max-w-lg mx-auto">
+              <div className="max-w-2xl mx-auto">
                 <button
                   onClick={closeSheet}
                   className="w-full py-4 bg-primary text-white rounded-xl font-semibold"
@@ -272,7 +272,7 @@ export function HomeClient({ vehicles }: Props) {
         ) : submitResult === 'duplicate' ? (
           <>
             <div className="flex-1 overflow-y-auto px-5">
-              <div className="max-w-lg mx-auto py-8 text-center">
+              <div className="max-w-2xl mx-auto py-8 text-center">
                 <div className="text-5xl mb-4">📋</div>
                 <p className="text-xl font-bold text-text mb-2">이미 신청하셨습니다</p>
                 <p className="text-sm text-text-sub">
@@ -282,7 +282,7 @@ export function HomeClient({ vehicles }: Props) {
               </div>
             </div>
             <div className="shrink-0 px-5 pt-3 pb-24 bg-white border-t border-border">
-              <div className="max-w-lg mx-auto">
+              <div className="max-w-2xl mx-auto">
                 <button
                   onClick={closeSheet}
                   className="w-full py-4 bg-primary text-white rounded-xl font-semibold"
@@ -296,7 +296,7 @@ export function HomeClient({ vehicles }: Props) {
           <>
             {/* 스크롤 가능한 폼 내용 */}
             <div className="flex-1 overflow-y-auto px-5 pb-4">
-              <div className="max-w-lg mx-auto">
+              <div className="max-w-2xl mx-auto">
                 {/* 선택 차종 표시 */}
                 {selectedVehicle && (
                   <div className="flex items-center gap-3 py-4 border-b border-border mb-4">
@@ -372,7 +372,7 @@ export function HomeClient({ vehicles }: Props) {
 
             {/* 신청 버튼 — 항상 하단 고정 (탭바 위) */}
             <div className="shrink-0 px-5 pt-3 pb-24 bg-white border-t border-border">
-              <div className="max-w-lg mx-auto">
+              <div className="max-w-2xl mx-auto">
                 {submitResult === 'error' && errorMsg && (
                   <p className="text-xs text-danger bg-red-50 px-3 py-2 rounded-lg mb-3">{errorMsg}</p>
                 )}

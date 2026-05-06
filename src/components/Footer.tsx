@@ -11,7 +11,7 @@ export function Footer() {
 
   return (
     <footer className="bg-primary text-white/80">
-      <div className="max-w-[1024px] mx-auto px-5 py-10">
+      <div className="max-w-2xl mx-auto px-4 py-10">
         {/* 상단: 로고 + 서비스 링크 */}
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-6 mb-8">
           <div>
