@@ -143,3 +143,10 @@ export async function fetchWpPostsForSitemap(): Promise<WpPostForSitemap[]> {
   );
   return data ?? [];
 }
+
+export async function fetchWpPostsByCategory(categoryId: number, perPage = 50): Promise<WpPost[]> {
+  const data = await wpFetch<WpPost[]>(
+    `/posts?_embed=wp:featuredmedia&categories=${categoryId}&per_page=${perPage}&status=publish&orderby=date&order=desc`
+  );
+  return data ?? [];
+}

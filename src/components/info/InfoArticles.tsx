@@ -28,6 +28,59 @@ function CardLink({ href, className, children }: { href: string; className: stri
   return <a href={href} target="_blank" rel="noopener noreferrer" className={className}>{children}</a>;
 }
 
+function CardNewsHorizontal({ articles }: { articles: Article[] }) {
+  if (articles.length === 0) {
+    return (
+      <div className="flex-1 flex items-center justify-center px-5">
+        <div className="text-center py-16">
+          <p className="text-gray-500">카드뉴스가 없습니다</p>
+          <p className="text-gray-400 text-sm mt-1">다른 카테고리를 선택해보세요</p>
+        </div>
+      </div>
+    );
+  }
+  return (
+    <div className="flex-1 min-h-0">
+      <div
+        className="flex gap-4 overflow-x-auto snap-x snap-mandatory px-5 pt-5 pb-8 scrollbar-hide"
+        style={{ WebkitOverflowScrolling: 'touch' }}
+      >
+        {articles.map((article) => (
+          <CardLink
+            key={article.id}
+            href={article.linkUrl}
+            className="snap-start shrink-0 w-[72vw] max-w-[280px] flex flex-col"
+          >
+            <div className="aspect-square rounded-2xl overflow-hidden bg-gray-100 shadow-md">
+              {article.thumbnailUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={article.thumbnailUrl}
+                  alt={article.title}
+                  loading="lazy"
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    const el = e.currentTarget;
+                    if (el.src.includes('maxresdefault')) el.src = el.src.replace('maxresdefault', 'hqdefault');
+                  }}
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-gray-200">
+                  <span className="text-gray-400 text-sm">RENTAILOR</span>
+                </div>
+              )}
+            </div>
+            <p className="mt-3 text-sm font-semibold text-gray-900 line-clamp-2 leading-snug">
+              {article.title}
+            </p>
+          </CardLink>
+        ))}
+        <div className="shrink-0 w-1" />
+      </div>
+    </div>
+  );
+}
+
 const ArticleListItem = memo(function ArticleListItem({ article }: { article: Article }) {
   return (
     <CardLink href={article.linkUrl} className="flex items-start gap-4 px-5 py-4 bg-white hover:bg-gray-50 transition-colors">
@@ -161,6 +214,8 @@ export function InfoArticles({ initialArticles, categories = [] }: {
         <div className="flex-1 flex items-center justify-center">
           <div className="w-8 h-8 border-2 border-gray-900 border-t-transparent rounded-full animate-spin" />
         </div>
+      ) : selectedKeyword === 'card-news' ? (
+        <CardNewsHorizontal articles={filteredArticles} />
       ) : filteredArticles.length === 0 ? (
         <div className="flex-1 flex items-center justify-center px-5">
           <div className="w-full max-w-lg text-center py-16">

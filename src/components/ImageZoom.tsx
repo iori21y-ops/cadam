@@ -19,9 +19,11 @@ export function ImageZoom({ src, alt, className }: ImageZoomProps) {
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') close(); };
     document.addEventListener('keydown', onKey);
     document.body.style.overflow = 'hidden';
+    document.body.dataset.modalOpen = '1';
     return () => {
       document.removeEventListener('keydown', onKey);
       document.body.style.overflow = '';
+      delete document.body.dataset.modalOpen;
     };
   }, [open, close]);
 

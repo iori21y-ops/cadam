@@ -3,7 +3,8 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import { ArticleContent } from '@/components/ArticleContent';
 import { ImageZoom } from '@/components/ImageZoom';
-import { fetchWpPostBySlug } from '@/lib/wp-client';
+import { CardNavSwipe } from '@/components/CardNavSwipe';
+import { fetchWpPostBySlug, fetchWpPostsByCategory } from '@/lib/wp-client';
 
 export const revalidate = 60;
 
@@ -76,6 +77,26 @@ export default async function BlogPostPage({
   const title = decodeTitle(post.title.rendered);
   const date = formatDate(post.date);
   const featured = post._embedded?.['wp:featuredmedia']?.[0]?.source_url ?? null;
+
+  const isCardNews = post.categories?.includes(3);
+  let prevPost: { slug: string; title: string } | null = null;
+  let nextPost: { slug: string; title: string } | null = null;
+
+  if (isCardNews) {
+    const cardNewsPosts = await fetchWpPostsByCategory(3);
+    const idx = cardNewsPosts.findIndex(p => p.slug === slug);
+    if (idx >= 0) {
+      if (idx > 0) {
+        const p = cardNewsPosts[idx - 1];
+        nextPost = { slug: p.slug, title: decodeTitle(p.title.rendered) };
+      }
+      if (idx < cardNewsPosts.length - 1) {
+        const p = cardNewsPosts[idx + 1];
+        prevPost = { slug: p.slug, title: decodeTitle(p.title.rendered) };
+      }
+    }
+  }
+
   return (
     <article className="min-h-[100dvh] bg-white pb-24">
       <div className="max-w-lg mx-auto px-5 pt-6">
@@ -120,6 +141,15 @@ export default async function BlogPostPage({
             장기렌트 적합도 진단하기
           </Link>
         </div>
+
+        {isCardNews && (
+          <CardNavSwipe
+            prevSlug={prevPost?.slug ?? null}
+            prevTitle={prevPost?.title ?? null}
+            nextSlug={nextPost?.slug ?? null}
+            nextTitle={nextPost?.title ?? null}
+          />
+        )}
       </div>
     </article>
   );
