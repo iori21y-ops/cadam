@@ -1,71 +1,78 @@
-import { Suspense } from 'react';
-import { HeroSection } from '@/components/home/HeroSection';
-import { PopularVehiclesSection } from '@/components/home/PopularVehiclesSection';
-import { DiagnosisBannerLazy } from '@/components/home/DiagnosisBannerLazy';
-import { PromotionBanner } from '@/components/home/PromotionBanner';
-import { ArticleSection } from '@/components/home/ArticleSection';
-import { TrustSection } from '@/components/home/TrustSection';
-import { Footer } from '@/components/Footer';
+import { createServerSupabaseClient } from '@/lib/supabase-server';
+import { VEHICLE_LIST } from '@/constants/vehicles';
+import { HomeClient } from '@/components/home/HomeClient';
 
-function VehiclesSkeleton() {
-  return (
-    <section className="bg-background py-12 px-5">
-      <div className="max-w-lg mx-auto">
-        <div className="h-7 bg-surface rounded w-48 mb-6" />
-        <div className="flex gap-4 overflow-hidden">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="min-w-[200px] bg-surface rounded-2xl animate-pulse">
-              <div className="aspect-[4/3] bg-surface-secondary rounded-t-2xl" />
-              <div className="p-4 space-y-2">
-                <div className="h-4 bg-surface-secondary rounded w-2/3" />
-                <div className="h-5 bg-surface-secondary rounded w-1/2" />
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
+const TARGET_BRANDS = new Set(['현대', '기아', '제네시스', 'KGM', '르노코리아', '테슬라']);
+
+interface VehicleRow {
+  slug: string;
+  id: string;
+  is_active: boolean | null;
+  display_order: number | null;
 }
 
-function ArticlesSkeleton() {
-  return (
-    <section className="bg-background py-12 px-5">
-      <div className="max-w-lg mx-auto">
-        <div className="h-7 bg-surface rounded w-56 mb-2" />
-        {Array.from({ length: 4 }).map((_, i) => (
-          <div
-            key={i}
-            className={`flex items-start gap-4 py-5 animate-pulse ${
-              i < 3 ? 'border-b border-border' : ''
-            }`}
-          >
-            <div className="flex-1 space-y-2">
-              <div className="h-5 bg-surface rounded w-3/4" />
-              <div className="h-4 bg-surface rounded w-full" />
-            </div>
-            <div className="w-24 h-24 shrink-0 rounded-xl bg-surface" />
-          </div>
-        ))}
-      </div>
-    </section>
-  );
+interface PriceRangeRow {
+  vehicle_id: string;
+  min_monthly: number;
+  max_monthly: number;
 }
 
-export default function HomePage() {
-  return (
-    <main className="pb-24">
-      <HeroSection />
-      <PromotionBanner />
-      <Suspense fallback={<VehiclesSkeleton />}>
-        <PopularVehiclesSection />
-      </Suspense>
-      <DiagnosisBannerLazy />
-      <Suspense fallback={<ArticlesSkeleton />}>
-        <ArticleSection />
-      </Suspense>
-      <TrustSection />
-      <Footer />
-    </main>
-  );
+export default async function HomePage() {
+  let settingMap = new Map<string, VehicleRow>();
+  let priceMap: Record<string, { min: number; max: number }> = {};
+
+  try {
+    const supabase = await createServerSupabaseClient();
+    const [{ data: allVehicles }, { data: priceRanges }] = await Promise.all([
+      supabase.from('vehicles').select('slug, id, is_active, display_order'),
+      supabase
+        .from('pricing')
+        .select('vehicle_id, min_monthly, max_monthly')
+        .eq('is_active', true)
+        .eq('contract_months', 36)
+        .eq('annual_km', 20000)
+        .gt('min_monthly', 0),
+    ]);
+
+    settingMap = new Map(
+      (allVehicles ?? [])
+        .filter((s: VehicleRow) => s.slug != null)
+        .map((s: VehicleRow) => [s.slug, s])
+    );
+
+    const slugByVehicleId = new Map<string, string>();
+    for (const s of (allVehicles ?? []) as VehicleRow[]) {
+      if (s.slug && s.id) slugByVehicleId.set(s.id, s.slug);
+    }
+    for (const row of (priceRanges ?? []) as PriceRangeRow[]) {
+      const slug = slugByVehicleId.get(row.vehicle_id);
+      if (!slug) continue;
+      const existing = priceMap[slug];
+      if (!existing || row.min_monthly < existing.min) {
+        priceMap[slug] = { min: row.min_monthly, max: row.max_monthly };
+      }
+    }
+  } catch {
+    // Supabase 연결 실패 시 가격·is_active 없이 표시
+  }
+
+  const vehicles = VEHICLE_LIST
+    .filter((v) => TARGET_BRANDS.has(v.brand))
+    .filter((v) => {
+      const s = settingMap.get(v.slug);
+      return s == null || s.is_active !== false;
+    })
+    .sort((a, b) => {
+      const aOrder = settingMap.get(a.slug)?.display_order ?? 999;
+      const bOrder = settingMap.get(b.slug)?.display_order ?? 999;
+      return aOrder - bOrder;
+    })
+    .map((v) => ({
+      ...v,
+      isActive: settingMap.get(v.slug)?.is_active !== false,
+      displayOrder: settingMap.get(v.slug)?.display_order ?? 999,
+      price: priceMap[v.slug] ?? null,
+    }));
+
+  return <HomeClient vehicles={vehicles} />;
 }
