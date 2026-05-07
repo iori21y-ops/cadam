@@ -50,18 +50,6 @@ async function getArticles(): Promise<InfoArticleShape[]> {
   }
 }
 
-async function getCategories(): Promise<{ value: string; label: string }[]> {
-  try {
-    const supabase = await createServerSupabaseClient();
-    const { data } = await supabase
-      .from('info_categories')
-      .select('value, label')
-      .order('display_order', { ascending: true });
-    return (data ?? []) as { value: string; label: string }[];
-  } catch {
-    return [];
-  }
-}
 
 async function getPrices(): Promise<Record<string, number>> {
   try {
@@ -96,9 +84,8 @@ async function getPrices(): Promise<Record<string, number>> {
 }
 
 export default async function ClipsPage() {
-  const [articles, categories, wpArticles, prices] = await Promise.all([
+  const [articles, wpArticles, prices] = await Promise.all([
     getArticles(),
-    getCategories(),
     fetchWpPosts({ perPage: 50 }),
     getPrices(),
   ]);
@@ -111,5 +98,5 @@ export default async function ClipsPage() {
     return db - da;
   });
 
-  return <InfoClips initialArticles={allArticles} categories={categories} prices={prices} />;
+  return <InfoClips initialArticles={allArticles} prices={prices} />;
 }
