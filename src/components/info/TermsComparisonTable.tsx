@@ -1,7 +1,5 @@
 'use client';
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 
 // ─── 타입 ─────────────────────────────────────────────────────────
@@ -201,36 +199,6 @@ function getCellClass(value: string): string {
   return 'text-[11px] text-text-sub leading-relaxed';
 }
 
-// ─── 공통 탭 헤더 ────────────────────────────────────────────────
-
-function InfoTabNav() {
-  const pathname = usePathname();
-  const tabs = [
-    { href: '/info', label: '이용정보' },
-    { href: '/info/terms-comparison', label: '약관 비교' },
-  ];
-  return (
-    <div className="shrink-0 border-b border-border-solid bg-white">
-      <div className="flex max-w-lg mx-auto px-5">
-        {tabs.map((t) => (
-          <Link
-            key={t.href}
-            href={t.href}
-            className={[
-              'px-4 py-3 text-sm font-semibold border-b-2 -mb-px transition-colors whitespace-nowrap',
-              pathname === t.href
-                ? 'border-primary text-primary'
-                : 'border-transparent text-text-sub hover:text-primary',
-            ].join(' ')}
-          >
-            {t.label}
-          </Link>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 // ─── 비교 테이블 ─────────────────────────────────────────────────
 
 function CompareTable({ data }: { data: TabData }) {
@@ -299,11 +267,7 @@ export function TermsComparisonTable() {
   const data = activeTab === 'rental' ? RENTAL_DATA : LEASE_DATA;
 
   return (
-    <div className="min-h-[100dvh] flex flex-col bg-white pb-24">
-      {/* 이용정보 ↔ 약관 비교 탭 */}
-      <InfoTabNav />
-
-      {/* 스크롤 영역 */}
+    <div className="flex-1 flex flex-col overflow-hidden">
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-lg mx-auto px-4 pt-5 pb-8">
 

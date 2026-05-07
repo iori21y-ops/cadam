@@ -7,5 +7,9 @@ export const metadata = {
 };
 
 export default function TermsComparisonPage() {
-  return <TermsComparisonTable />;
+  return (
+    <div className="min-h-[100dvh] flex flex-col bg-white pb-24">
+      <TermsComparisonTable />
+    </div>
+  );
 }

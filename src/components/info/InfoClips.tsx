@@ -143,30 +143,13 @@ export function InfoClips({ initialArticles, prices = {} }: {
 
   return (
     <div className="min-h-[100dvh] flex flex-col bg-white pb-24">
-      {/* 이용정보 | 약관 비교 — 이 컴포넌트는 /info/clips에서만 렌더됨, usePathname 불필요 */}
+      {/* 통합 탭: 아티클 | 클립 | 카드뉴스 | 약관비교 */}
       <div className="shrink-0 border-b border-gray-200 bg-white">
         <div className="flex max-w-lg mx-auto px-5">
-          <Link href="/info" className="px-4 py-3 text-sm font-semibold border-b-2 -mb-px border-gray-900 text-gray-900 whitespace-nowrap">
-            이용정보
-          </Link>
-          <Link href="/info/terms-comparison" className="px-4 py-3 text-sm font-semibold border-b-2 -mb-px border-transparent text-gray-400 hover:text-gray-900 transition-colors whitespace-nowrap">
-            약관 비교
-          </Link>
-        </div>
-      </div>
-
-      {/* 아티클 | 클립 | 카드뉴스 */}
-      <div className="shrink-0 border-b border-gray-200 bg-white">
-        <div className="flex max-w-lg mx-auto px-5">
-          <Link href="/info" className="px-4 py-3 text-sm font-semibold border-b-2 -mb-px border-transparent text-gray-400 hover:text-gray-900 transition-colors whitespace-nowrap">
-            아티클
-          </Link>
-          <span className="px-4 py-3 text-sm font-semibold border-b-2 -mb-px border-gray-900 text-gray-900 whitespace-nowrap">
-            클립
-          </span>
-          <Link href="/info?tab=card-news" className="px-4 py-3 text-sm font-semibold border-b-2 -mb-px border-transparent text-gray-400 hover:text-gray-900 transition-colors whitespace-nowrap">
-            카드뉴스
-          </Link>
+          <Link href="/info" className="px-4 py-3 text-sm font-semibold border-b-2 -mb-px border-transparent text-gray-400 hover:text-gray-900 transition-colors whitespace-nowrap">아티클</Link>
+          <span className="px-4 py-3 text-sm font-semibold border-b-2 -mb-px border-gray-900 text-gray-900 whitespace-nowrap">클립</span>
+          <Link href="/info?tab=card-news" className="px-4 py-3 text-sm font-semibold border-b-2 -mb-px border-transparent text-gray-400 hover:text-gray-900 transition-colors whitespace-nowrap">카드뉴스</Link>
+          <Link href="/info?tab=terms" className="px-4 py-3 text-sm font-semibold border-b-2 -mb-px border-transparent text-gray-400 hover:text-gray-900 transition-colors whitespace-nowrap">약관비교</Link>
         </div>
       </div>
 
