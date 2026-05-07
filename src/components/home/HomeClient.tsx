@@ -260,7 +260,16 @@ export function HomeClient({ vehicles }: Props) {
               </div>
             </div>
             <div className="shrink-0 px-5 pt-3 pb-24 bg-white border-t border-border">
-              <div className="max-w-2xl mx-auto">
+              <div className="max-w-2xl mx-auto flex flex-col gap-2">
+                {selectedVehicle && (
+                  <Link
+                    href={`/cars/${selectedVehicle.slug}`}
+                    className="block w-full py-3 text-base font-semibold text-center text-primary border border-primary rounded-xl hover:bg-primary/5 transition-colors"
+                    onClick={closeSheet}
+                  >
+                    상세 정보 보기
+                  </Link>
+                )}
                 <button
                   onClick={closeSheet}
                   className="w-full py-4 bg-primary text-white rounded-xl font-semibold"
@@ -283,7 +292,16 @@ export function HomeClient({ vehicles }: Props) {
               </div>
             </div>
             <div className="shrink-0 px-5 pt-3 pb-24 bg-white border-t border-border">
-              <div className="max-w-2xl mx-auto">
+              <div className="max-w-2xl mx-auto flex flex-col gap-2">
+                {selectedVehicle && (
+                  <Link
+                    href={`/cars/${selectedVehicle.slug}`}
+                    className="block w-full py-3 text-base font-semibold text-center text-primary border border-primary rounded-xl hover:bg-primary/5 transition-colors"
+                    onClick={closeSheet}
+                  >
+                    상세 정보 보기
+                  </Link>
+                )}
                 <button
                   onClick={closeSheet}
                   className="w-full py-4 bg-primary text-white rounded-xl font-semibold"
