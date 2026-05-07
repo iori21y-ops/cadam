@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { YoutubeModal, extractYouTubeId } from '@/components/ui/YoutubeModal';
 import { getVehicleBySlug } from '@/constants/vehicles';
 
@@ -23,10 +23,21 @@ function getDisplayType(article: Article): 'blog' | 'youtube' | 'shorts' {
   return 'blog';
 }
 
-function ClipsHorizontal({ articles, onCardClick }: {
+function ClipsHorizontal({ articles, onCardClick, onActiveChange }: {
   articles: Article[];
   onCardClick: (article: Article) => void;
+  onActiveChange?: (index: number) => void;
 }) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const handleScroll = () => {
+    const el = scrollRef.current;
+    if (!el || !onActiveChange) return;
+    const cardWidth = window.innerWidth * 0.9;
+    const index = Math.round(el.scrollLeft / (cardWidth + 12));
+    onActiveChange(Math.max(0, Math.min(index, articles.length - 1)));
+  };
+
   if (articles.length === 0) {
     return (
       <div className="flex-1 flex items-center justify-center px-5">
@@ -39,6 +50,8 @@ function ClipsHorizontal({ articles, onCardClick }: {
   return (
     <div className="flex-1 min-h-0">
       <div
+        ref={scrollRef}
+        onScroll={handleScroll}
         className="flex gap-3 overflow-x-auto snap-x snap-mandatory px-5 scroll-pl-5 pt-5 pb-8 scrollbar-hide"
         style={{ WebkitOverflowScrolling: 'touch' }}
       >
@@ -91,6 +104,7 @@ export function InfoClips({ initialArticles, prices = {} }: {
 }) {
   const [articles, setArticles] = useState<Article[]>(initialArticles ?? []);
   const [loading, setLoading] = useState(!initialArticles);
+  const [activeIndex, setActiveIndex] = useState(0);
   const [selectedClip, setSelectedClip] = useState<Article | null>(null);
   const [iframeSrc, setIframeSrc] = useState('');
 
@@ -155,15 +169,17 @@ export function InfoClips({ initialArticles, prices = {} }: {
           <span className="px-4 py-3 text-sm font-semibold border-b-2 -mb-px border-gray-900 text-gray-900 whitespace-nowrap">
             클립
           </span>
-          <Link href="/info" className="px-4 py-3 text-sm font-semibold border-b-2 -mb-px border-transparent text-gray-400 hover:text-gray-900 transition-colors whitespace-nowrap">
+          <Link href="/info?tab=card-news" className="px-4 py-3 text-sm font-semibold border-b-2 -mb-px border-transparent text-gray-400 hover:text-gray-900 transition-colors whitespace-nowrap">
             카드뉴스
           </Link>
         </div>
       </div>
 
-      {/* 타이틀 */}
+      {/* 타이틀 — 현재 보이는 카드 제목 */}
       <div className="max-w-lg mx-auto w-full px-5 pt-6 pb-2">
-        <h1 className="text-xl font-bold text-gray-900">렌테일러 클립</h1>
+        <h1 className="text-xl font-bold text-gray-900 line-clamp-2 leading-snug">
+          {filteredClips[activeIndex]?.title ?? '렌테일러 클립'}
+        </h1>
       </div>
 
       {/* 콘텐츠 — 가로 스크롤 카드 */}
@@ -172,7 +188,7 @@ export function InfoClips({ initialArticles, prices = {} }: {
           <div className="w-8 h-8 border-2 border-gray-900 border-t-transparent rounded-full animate-spin" />
         </div>
       ) : (
-        <ClipsHorizontal articles={filteredClips} onCardClick={handleCardClick} />
+        <ClipsHorizontal articles={filteredClips} onCardClick={handleCardClick} onActiveChange={setActiveIndex} />
       )}
 
       {selectedClip && (

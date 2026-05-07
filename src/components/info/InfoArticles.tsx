@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 
 interface Article {
   id: string;
@@ -29,11 +29,22 @@ function CardLink({ href, className, children }: { href: string; className: stri
   return <a href={href} target="_blank" rel="noopener noreferrer" className={className}>{children}</a>;
 }
 
-function HorizontalScroll({ articles, emptyMessage = '콘텐츠가 없습니다', titleMode = 'overlay' }: {
+function HorizontalScroll({ articles, emptyMessage = '콘텐츠가 없습니다', titleMode = 'overlay', onActiveChange }: {
   articles: Article[];
   emptyMessage?: string;
   titleMode?: 'overlay' | 'below' | 'none';
+  onActiveChange?: (index: number) => void;
 }) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const handleScroll = () => {
+    const el = scrollRef.current;
+    if (!el || !onActiveChange) return;
+    const cardWidth = window.innerWidth * 0.9;
+    const index = Math.round(el.scrollLeft / (cardWidth + 12));
+    onActiveChange(Math.max(0, Math.min(index, articles.length - 1)));
+  };
+
   if (articles.length === 0) {
     return (
       <div className="flex-1 flex items-center justify-center px-5">
@@ -46,6 +57,8 @@ function HorizontalScroll({ articles, emptyMessage = '콘텐츠가 없습니다'
   return (
     <div className="flex-1 min-h-0">
       <div
+        ref={scrollRef}
+        onScroll={handleScroll}
         className="flex gap-3 overflow-x-auto snap-x snap-mandatory px-5 scroll-pl-5 pt-5 pb-8 scrollbar-hide"
         style={{ WebkitOverflowScrolling: 'touch' }}
       >
@@ -115,6 +128,18 @@ export function InfoArticles({ initialArticles }: {
   const [articles, setArticles] = useState<Article[]>(initialArticles ?? []);
   const [loading, setLoading] = useState(!initialArticles);
   const [section, setSection] = useState<Section>('article');
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  // URL ?tab=card-news 파라미터로 초기 섹션 설정 (클립 탭에서 넘어올 때)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('tab') === 'card-news') setSection('card-news');
+  }, []);
+
+  // 탭 전환 시 활성 카드 인덱스 초기화
+  useEffect(() => {
+    setActiveIndex(0);
+  }, [section]);
 
   useEffect(() => {
     if (initialArticles) return;
@@ -131,6 +156,8 @@ export function InfoArticles({ initialArticles }: {
     }
     return articles.filter((a) => getDisplayType(a) === 'blog' && a.category !== 'card-news');
   }, [articles, section]);
+
+  const activeTitle = filteredArticles[activeIndex]?.title;
 
   return (
     <div className="min-h-[100dvh] flex flex-col bg-white pb-24">
@@ -164,10 +191,10 @@ export function InfoArticles({ initialArticles }: {
         </div>
       </div>
 
-      {/* 타이틀 */}
+      {/* 타이틀 — 현재 보이는 카드 제목 */}
       <div className="max-w-lg mx-auto w-full px-5 pt-6 pb-2">
-        <h1 className="text-xl font-bold text-gray-900">
-          {section === 'card-news' ? '렌테일러 카드뉴스' : '렌테일러 아티클'}
+        <h1 className="text-xl font-bold text-gray-900 line-clamp-2 leading-snug">
+          {activeTitle ?? (section === 'card-news' ? '렌테일러 카드뉴스' : '렌테일러 아티클')}
         </h1>
       </div>
 
@@ -181,6 +208,7 @@ export function InfoArticles({ initialArticles }: {
           articles={filteredArticles}
           emptyMessage={section === 'card-news' ? '카드뉴스가 없습니다' : '아티클이 없습니다'}
           titleMode={section === 'card-news' ? 'none' : 'overlay'}
+          onActiveChange={setActiveIndex}
         />
       )}
     </div>
