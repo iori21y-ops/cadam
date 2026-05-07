@@ -1,8 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { memo, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { YoutubeModal, extractYouTubeId } from '@/components/ui/YoutubeModal';
 import { getVehicleBySlug } from '@/constants/vehicles';
 
@@ -38,56 +37,71 @@ function CategoryPill({ active, onClick, children }: { active: boolean; onClick:
   );
 }
 
-const ClipCard = memo(function ClipCard({ article, onClick }: { article: Article; onClick: () => void }) {
-  return (
-    <button
-      onClick={onClick}
-      className="block group text-left w-full"
-    >
-      <div className="relative aspect-[9/14] rounded-2xl overflow-hidden bg-gray-100">
-        {article.thumbnailUrl ? (
-          <img
-            src={article.thumbnailUrl}
-            alt={article.title}
-            loading="lazy"
-            className="w-full h-full object-cover"
-            onError={(e) => {
-              const el = e.currentTarget;
-              if (el.src.includes('maxresdefault')) el.src = el.src.replace('maxresdefault', 'hqdefault');
-            }}
-          />
-        ) : (
-          <div className="w-full h-full" style={{
-            background: 'linear-gradient(135deg, #FF3B30 0%, #FF9500 100%)',
-          }} />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-        <div className="absolute inset-0 flex items-center justify-center opacity-80 group-hover:opacity-100 transition-opacity">
-          <div className="w-12 h-12 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z" /></svg>
-          </div>
-        </div>
-        <div className="absolute bottom-0 left-0 right-0 p-3">
-          <p className="text-white text-[13px] font-bold leading-snug line-clamp-2 drop-shadow">
-            {article.title}
-          </p>
+function ClipsHorizontal({ articles, onCardClick }: {
+  articles: Article[];
+  onCardClick: (article: Article) => void;
+}) {
+  if (articles.length === 0) {
+    return (
+      <div className="flex-1 flex items-center justify-center px-5">
+        <div className="text-center py-16">
+          <p className="text-gray-500">클립이 없습니다</p>
+          <p className="text-gray-400 text-sm mt-1">다른 카테고리를 선택해보세요</p>
         </div>
       </div>
-      {article.excerpt && (
-        <p className="text-gray-600 text-[12px] leading-relaxed line-clamp-2 mt-2 px-0.5">
-          {article.excerpt}
-        </p>
-      )}
-    </button>
+    );
+  }
+  return (
+    <div className="flex-1 min-h-0">
+      <div
+        className="flex gap-3 overflow-x-auto snap-x snap-mandatory px-5 scroll-pl-5 pt-5 pb-8 scrollbar-hide"
+        style={{ WebkitOverflowScrolling: 'touch' }}
+      >
+        {articles.map((article) => (
+          <button
+            key={article.id}
+            onClick={() => onCardClick(article)}
+            className="snap-start shrink-0 w-[90vw] flex flex-col text-left"
+          >
+            <div className="relative aspect-square rounded-2xl overflow-hidden bg-gray-100 shadow-md">
+              {article.thumbnailUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={article.thumbnailUrl}
+                  alt={article.title}
+                  loading="lazy"
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    const el = e.currentTarget;
+                    if (el.src.includes('maxresdefault')) el.src = el.src.replace('maxresdefault', 'hqdefault');
+                  }}
+                />
+              ) : (
+                <div className="w-full h-full" style={{ background: 'linear-gradient(135deg, #FF3B30 0%, #FF9500 100%)' }} />
+              )}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-16 h-16 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z" /></svg>
+                </div>
+              </div>
+            </div>
+            <p className="mt-3 text-sm font-semibold text-gray-900 line-clamp-2 leading-snug">
+              {article.title}
+            </p>
+          </button>
+        ))}
+        <div className="shrink-0 w-1" />
+      </div>
+    </div>
   );
-});
+}
 
 export function InfoClips({ initialArticles, categories = [], prices = {} }: {
   initialArticles?: Article[];
   categories?: { value: string; label: string }[];
   prices?: Record<string, number>;
 }) {
-  const pathname = usePathname();
   const [articles, setArticles] = useState<Article[]>(initialArticles ?? []);
   const [loading, setLoading] = useState(!initialArticles);
   const [selectedKeyword, setSelectedKeyword] = useState('all');
@@ -138,52 +152,40 @@ export function InfoClips({ initialArticles, categories = [], prices = {} }: {
 
   return (
     <div className="min-h-[100dvh] flex flex-col bg-white pb-24">
-      {/* 이용정보 ↔ 약관 비교 탭 */}
+      {/* 이용정보 | 약관 비교 — 이 컴포넌트는 /info/clips에서만 렌더됨, usePathname 불필요 */}
       <div className="shrink-0 border-b border-gray-200 bg-white">
         <div className="flex max-w-lg mx-auto px-5">
-          {[
-            { href: '/info',                  label: '이용정보' },
-            { href: '/info/terms-comparison',  label: '약관 비교' },
-          ].map((t) => {
-            const isActive = t.href === '/info'
-              ? pathname?.startsWith('/info') && !pathname?.startsWith('/info/terms')
-              : pathname === t.href;
-            return (
-              <Link key={t.href} href={t.href} className={[
-                'px-4 py-3 text-sm font-semibold border-b-2 -mb-px transition-colors whitespace-nowrap',
-                isActive ? 'border-gray-900 text-gray-900' : 'border-transparent text-gray-400 hover:text-gray-900',
-              ].join(' ')}>
-                {t.label}
-              </Link>
-            );
-          })}
+          <Link href="/info" className="px-4 py-3 text-sm font-semibold border-b-2 -mb-px border-gray-900 text-gray-900 whitespace-nowrap">
+            이용정보
+          </Link>
+          <Link href="/info/terms-comparison" className="px-4 py-3 text-sm font-semibold border-b-2 -mb-px border-transparent text-gray-400 hover:text-gray-900 transition-colors whitespace-nowrap">
+            약관 비교
+          </Link>
         </div>
       </div>
 
-      {/* 아티클 ↔ 클립 탭 */}
+      {/* 아티클 | 클립 | 카드뉴스 */}
       <div className="shrink-0 border-b border-gray-200 bg-white">
         <div className="flex max-w-lg mx-auto px-5">
-          {[
-            { href: '/info',        label: '아티클' },
-            { href: '/info/clips',  label: '클립' },
-          ].map((t) => (
-            <Link key={t.href} href={t.href} className={[
-              'px-4 py-3 text-sm font-semibold border-b-2 -mb-px transition-colors whitespace-nowrap',
-              pathname === t.href ? 'border-gray-900 text-gray-900' : 'border-transparent text-gray-400 hover:text-gray-900',
-            ].join(' ')}>
-              {t.label}
-            </Link>
-          ))}
+          <Link href="/info" className="px-4 py-3 text-sm font-semibold border-b-2 -mb-px border-transparent text-gray-400 hover:text-gray-900 transition-colors whitespace-nowrap">
+            아티클
+          </Link>
+          <span className="px-4 py-3 text-sm font-semibold border-b-2 -mb-px border-gray-900 text-gray-900 whitespace-nowrap">
+            클립
+          </span>
+          <Link href="/info" className="px-4 py-3 text-sm font-semibold border-b-2 -mb-px border-transparent text-gray-400 hover:text-gray-900 transition-colors whitespace-nowrap">
+            카드뉴스
+          </Link>
         </div>
       </div>
 
       {/* 타이틀 */}
       <div className="max-w-lg mx-auto w-full px-5 pt-6 pb-2">
-        <h1 className="text-xl font-bold text-gray-900">클립</h1>
+        <h1 className="text-xl font-bold text-gray-900">렌테일러 클립</h1>
       </div>
 
       {/* 카테고리 필터 */}
-      <div className="shrink-0 w-full max-w-lg mx-auto px-5 pt-3 pb-4">
+      <div className="shrink-0 w-full max-w-lg mx-auto px-5 pt-3 pb-3">
         <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
           {categoryFilters.map((f) => (
             <CategoryPill key={f.value} active={selectedKeyword === f.value} onClick={() => setSelectedKeyword(f.value)}>
@@ -192,26 +194,15 @@ export function InfoClips({ initialArticles, categories = [], prices = {} }: {
           ))}
         </div>
       </div>
+      <div className="max-w-lg mx-auto w-full"><div className="h-px bg-gray-100" /></div>
 
+      {/* 콘텐츠 — 가로 스크롤 카드 */}
       {loading ? (
         <div className="flex-1 flex items-center justify-center">
           <div className="w-8 h-8 border-2 border-gray-900 border-t-transparent rounded-full animate-spin" />
         </div>
-      ) : filteredClips.length === 0 ? (
-        <div className="flex-1 flex items-center justify-center px-5">
-          <div className="w-full max-w-lg text-center py-16">
-            <p className="text-gray-500">클립이 없습니다</p>
-            <p className="text-gray-400 text-sm mt-1">다른 카테고리를 선택해보세요</p>
-          </div>
-        </div>
       ) : (
-        <div className="flex-1 overflow-y-auto max-w-lg mx-auto w-full px-5 pt-2">
-          <div className="grid grid-cols-2 gap-3">
-            {filteredClips.map((article) => (
-              <ClipCard key={article.id} article={article} onClick={() => handleCardClick(article)} />
-            ))}
-          </div>
-        </div>
+        <ClipsHorizontal articles={filteredClips} onCardClick={handleCardClick} />
       )}
 
       {selectedClip && (

@@ -1,8 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { memo, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 
 interface Article {
   id: string;
@@ -30,12 +29,16 @@ function CardLink({ href, className, children }: { href: string; className: stri
   return <a href={href} target="_blank" rel="noopener noreferrer" className={className}>{children}</a>;
 }
 
-function CardNewsHorizontal({ articles }: { articles: Article[] }) {
+function HorizontalScroll({ articles, emptyMessage = '콘텐츠가 없습니다' }: {
+  articles: Article[];
+  emptyMessage?: string;
+}) {
   if (articles.length === 0) {
     return (
       <div className="flex-1 flex items-center justify-center px-5">
         <div className="text-center py-16">
-          <p className="text-gray-500">카드뉴스가 없습니다</p>
+          <p className="text-gray-500">{emptyMessage}</p>
+          <p className="text-gray-400 text-sm mt-1">다른 카테고리를 선택해보세요</p>
         </div>
       </div>
     );
@@ -82,41 +85,6 @@ function CardNewsHorizontal({ articles }: { articles: Article[] }) {
   );
 }
 
-const ArticleListItem = memo(function ArticleListItem({ article }: { article: Article }) {
-  return (
-    <CardLink href={article.linkUrl} className="flex items-start gap-4 px-5 py-4 bg-white hover:bg-gray-50 transition-colors">
-      <div className="flex-1 min-w-0 flex flex-col justify-center">
-        <h3 className="text-[15px] font-bold text-gray-900 leading-snug line-clamp-2">
-          {article.title}
-        </h3>
-        {article.excerpt && (
-          <p className="text-[13px] text-gray-500 leading-relaxed line-clamp-2 mt-1.5">
-            {article.excerpt}
-          </p>
-        )}
-      </div>
-      <div className="shrink-0 w-[100px] h-[100px] rounded-2xl overflow-hidden bg-gray-100">
-        {article.thumbnailUrl ? (
-          <img
-            src={article.thumbnailUrl}
-            alt={article.title}
-            loading="lazy"
-            className="w-full h-full object-cover"
-            onError={(e) => {
-              const el = e.currentTarget;
-              if (el.src.includes('maxresdefault')) el.src = el.src.replace('maxresdefault', 'hqdefault');
-            }}
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <span className="text-gray-400 text-xs">RENTAILOR</span>
-          </div>
-        )}
-      </div>
-    </CardLink>
-  );
-});
-
 function CategoryPill({ active, onClick, children }: { active: boolean; onClick: () => void; children: ReactNode }) {
   return (
     <button
@@ -149,7 +117,6 @@ export function InfoArticles({ initialArticles, categories = [] }: {
   initialArticles?: Article[];
   categories?: { value: string; label: string }[];
 }) {
-  const pathname = usePathname();
   const [articles, setArticles] = useState<Article[]>(initialArticles ?? []);
   const [loading, setLoading] = useState(!initialArticles);
   const [section, setSection] = useState<Section>('article');
@@ -174,7 +141,7 @@ export function InfoArticles({ initialArticles, categories = [] }: {
     if (section === 'card-news') {
       return articles.filter((a) => getDisplayType(a) === 'blog' && a.category === 'card-news');
     }
-    // 아티클 탭: 카드뉴스 제외
+    // 아티클 탭: blog 타입만, 카드뉴스 제외
     let result = articles.filter((a) => getDisplayType(a) === 'blog' && a.category !== 'card-news');
     if (selectedKeyword !== 'all') result = result.filter((a) => a.category === selectedKeyword);
     return result;
@@ -182,24 +149,19 @@ export function InfoArticles({ initialArticles, categories = [] }: {
 
   return (
     <div className="min-h-[100dvh] flex flex-col bg-white pb-24">
-      {/* 이용정보 ↔ 약관 비교 탭 */}
+      {/* 이용정보 | 약관 비교 — 이 컴포넌트는 /info에서만 렌더됨, usePathname 불필요 */}
       <div className="shrink-0 border-b border-gray-200 bg-white">
         <div className="flex max-w-lg mx-auto px-5">
-          {[
-            { href: '/info', label: '이용정보' },
-            { href: '/info/terms-comparison', label: '약관 비교' },
-          ].map((t) => (
-            <Link key={t.href} href={t.href} className={[
-              'px-4 py-3 text-sm font-semibold border-b-2 -mb-px transition-colors whitespace-nowrap',
-              pathname === t.href ? 'border-gray-900 text-gray-900' : 'border-transparent text-gray-400 hover:text-gray-900',
-            ].join(' ')}>
-              {t.label}
-            </Link>
-          ))}
+          <Link href="/info" className="px-4 py-3 text-sm font-semibold border-b-2 -mb-px border-gray-900 text-gray-900 whitespace-nowrap">
+            이용정보
+          </Link>
+          <Link href="/info/terms-comparison" className="px-4 py-3 text-sm font-semibold border-b-2 -mb-px border-transparent text-gray-400 hover:text-gray-900 transition-colors whitespace-nowrap">
+            약관 비교
+          </Link>
         </div>
       </div>
 
-      {/* 아티클 | 클립 | 카드뉴스 탭 */}
+      {/* 아티클 | 클립 | 카드뉴스 */}
       <div className="shrink-0 border-b border-gray-200 bg-white">
         <div className="flex max-w-lg mx-auto px-5">
           <ContentTab active={section === 'article'} onClick={() => setSection('article')}>
@@ -224,7 +186,7 @@ export function InfoArticles({ initialArticles, categories = [] }: {
         </h1>
       </div>
 
-      {/* 카테고리 필터 — 아티클 탭에서만 표시 */}
+      {/* 카테고리 필터 — 아티클 탭에서만 */}
       {section === 'article' && (
         <>
           <div className="shrink-0 w-full max-w-lg mx-auto px-5 pt-3 pb-3">
@@ -240,28 +202,16 @@ export function InfoArticles({ initialArticles, categories = [] }: {
         </>
       )}
 
-      {/* 콘텐츠 */}
+      {/* 콘텐츠 — 모든 섹션 가로 스크롤 카드 */}
       {loading ? (
         <div className="flex-1 flex items-center justify-center">
           <div className="w-8 h-8 border-2 border-gray-900 border-t-transparent rounded-full animate-spin" />
         </div>
-      ) : section === 'card-news' ? (
-        <CardNewsHorizontal articles={filteredArticles} />
-      ) : filteredArticles.length === 0 ? (
-        <div className="flex-1 flex items-center justify-center px-5">
-          <div className="w-full max-w-lg text-center py-16">
-            <p className="text-gray-500">아티클이 없습니다</p>
-            <p className="text-gray-400 text-sm mt-1">다른 카테고리를 선택해보세요</p>
-          </div>
-        </div>
       ) : (
-        <div className="flex-1 overflow-y-auto max-w-lg mx-auto w-full">
-          <div className="divide-y divide-gray-100">
-            {filteredArticles.map((article) => (
-              <ArticleListItem key={article.id} article={article} />
-            ))}
-          </div>
-        </div>
+        <HorizontalScroll
+          articles={filteredArticles}
+          emptyMessage={section === 'card-news' ? '카드뉴스가 없습니다' : '아티클이 없습니다'}
+        />
       )}
     </div>
   );
