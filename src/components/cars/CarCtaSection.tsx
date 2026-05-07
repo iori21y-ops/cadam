@@ -1,11 +1,12 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import { useQuoteStore } from '@/store/quoteStore';
 import { gtag } from '@/lib/gtag';
 import type { Vehicle } from '@/constants/vehicles';
 import { Phone, MessageCircle, BarChart2 } from 'lucide-react';
+import { ConsultationSheet } from '@/components/ui/ConsultationSheet';
 
 interface CarCtaSectionProps {
   vehicle: Vehicle;
@@ -15,7 +16,7 @@ const KAKAO_URL = process.env.NEXT_PUBLIC_KAKAO_CHANNEL_URL ?? '#';
 const PHONE = process.env.NEXT_PUBLIC_PHONE_NUMBER ?? '02-0000-0000';
 
 export function CarCtaSection({ vehicle }: CarCtaSectionProps) {
-  const router = useRouter();
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
   const setSelectionPath = useQuoteStore((s) => s.setSelectionPath);
   const setCarBrand = useQuoteStore((s) => s.setCarBrand);
   const setCarModel = useQuoteStore((s) => s.setCarModel);
@@ -29,13 +30,14 @@ export function CarCtaSection({ vehicle }: CarCtaSectionProps) {
     setCarModel(vehicle.model);
     setTrim(vehicle.trims[0] ?? null);
     setCurrentStep(3);
-    router.push('/quote');
+    setIsSheetOpen(true);
   };
 
   const telHref = `tel:${PHONE.replace(/-/g, '')}`;
 
   return (
     <section className="px-5 py-6">
+      <ConsultationSheet isOpen={isSheetOpen} onClose={() => setIsSheetOpen(false)} />
       <div className="space-y-2.5">
         <button
           type="button"

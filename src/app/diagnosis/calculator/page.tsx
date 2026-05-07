@@ -8,6 +8,7 @@ import { calcMonthly, RATES, RENT_INSURANCE_RATE } from '@/lib/calc-monthly';
 import type { ProductKey } from '@/types/diagnosis';
 import { Button } from '@/components/ui/Button';
 import { SelectCard } from '@/components/ui/SelectCard';
+import { ConsultationSheet } from '@/components/ui/ConsultationSheet';
 
 const FEATURED = ['아반떼', '쏘나타', 'K5', '투싼', '스포티지', '팰리세이드', '카니발', '아이오닉5', 'EV6'];
 const FEATURED_VEHICLES = VEHICLES.filter((v) => FEATURED.includes(v.name));
@@ -31,6 +32,7 @@ export default function CalculatorPage() {
   const [selectedCar, setSelectedCar] = useState(FEATURED_VEHICLES[0]);
   const [months, setMonths] = useState(48);
   const [downPct, setDownPct] = useState(20);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
 
   const results = {
     installment: calcMonthly(selectedCar.price, 'installment', months, downPct),
@@ -41,6 +43,7 @@ export default function CalculatorPage() {
 
   return (
     <div className="min-h-screen bg-white pb-16">
+      <ConsultationSheet isOpen={isSheetOpen} onClose={() => setIsSheetOpen(false)} />
       <div className="px-5 pt-10 max-w-lg mx-auto">
         {/* 헤더 */}
         <div className="mb-6">
@@ -144,7 +147,7 @@ export default function CalculatorPage() {
         <div className="p-5 rounded-2xl bg-accent/10 mb-4">
           <p className="text-sm font-bold text-text mb-1">더 정확한 견적이 필요하신가요?</p>
           <p className="text-xs text-text-sub mb-3">전문 상담사가 실제 조건으로 최저가를 찾아드립니다.</p>
-          <Button variant="primary" fullWidth className="shadow-lg shadow-primary/20 font-bold" onClick={() => router.push('/quote')}>
+          <Button variant="primary" fullWidth className="shadow-lg shadow-primary/20 font-bold" onClick={() => setIsSheetOpen(true)}>
             무료 견적 받기 →
           </Button>
         </div>

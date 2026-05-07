@@ -22,6 +22,7 @@ import { buildShareUrl, copyShareUrl, shareToKakao, nativeShare } from '@/lib/di
 import { Button } from '@/components/ui/Button';
 import { saveMissionStep, loadProgress } from '@/lib/mission-progress';
 import { useQuoteStore } from '@/store/quoteStore';
+import { ConsultationSheet } from '@/components/ui/ConsultationSheet';
 
 const COLOR = '#C9A84C';
 
@@ -125,6 +126,7 @@ function VehResult({ answers, mode, restart, toDetail, onHome, vehicles }: {
 
   const [copied, setCopied] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
   const shareUrl = buildShareUrl('/diagnosis/vehicle', mode, answers);
   const prefillFromDiagnosis = useQuoteStore((s) => s.prefillFromDiagnosis);
 
@@ -134,7 +136,7 @@ function VehResult({ answers, mode, restart, toDetail, onHome, vehicles }: {
 
   const handleQuoteNav = () => {
     prefillFromDiagnosis();
-    router.push('/quote');
+    setIsSheetOpen(true);
   };
 
   const handleCopy = async () => {
@@ -164,6 +166,7 @@ function VehResult({ answers, mode, restart, toDetail, onHome, vehicles }: {
 
   return (
     <div className="min-h-screen bg-white pb-16">
+      <ConsultationSheet isOpen={isSheetOpen} onClose={() => setIsSheetOpen(false)} />
       <div className="px-5 pt-10 max-w-lg mx-auto">
         {/* 모드 배지 + 공유 */}
         <div className="flex items-center justify-between mb-5">

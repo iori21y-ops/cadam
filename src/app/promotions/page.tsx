@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import { Footer } from '@/components/Footer';
-import { ButtonLink } from '@/components/ui/Button';
+import { QuoteButton } from '@/components/ui/QuoteButton';
 import { createServerSupabaseClient } from '@/lib/supabase-server';
 import { BRAND } from '@/constants/brand';
 
@@ -72,9 +72,9 @@ export default async function PromotionsPage() {
           <p className="text-base sm:text-lg text-text-sub mb-6">
             {BRAND.name}에서 진행 중인 특별 혜택을 확인하세요
           </p>
-          <ButtonLink href="/quote" variant="primary" size="lg">
+          <QuoteButton variant="primary" size="lg">
             무료 견적 받기
-          </ButtonLink>
+          </QuoteButton>
         </div>
       </section>
 

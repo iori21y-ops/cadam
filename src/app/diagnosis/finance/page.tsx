@@ -17,6 +17,7 @@ import { Button } from '@/components/ui/Button';
 import { saveMissionStep, loadProgress } from '@/lib/mission-progress';
 import { IconKakao, IconLink, IconCheck, IconTip, IconWarning, IconCarSedan } from '@/components/icons/RentailorIcons';
 import { useQuoteStore } from '@/store/quoteStore';
+import { ConsultationSheet } from '@/components/ui/ConsultationSheet';
 
 const COLOR = '#10B981';
 
@@ -80,6 +81,7 @@ function FinResult({ answers, questions, mode, restart, toDetail, onHome }: {
   ].join('');
 
   const [copied, setCopied] = useState(false);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
   const shareUrl = buildShareUrl('/diagnosis/finance', mode, answers);
   const prefillFromDiagnosis = useQuoteStore((s) => s.prefillFromDiagnosis);
 
@@ -88,7 +90,7 @@ function FinResult({ answers, questions, mode, restart, toDetail, onHome }: {
 
   const handleQuoteNav = () => {
     prefillFromDiagnosis();
-    router.push('/quote');
+    setIsSheetOpen(true);
   };
 
   const handleCopy = async () => {
@@ -120,6 +122,7 @@ function FinResult({ answers, questions, mode, restart, toDetail, onHome }: {
 
   return (
     <div className="min-h-screen bg-white pb-16">
+      <ConsultationSheet isOpen={isSheetOpen} onClose={() => setIsSheetOpen(false)} />
       <div className="px-5 pt-10 max-w-lg mx-auto">
         {/* 모드 배지 + 공유 */}
         <div className="flex items-center justify-between mb-5">

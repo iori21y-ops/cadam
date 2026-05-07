@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import { VEHICLE_LIST } from '@/constants/vehicles';
 import { createServerSupabaseClient } from '@/lib/supabase-server';
-import { ButtonLink } from '@/components/ui/Button';
+import { QuoteButton } from '@/components/ui/QuoteButton';
 import { PopularEstimatesClient } from './PopularEstimatesClient';
 import type { VehicleCard, PricingEntry } from './types';
 
@@ -123,9 +123,9 @@ export default function PopularEstimatesPage() {
         <div className="mt-8 p-5 rounded-2xl bg-white border border-border-solid text-center">
           <p className="text-sm text-text font-semibold mb-1">내 조건에 맞는 차량이 없으신가요?</p>
           <p className="text-xs text-text-sub mb-4">맞춤 견적을 무료로 받아보세요</p>
-          <ButtonLink href="/quote" variant="primary" size="lg" fullWidth>
+          <QuoteButton variant="primary" size="lg" fullWidth>
             무료 견적 받기
-          </ButtonLink>
+          </QuoteButton>
         </div>
       </div>
     </div>

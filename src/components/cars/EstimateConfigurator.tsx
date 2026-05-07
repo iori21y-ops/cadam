@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQuoteStore } from '@/store/quoteStore';
 import { gtag } from '@/lib/gtag';
+import { ConsultationSheet } from '@/components/ui/ConsultationSheet';
 import type { Vehicle } from '@/constants/vehicles';
 import type { PriceRangeRow } from './PriceCompareTable';
 
@@ -51,6 +52,7 @@ export function EstimateConfigurator({
   const [contractMonths, setContractMonths] = useState(48);
   const [annualKm, setAnnualKm] = useState(20000);
   const [product, setProduct] = useState('rent');
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
 
   // 선택한 조건에 맞는 가격 찾기
   const matchedPrice = useMemo(() => {
@@ -68,11 +70,12 @@ export function EstimateConfigurator({
     setCarModel(vehicle.model);
     setTrim(vehicle.trims[0] ?? null);
     setCurrentStep(3);
-    router.push('/quote');
+    setIsSheetOpen(true);
   };
 
   return (
     <section className="mx-5 mt-6 rounded-2xl bg-white border border-accent shadow-sm overflow-hidden">
+      <ConsultationSheet isOpen={isSheetOpen} onClose={() => setIsSheetOpen(false)} />
       {/* 가격 표시 */}
       <div className="px-5 pt-5 pb-4 border-b border-border-solid">
         {hasPrice ? (

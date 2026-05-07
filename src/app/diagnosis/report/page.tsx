@@ -43,6 +43,7 @@ import { calculateComparison }                  from '@/lib/domain/comparison-en
 import type { DiagnosisFormData }               from '@/components/diagnosis/report/DiagnosisForm';
 import { useQuoteStore }                        from '@/store/quoteStore';
 import type { Brand }                           from '@/constants/vehicles';
+import { ConsultationSheet }                    from '@/components/ui/ConsultationSheet';
 
 // recharts SSR 오류 방지 (recharts는 클라이언트 전용)
 const DepreciationChart = dynamic(
@@ -193,6 +194,7 @@ export default function ReportPage() {
   const [evStats, setEvStats]               = useState<EvChargingStats | null>(null);
   const [monthlyFuelMk, setMonthlyFuelMk]   = useState<number | null>(null);
   const [pdfToast, setPdfToast]             = useState(false);
+  const [isSheetOpen, setIsSheetOpen]       = useState(false);
   const resultRef                           = useRef<HTMLDivElement>(null);
 
   const setCarBrand      = useQuoteStore((s) => s.setCarBrand);
@@ -319,7 +321,7 @@ export default function ReportPage() {
 
   function handleQuoteClick() {
     if (!report) {
-      window.location.href = '/quote';
+      setIsSheetOpen(true);
       return;
     }
 
@@ -345,11 +347,12 @@ export default function ReportPage() {
     setTrim(report.formData.trimData.trim_name);
     setReportSummary(parts);
 
-    window.location.href = '/quote';
+    setIsSheetOpen(true);
   }
 
   return (
     <div className="min-h-screen bg-[#F2F2F7] pb-24 diagnosis-print-root">
+      <ConsultationSheet isOpen={isSheetOpen} onClose={() => setIsSheetOpen(false)} />
       {/* PDF 저장 안내 토스트 */}
       {pdfToast && (
         <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 diagnosis-no-print
