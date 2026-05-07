@@ -100,17 +100,7 @@ export default async function BlogPostPage({
   return (
     <article className="min-h-[100dvh] bg-white pb-24">
       <div className="max-w-lg mx-auto px-5 pt-6">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-1 text-sm text-text-sub hover:text-text transition-colors"
-        >
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M10 3l-5 5 5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-          돌아가기
-        </Link>
-
-        <header className="mt-6">
+        <header>
           <h1 className="text-[26px] font-bold leading-tight text-text">{title}</h1>
           {date && (
             <p className="mt-3 text-sm text-text-muted tabular-nums">{date}</p>

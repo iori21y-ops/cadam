@@ -77,11 +77,6 @@ function ClipsHorizontal({ articles, onCardClick, onActiveChange }: {
               ) : (
                 <div className="w-full h-full" style={{ background: 'linear-gradient(135deg, #FF3B30 0%, #FF9500 100%)' }} />
               )}
-              {/* 상단 그라데이션 + 제목 오버레이 */}
-              <div className="absolute inset-x-0 top-0 h-[40%] bg-gradient-to-b from-black/75 to-transparent pointer-events-none" />
-              <p className="absolute inset-x-0 top-0 px-4 pt-4 text-white text-base font-semibold line-clamp-2 leading-snug">
-                {article.title}
-              </p>
               {/* 재생 버튼 */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
               <div className="absolute inset-0 flex items-center justify-center">

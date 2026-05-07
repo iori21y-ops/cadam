@@ -29,10 +29,9 @@ function CardLink({ href, className, children }: { href: string; className: stri
   return <a href={href} target="_blank" rel="noopener noreferrer" className={className}>{children}</a>;
 }
 
-function HorizontalScroll({ articles, emptyMessage = '콘텐츠가 없습니다', titleMode = 'overlay', onActiveChange }: {
+function HorizontalScroll({ articles, emptyMessage = '콘텐츠가 없습니다', onActiveChange }: {
   articles: Article[];
   emptyMessage?: string;
-  titleMode?: 'overlay' | 'below' | 'none';
   onActiveChange?: (index: number) => void;
 }) {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -66,9 +65,9 @@ function HorizontalScroll({ articles, emptyMessage = '콘텐츠가 없습니다'
           <CardLink
             key={article.id}
             href={article.linkUrl}
-            className={titleMode === 'below' ? 'snap-start shrink-0 w-[90vw] flex flex-col' : 'snap-start shrink-0 w-[90vw]'}
+            className="snap-start shrink-0 w-[90vw]"
           >
-            <div className="relative aspect-square rounded-2xl overflow-hidden bg-gray-100 shadow-md">
+            <div className="aspect-square rounded-2xl overflow-hidden bg-gray-100 shadow-md">
               {article.thumbnailUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -86,20 +85,7 @@ function HorizontalScroll({ articles, emptyMessage = '콘텐츠가 없습니다'
                   <span className="text-gray-400 text-sm">RENTAILOR</span>
                 </div>
               )}
-              {titleMode === 'overlay' && (
-                <>
-                  <div className="absolute inset-x-0 top-0 h-[40%] bg-gradient-to-b from-black/75 to-transparent pointer-events-none" />
-                  <p className="absolute inset-x-0 top-0 px-4 pt-4 text-white text-base font-semibold line-clamp-2 leading-snug">
-                    {article.title}
-                  </p>
-                </>
-              )}
             </div>
-            {titleMode === 'below' && (
-              <p className="mt-3 text-lg font-semibold text-gray-900 line-clamp-2 leading-snug">
-                {article.title}
-              </p>
-            )}
           </CardLink>
         ))}
         <div className="shrink-0 w-1" />
@@ -207,7 +193,6 @@ export function InfoArticles({ initialArticles }: {
         <HorizontalScroll
           articles={filteredArticles}
           emptyMessage={section === 'card-news' ? '카드뉴스가 없습니다' : '아티클이 없습니다'}
-          titleMode={section === 'card-news' ? 'none' : 'overlay'}
           onActiveChange={setActiveIndex}
         />
       )}
