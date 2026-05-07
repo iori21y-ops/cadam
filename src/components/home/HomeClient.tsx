@@ -203,9 +203,7 @@ export function HomeClient({ vehicles }: Props) {
                   {vehicle.price ? (
                     <div
                       className="mt-2 flex items-baseline gap-0.5"
-                      style={isMounted ? {
-                        animation: `pricePopIn 0.4s ease-out ${index * 0.08}s both`,
-                      } : undefined}
+                      style={{ animation: `pricePopIn 0.4s ease-out ${index * 0.08}s both` }}
                     >
                       <span className="text-sm font-normal" style={{ color: '#9CA3AF' }}>월</span>
                       <span
@@ -228,7 +226,9 @@ export function HomeClient({ vehicles }: Props) {
 
       <Footer />
 
-      {/* 딤 오버레이 */}
+      {/* 딤 오버레이 + 슬라이드 시트 — 클라이언트 마운트 후에만 렌더링 (hydration 불일치 방지) */}
+      {isMounted && (
+      <>
       <div
         className={`fixed inset-0 bg-black/50 z-40 transition-opacity duration-300 ${
           isSheetOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
@@ -417,6 +417,8 @@ export function HomeClient({ vehicles }: Props) {
           </>
         )}
       </div>
+      </>
+      )}
     </>
   );
 }
