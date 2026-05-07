@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { Footer } from '@/components/Footer';
 import type { Vehicle } from '@/constants/vehicles';
 
@@ -316,6 +317,13 @@ export function HomeClient({ vehicles }: Props) {
                           {formatMinPrice(selectedVehicle.price.min)}
                         </p>
                       )}
+                      <Link
+                        href={`/cars/${selectedVehicle.slug}`}
+                        className="inline-block mt-1.5 text-xs text-text-sub border border-border rounded-md px-2 py-0.5 hover:border-primary hover:text-primary transition-colors"
+                        onClick={closeSheet}
+                      >
+                        상세 정보 보기
+                      </Link>
                     </div>
                     <button onClick={closeSheet} className="text-text-muted text-xl shrink-0">✕</button>
                   </div>
