@@ -300,32 +300,34 @@ export function HomeClient({ vehicles }: Props) {
               <div className="max-w-2xl mx-auto">
                 {/* 선택 차종 표시 */}
                 {selectedVehicle && (
-                  <div className="flex items-center gap-3 py-4 border-b border-border mb-4">
-                    <div className="relative w-20 h-12 shrink-0 bg-surface-secondary rounded-lg">
-                      <Image
-                        src={`/cars/${selectedVehicle.imageKey}.webp`}
-                        alt={selectedVehicle.model}
-                        fill
-                        className="object-contain p-1"
-                      />
+                  <div className="py-4 border-b border-border mb-4">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="relative w-20 h-12 shrink-0 bg-surface-secondary rounded-lg">
+                        <Image
+                          src={`/cars/${selectedVehicle.imageKey}.webp`}
+                          alt={selectedVehicle.model}
+                          fill
+                          className="object-contain p-1"
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs text-text-muted">{selectedVehicle.brand}</p>
+                        <p className="font-semibold text-text leading-tight">{selectedVehicle.model}</p>
+                        {selectedVehicle.price && (
+                          <p className="text-xs text-accent font-medium mt-0.5">
+                            {formatMinPrice(selectedVehicle.price.min)}
+                          </p>
+                        )}
+                      </div>
+                      <button onClick={closeSheet} className="text-text-muted text-xl shrink-0">✕</button>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs text-text-muted">{selectedVehicle.brand}</p>
-                      <p className="font-semibold text-text leading-tight">{selectedVehicle.model}</p>
-                      {selectedVehicle.price && (
-                        <p className="text-xs text-accent font-medium mt-0.5">
-                          {formatMinPrice(selectedVehicle.price.min)}
-                        </p>
-                      )}
-                      <Link
-                        href={`/cars/${selectedVehicle.slug}`}
-                        className="inline-block mt-1.5 text-xs text-text-sub border border-border rounded-md px-2 py-0.5 hover:border-primary hover:text-primary transition-colors"
-                        onClick={closeSheet}
-                      >
-                        상세 정보 보기
-                      </Link>
-                    </div>
-                    <button onClick={closeSheet} className="text-text-muted text-xl shrink-0">✕</button>
+                    <Link
+                      href={`/cars/${selectedVehicle.slug}`}
+                      className="block w-full py-3 text-base font-semibold text-center text-primary border border-primary rounded-xl hover:bg-primary/5 transition-colors"
+                      onClick={closeSheet}
+                    >
+                      상세 정보 보기
+                    </Link>
                   </div>
                 )}
 
