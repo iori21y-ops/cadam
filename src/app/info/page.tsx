@@ -4,18 +4,6 @@ import { fetchWpPosts, type InfoArticleShape } from '@/lib/wp-client';
 
 export const revalidate = 60;
 
-async function getCategories(): Promise<{ value: string; label: string }[]> {
-  try {
-    const supabase = await createServerSupabaseClient();
-    const { data } = await supabase
-      .from('info_categories')
-      .select('value, label')
-      .order('display_order', { ascending: true });
-    return (data ?? []) as { value: string; label: string }[];
-  } catch {
-    return [];
-  }
-}
 
 async function getArticles(): Promise<InfoArticleShape[]> {
   try {
@@ -72,10 +60,9 @@ function mergeArticles(supabaseArticles: InfoArticleShape[], wpArticles: InfoArt
 }
 
 export default async function InfoPage() {
-  const [articles, categories, wpArticles] = await Promise.all([
+  const [articles, wpArticles] = await Promise.all([
     getArticles(),
-    getCategories(),
     fetchWpPosts(),
   ]);
-  return <InfoArticles initialArticles={mergeArticles(articles, wpArticles)} categories={categories} />;
+  return <InfoArticles initialArticles={mergeArticles(articles, wpArticles)} />;
 }
