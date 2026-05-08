@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
 import { useQuoteStore } from '@/store/quoteStore';
 import { gtag } from '@/lib/gtag';
 import { ConsultationSheet } from '@/components/ui/ConsultationSheet';
@@ -32,6 +31,18 @@ const PRODUCT_OPTIONS = [
   { label: '리스', sub: '보험 미포함 · 일반 번호판', value: 'lease' },
 ];
 
+const DEPOSIT_OPTIONS = [
+  { label: '10%', value: 10 },
+  { label: '20%', value: 20 },
+  { label: '30%', value: 30 },
+];
+
+// 직접 선택 가능한 기본 조건
+const DEFAULT_CONTRACT = 60;
+const DEFAULT_KM = 10000;
+const DEFAULT_PRODUCT = 'rent';
+const DEFAULT_DEPOSIT = 30;
+
 function formatPrice(value: number): string {
   return Math.round(value).toLocaleString();
 }
@@ -42,19 +53,20 @@ export function EstimateConfigurator({
   minCarPrice,
   maxCarPrice,
 }: EstimateConfiguratorProps) {
-  const router = useRouter();
   const setSelectionPath = useQuoteStore((s) => s.setSelectionPath);
   const setCarBrand = useQuoteStore((s) => s.setCarBrand);
   const setCarModel = useQuoteStore((s) => s.setCarModel);
   const setTrim = useQuoteStore((s) => s.setTrim);
   const setCurrentStep = useQuoteStore((s) => s.setCurrentStep);
 
-  const [contractMonths, setContractMonths] = useState(48);
-  const [annualKm, setAnnualKm] = useState(20000);
-  const [product, setProduct] = useState('rent');
+  const [contractMonths, setContractMonths] = useState(DEFAULT_CONTRACT);
+  const [annualKm, setAnnualKm] = useState(DEFAULT_KM);
+  const [product, setProduct] = useState(DEFAULT_PRODUCT);
+  const [depositRatio, setDepositRatio] = useState(DEFAULT_DEPOSIT);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
+  // 맞춤 조건 안내 모달: 선택 조건 텍스트 저장, null이면 닫힘
+  const [consultCondition, setConsultCondition] = useState<string | null>(null);
 
-  // 선택한 조건에 맞는 가격 찾기
   const matchedPrice = useMemo(() => {
     return priceRanges.find(
       (r) => r.contract_months === contractMonths && r.annual_km === annualKm
@@ -73,9 +85,67 @@ export function EstimateConfigurator({
     setIsSheetOpen(true);
   };
 
+  // 비기본 조건 클릭 시 상담 모달 표시
+  const handleNonDefault = (conditionLabel: string) => {
+    setConsultCondition(conditionLabel);
+  };
+
+  const openSheetFromConsult = () => {
+    setConsultCondition(null);
+    setSelectionPath('car');
+    setCarBrand(vehicle.brand);
+    setCarModel(vehicle.model);
+    setTrim(vehicle.trims[0] ?? null);
+    setCurrentStep(3);
+    setIsSheetOpen(true);
+  };
+
+  const btnClass = (active: boolean) =>
+    `py-2.5 rounded-xl text-sm font-medium border transition-all ${
+      active
+        ? 'border-accent bg-accent/10 text-accent'
+        : 'border-border-solid bg-white text-text hover:border-text-sub'
+    }`;
+
   return (
     <section className="mx-5 mt-6 rounded-2xl bg-white border border-accent shadow-sm overflow-hidden">
       <ConsultationSheet isOpen={isSheetOpen} onClose={() => setIsSheetOpen(false)} />
+
+      {/* 맞춤 조건 안내 모달 */}
+      {consultCondition !== null && (
+        <div
+          className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-5"
+          onClick={() => setConsultCondition(null)}
+        >
+          <div
+            className="bg-white rounded-2xl w-full max-w-sm p-6 shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <p className="text-base font-bold text-text mb-2">맞춤 조건 상담</p>
+            <p className="text-sm text-text-sub leading-relaxed mb-4">
+              선택하신 조건은 맞춤 상담을 통해 정확한 견적을 받으실 수 있습니다.
+            </p>
+            <div className="bg-accent/10 rounded-xl px-4 py-2.5 mb-5">
+              <p className="text-sm font-semibold text-accent">{consultCondition}</p>
+            </div>
+            <button
+              type="button"
+              onClick={openSheetFromConsult}
+              className="w-full py-3 rounded-xl bg-primary text-white font-bold text-sm hover:bg-primary/90 transition-colors mb-2"
+            >
+              상담 신청하기
+            </button>
+            <button
+              type="button"
+              onClick={() => setConsultCondition(null)}
+              className="w-full py-2.5 rounded-xl bg-gray-100 text-sm text-text hover:bg-gray-200 transition-colors"
+            >
+              닫기
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* 가격 표시 */}
       <div className="px-5 pt-5 pb-4 border-b border-border-solid">
         {hasPrice ? (
@@ -119,12 +189,14 @@ export function EstimateConfigurator({
               <button
                 key={opt.value}
                 type="button"
-                onClick={() => setContractMonths(opt.value)}
-                className={`py-2.5 rounded-xl text-sm font-medium border transition-all ${
-                  contractMonths === opt.value
-                    ? 'border-accent bg-accent/10 text-accent'
-                    : 'border-border-solid bg-white text-text hover:border-text-sub'
-                }`}
+                onClick={() => {
+                  if (opt.value === DEFAULT_CONTRACT) {
+                    setContractMonths(opt.value);
+                  } else {
+                    handleNonDefault(`계약기간 ${opt.label}`);
+                  }
+                }}
+                className={btnClass(contractMonths === opt.value)}
               >
                 {opt.label}
               </button>
@@ -140,12 +212,14 @@ export function EstimateConfigurator({
               <button
                 key={opt.value}
                 type="button"
-                onClick={() => setAnnualKm(opt.value)}
-                className={`py-2.5 rounded-xl text-sm font-medium border transition-all ${
-                  annualKm === opt.value
-                    ? 'border-accent bg-accent/10 text-accent'
-                    : 'border-border-solid bg-white text-text hover:border-text-sub'
-                }`}
+                onClick={() => {
+                  if (opt.value === DEFAULT_KM) {
+                    setAnnualKm(opt.value);
+                  } else {
+                    handleNonDefault(`연 주행거리 ${opt.label}km`);
+                  }
+                }}
+                className={btnClass(annualKm === opt.value)}
               >
                 {opt.label}km
               </button>
@@ -161,7 +235,13 @@ export function EstimateConfigurator({
               <button
                 key={opt.value}
                 type="button"
-                onClick={() => setProduct(opt.value)}
+                onClick={() => {
+                  if (opt.value === DEFAULT_PRODUCT) {
+                    setProduct(opt.value);
+                  } else {
+                    handleNonDefault(`이용 상품 ${opt.label}`);
+                  }
+                }}
                 className={`py-3 px-3 rounded-xl border text-center transition-all ${
                   product === opt.value
                     ? 'border-accent bg-accent/10'
@@ -178,6 +258,29 @@ export function EstimateConfigurator({
                 <span className="block text-[10px] text-text-sub mt-0.5 leading-tight">
                   {opt.sub}
                 </span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* 선납금/보증금 */}
+        <div>
+          <p className="text-sm font-semibold text-text mb-2.5">선납금/보증금</p>
+          <div className="grid grid-cols-3 gap-2">
+            {DEPOSIT_OPTIONS.map((opt) => (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => {
+                  if (opt.value === DEFAULT_DEPOSIT) {
+                    setDepositRatio(opt.value);
+                  } else {
+                    handleNonDefault(`선납금/보증금 ${opt.label}`);
+                  }
+                }}
+                className={btnClass(depositRatio === opt.value)}
+              >
+                {opt.label}
               </button>
             ))}
           </div>
