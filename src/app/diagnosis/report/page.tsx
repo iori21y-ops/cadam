@@ -110,16 +110,16 @@ function retentionColor(rate: number | null) {
 
 function runCalculations(formData: DiagnosisFormData, dbPrices?: Record<number, YearPrices>): ReportData {
   const dbUsed = !!dbPrices && Object.keys(dbPrices).length > 0;
-  const { model, trimData, mileageGroup } = formData;
+  const { model, trimData, mileageGroup, purchasePriceMk } = formData;
   const vehicleAge = DATA_YEAR - trimData.model_year;
   const isEV       = trimData.fuel_type === 'ev';
   const isHybrid   = trimData.fuel_type === 'hybrid';
   const cc         = getVehicleCC(model) ?? (isEV ? 0 : 2000);
 
-  // 감가상각 계산 — DB 시세 있으면 우선 사용, 없으면 MARKET_PRICE_TABLE 폴백
+  // 감가상각 계산 — 사용자 입력 구매가격 기준, DB 시세 있으면 우선 사용
   const depResult = calculateDepreciationWithTrim(
     model,
-    trimData.msrp_price,
+    purchasePriceMk,
     vehicleAge > 0 ? vehicleAge : 1,
     mileageGroup,
     undefined,
@@ -138,10 +138,10 @@ function runCalculations(formData: DiagnosisFormData, dbPrices?: Record<number, 
     isHybrid,
   });
 
-  // 취득세 (신차 구매 기준)
+  // 취득세 — 사용자 입력 구매가격 기준
   const vehicleTypeTax = cc < 1000 ? '경차' : '승용' as const;
   const acqTaxResult = calculateAcquisitionTax({
-    vehiclePrice: trimData.msrp_price * 10000,  // 만원 → 원
+    vehiclePrice: purchasePriceMk * 10000,  // 만원 → 원
     vehicleType:  vehicleTypeTax,
     isEV,
     isHEV:        isHybrid,
@@ -222,7 +222,7 @@ export default function ReportPage() {
       }, 100);
 
       // 보험료 비동기 조회 (리포트 렌더 후 백그라운드 fetch)
-      const carType = toInsuranceCarType(data.cc, data.isEV, data.formData.trimData.msrp_price);
+      const carType = toInsuranceCarType(data.cc, data.isEV, data.formData.purchasePriceMk);
       const origin  = toInsuranceOrigin(data.formData.brand);
       const insurancePayload: Record<string, string | boolean> = { car_type: carType, origin, include_trend: true };
       if (data.formData.ageGroup)     insurancePayload.age_group     = data.formData.ageGroup;
@@ -333,7 +333,7 @@ export default function ReportPage() {
     const parts = [
       `[감가상각 진단] ${report.formData.brand} ${report.formData.model} ${report.formData.trimData.model_year}년식 ${report.formData.trimData.trim_name}`,
       `연료: ${fuelLabel}`,
-      `신차가: ${report.formData.trimData.msrp_price.toLocaleString()}만원`,
+      `신차가(구매가): ${report.formData.purchasePriceMk.toLocaleString()}만원`,
       `현재시세 추정: ${report.depResult.currentValue.toLocaleString()}만원 (${retentionPct}, 차령 ${report.vehicleAge}년)`,
       `연간 자동차세: ${Math.round(report.autoTaxResult.discountedTotal / 10000)}만원`,
       `취득세: ${Math.round(report.acqTaxResult.finalTax / 10000)}만원`,
@@ -508,7 +508,7 @@ export default function ReportPage() {
                   <div className="grid grid-cols-2 gap-2">
                     {[
                       { label: '트림', value: report.formData.trimData.trim_name },
-                      { label: '신차가', value: fmtMk(report.formData.trimData.msrp_price) },
+                      { label: '구매가격', value: fmtMk(report.formData.purchasePriceMk) },
                       { label: '연료',   value: report.formData.trimData.fuel_type.toUpperCase() },
                       { label: '배기량', value: report.isEV ? 'EV (면제)' : `${report.cc.toLocaleString()}cc` },
                     ].map((item) => (
@@ -558,7 +558,7 @@ export default function ReportPage() {
                 badge="전환 타이밍"
               >
                 <SwitchTimingCard
-                  msrp={report.formData.trimData.msrp_price}
+                  msrp={report.formData.purchasePriceMk}
                   currentValue={report.depResult.currentValue}
                   vehicleAge={report.vehicleAge}
                   curve={report.curve}
@@ -607,7 +607,7 @@ export default function ReportPage() {
                   {accidentStats && (
                     <div className={(insuranceData || victimStats) ? 'mt-4' : ''}>
                       <AccidentStatsCard
-                        carType={toInsuranceCarType(report.cc, report.isEV, report.formData.trimData.msrp_price)}
+                        carType={toInsuranceCarType(report.cc, report.isEV, report.formData.purchasePriceMk)}
                         stats={accidentStats.stats}
                         year={accidentStats.year}
                         isAnnual={accidentStats.isAnnual}
@@ -627,7 +627,7 @@ export default function ReportPage() {
                 {/* 리스 감가 패널티 카드 */}
                 <div className="mb-5">
                   <LeasePenaltyCard
-                    msrp={report.formData.trimData.msrp_price}
+                    msrp={report.formData.purchasePriceMk}
                     residual5yr={report.residual5yr}
                   />
                 </div>
@@ -638,7 +638,7 @@ export default function ReportPage() {
                     누적 비용 타임라인
                   </p>
                   <CostTimelineChart
-                    msrp={report.formData.trimData.msrp_price}
+                    msrp={report.formData.purchasePriceMk}
                     acquisitionTax={Math.round(report.acqTaxResult.finalTax / 10000)}
                     annualAutoTax={Math.round(report.autoTaxResult.discountedTotal / 10000)}
                     residual5yr={report.residual5yr}
@@ -646,7 +646,7 @@ export default function ReportPage() {
                     monthlyFuel={monthlyFuelMk ?? undefined}
                     preCalcMonthly={(() => {
                       const cmp = calculateComparison({
-                        carPriceMk: report.formData.trimData.msrp_price,
+                        carPriceMk: report.formData.purchasePriceMk,
                         modelName: report.formData.model,
                         vehicleAge: 0,
                         isEV: report.isEV,
@@ -672,7 +672,7 @@ export default function ReportPage() {
 
                 <div className="border-t border-[#F2F2F7] pt-4">
                   <CostComparisonTable
-                    msrp={report.formData.trimData.msrp_price}
+                    msrp={report.formData.purchasePriceMk}
                     acquisitionTax={Math.round(report.acqTaxResult.finalTax / 10000)}
                     annualAutoTax={Math.round(report.autoTaxResult.discountedTotal / 10000)}
                     residual5yr={report.residual5yr}
@@ -681,7 +681,7 @@ export default function ReportPage() {
                     monthlyFuel={monthlyFuelMk ?? undefined}
                     preCalcMonthly={(() => {
                       const cmp = calculateComparison({
-                        carPriceMk: report.formData.trimData.msrp_price,
+                        carPriceMk: report.formData.purchasePriceMk,
                         modelName: report.formData.model,
                         vehicleAge: 0,
                         isEV: report.isEV,
@@ -734,7 +734,7 @@ export default function ReportPage() {
                     businessType={report.formData.businessType}
                     monthlyRentMk={
                       // 장기렌트 60개월 기준 월납입금을 절세 기준으로 사용
-                      calcMonthly(report.formData.trimData.msrp_price, 'rent', 60, 0, 20000)
+                      calcMonthly(report.formData.purchasePriceMk, 'rent', 60, 0, 20000)
                     }
                   />
                 </ReportSection>

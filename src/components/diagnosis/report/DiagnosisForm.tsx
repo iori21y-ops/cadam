@@ -16,6 +16,7 @@ export interface DiagnosisFormData {
   businessType: BusinessType;
   ageGroup: AgeGroup | null;
   sex: SexType | null;
+  purchasePriceMk: number;
 }
 
 interface Props {
@@ -58,6 +59,7 @@ export function DiagnosisForm({ onSubmit, loading = false }: Props) {
   const [businessType, setBusiness] = useState<BusinessType>('personal');
   const [ageGroup, setAgeGroup]     = useState<AgeGroup | null>(null);
   const [sex, setSex]               = useState<SexType | null>(null);
+  const [purchasePrice, setPurchasePrice] = useState('');
 
   const [brands, setBrands]   = useState<string[]>([]);
   const [models, setModels]   = useState<string[]>([]);
@@ -114,7 +116,19 @@ export function DiagnosisForm({ onSubmit, loading = false }: Props) {
 
   const selectedTrim = filteredTrims.find((t) => t.trim_name === trimName) ?? null;
 
-  const canSubmit = !!(brand && model && selectedTrim && !loading);
+  // 트림이 바뀌면 구매가격을 DB 기본값으로 리셋
+  const selectedTrimPrice = selectedTrim?.msrp_price ?? null;
+  useEffect(() => {
+    setPurchasePrice(selectedTrimPrice !== null ? selectedTrimPrice.toLocaleString() : '');
+  }, [selectedTrimPrice]);
+
+  function handlePriceInput(val: string) {
+    const digits = val.replace(/[^0-9]/g, '');
+    setPurchasePrice(digits ? Number(digits).toLocaleString() : '');
+  }
+
+  const parsedPrice = Number(purchasePrice.replace(/,/g, '')) || 0;
+  const canSubmit = !!(brand && model && selectedTrim && parsedPrice > 0 && !loading);
 
   function handleYearChange(val: string) {
     setYear(val === '' ? '' : Number(val));
@@ -123,7 +137,7 @@ export function DiagnosisForm({ onSubmit, loading = false }: Props) {
 
   function handleSubmit() {
     if (!selectedTrim) return;
-    onSubmit({ brand, model, trimData: selectedTrim, mileageGroup, businessType, ageGroup, sex });
+    onSubmit({ brand, model, trimData: selectedTrim, mileageGroup, businessType, ageGroup, sex, purchasePriceMk: parsedPrice });
   }
 
   return (
@@ -324,9 +338,35 @@ export function DiagnosisForm({ onSubmit, loading = false }: Props) {
           </p>
           <p className="text-[12px] text-[#6D6D72] mt-0.5">
             {selectedTrim.trim_name} ·{' '}
-            <span className="font-semibold text-[#007AFF]">
-              신차가 {selectedTrim.msrp_price.toLocaleString()}만원
+            <span className="font-semibold text-[#8E8E93]">
+              제조사 기본가 {selectedTrim.msrp_price.toLocaleString()}만원
             </span>
+          </p>
+        </div>
+      )}
+
+      {/* 실제 구매가격 입력 */}
+      {selectedTrim && (
+        <div>
+          <label className="block text-[13px] font-semibold text-[#1C1C1E] mb-1.5">
+            실제 구매가격
+            <span className="ml-1.5 text-[11px] font-normal text-[#8E8E93]">출고가+옵션</span>
+          </label>
+          <div className="relative">
+            <input
+              type="text"
+              inputMode="numeric"
+              value={purchasePrice}
+              onChange={(e) => handlePriceInput(e.target.value)}
+              placeholder="예) 2,500"
+              className="w-full px-4 py-3 pr-14 rounded-xl border border-[#007AFF] bg-white text-[14px] text-[#1C1C1E] focus:outline-none focus:ring-2 focus:ring-[#007AFF]/30"
+            />
+            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[13px] font-semibold text-[#8E8E93]">
+              만원
+            </span>
+          </div>
+          <p className="mt-1.5 text-[11px] text-[#8E8E93]">
+            계약서 또는 견적서의 차량 총 가격을 입력하세요
           </p>
         </div>
       )}
