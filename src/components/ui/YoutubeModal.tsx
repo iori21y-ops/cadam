@@ -85,7 +85,7 @@ export function YoutubeModal({ title, iframeSrc, onClose, vehicle }: YoutubeModa
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={`/cars/${vehicle.imageKey}.webp`}
+                src={`/cars/${vehicle.imageKey}.webp?v=20260508`}
                 alt={vehicle.model}
                 className="w-24 h-16 object-contain shrink-0"
               />

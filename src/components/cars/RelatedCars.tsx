@@ -26,7 +26,7 @@ export function RelatedCars({ currentVehicle }: RelatedCarsProps) {
           >
             <div className="relative w-full aspect-[4/3] bg-white">
               <CarImageFallback
-                src={`/cars/${v.imageKey}.webp`}
+                src={`/cars/${v.imageKey}.webp?v=20260508`}
                 alt={v.model}
                 sizes="140px"
                 className="object-contain p-2 group-hover:scale-105 transition-transform"

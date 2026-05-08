@@ -54,7 +54,7 @@ function VehicleImage({ imageKey, brand, name, img }: { imageKey?: string; brand
   }
   return (
     <div className="w-16 h-10 relative">
-      <Image src={`/cars/${imageKey}.webp`} alt={`${brand} ${name}`} fill sizes="64px" className="object-contain" onError={() => setFailed(true)} />
+      <Image src={`/cars/${imageKey}.webp?v=20260508`} alt={`${brand} ${name}`} fill sizes="64px" className="object-contain" onError={() => setFailed(true)} />
     </div>
   );
 }

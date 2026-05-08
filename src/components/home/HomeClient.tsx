@@ -189,7 +189,7 @@ export function HomeClient({ vehicles }: Props) {
               >
                 <div className="relative aspect-[4/3] bg-gray-50">
                   <Image
-                    src={`/cars/${vehicle.imageKey}.webp`}
+                    src={`/cars/${vehicle.imageKey}.webp?v=20260508`}
                     alt={`${vehicle.brand} ${vehicle.model}`}
                     fill
                     className="object-contain p-4"
@@ -322,7 +322,7 @@ export function HomeClient({ vehicles }: Props) {
                     <div className="flex items-center gap-3 mb-3">
                       <div className="relative w-20 h-12 shrink-0 bg-surface-secondary rounded-lg">
                         <Image
-                          src={`/cars/${selectedVehicle.imageKey}.webp`}
+                          src={`/cars/${selectedVehicle.imageKey}.webp?v=20260508`}
                           alt={selectedVehicle.model}
                           fill
                           className="object-contain p-1"

@@ -104,7 +104,7 @@ export function PopularVehiclesScroll({ vehicles }: { vehicles: VehicleCard[] })
           >
             <div className="aspect-[4/3] bg-white relative">
               <Image
-                src={`/cars/${v.imageKey}.webp`}
+                src={`/cars/${v.imageKey}.webp?v=20260508`}
                 alt={v.model}
                 fill
                 className="object-contain p-3"
