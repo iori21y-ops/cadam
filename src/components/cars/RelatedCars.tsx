@@ -8,9 +8,16 @@ interface RelatedCarsProps {
 }
 
 export function RelatedCars({ currentVehicle }: RelatedCarsProps) {
-  const related = VEHICLE_LIST.filter(
-    (v) => v.category === currentVehicle.category && v.id !== currentVehicle.id
-  ).slice(0, 4);
+  const others = VEHICLE_LIST.filter((v) => v.id !== currentVehicle.id);
+  const sameSegment = others.filter((v) => v.segment === currentVehicle.segment);
+  const related = sameSegment.length >= 4
+    ? sameSegment.slice(0, 4)
+    : [
+        ...sameSegment,
+        ...others
+          .filter((v) => v.category === currentVehicle.category && v.segment !== currentVehicle.segment)
+          .slice(0, 4 - sameSegment.length),
+      ];
 
   if (related.length === 0) return null;
 

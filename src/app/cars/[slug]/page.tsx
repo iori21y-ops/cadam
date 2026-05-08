@@ -5,7 +5,6 @@ import { VEHICLE_LIST, getVehicleBySlug } from '@/constants/vehicles';
 import { createServerSupabaseClient } from '@/lib/supabase-server';
 import { CarHero } from '@/components/cars/CarHero';
 import { EstimateConfigurator } from '@/components/cars/EstimateConfigurator';
-import { PriceCompareTable } from '@/components/cars/PriceCompareTable';
 import { ServiceSteps } from '@/components/cars/ServiceSteps';
 import { CarArticles } from '@/components/cars/CarArticles';
 import { CarCtaSection } from '@/components/cars/CarCtaSection';
@@ -177,14 +176,6 @@ async function CarPageContent({ slug }: { slug: string }) {
 
       {/* 4. 이용 절차 */}
       <ServiceSteps />
-
-      {/* 5. 조건별 가격 비교표 (데이터 있을 때만) */}
-      {priceRows.length > 0 && (
-        <section className="px-5 pb-8">
-          <h2 className="text-lg font-bold text-text mb-4">조건별 월 납입금 비교</h2>
-          <PriceCompareTable priceRanges={priceRows} />
-        </section>
-      )}
 
       {/* 5. 관련 콘텐츠 */}
       <CarArticles articles={articles} vehicle={vehicle} />

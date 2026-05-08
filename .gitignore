@@ -42,3 +42,6 @@ next-env.d.ts
 
 # 360° spin images (large binary files, generated locally)
 /public/cars/360/
+
+# local image backups
+/backups/
