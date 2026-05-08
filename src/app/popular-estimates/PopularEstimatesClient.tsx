@@ -131,7 +131,7 @@ function VehicleCardItem({ v }: { v: VehicleCard }) {
   const spinSrc = v.has360Spin
     ? `${SPIN_BASE}/${v.slug}/${String(v.spinStartFrame + 1).padStart(3, '0')}.webp`
     : null;
-  const staticSrc = v.imageKey ? `/cars/${v.imageKey}.webp?v=20260508` : null;
+  const staticSrc = v.imageKey ? `/cars/${v.imageKey}.webp` : null;
   const imgSrc = spinSrc && !spinFailed ? spinSrc : staticSrc;
 
   function handleImgError() {

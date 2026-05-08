@@ -38,7 +38,7 @@ export function CarHero({ vehicle, galleryPath, galleryCount }: CarHeroProps) {
             </div>
           ) : (
             <Image
-              src={`/cars/${vehicle.imageKey}.webp?v=20260508`}
+              src={`/cars/${vehicle.imageKey}.webp`}
               alt={`${vehicle.brand} ${vehicle.model}`}
               fill
               sizes="(max-width:768px) 100vw, 480px"
