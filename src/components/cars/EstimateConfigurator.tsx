@@ -31,12 +31,6 @@ const PRODUCT_OPTIONS = [
   { label: '리스', sub: '보험 미포함 · 일반 번호판', value: 'lease' },
 ];
 
-const DEPOSIT_OPTIONS = [
-  { label: '0%', value: 0 },
-  { label: '10%', value: 10 },
-  { label: '20%', value: 20 },
-  { label: '30%', value: 30 },
-];
 
 const DEFAULT_CONTRACT = 60;
 const DEFAULT_KM = 10000;
@@ -92,10 +86,6 @@ export function EstimateConfigurator({
   const handleQuoteClick = () => {
     gtag.seoCtaClick(vehicle.slug, 'quote');
     openSheet();
-  };
-
-  const handleNonDefault = (conditionLabel: string) => {
-    openSheet(conditionLabel);
   };
 
   const btnClass = (active: boolean) =>
@@ -162,7 +152,7 @@ export function EstimateConfigurator({
                   if (opt.value === DEFAULT_CONTRACT) {
                     setContractMonths(opt.value);
                   } else {
-                    handleNonDefault(`계약기간 ${opt.label}`);
+                    openSheet(`계약기간 ${opt.label}`);
                   }
                 }}
                 className={btnClass(contractMonths === opt.value)}
@@ -185,7 +175,7 @@ export function EstimateConfigurator({
                   if (opt.value === DEFAULT_KM) {
                     setAnnualKm(opt.value);
                   } else {
-                    handleNonDefault(`연 주행거리 ${opt.label}km`);
+                    openSheet(`연 주행거리 ${opt.label}km`);
                   }
                 }}
                 className={btnClass(annualKm === opt.value)}
@@ -225,30 +215,22 @@ export function EstimateConfigurator({
             </button>
           </div>
           <div className="grid grid-cols-4 gap-2">
-            {DEPOSIT_OPTIONS.map((opt) => (
-              <button
-                key={opt.value}
-                type="button"
-                onClick={() => {
-                  if (depositType === 'prepay') {
-                    if (opt.value === DEFAULT_PREPAY) {
-                      setPrepayRatio(DEFAULT_PREPAY);
-                    } else {
-                      handleNonDefault(`선납금 ${opt.label}`);
-                    }
-                  } else {
-                    if (opt.value === DEFAULT_GUARANTEE) {
-                      setGuaranteeRatio(DEFAULT_GUARANTEE);
-                    } else {
-                      handleNonDefault(`보증금 ${opt.label}`);
-                    }
-                  }
-                }}
-                className={btnClass(activeDepositValue === opt.value)}
-              >
-                {opt.label}
-              </button>
-            ))}
+            {/* 0% */}
+            <button type="button"
+              onClick={() => depositType === 'prepay' ? openSheet('선납금 0%') : setGuaranteeRatio(0)}
+              className={btnClass(activeDepositValue === 0)}>0%</button>
+            {/* 10% */}
+            <button type="button"
+              onClick={() => openSheet(depositType === 'prepay' ? '선납금 10%' : '보증금 10%')}
+              className={btnClass(activeDepositValue === 10)}>10%</button>
+            {/* 20% */}
+            <button type="button"
+              onClick={() => openSheet(depositType === 'prepay' ? '선납금 20%' : '보증금 20%')}
+              className={btnClass(activeDepositValue === 20)}>20%</button>
+            {/* 30% */}
+            <button type="button"
+              onClick={() => depositType === 'prepay' ? setPrepayRatio(30) : openSheet('보증금 30%')}
+              className={btnClass(activeDepositValue === 30)}>30%</button>
           </div>
         </div>
 
@@ -264,7 +246,7 @@ export function EstimateConfigurator({
                   if (opt.value === DEFAULT_PRODUCT) {
                     setProduct(opt.value);
                   } else {
-                    handleNonDefault(`이용 상품 ${opt.label}`);
+                    openSheet(`이용 상품 ${opt.label}`);
                   }
                 }}
                 className={`py-3 px-3 rounded-xl border text-center transition-all ${
