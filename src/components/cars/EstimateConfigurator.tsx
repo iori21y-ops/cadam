@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import { useQuoteStore } from '@/store/quoteStore';
 import { gtag } from '@/lib/gtag';
 import { ConsultationSheet } from '@/components/ui/ConsultationSheet';
@@ -60,6 +60,8 @@ export function EstimateConfigurator({
   const [annualKm, setAnnualKm] = useState(DEFAULT_KM);
   const [product, setProduct] = useState(DEFAULT_PRODUCT);
   const [depositType, setDepositType] = useState<DepositType>('prepay');
+  const depositTypeRef = useRef<DepositType>('prepay');
+  depositTypeRef.current = depositType; // 매 렌더마다 동기화 — onClick 클로저에서 항상 최신값 참조
   const [prepayRatio, setPrepayRatio] = useState(DEFAULT_PREPAY);
   const [guaranteeRatio, setGuaranteeRatio] = useState(DEFAULT_GUARANTEE);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
@@ -217,19 +219,19 @@ export function EstimateConfigurator({
           <div className="grid grid-cols-4 gap-2">
             {/* 0% */}
             <button type="button"
-              onClick={() => depositType === 'prepay' ? openSheet('선납금 0%') : setGuaranteeRatio(0)}
+              onClick={() => depositTypeRef.current === 'prepay' ? openSheet('선납금 0%') : setGuaranteeRatio(0)}
               className={btnClass(activeDepositValue === 0)}>0%</button>
             {/* 10% */}
             <button type="button"
-              onClick={() => openSheet(depositType === 'prepay' ? '선납금 10%' : '보증금 10%')}
+              onClick={() => openSheet(depositTypeRef.current === 'prepay' ? '선납금 10%' : '보증금 10%')}
               className={btnClass(activeDepositValue === 10)}>10%</button>
             {/* 20% */}
             <button type="button"
-              onClick={() => openSheet(depositType === 'prepay' ? '선납금 20%' : '보증금 20%')}
+              onClick={() => openSheet(depositTypeRef.current === 'prepay' ? '선납금 20%' : '보증금 20%')}
               className={btnClass(activeDepositValue === 20)}>20%</button>
             {/* 30% */}
             <button type="button"
-              onClick={() => depositType === 'prepay' ? setPrepayRatio(30) : openSheet('보증금 30%')}
+              onClick={() => depositTypeRef.current === 'prepay' ? setPrepayRatio(30) : openSheet('보증금 30%')}
               className={btnClass(activeDepositValue === 30)}>30%</button>
           </div>
         </div>
