@@ -379,7 +379,7 @@ function VehResult({ answers, mode, restart, toDetail, onHome, vehicles }: {
         {/* 하단 버튼 */}
         <div className="flex flex-col gap-3">
           <div className="mb-3">
-            <NextMission current="vehicle" />
+            <NextMission current="vehicle" onConsultationClick={() => setIsSheetOpen(true)} />
           </div>
           <div className="mb-3">
             <FeedbackWidget

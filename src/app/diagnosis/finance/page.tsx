@@ -236,7 +236,7 @@ function FinResult({ answers, questions, mode, restart, toDetail, onHome }: {
           transition={{ delay: 0.5, duration: 0.35, ease: 'easeOut' }}
           className="mb-4"
         >
-          <NextMission current="finance" />
+          <NextMission current="finance" onConsultationClick={() => setIsSheetOpen(true)} />
         </motion.div>
 
         {/* 비교 시뮬레이터 carry-over CTA */}

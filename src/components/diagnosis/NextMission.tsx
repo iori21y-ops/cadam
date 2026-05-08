@@ -9,6 +9,7 @@ import { RenderIcon, IconTrophy } from '@/components/icons/RentailorIcons';
 
 interface NextMissionProps {
   current: 'vehicle' | 'finance';
+  onConsultationClick?: () => void;
 }
 
 const MISSION_INFO = {
@@ -28,7 +29,7 @@ const MISSION_INFO = {
 
 const MISSION_ORDER: ('vehicle' | 'finance')[] = ['vehicle', 'finance'];
 
-export function NextMission({ current }: NextMissionProps) {
+export function NextMission({ current, onConsultationClick }: NextMissionProps) {
   const router = useRouter();
   const [progress, setProgress] = useState<MissionProgress | null>(null);
   const prefillFromDiagnosis = useQuoteStore((s) => s.prefillFromDiagnosis);
@@ -51,7 +52,11 @@ export function NextMission({ current }: NextMissionProps) {
 
   const handleQuoteNav = () => {
     prefillFromDiagnosis();
-    router.push('/quote');
+    if (onConsultationClick) {
+      onConsultationClick();
+    } else {
+      router.push('/quote');
+    }
   };
 
   // 모든 미션 완료 → 맞춤 상담
