@@ -106,7 +106,6 @@ export function EstimateConfigurator({
     }`;
 
   const activeDepositValue = depositType === 'prepay' ? prepayRatio : guaranteeRatio;
-  const defaultDepositValue = depositType === 'prepay' ? DEFAULT_PREPAY : DEFAULT_GUARANTEE;
 
   return (
     <section className="mx-5 mt-6 rounded-2xl bg-white border border-accent shadow-sm overflow-hidden">
@@ -231,12 +230,18 @@ export function EstimateConfigurator({
                 key={opt.value}
                 type="button"
                 onClick={() => {
-                  if (opt.value === defaultDepositValue) {
-                    if (depositType === 'prepay') setPrepayRatio(opt.value);
-                    else setGuaranteeRatio(opt.value);
+                  if (depositType === 'prepay') {
+                    if (opt.value === DEFAULT_PREPAY) {
+                      setPrepayRatio(DEFAULT_PREPAY);
+                    } else {
+                      handleNonDefault(`선납금 ${opt.label}`);
+                    }
                   } else {
-                    const typeLabel = depositType === 'prepay' ? '선납금' : '보증금';
-                    handleNonDefault(`${typeLabel} ${opt.label}`);
+                    if (opt.value === DEFAULT_GUARANTEE) {
+                      setGuaranteeRatio(DEFAULT_GUARANTEE);
+                    } else {
+                      handleNonDefault(`보증금 ${opt.label}`);
+                    }
                   }
                 }}
                 className={btnClass(activeDepositValue === opt.value)}
