@@ -1053,7 +1053,7 @@ function CompareInner() {
                         <span className="text-slate-500 text-xs leading-relaxed">{a}</span>
                       </div>
                     ))}
-                    <p className="text-slate-600 text-xs mt-2 pt-2 border-t border-[#1a1a3e]">
+                    <p className="text-slate-600 text-xs mt-2 pt-2 border-t border-[#1a1a3e]" suppressHydrationWarning>
                       계산 기준일: {new Date().toLocaleDateString('ko-KR')} / 렌테일러 비교 엔진 v1
                     </p>
                   </div>

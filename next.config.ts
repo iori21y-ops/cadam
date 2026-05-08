@@ -19,6 +19,9 @@ const nextConfig: NextConfig = {
   images: {
     formats: ['image/avif', 'image/webp'],
     minimumCacheTTL: 2592000,
+    localPatterns: [
+      { pathname: '/cars/**', search: 'v=20260508' },
+    ],
     remotePatterns: [
       { protocol: 'https', hostname: 'img.youtube.com' },
       { protocol: 'https', hostname: '*.supabase.co' },
