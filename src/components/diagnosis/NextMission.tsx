@@ -68,9 +68,9 @@ export function NextMission({ current, onConsultationClick }: NextMissionProps) 
         style={{ background: '#0D1B2A', color: '#F5F0E8' }}
       >
         <span className="block mb-1 flex justify-center"><IconTrophy size={20} /></span>
-        <p className="text-[17px] font-bold mb-1">2단계 진단 모두 완료!</p>
-        <p className="text-base mb-3" style={{ color: 'rgba(245,240,232,0.6)' }}>진단 결과를 바탕으로 맞춤 상담을 받아보세요</p>
-        <span className="inline-block cta-gold text-primary font-bold rounded-xl px-4 py-2 text-lg">
+        <p className="text-[15px] font-bold mb-1">2단계 진단 모두 완료!</p>
+        <p className="text-xs mb-3" style={{ color: 'rgba(245,240,232,0.6)' }}>진단 결과를 바탕으로 맞춤 상담을 받아보세요</p>
+        <span className="inline-block cta-gold text-primary font-bold rounded-xl px-4 py-2 text-sm">
           맞춤 상담 신청 →
         </span>
       </button>
@@ -89,9 +89,9 @@ export function NextMission({ current, onConsultationClick }: NextMissionProps) 
           style={{ background: '#0D1B2A', color: '#F5F0E8' }}
         >
           <span className="block mb-1 flex justify-center text-lg">🎯</span>
-          <p className="text-[17px] font-bold mb-1">이 결과로 바로 상담 신청</p>
-          <p className="text-base mb-3" style={{ color: 'rgba(245,240,232,0.6)' }}>진단 결과가 자동으로 반영됩니다</p>
-          <span className="inline-block cta-gold text-primary font-bold rounded-xl px-4 py-2 text-lg">
+          <p className="text-[15px] font-bold mb-1">이 결과로 바로 상담 신청</p>
+          <p className="text-xs mb-3" style={{ color: 'rgba(245,240,232,0.6)' }}>진단 결과가 자동으로 반영됩니다</p>
+          <span className="inline-block cta-gold text-primary font-bold rounded-xl px-4 py-2 text-sm">
             맞춤 상담 신청 →
           </span>
         </button>
@@ -99,13 +99,13 @@ export function NextMission({ current, onConsultationClick }: NextMissionProps) 
         {/* 다음 미션 카드 */}
         <div className="rounded-2xl bg-surface shadow-sm overflow-hidden">
           <div className="px-5 pt-4 pb-3 flex items-center justify-between">
-            <p className="text-base font-semibold text-text-sub">미션 진행률</p>
+            <p className="text-xs font-semibold text-text-sub">미션 진행률</p>
             <div className="flex items-center gap-1.5">
               {MISSION_ORDER.map((key, i) => {
                 const done = effectiveProgress[key].done;
                 return (
                   <div key={key} className="flex items-center gap-1.5">
-                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[12px] font-bold ${
+                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold ${
                       done
                         ? 'bg-primary text-white'
                         : key === nextStep
@@ -120,7 +120,7 @@ export function NextMission({ current, onConsultationClick }: NextMissionProps) 
                   </div>
                 );
               })}
-              <span className="text-[13px] text-text-muted ml-1">{doneCount}/2</span>
+              <span className="text-[11px] text-text-muted ml-1">{doneCount}/2</span>
             </div>
           </div>
 
@@ -132,12 +132,12 @@ export function NextMission({ current, onConsultationClick }: NextMissionProps) 
               <RenderIcon name={next.icon} size={20} />
             </div>
             <div className="flex-1 min-w-0 text-left">
-              <p className="text-[15px] text-primary font-semibold mb-0.5">
+              <p className="text-[13px] text-primary font-semibold mb-0.5">
                 더 정확한 결과: {next.title}
               </p>
-              <p className="text-[13px] text-text-sub">{next.desc}</p>
+              <p className="text-[11px] text-text-sub">{next.desc}</p>
             </div>
-            <span className="text-base font-bold text-primary shrink-0">시작 →</span>
+            <span className="text-xs font-bold text-primary shrink-0">시작 →</span>
           </button>
         </div>
       </div>
@@ -153,22 +153,22 @@ export function NextMission({ current, onConsultationClick }: NextMissionProps) 
         style={{ background: '#0D1B2A', color: '#F5F0E8' }}
       >
         <span className="block mb-1 flex justify-center text-lg">🎯</span>
-        <p className="text-[17px] font-bold mb-1">이 결과로 바로 상담 신청</p>
-        <p className="text-base mb-3" style={{ color: 'rgba(245,240,232,0.6)' }}>진단 결과가 자동으로 반영됩니다</p>
-        <span className="inline-block cta-gold text-primary font-bold rounded-xl px-4 py-2 text-lg">
+        <p className="text-[15px] font-bold mb-1">이 결과로 바로 상담 신청</p>
+        <p className="text-xs mb-3" style={{ color: 'rgba(245,240,232,0.6)' }}>진단 결과가 자동으로 반영됩니다</p>
+        <span className="inline-block cta-gold text-primary font-bold rounded-xl px-4 py-2 text-sm">
           맞춤 상담 신청 →
         </span>
       </button>
 
       <div className="rounded-2xl bg-surface shadow-sm overflow-hidden">
         <div className="px-5 py-4 flex items-center justify-between">
-          <p className="text-base font-semibold text-text-sub">미션 진행률</p>
+          <p className="text-xs font-semibold text-text-sub">미션 진행률</p>
           <div className="flex items-center gap-1.5">
             {MISSION_ORDER.map((key, i) => {
               const done = progress[key].done;
               return (
                 <div key={key} className="flex items-center gap-1.5">
-                  <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[12px] font-bold ${
+                  <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold ${
                     done ? 'bg-primary text-white' : 'bg-surface-secondary text-text-muted'
                   }`}>
                     {done ? '✓' : i + 1}
@@ -179,7 +179,7 @@ export function NextMission({ current, onConsultationClick }: NextMissionProps) 
                 </div>
               );
             })}
-            <span className="text-[13px] text-text-muted ml-1">{doneCount}/2</span>
+            <span className="text-[11px] text-text-muted ml-1">{doneCount}/2</span>
           </div>
         </div>
       </div>

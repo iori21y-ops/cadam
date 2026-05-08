@@ -112,7 +112,7 @@ export function ParkAI({ ctx, cfg, mode = 'short', variant = 'dark', staticText 
   // 리포트 모드 렌더링
   const renderComment = (text: string) => {
     if (!isReport) {
-      return <p className={`text-lg ${colors.body} leading-relaxed mt-1`}>{text}</p>;
+      return <p className={`text-sm ${colors.body} leading-relaxed mt-1`}>{text}</p>;
     }
 
     const lines = text.split('\n').filter(Boolean);
@@ -133,13 +133,13 @@ export function ParkAI({ ctx, cfg, mode = 'short', variant = 'dark', staticText 
           }
           if (line.startsWith('##') || line.startsWith('📋') || line.startsWith('✅') || line.startsWith('⚡') || line.startsWith('💡')) {
             return (
-              <p key={i} className={`text-lg ${colors.heading} font-semibold leading-relaxed`}>
+              <p key={i} className={`text-sm ${colors.heading} font-semibold leading-relaxed`}>
                 {rendered}
               </p>
             );
           }
           return (
-            <p key={i} className={`text-[15px] ${colors.bodyMuted} leading-relaxed`}>
+            <p key={i} className={`text-[13px] ${colors.bodyMuted} leading-relaxed`}>
               {rendered}
             </p>
           );
@@ -171,19 +171,19 @@ export function ParkAI({ ctx, cfg, mode = 'short', variant = 'dark', staticText 
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between mb-1">
             <div>
-              <p className={`text-lg font-bold ${colors.title}`}>{config.charTitle}</p>
-              <p className={`text-base ${colors.subtitle}`}>
+              <p className={`text-sm font-bold ${colors.title}`}>{config.charTitle}</p>
+              <p className={`text-xs ${colors.subtitle}`}>
                 {isReport ? 'AI 맞춤 분석 리포트' : config.charSubtitle}
               </p>
             </div>
             <div className="flex items-center gap-2">
               {isReport && comment && (
-                <span className={`text-base font-bold px-2.5 py-1 rounded-full ${expanded ? colors.toggleBtnExpanded : colors.toggleBtn}`}>
+                <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${expanded ? colors.toggleBtnExpanded : colors.toggleBtn}`}>
                   {expanded ? '접기 ▲' : '펼치기 ▼'}
                 </span>
               )}
               {showRemaining && (
-                <span className={`text-[12px] ${colors.remaining} shrink-0`}>
+                <span className={`text-[10px] ${colors.remaining} shrink-0`}>
                   {remaining}/{config.maxCalls}
                 </span>
               )}
@@ -195,13 +195,13 @@ export function ParkAI({ ctx, cfg, mode = 'short', variant = 'dark', staticText 
               <div className={`w-1.5 h-1.5 ${colors.loaderDot} rounded-full animate-pulse`} />
               <div className={`w-1.5 h-1.5 ${colors.loaderDot} rounded-full animate-pulse`} style={{ animationDelay: '100ms' }} />
               <div className={`w-1.5 h-1.5 ${colors.loaderDot} rounded-full animate-pulse`} style={{ animationDelay: '200ms' }} />
-              <span className={`text-base ${colors.loaderText} ml-1`}>
+              <span className={`text-xs ${colors.loaderText} ml-1`}>
                 {isReport ? '맞춤 리포트 생성 중...' : '분석 중...'}
               </span>
             </div>
           ) : comment ? (
             isReport && !expanded ? (
-              <p className={`text-lg ${colors.collapsed} mt-1 line-clamp-2`}>{comment.split('\n')[0]}</p>
+              <p className={`text-sm ${colors.collapsed} mt-1 line-clamp-2`}>{comment.split('\n')[0]}</p>
             ) : (
               renderComment(comment)
             )

@@ -84,7 +84,7 @@ function CustomTooltip({
   if (!active || !payload?.length) return null;
   const sorted = [...payload].sort((a, b) => a.value - b.value);
   return (
-    <div className="bg-white rounded-xl shadow-lg border border-[#F2F2F7] px-3.5 py-3 text-[14px] min-w-[140px]">
+    <div className="bg-white rounded-xl shadow-lg border border-[#F2F2F7] px-3.5 py-3 text-[12px] min-w-[140px]">
       <p className="font-bold text-[#1C1C1E] mb-2">{label}</p>
       {sorted.map((p) => (
         <div key={p.name} className="flex justify-between gap-4 mb-1 last:mb-0">
@@ -198,12 +198,12 @@ export function CostTimelineChart({
 
       {/* 범례 아래 보조 설명 */}
       <div className="flex items-center justify-between mt-2">
-        <p className="text-[12px] text-[#8E8E93]">
+        <p className="text-[10px] text-[#8E8E93]">
           {residual5yr > 0 && '할부 5년차: 잔존가치 차감 포함. '}
           {(annualInsurance == null || monthlyFuel == null) && '보험료·유류비 로딩 중 일부 미포함.'}
         </p>
         <div
-          className="flex items-center gap-1 text-[12px] font-semibold px-2 py-1 rounded-full"
+          className="flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded-full"
           style={{ color: COLORS[minKey], background: `${COLORS[minKey]}18` }}
         >
           <span>●</span>

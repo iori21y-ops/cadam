@@ -206,7 +206,7 @@ function Chip({ selected, onClick, children, disabled }: {
   return (
     <button type="button" onClick={onClick} disabled={disabled}
       className={[
-        'px-3 py-2.5 rounded-xl border text-lg font-medium transition-all duration-150 text-left',
+        'px-3 py-2.5 rounded-xl border text-sm font-medium transition-all duration-150 text-left',
         disabled ? 'opacity-40 cursor-not-allowed border-[#E5E7EB] text-[#8E8E93] bg-white' :
         selected
           ? 'border-[#C9A84C] bg-[#C9A84C]/10 text-[#92702A] ring-1 ring-[#C9A84C]/30'
@@ -224,7 +224,7 @@ function AgeChip({ selected, onClick, children }: {
   return (
     <button type="button" onClick={onClick}
       className={[
-        'py-2 rounded-xl border-2 text-[14px] font-semibold transition-all text-center',
+        'py-2 rounded-xl border-2 text-[12px] font-semibold transition-all text-center',
         selected
           ? 'border-[#FF9500] bg-[#FF9500]/10 text-[#FF9500]'
           : 'border-[#E5E7EB] bg-white text-[#6D6D72] hover:border-[#FF9500]/40',
@@ -236,7 +236,7 @@ function AgeChip({ selected, onClick, children }: {
 }
 
 function Label({ children }: { children: React.ReactNode }) {
-  return <p className="text-[#1C1C1E] text-lg font-semibold mb-2">{children}</p>;
+  return <p className="text-[#1C1C1E] text-sm font-semibold mb-2">{children}</p>;
 }
 
 function MoneyChipInput({ label, value, onChange, chips, note }: {
@@ -252,7 +252,7 @@ function MoneyChipInput({ label, value, onChange, chips, note }: {
   const handleChip = (v: number) => { setRaw(v === 0 ? '' : String(v)); onChange(v); };
   return (
     <div>
-      <Label>{label}{note && <span className="ml-1.5 text-[13px] font-normal text-[#8E8E93]">{note}</span>}</Label>
+      <Label>{label}{note && <span className="ml-1.5 text-[11px] font-normal text-[#8E8E93]">{note}</span>}</Label>
       <div className="flex flex-wrap gap-1.5 mb-2">
         {chips.map((v) => (
           <Chip key={v} selected={value === v && (v !== 0 || raw === '')}
@@ -263,7 +263,7 @@ function MoneyChipInput({ label, value, onChange, chips, note }: {
       </div>
       <input type="number" value={raw} onChange={(e) => handleRaw(e.target.value)}
         placeholder="직접 입력 (만원)"
-        className="w-full px-4 py-2.5 rounded-xl border border-[#E5E7EB] bg-white text-[#1C1C1E] text-lg focus:outline-none focus:border-[#C9A84C] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
+        className="w-full px-4 py-2.5 rounded-xl border border-[#E5E7EB] bg-white text-[#1C1C1E] text-sm focus:outline-none focus:border-[#C9A84C] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
     </div>
   );
 }
@@ -289,7 +289,7 @@ function calcCurrentMonthly(
 
 function DataBadge({ children }: { children: React.ReactNode }) {
   return (
-    <span className="inline-flex items-center gap-1 text-[12px] text-[#8E8E93] bg-[#F2F2F7] px-2 py-0.5 rounded-full">
+    <span className="inline-flex items-center gap-1 text-[10px] text-[#8E8E93] bg-[#F2F2F7] px-2 py-0.5 rounded-full">
       {children}
     </span>
   );
@@ -298,7 +298,7 @@ function DataBadge({ children }: { children: React.ReactNode }) {
 function ClickableBadge({ children, onClick }: { children: React.ReactNode; onClick: () => void }) {
   return (
     <button type="button" onClick={onClick}
-      className="inline-flex items-center gap-0.5 text-[12px] text-[#C9A84C] bg-[#FFF8E7] px-2 py-0.5 rounded-full border border-[#C9A84C]/40 hover:bg-[#FFF0CC] transition-colors">
+      className="inline-flex items-center gap-0.5 text-[10px] text-[#C9A84C] bg-[#FFF8E7] px-2 py-0.5 rounded-full border border-[#C9A84C]/40 hover:bg-[#FFF0CC] transition-colors">
       {children} ⓘ
     </button>
   );
@@ -312,10 +312,10 @@ function SelectField({ value, onChange, disabled, children, loading }: {
     <div className="relative">
       <select value={value} onChange={(e) => onChange(e.target.value)}
         disabled={disabled || loading}
-        className="w-full px-4 py-3 rounded-xl border border-[#E5E7EB] bg-white text-[#1C1C1E] text-lg appearance-none focus:outline-none focus:border-[#C9A84C] disabled:opacity-50 disabled:cursor-not-allowed">
+        className="w-full px-4 py-3 rounded-xl border border-[#E5E7EB] bg-white text-[#1C1C1E] text-sm appearance-none focus:outline-none focus:border-[#C9A84C] disabled:opacity-50 disabled:cursor-not-allowed">
         {children}
       </select>
-      <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#8E8E93] text-base">
+      <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#8E8E93] text-xs">
         {loading ? '⟳' : '▾'}
       </span>
     </div>
@@ -340,18 +340,18 @@ function SummaryTab({ scored, displayRank, ownershipYears, selected, onClick }: 
         borderColor: selected ? m.accent : '#E5E7EB',
       }}>
       <div className="flex items-center gap-1 mb-1 flex-wrap">
-        <span className="text-[12px] font-bold shrink-0" style={{ color: m.accent }}>{rankEmoji} {displayRank}위</span>
-        <span className="text-[11px] font-semibold px-1.5 py-0.5 rounded-full shrink-0"
+        <span className="text-[10px] font-bold shrink-0" style={{ color: m.accent }}>{rankEmoji} {displayRank}위</span>
+        <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full shrink-0"
           style={{ color: m.accent, backgroundColor: m.accent + '20' }}>{m.label}</span>
       </div>
       {excluded ? (
-        <p className="text-[#8E8E93] text-[12px]">해당없음</p>
+        <p className="text-[#8E8E93] text-[10px]">해당없음</p>
       ) : (
         <>
-          <p className="text-[#1C1C1E] text-lg font-bold leading-tight">
-            {fmtMk(result.monthlyPayment)}<span className="text-[11px] text-[#8E8E93] font-normal">/월</span>
+          <p className="text-[#1C1C1E] text-sm font-bold leading-tight">
+            {fmtMk(result.monthlyPayment)}<span className="text-[9px] text-[#8E8E93] font-normal">/월</span>
           </p>
-          <p className="text-[11px] mt-0.5 leading-tight" style={{ color: m.accent }}>
+          <p className="text-[9px] mt-0.5 leading-tight" style={{ color: m.accent }}>
             총 {fmtMk(result.totalCostLow)}~{fmtMk(result.totalCostHigh)}
           </p>
         </>
@@ -378,7 +378,7 @@ function SectionCard({ title, children }: { title: string; children: React.React
   return (
     <div className="bg-white rounded-xl border border-[#E5E7EB] overflow-hidden">
       <div className="px-4 py-2.5 border-b border-[#F2F2F7]">
-        <p className="text-[13px] font-bold text-[#8E8E93] uppercase tracking-wide">{title}</p>
+        <p className="text-[11px] font-bold text-[#8E8E93] uppercase tracking-wide">{title}</p>
       </div>
       <div className="px-4 py-3">{children}</div>
     </div>
@@ -391,7 +391,7 @@ function CostRow({ label, value, badge, badgeKey, negative, bold, onShowRef }: {
 }) {
   if (value <= 0 && !bold) return null;
   return (
-    <div className={['flex justify-between items-center text-base', bold ? 'font-semibold pt-1.5 border-t border-black/5' : ''].join(' ')}>
+    <div className={['flex justify-between items-center text-xs', bold ? 'font-semibold pt-1.5 border-t border-black/5' : ''].join(' ')}>
       <span className="text-[#6B7280] flex items-center gap-1">
         {label}
         {badge && badgeKey && onShowRef
@@ -411,17 +411,17 @@ function DirectLinks({ method }: { method: ProductMethod }) {
     <div className="flex gap-2 flex-wrap pt-3 border-t border-[#E5E7EB]">
       {method === 'rent' && (<>
         <a href="https://www.skrentacar.com" target="_blank" rel="noopener noreferrer"
-          className="text-base px-3 py-1.5 rounded-lg border border-[#E5E7EB] text-[#6B7280] hover:text-[#1C1C1E] hover:border-[#C9A84C] transition-colors">SK렌터카 →</a>
+          className="text-xs px-3 py-1.5 rounded-lg border border-[#E5E7EB] text-[#6B7280] hover:text-[#1C1C1E] hover:border-[#C9A84C] transition-colors">SK렌터카 →</a>
         <a href="https://www.lotterentacar.net" target="_blank" rel="noopener noreferrer"
-          className="text-base px-3 py-1.5 rounded-lg border border-[#E5E7EB] text-[#6B7280] hover:text-[#1C1C1E] hover:border-[#C9A84C] transition-colors">롯데렌터카 →</a>
+          className="text-xs px-3 py-1.5 rounded-lg border border-[#E5E7EB] text-[#6B7280] hover:text-[#1C1C1E] hover:border-[#C9A84C] transition-colors">롯데렌터카 →</a>
       </>)}
       {method === 'lease' && (
         <a href="https://www.kbcapital.co.kr" target="_blank" rel="noopener noreferrer"
-          className="text-base px-3 py-1.5 rounded-lg border border-[#E5E7EB] text-[#6B7280] hover:text-[#1C1C1E] hover:border-[#C9A84C] transition-colors">KB캐피탈 →</a>
+          className="text-xs px-3 py-1.5 rounded-lg border border-[#E5E7EB] text-[#6B7280] hover:text-[#1C1C1E] hover:border-[#C9A84C] transition-colors">KB캐피탈 →</a>
       )}
       {method === 'installment' && (
         <a href="https://www.hyundaicapital.com" target="_blank" rel="noopener noreferrer"
-          className="text-base px-3 py-1.5 rounded-lg border border-[#E5E7EB] text-[#6B7280] hover:text-[#1C1C1E] hover:border-[#C9A84C] transition-colors">현대캐피탈 →</a>
+          className="text-xs px-3 py-1.5 rounded-lg border border-[#E5E7EB] text-[#6B7280] hover:text-[#1C1C1E] hover:border-[#C9A84C] transition-colors">현대캐피탈 →</a>
       )}
     </div>
   );
@@ -430,7 +430,7 @@ function DirectLinks({ method }: { method: ProductMethod }) {
 function InsuranceBanner({ color, text }: { color: 'orange' | 'green'; text: string }) {
   return (
     <div className={[
-      'px-3 py-2 rounded-lg text-base font-medium',
+      'px-3 py-2 rounded-lg text-xs font-medium',
       color === 'orange'
         ? 'bg-orange-50 border border-orange-200 text-orange-700'
         : 'bg-green-50 border border-green-200 text-green-700',
@@ -456,10 +456,10 @@ function CommonInsuranceAccordion({ bannerColor, bannerText, dbInsurance, accide
     <div className="bg-white rounded-2xl shadow-sm border border-[#E5E7EB] overflow-hidden">
       <button type="button" onClick={() => setOpen((p) => !p)}
         className="w-full px-5 py-4 flex justify-between items-center">
-        <span className="text-[#6B7280] text-lg">
+        <span className="text-[#6B7280] text-sm">
           🔍 보험료 & 사고통계 상세{dbInsurance ? ` — 연 ${Math.round(dbInsurance.amount / 10_000)}만원 추정` : ''}
         </span>
-        <span className="text-[#8E8E93] text-base">{open ? '▲' : '▼'}</span>
+        <span className="text-[#8E8E93] text-xs">{open ? '▲' : '▼'}</span>
       </button>
       {open && (
         <div className="px-4 pb-4 pt-1 border-t border-[#F0F0F5] space-y-4">
@@ -474,13 +474,13 @@ function CommonInsuranceAccordion({ bannerColor, bannerText, dbInsurance, accide
                 trend={dbInsurance!.trend}
               />
               {total4yMk && (
-                <p className="text-[#6B7280] text-base">
+                <p className="text-[#6B7280] text-xs">
                   {ownershipYears}년간 보험료 총액: 약 <strong>{total4yMk.toLocaleString()}만원</strong> (총비용에 포함됨)
                 </p>
               )}
             </>
           ) : (
-            <p className="text-[#8E8E93] text-base">보험료 통계 데이터가 없습니다. 보험 경력 기준으로 추산됩니다.</p>
+            <p className="text-[#8E8E93] text-xs">보험료 통계 데이터가 없습니다. 보험 경력 기준으로 추산됩니다.</p>
           )}
           {(accidentStats || victimStats) && (
             <div className="space-y-3 pt-2 border-t border-[#F2F2F7]">
@@ -511,17 +511,17 @@ function MethodHeader({ scored, displayRank, ownershipYears }: {
   return (
     <>
       <div className="flex items-center gap-2">
-        <span className="text-base font-bold" style={{ color: m.accent }}>{rankEmoji} {displayRank}위</span>
-        <span className="text-base font-semibold px-2 py-0.5 rounded-full"
+        <span className="text-xs font-bold" style={{ color: m.accent }}>{rankEmoji} {displayRank}위</span>
+        <span className="text-xs font-semibold px-2 py-0.5 rounded-full"
           style={{ color: m.accent, backgroundColor: m.accent + '20' }}>{m.label}</span>
       </div>
       <div className="flex items-end gap-4">
         <div>
-          <p className="text-[#6B7280] text-[12px] mb-0.5">월 납입</p>
+          <p className="text-[#6B7280] text-[10px] mb-0.5">월 납입</p>
           <p className="text-[#1C1C1E] text-2xl font-bold">{fmtMk(result.monthlyPayment)}</p>
         </div>
         <div className="flex-1 text-right">
-          <p className="text-[#6B7280] text-[12px] mb-0.5">{ownershipYears}년 총비용 범위</p>
+          <p className="text-[#6B7280] text-[10px] mb-0.5">{ownershipYears}년 총비용 범위</p>
           <p className="text-lg font-semibold" style={{ color: m.accent }}>
             {fmtMk(result.totalCostLow)} ~ {fmtMk(result.totalCostHigh)}
           </p>
@@ -530,8 +530,8 @@ function MethodHeader({ scored, displayRank, ownershipYears }: {
       <div className="space-y-1">
         {keyReasons.map((r, i) => (
           <div key={i} className="flex items-start gap-2">
-            <span className="text-base mt-0.5 shrink-0" style={{ color: m.accent }}>✓</span>
-            <span className="text-[#374151] text-base leading-relaxed">{r}</span>
+            <span className="text-xs mt-0.5 shrink-0" style={{ color: m.accent }}>✓</span>
+            <span className="text-[#374151] text-xs leading-relaxed">{r}</span>
           </div>
         ))}
       </div>
@@ -553,20 +553,20 @@ function AccordionSection({ title, preview, defaultOpen = false, infoKey, onShow
         className="w-full px-4 py-2.5 flex items-center justify-between text-left gap-2">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5">
-            <p className="text-[13px] font-bold text-[#8E8E93] uppercase tracking-wide">{title}</p>
+            <p className="text-[11px] font-bold text-[#8E8E93] uppercase tracking-wide">{title}</p>
             {infoKey && onShowRef && (
               <span role="button" tabIndex={0}
                 onClick={(e) => { e.stopPropagation(); onShowRef(infoKey); }}
                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); onShowRef(infoKey); } }}
-                className="text-[#8E8E93] text-[13px] hover:text-[#C9A84C] transition-colors shrink-0 cursor-pointer"
+                className="text-[#8E8E93] text-[11px] hover:text-[#C9A84C] transition-colors shrink-0 cursor-pointer"
                 aria-label="근거 보기">ⓘ</span>
             )}
           </div>
           {!open && preview && (
-            <p className="text-[12px] text-[#8E8E93] mt-0.5">{preview}</p>
+            <p className="text-[10px] text-[#8E8E93] mt-0.5">{preview}</p>
           )}
         </div>
-        <span className="text-[#8E8E93] text-base shrink-0">{open ? '▲' : '▼'}</span>
+        <span className="text-[#8E8E93] text-xs shrink-0">{open ? '▲' : '▼'}</span>
       </button>
       {open && <div className="px-4 pt-2.5 pb-3 border-t border-[#F2F2F7]">{children}</div>}
     </div>
@@ -609,17 +609,17 @@ function ReferenceModal({ refKey, onClose }: { refKey: LegalRefKey | null; onClo
             </div>
             {/* 헤더 */}
             <div className="flex items-center justify-between px-5 py-3 border-b border-[#F2F2F7]">
-              <h3 className="text-[#1C1C1E] font-bold text-lg">{ref.title}</h3>
+              <h3 className="text-[#1C1C1E] font-bold text-sm">{ref.title}</h3>
               <button type="button" onClick={onClose}
                 className="text-[#8E8E93] text-lg leading-none hover:text-[#1C1C1E] transition-colors">✕</button>
             </div>
             {/* 내용 */}
             <div className="px-5 py-4 space-y-3 pb-8">
-              <span className="inline-block text-[13px] text-[#8E8E93] bg-[#F2F2F7] px-2.5 py-1 rounded-full">
+              <span className="inline-block text-[11px] text-[#8E8E93] bg-[#F2F2F7] px-2.5 py-1 rounded-full">
                 {ref.law}
               </span>
-              <p className="text-[#1C1C1E] text-lg font-semibold leading-relaxed">{ref.summary}</p>
-              <p className="text-[#6B7280] text-base leading-relaxed">{ref.detail}</p>
+              <p className="text-[#1C1C1E] text-sm font-semibold leading-relaxed">{ref.summary}</p>
+              <p className="text-[#6B7280] text-xs leading-relaxed">{ref.detail}</p>
             </div>
           </motion.div>
         </motion.div>
@@ -674,7 +674,7 @@ function InstallmentDetail({ scored, displayRank, ownershipYears, insuranceSourc
           <CostRow label="보험료 합계" value={bd.insurance} badge={insuranceSource} badgeKey="insurance" onShowRef={ctx.onShowRef} />
           <CostRow label="정비비 합계" value={bd.maintenance} badge="차령·가격 추산" badgeKey="maintenance" onShowRef={ctx.onShowRef} />
           {bd.salvageValue > 0 && (
-            <div className="flex justify-between text-base">
+            <div className="flex justify-between text-xs">
               <span className="text-[#6B7280] flex items-center gap-1">
                 중고 매각가 (차감)
                 <ClickableBadge onClick={() => ctx.onShowRef('depreciation')}>엔카 시세</ClickableBadge>
@@ -690,36 +690,36 @@ function InstallmentDetail({ scored, displayRank, ownershipYears, insuranceSourc
       <AccordionSection title="취등록세 상세" preview={`약 ${fmtMk(acqTax.finalTax)}`}
         infoKey="acquisitionTax" onShowRef={ctx.onShowRef}>
         <div className="space-y-1.5">
-          <div className="flex justify-between text-base">
+          <div className="flex justify-between text-xs">
             <span className="text-[#6B7280]">차종</span>
             <span className="text-[#374151] font-medium">{ctx.form.isEV ? '전기차 (취득세 감면)' : '승용 비영업'}</span>
           </div>
-          <div className="flex justify-between text-base">
+          <div className="flex justify-between text-xs">
             <span className="text-[#6B7280]">기본 세율</span>
             <span className="text-[#374151] font-medium">{Math.round(acqTax.taxRate * 100)}%</span>
           </div>
-          <div className="flex justify-between text-base">
+          <div className="flex justify-between text-xs">
             <span className="text-[#6B7280]">산출세액</span>
             <span className="text-[#374151] font-medium">{fmtMk(acqTax.acquisitionTax)}</span>
           </div>
           {acqTax.evDiscount > 0 && (
-            <div className="flex justify-between text-base">
+            <div className="flex justify-between text-xs">
               <span className="text-[#6B7280]">전기차 감면 (최대 140만원)</span>
               <span className="text-green-600 font-medium">−{fmtMk(acqTax.evDiscount)}</span>
             </div>
           )}
           {acqTax.hevDiscount > 0 && (
-            <div className="flex justify-between text-base">
+            <div className="flex justify-between text-xs">
               <span className="text-[#6B7280]">하이브리드 감면 (최대 40만원)</span>
               <span className="text-green-600 font-medium">−{fmtMk(acqTax.hevDiscount)}</span>
             </div>
           )}
-          <div className="flex justify-between text-base font-semibold pt-1.5 border-t border-black/5">
+          <div className="flex justify-between text-xs font-semibold pt-1.5 border-t border-black/5">
             <span className="text-[#6B7280]">최종 납부액</span>
             <span style={{ color: m.accent }}>{fmtMk(acqTax.finalTax)}</span>
           </div>
         </div>
-        <p className="text-[#8E8E93] text-[12px] mt-2">할부는 구매 시점에 취등록세를 일시 납부해야 합니다 (렌트·리스는 면제)</p>
+        <p className="text-[#8E8E93] text-[10px] mt-2">할부는 구매 시점에 취등록세를 일시 납부해야 합니다 (렌트·리스는 면제)</p>
       </AccordionSection>
 
       {/* ③ 보험료 안내 */}
@@ -730,7 +730,7 @@ function InstallmentDetail({ scored, displayRank, ownershipYears, insuranceSourc
         infoKey="autoTax" onShowRef={ctx.onShowRef}>
         <div className="space-y-1.5">
           {autoTaxRows.map((row) => (
-            <div key={row.year} className="flex justify-between text-base">
+            <div key={row.year} className="flex justify-between text-xs">
               <span className="text-[#6B7280]">
                 {row.year}년차 (차령 {row.ageYears}년)
                 {row.discountRate > 0 && <span className="ml-1 text-green-600">−{Math.round(row.discountRate * 100)}%</span>}
@@ -738,12 +738,12 @@ function InstallmentDetail({ scored, displayRank, ownershipYears, insuranceSourc
               <span className="text-[#374151] font-medium">{fmtMk(row.total)}</span>
             </div>
           ))}
-          <div className="flex justify-between text-base font-semibold pt-1.5 border-t border-black/5">
+          <div className="flex justify-between text-xs font-semibold pt-1.5 border-t border-black/5">
             <span className="text-[#6B7280]">{ownershipYears}년간 합계</span>
             <span style={{ color: m.accent }}>{fmtMk(autoTaxSum)}</span>
           </div>
         </div>
-        <p className="text-[#8E8E93] text-[12px] mt-2">3년차부터 차령 1년당 5% 경감 적용 (최대 50%) / 할부는 매년 직접 납부</p>
+        <p className="text-[#8E8E93] text-[10px] mt-2">3년차부터 차령 1년당 5% 경감 적용 (최대 50%) / 할부는 매년 직접 납부</p>
       </AccordionSection>
 
       {/* ⑤ 감가상각 & 중고 매각 */}
@@ -757,11 +757,11 @@ function InstallmentDetail({ scored, displayRank, ownershipYears, insuranceSourc
           />
         )}
         <div className="space-y-1.5 mt-3">
-          <div className="flex justify-between text-base">
+          <div className="flex justify-between text-xs">
             <span className="text-[#6B7280]">{ownershipYears}년 후 예상 잔존가치 (중간값)</span>
             <span className="text-[#374151] font-medium">{fmtMk(bd.salvageValue)}</span>
           </div>
-          <div className="flex justify-between text-base">
+          <div className="flex justify-between text-xs">
             <span className="text-[#6B7280]">예상 범위 (±15%)</span>
             <span className="text-[#374151] font-medium">
               {fmtMk(Math.round(bd.salvageValue * 0.85))} ~ {fmtMk(Math.round(bd.salvageValue * 1.15))}
@@ -769,7 +769,7 @@ function InstallmentDetail({ scored, displayRank, ownershipYears, insuranceSourc
           </div>
         </div>
         {bd.salvageValue > 0 && (
-          <p className="text-[#8E8E93] text-[12px] mt-2">보유 종료 후 중고 매각으로 약 {fmtMk(bd.salvageValue)} 회수 예상 (총비용에서 차감됨)</p>
+          <p className="text-[#8E8E93] text-[10px] mt-2">보유 종료 후 중고 매각으로 약 {fmtMk(bd.salvageValue)} 회수 예상 (총비용에서 차감됨)</p>
         )}
       </AccordionSection>
 
@@ -777,16 +777,16 @@ function InstallmentDetail({ scored, displayRank, ownershipYears, insuranceSourc
       <AccordionSection title="정비비 예상" preview={`${ownershipYears}년간 약 ${fmtMk(bd.maintenance)}`}
         infoKey="maintenance" onShowRef={ctx.onShowRef}>
         <div className="space-y-1.5">
-          <div className="flex justify-between text-base">
+          <div className="flex justify-between text-xs">
             <span className="text-[#6B7280]">월 평균 정비비 추산 <DataBadge>차령·가격 기준</DataBadge></span>
             <span className="text-[#374151] font-medium">{fmtMk(maintMonthly)}</span>
           </div>
-          <div className="flex justify-between text-base font-semibold pt-1.5 border-t border-black/5">
+          <div className="flex justify-between text-xs font-semibold pt-1.5 border-t border-black/5">
             <span className="text-[#6B7280]">{ownershipYears}년간 정비비 합계</span>
             <span style={{ color: m.accent }}>{fmtMk(bd.maintenance)}</span>
           </div>
         </div>
-        <p className="text-[#8E8E93] text-[12px] mt-2">할부는 정비비를 본인이 부담합니다 (±20% 오차 포함)</p>
+        <p className="text-[#8E8E93] text-[10px] mt-2">할부는 정비비를 본인이 부담합니다 (±20% 오차 포함)</p>
       </AccordionSection>
 
       {/* ⑦ 총비용 요약 */}
@@ -798,12 +798,12 @@ function InstallmentDetail({ scored, displayRank, ownershipYears, insuranceSourc
           <CostRow label="자동차세 합계" value={bd.autoTax} />
           <CostRow label="정비비 합계" value={bd.maintenance} />
           {bd.salvageValue > 0 && (
-            <div className="flex justify-between text-base">
+            <div className="flex justify-between text-xs">
               <span className="text-[#6B7280]">중고 매각가 (차감)</span>
               <span className="text-green-600 font-medium">−{fmtMk(bd.salvageValue)}</span>
             </div>
           )}
-          <div className="flex justify-between text-base font-semibold pt-1.5 border-t border-[#E5E7EB]">
+          <div className="flex justify-between text-xs font-semibold pt-1.5 border-t border-[#E5E7EB]">
             <span className="text-[#1C1C1E]">실질 총비용 범위</span>
             <span style={{ color: m.accent }}>{fmtMk(result.totalCostLow)} ~ {fmtMk(result.totalCostHigh)}</span>
           </div>
@@ -845,7 +845,7 @@ function RentDetail({ scored, displayRank, ownershipYears, insuranceSource, ctx 
       <AccordionSection title="계산 근거" defaultOpen={true}>
         <div className="space-y-1.5">
           <CostRow label="월렌트료 합계" value={bd.payments} />
-          <p className="text-[#8E8E93] text-[12px]">* 보험·정비·세금이 월납입에 모두 포함됨</p>
+          <p className="text-[#8E8E93] text-[10px]">* 보험·정비·세금이 월납입에 모두 포함됨</p>
           <CostRow label="추정 총비용 (중간값)" value={result.totalCostMid} bold />
         </div>
       </AccordionSection>
@@ -865,26 +865,26 @@ function RentDetail({ scored, displayRank, ownershipYears, insuranceSource, ctx 
               <div className="flex items-start gap-2">
                 <span>{icon}</span>
                 <div>
-                  <p className="text-[#1C1C1E] text-base font-medium flex items-center gap-1">
+                  <p className="text-[#1C1C1E] text-xs font-medium flex items-center gap-1">
                     {label}
                     {itemKey && (
                       <span role="button" tabIndex={0}
                         onClick={() => ctx.onShowRef(itemKey)}
                         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); ctx.onShowRef(itemKey); } }}
-                        className="text-[#8E8E93] text-[12px] hover:text-[#C9A84C] transition-colors cursor-pointer">ⓘ</span>
+                        className="text-[#8E8E93] text-[10px] hover:text-[#C9A84C] transition-colors cursor-pointer">ⓘ</span>
                     )}
                   </p>
-                  <p className="text-[#8E8E93] text-[12px]">{note}</p>
+                  <p className="text-[#8E8E93] text-[10px]">{note}</p>
                 </div>
               </div>
               {annual > 0 && (
-                <span className="text-[#6B7280] text-base shrink-0">연 {fmtMk(annual)} 상당</span>
+                <span className="text-[#6B7280] text-xs shrink-0">연 {fmtMk(annual)} 상당</span>
               )}
             </div>
           ))}
         </div>
         {(annualInsurance + annualAutoTax + annualMaintenance) > 0 && (
-          <div className="mt-3 pt-2 border-t border-[#F2F2F7] text-base text-[#6B7280]">
+          <div className="mt-3 pt-2 border-t border-[#F2F2F7] text-xs text-[#6B7280]">
             포함 항목 합산 약{' '}
             <strong className="text-[#1C1C1E]">{fmtMk(monthlyIncluded)}</strong>/월 상당의 비용이 이미 포함
           </div>
@@ -906,22 +906,22 @@ function RentDetail({ scored, displayRank, ownershipYears, insuranceSource, ctx 
               'rounded-lg border p-2.5 text-center',
               highlight ? 'border-[#3B82F6] bg-[#EFF6FF]' : 'border-[#E5E7EB] bg-[#FAFAFA]',
             ].join(' ')}>
-              <p className="text-lg">{emoji}</p>
-              <p className="text-base font-semibold text-[#1C1C1E] mt-0.5">{label}</p>
-              <p className="text-[11px] text-[#6B7280] mt-0.5">{desc}</p>
+              <p className="text-base">{emoji}</p>
+              <p className="text-xs font-semibold text-[#1C1C1E] mt-0.5">{label}</p>
+              <p className="text-[9px] text-[#6B7280] mt-0.5">{desc}</p>
             </div>
           ))}
         </div>
-        <p className="text-[#8E8E93] text-[12px] mt-2">소유에 관심 없다면 반납이 가장 경제적</p>
+        <p className="text-[#8E8E93] text-[10px] mt-2">소유에 관심 없다면 반납이 가장 경제적</p>
       </AccordionSection>
 
       {/* ⑤ 번호판 안내 */}
       {showPlate && (
         <AccordionSection title="번호판 안내" infoKey="plateInfo" onShowRef={ctx.onShowRef}>
-          <p className="text-[#374151] text-base leading-relaxed">
+          <p className="text-[#374151] text-xs leading-relaxed">
             장기렌트는 <strong>허·하·호 번호판</strong>이 부여됩니다. 2024년부터 일반번호판 장기렌트 시범 사업이 시행 중이나, 렌트사별 조건이 상이합니다.
           </p>
-          <p className="text-[#8E8E93] text-[12px] mt-1.5">일반번호판을 원한다면 운용리스를 고려하세요</p>
+          <p className="text-[#8E8E93] text-[10px] mt-1.5">일반번호판을 원한다면 운용리스를 고려하세요</p>
         </AccordionSection>
       )}
 
@@ -929,7 +929,7 @@ function RentDetail({ scored, displayRank, ownershipYears, insuranceSource, ctx 
       <SectionCard title={`${ownershipYears}년 총비용 요약`}>
         <div className="space-y-1.5">
           <CostRow label="월렌트료 합계 (보험·세금·정비 포함)" value={bd.payments} />
-          <div className="flex justify-between text-base font-semibold pt-1.5 border-t border-[#E5E7EB]">
+          <div className="flex justify-between text-xs font-semibold pt-1.5 border-t border-[#E5E7EB]">
             <span className="text-[#1C1C1E]">실질 총비용 범위</span>
             <span style={{ color: m.accent }}>{fmtMk(result.totalCostLow)} ~ {fmtMk(result.totalCostHigh)}</span>
           </div>
@@ -1000,58 +1000,58 @@ function LeaseDetail({ scored, displayRank, ownershipYears, insuranceSource, ctx
           preview={tax4y > 0 ? `${ownershipYears}년간 약 ${fmtMk(tax4y)} 절세` : undefined}
           infoKey="taxSaving" onShowRef={ctx.onShowRef}>
           <div className="space-y-1.5">
-            <div className="flex justify-between text-base">
+            <div className="flex justify-between text-xs">
               <span className="text-[#6B7280]">업종별 업무사용비율</span>
               <span className="text-[#374151] font-medium">{Math.round(taxDetail.businessUseRatio * 100)}%</span>
             </div>
-            <div className="flex justify-between text-base">
+            <div className="flex justify-between text-xs">
               <span className="text-[#6B7280]">연간 비용처리 가능액</span>
               <span className="text-[#374151] font-medium">{fmtMk(taxDetail.deductibleExpense)}</span>
             </div>
             {taxDetail.expenseLimitApplied && (
-              <p className="text-[12px] text-orange-600">연 1,500만원 한도 적용됨 (법인세법 시행령 §50의2)</p>
+              <p className="text-[10px] text-orange-600">연 1,500만원 한도 적용됨 (법인세법 시행령 §50의2)</p>
             )}
-            <div className="flex justify-between text-base">
+            <div className="flex justify-between text-xs">
               <span className="text-[#6B7280]">{isCorp ? '법인세' : '종합소득세'} 한계세율</span>
               <span className="text-[#374151] font-medium">{Math.round(taxDetail.marginalTaxRate * 100)}%</span>
             </div>
-            <div className="flex justify-between text-base font-semibold pt-1.5 border-t border-black/5">
+            <div className="flex justify-between text-xs font-semibold pt-1.5 border-t border-black/5">
               <span className="text-[#6B7280]">연간 절세 예상</span>
               <span className="text-green-600">{fmtMk(taxDetail.annualTaxSaving)}</span>
             </div>
-            <div className="flex justify-between text-base font-semibold">
+            <div className="flex justify-between text-xs font-semibold">
               <span className="text-[#6B7280]">{ownershipYears}년간 절세 총액</span>
               <span className="text-green-600">{fmtMk(tax4y)}</span>
             </div>
           </div>
           <div className="mt-2 px-3 py-2 rounded-lg bg-green-50 border border-green-200">
-            <p className="text-green-700 text-base font-medium">
+            <p className="text-green-700 text-xs font-medium">
               💡 절세 반영 실질 총비용: {fmtMk(result.totalCostMid - tax4y)}
             </p>
           </div>
         </AccordionSection>
       ) : !isBusiness ? (
         <AccordionSection title="절세 효과" infoKey="taxSaving" onShowRef={ctx.onShowRef}>
-          <p className="text-[#6B7280] text-base">개인(직장인)은 리스료 비용처리가 불가합니다. 법인·개인사업자는 월 리스료 전액을 비용처리할 수 있습니다.</p>
+          <p className="text-[#6B7280] text-xs">개인(직장인)은 리스료 비용처리가 불가합니다. 법인·개인사업자는 월 리스료 전액을 비용처리할 수 있습니다.</p>
         </AccordionSection>
       ) : null}
 
       {/* ④ 잔존가치 설정 안내 */}
       <AccordionSection title="잔존가치 설정 안내" preview="차량가의 30~40% 설정"
         infoKey="residualValue" onShowRef={ctx.onShowRef}>
-        <p className="text-[#374151] text-base leading-relaxed mb-2">
+        <p className="text-[#374151] text-xs leading-relaxed mb-2">
           리스 계약 시 잔존가치(잔가)를 설정하면 그 금액만큼 월납입에서 제외됩니다. 일반적으로 차량가의 30~40% 설정 (차량가 {fmtMk(carPriceMk * 10_000)} 기준 약 {fmtMk(residualMk * 10_000)} 수준).
         </p>
         <div className="grid grid-cols-2 gap-2">
           <div className="rounded-lg border border-[#E5E7EB] p-2.5 bg-[#FAFAFA]">
-            <p className="text-[12px] text-[#8E8E93]">잔가 높게 (40%)</p>
-            <p className="text-lg font-bold text-[#1C1C1E]">월납입 ↓</p>
-            <p className="text-[11px] text-orange-600 mt-0.5">만기 시 정산 부담 ↑</p>
+            <p className="text-[10px] text-[#8E8E93]">잔가 높게 (40%)</p>
+            <p className="text-sm font-bold text-[#1C1C1E]">월납입 ↓</p>
+            <p className="text-[9px] text-orange-600 mt-0.5">만기 시 정산 부담 ↑</p>
           </div>
           <div className="rounded-lg border border-[#E5E7EB] p-2.5 bg-[#FAFAFA]">
-            <p className="text-[12px] text-[#8E8E93]">잔가 낮게 (30%)</p>
-            <p className="text-lg font-bold text-[#1C1C1E]">월납입 ↑</p>
-            <p className="text-[11px] text-green-600 mt-0.5">만기 시 정산 부담 ↓</p>
+            <p className="text-[10px] text-[#8E8E93]">잔가 낮게 (30%)</p>
+            <p className="text-sm font-bold text-[#1C1C1E]">월납입 ↑</p>
+            <p className="text-[9px] text-green-600 mt-0.5">만기 시 정산 부담 ↓</p>
           </div>
         </div>
       </AccordionSection>
@@ -1069,14 +1069,14 @@ function LeaseDetail({ scored, displayRank, ownershipYears, insuranceSource, ctx
               'rounded-lg border p-2.5 text-center',
               highlight ? 'border-[#8B5CF6] bg-[#F5F3FF]' : 'border-[#E5E7EB] bg-[#FAFAFA]',
             ].join(' ')}>
-              <p className="text-lg">{emoji}</p>
-              <p className="text-base font-semibold text-[#1C1C1E] mt-0.5">{label}</p>
-              <p className="text-[11px] text-[#6B7280] mt-0.5">{desc}</p>
+              <p className="text-base">{emoji}</p>
+              <p className="text-xs font-semibold text-[#1C1C1E] mt-0.5">{label}</p>
+              <p className="text-[9px] text-[#6B7280] mt-0.5">{desc}</p>
             </div>
           ))}
         </div>
         {marketMk !== null && (
-          <p className="text-[#8E8E93] text-[12px] mt-2">
+          <p className="text-[#8E8E93] text-[10px] mt-2">
             {ownershipYears}년 후 예상 시세 {fmtMk(marketMk * 10_000)} vs 잔존가치 약 {fmtMk(residualMk * 10_000)} —
             {marketMk >= residualMk ? ' 시세 ≥ 잔가이면 인수 후 매각이 유리할 수 있습니다' : ' 시세 < 잔가이면 반납이 유리합니다'}
           </p>
@@ -1085,7 +1085,7 @@ function LeaseDetail({ scored, displayRank, ownershipYears, insuranceSource, ctx
 
       {/* ⑥ 번호판 안내 */}
       <AccordionSection title="번호판 안내" infoKey="plateInfo" onShowRef={ctx.onShowRef}>
-        <p className="text-[#374151] text-base leading-relaxed">
+        <p className="text-[#374151] text-xs leading-relaxed">
           <strong>운용리스는 일반번호판 사용 가능</strong> — 장기렌트(허·하·호)와의 핵심 차이입니다. 소유자는 리스사이지만 일반번호판이 부여되어 외관상 구분되지 않습니다.
         </p>
       </AccordionSection>
@@ -1097,12 +1097,12 @@ function LeaseDetail({ scored, displayRank, ownershipYears, insuranceSource, ctx
           <CostRow label="자동차세 합계" value={bd.autoTax} />
           <CostRow label="보험료 합계" value={bd.insurance} />
           <CostRow label="정비비 합계" value={bd.maintenance} />
-          <div className="flex justify-between text-base font-semibold pt-1.5 border-t border-[#E5E7EB]">
+          <div className="flex justify-between text-xs font-semibold pt-1.5 border-t border-[#E5E7EB]">
             <span className="text-[#1C1C1E]">실질 총비용 범위</span>
             <span style={{ color: m.accent }}>{fmtMk(result.totalCostLow)} ~ {fmtMk(result.totalCostHigh)}</span>
           </div>
           {isBusiness && tax4y > 0 && (
-            <div className="flex justify-between text-base font-semibold text-green-600">
+            <div className="flex justify-between text-xs font-semibold text-green-600">
               <span>절세 반영 실질 비용</span>
               <span>{fmtMk(result.totalCostMid - tax4y)}</span>
             </div>
@@ -1126,7 +1126,7 @@ function DetailPanel({ scored, displayRank, ownershipYears, insuranceSource, ctx
   if (excluded) {
     return (
       <div className="rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] px-4 py-4">
-        <p className="text-[#6B7280] text-lg">{excludeReason}</p>
+        <p className="text-[#6B7280] text-sm">{excludeReason}</p>
       </div>
     );
   }
@@ -1480,7 +1480,7 @@ function CompareInner() {
 
         {/* 이전 작성 복원 토스트 */}
         {restored && (
-          <div className="mb-4 flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#F0FDF4] border border-green-200 text-green-700 text-lg font-medium diagnosis-no-print">
+          <div className="mb-4 flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#F0FDF4] border border-green-200 text-green-700 text-sm font-medium diagnosis-no-print">
             ✓ 이전에 작성하던 내용을 복원했습니다.
           </div>
         )}
@@ -1494,11 +1494,11 @@ function CompareInner() {
                   style={{ backgroundColor: n <= progress ? ACCENT : '#D1D1D6' }} />
               ))}
             </div>
-            <p className="text-[#8E8E93] text-base font-medium mb-1">
+            <p className="text-[#8E8E93] text-xs font-medium mb-1">
               {progress}/3 — {progress === 1 ? '내 상황 파악' : progress === 2 ? '현재 비용' : '희망 신차'}
             </p>
             <h1 className="text-[#1C1C1E] text-2xl font-bold">결제방식 비교</h1>
-            <p className="text-[#6B7280] text-lg mt-1">5번의 선택으로 최적 방법을 확인하세요</p>
+            <p className="text-[#6B7280] text-sm mt-1">5번의 선택으로 최적 방법을 확인하세요</p>
           </div>
         )}
 
@@ -1545,7 +1545,7 @@ function CompareInner() {
                         </Chip>
                       ))}
                     </div>
-                    <p className="text-[#8E8E93] text-base mt-1.5">업무사용비율 기본 {DEFAULT_INDUSTRY_RATIO[form.industry]}% 적용</p>
+                    <p className="text-[#8E8E93] text-xs mt-1.5">업무사용비율 기본 {DEFAULT_INDUSTRY_RATIO[form.industry]}% 적용</p>
                   </div>
                 )}
               </div>
@@ -1559,14 +1559,14 @@ function CompareInner() {
                       onClick={() => setForm((f) => ({ ...f, insuranceHistory: v }))}>
                       <div className="flex justify-between w-full">
                         <span>{label}</span>
-                        <span className="text-[#8E8E93] text-base">보험료 추산 연 {Math.round(amount / 10_000)}만원</span>
+                        <span className="text-[#8E8E93] text-xs">보험료 추산 연 {Math.round(amount / 10_000)}만원</span>
                       </div>
                     </Chip>
                   ))}
                 </div>
                 {(form.insuranceHistory === 'none' || form.insuranceHistory === 'under1y') && (
                   <div className="mt-2 px-3 py-2 rounded-lg bg-blue-50 border border-blue-100">
-                    <p className="text-blue-600 text-base">💡 렌트 선택 시 보험료 부담 없음 (렌트료에 포함)</p>
+                    <p className="text-blue-600 text-xs">💡 렌트 선택 시 보험료 부담 없음 (렌트료에 포함)</p>
                   </div>
                 )}
               </div>
@@ -1575,7 +1575,7 @@ function CompareInner() {
               <div className="bg-white rounded-2xl shadow-sm border border-[#E5E7EB] p-5">
                 <Label>
                   운전자 연령대
-                  <span className="ml-1.5 text-[13px] font-normal text-[#8E8E93]">선택 — 맞춤 보험료 추정</span>
+                  <span className="ml-1.5 text-[11px] font-normal text-[#8E8E93]">선택 — 맞춤 보험료 추정</span>
                 </Label>
                 <div className="grid grid-cols-6 gap-1.5">
                   {AGE_OPTIONS.map((opt) => {
@@ -1591,9 +1591,9 @@ function CompareInner() {
 
                 {form.ageGroup !== null && (
                   <div className="mt-3">
-                    <p className="text-[#1C1C1E] text-[14px] font-semibold mb-1.5">
+                    <p className="text-[#1C1C1E] text-[12px] font-semibold mb-1.5">
                       성별
-                      <span className="ml-1 text-[13px] font-normal text-[#8E8E93]">선택</span>
+                      <span className="ml-1 text-[11px] font-normal text-[#8E8E93]">선택</span>
                     </p>
                     <div className="flex gap-2">
                       {SEX_OPTIONS.map((opt) => {
@@ -1609,13 +1609,13 @@ function CompareInner() {
                   </div>
                 )}
 
-                <p className="text-[12px] text-[#8E8E93] mt-2">
+                <p className="text-[10px] text-[#8E8E93] mt-2">
                   * 차량 선택 후 금융위원회 통계로 연령별 보험료가 자동 조회됩니다.
                 </p>
               </div>
 
               <button type="button" onClick={() => { saveCompareState(form, 'currentCost'); setDir(1); setPhase('currentCost'); }} disabled={!g1Valid}
-                className="w-full py-4 rounded-2xl text-white font-semibold text-lg transition-all disabled:opacity-40"
+                className="w-full py-4 rounded-2xl text-white font-semibold text-base transition-all disabled:opacity-40"
                 style={{ backgroundColor: g1Valid ? ACCENT : '#D1D1D6' }}>
                 다음 — 현재 비용 →
               </button>
@@ -1653,7 +1653,7 @@ function CompareInner() {
                     chips={[0, 30, 50, 80]}
                   />
                   {form.currentCost.monthlyPayment === 0 && (
-                    <p className="text-[#8E8E93] text-base -mt-3">차량 대금 완납 상태로 계산됩니다</p>
+                    <p className="text-[#8E8E93] text-xs -mt-3">차량 대금 완납 상태로 계산됩니다</p>
                   )}
 
                   <MoneyChipInput
@@ -1663,7 +1663,7 @@ function CompareInner() {
                     chips={[50, 70, 100, 150]}
                   />
                   {form.currentCost.annualInsurance > 0 && (
-                    <p className="text-[#8E8E93] text-base -mt-3">월 {Math.round(form.currentCost.annualInsurance / 12)}만원 상당</p>
+                    <p className="text-[#8E8E93] text-xs -mt-3">월 {Math.round(form.currentCost.annualInsurance / 12)}만원 상당</p>
                   )}
 
                   <MoneyChipInput
@@ -1700,7 +1700,7 @@ function CompareInner() {
                     return total > 0 ? (
                       <div className="pt-3 border-t border-[#F2F2F7]">
                         <div className="flex items-center justify-between">
-                          <span className="text-[#6B7280] text-lg">현재 월 총 차량비용</span>
+                          <span className="text-[#6B7280] text-sm">현재 월 총 차량비용</span>
                           <span className="text-[#1C1C1E] text-lg font-bold">약 {Math.round(total)}만원</span>
                         </div>
                       </div>
@@ -1739,7 +1739,7 @@ function CompareInner() {
                     return total > 0 ? (
                       <div className="pt-3 border-t border-[#F2F2F7]">
                         <div className="flex items-center justify-between">
-                          <span className="text-[#6B7280] text-lg">현재 월 총 교통비</span>
+                          <span className="text-[#6B7280] text-sm">현재 월 총 교통비</span>
                           <span className="text-[#1C1C1E] text-lg font-bold">약 {Math.round(total)}만원</span>
                         </div>
                       </div>
@@ -1769,7 +1769,7 @@ function CompareInner() {
                   return next;
                 });
                 setDir(1); setPhase('group2');
-              }} className="text-[#8E8E93] text-lg text-center hover:text-[#6B7280] transition-colors">
+              }} className="text-[#8E8E93] text-sm text-center hover:text-[#6B7280] transition-colors">
                 이 단계 건너뛰기
               </button>
             </motion.div>
@@ -1800,7 +1800,7 @@ function CompareInner() {
                     <input type="text" value={form.model}
                       onChange={(e) => setForm((f) => ({ ...f, model: e.target.value }))}
                       placeholder="모델명 입력 (예: K5)"
-                      className="w-full px-4 py-3 rounded-xl border border-[#E5E7EB] bg-white text-[#1C1C1E] text-lg focus:outline-none focus:border-[#C9A84C]" />
+                      className="w-full px-4 py-3 rounded-xl border border-[#E5E7EB] bg-white text-[#1C1C1E] text-sm focus:outline-none focus:border-[#C9A84C]" />
                   ) : (
                     <SelectField value={form.model} disabled={!form.brand} loading={loadingModels}
                       onChange={(v) => {
@@ -1828,9 +1828,9 @@ function CompareInner() {
                 {/* 트림 */}
                 {form.brand !== '__manual__' && (
                   <div>
-                    <Label>트림 <span className="text-[#8E8E93] font-normal text-base">(선택 — 신차가 자동 채움)</span></Label>
+                    <Label>트림 <span className="text-[#8E8E93] font-normal text-xs">(선택 — 신차가 자동 채움)</span></Label>
                     {!loadingTrims && form.model && form.vehicleId && trims.length === 0 ? (
-                      <p className="text-[#8E8E93] text-base px-1 py-2">
+                      <p className="text-[#8E8E93] text-xs px-1 py-2">
                         이 모델의 트림 데이터가 없습니다. 아래에서 차량 가격을 직접 입력해주세요.
                       </p>
                     ) : (
@@ -1861,10 +1861,10 @@ function CompareInner() {
                   <input type="number" value={form.carPriceMk}
                     onChange={(e) => setForm((f) => ({ ...f, carPriceMk: e.target.value }))}
                     placeholder="직접 입력"
-                    className="w-full px-4 py-3 rounded-xl border border-[#E5E7EB] bg-white text-[#1C1C1E] text-lg focus:outline-none focus:border-[#C9A84C] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
+                    className="w-full px-4 py-3 rounded-xl border border-[#E5E7EB] bg-white text-[#1C1C1E] text-sm focus:outline-none focus:border-[#C9A84C] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
                   {form.carPriceMkAuto > 0 && Number(form.carPriceMk) !== form.carPriceMkAuto && (
                     <button type="button" onClick={() => setForm((f) => ({ ...f, carPriceMk: String(f.carPriceMkAuto) }))}
-                      className="text-base mt-1" style={{ color: ACCENT }}>
+                      className="text-xs mt-1" style={{ color: ACCENT }}>
                       DB 신차가로 복원 ({form.carPriceMkAuto.toLocaleString()}만원)
                     </button>
                   )}
@@ -1873,7 +1873,7 @@ function CompareInner() {
                 {/* EV/HEV — 자동감지 배너 */}
                 {(form.isEV || form.isHEV) && form.fuelTypeResolved && (
                   <div className="px-3 py-2 rounded-lg bg-green-50 border border-green-100">
-                    <p className="text-green-700 text-base">
+                    <p className="text-green-700 text-xs">
                       {form.isEV ? '⚡ 전기차 감지 — 자동차세 10만원·취등록세 최대 140만원 감면 자동 적용'
                         : '🔋 하이브리드 감지 — 취등록세 최대 40만원 감면 자동 적용'}
                     </p>
@@ -1883,22 +1883,22 @@ function CompareInner() {
                 {/* EV/HEV — fuel_type 미확인 시 수동 체크박스 */}
                 {form.model && form.brand !== '__manual__' && !form.fuelTypeResolved && (
                   <div className="px-3 py-3 rounded-lg bg-amber-50 border border-amber-200">
-                    <p className="text-amber-700 text-base font-medium mb-2">이 차량은 전기차 또는 하이브리드인가요?</p>
+                    <p className="text-amber-700 text-xs font-medium mb-2">이 차량은 전기차 또는 하이브리드인가요?</p>
                     <div className="flex gap-4">
                       <label className="flex items-center gap-1.5 cursor-pointer">
                         <input type="checkbox" checked={form.isEV}
                           onChange={(e) => setForm((f) => ({ ...f, isEV: e.target.checked, isHEV: e.target.checked ? false : f.isHEV }))}
                           className="w-4 h-4 accent-[#C9A84C]" />
-                        <span className="text-base text-amber-800">⚡ 전기차</span>
+                        <span className="text-xs text-amber-800">⚡ 전기차</span>
                       </label>
                       <label className="flex items-center gap-1.5 cursor-pointer">
                         <input type="checkbox" checked={form.isHEV}
                           onChange={(e) => setForm((f) => ({ ...f, isHEV: e.target.checked, isEV: e.target.checked ? false : f.isEV }))}
                           className="w-4 h-4 accent-[#C9A84C]" />
-                        <span className="text-base text-amber-800">🔋 하이브리드</span>
+                        <span className="text-xs text-amber-800">🔋 하이브리드</span>
                       </label>
                     </div>
-                    <p className="text-amber-600 text-[12px] mt-1.5">해당 없으면 그냥 두세요 — 가솔린/디젤로 처리됩니다</p>
+                    <p className="text-amber-600 text-[10px] mt-1.5">해당 없으면 그냥 두세요 — 가솔린/디젤로 처리됩니다</p>
                   </div>
                 )}
 
@@ -1906,24 +1906,24 @@ function CompareInner() {
                 {(loadingInsurance || dbInsurance) && (
                   <div className="px-3 py-2.5 rounded-lg bg-[#F9F9F9] border border-[#E5E7EB]">
                     {loadingInsurance ? (
-                      <p className="text-[#8E8E93] text-base">보험료 통계 조회 중…</p>
+                      <p className="text-[#8E8E93] text-xs">보험료 통계 조회 중…</p>
                     ) : dbInsurance ? (
                       <div>
                         <div className="flex items-center justify-between mb-0.5">
                           <div className="flex items-center gap-1.5">
-                            <p className="text-[#374151] text-base font-semibold">금융위원회 평균 보험료</p>
-                            <span className="text-[#8E8E93] text-[12px]">{dbInsurance.baseYm}</span>
+                            <p className="text-[#374151] text-xs font-semibold">금융위원회 평균 보험료</p>
+                            <span className="text-[#8E8E93] text-[10px]">{dbInsurance.baseYm}</span>
                           </div>
-                          <p className="text-[#1C1C1E] text-lg font-bold">
+                          <p className="text-[#1C1C1E] text-sm font-bold">
                             연 {Math.round(dbInsurance.amount / 10_000)}만원
                           </p>
                         </div>
                         {contextLabel && (
                           <div className="flex items-center gap-1 mt-1">
-                            <span className="inline-flex items-center text-[12px] font-semibold text-[#FF9500] bg-[#FF950015] px-1.5 py-0.5 rounded-full">
+                            <span className="inline-flex items-center text-[10px] font-semibold text-[#FF9500] bg-[#FF950015] px-1.5 py-0.5 rounded-full">
                               {contextLabel} 기준
                             </span>
-                            <span className="text-[12px] text-[#8E8E93]">연령별 맞춤 추정치 적용됨</span>
+                            <span className="text-[10px] text-[#8E8E93]">연령별 맞춤 추정치 적용됨</span>
                           </div>
                         )}
                       </div>
@@ -1935,9 +1935,9 @@ function CompareInner() {
                 {(loadingUsedPrices || dbUsedPrices) && (
                   <div className="px-3 py-1.5 rounded-lg bg-[#F9F9F9] border border-[#E5E7EB]">
                     {loadingUsedPrices ? (
-                      <p className="text-[#8E8E93] text-base">엔카 시세 로드 중…</p>
+                      <p className="text-[#8E8E93] text-xs">엔카 시세 로드 중…</p>
                     ) : dbUsedPrices ? (
-                      <p className="text-[#6B7280] text-base">✓ 엔카 실거래 시세 로드됨 — 감가상각 계산에 반영</p>
+                      <p className="text-[#6B7280] text-xs">✓ 엔카 실거래 시세 로드됨 — 감가상각 계산에 반영</p>
                     ) : null}
                   </div>
                 )}
@@ -1947,8 +1947,8 @@ function CompareInner() {
               <div className="bg-white rounded-2xl shadow-sm border border-[#E5E7EB] overflow-hidden">
                 <button type="button" onClick={() => setShowAdvanced((p) => !p)}
                   className="w-full px-5 py-4 flex justify-between items-center">
-                  <span className="text-[#1C1C1E] text-lg font-medium">⚙️ 고급 설정 (선택)</span>
-                  <span className="text-[#8E8E93] text-base">
+                  <span className="text-[#1C1C1E] text-sm font-medium">⚙️ 고급 설정 (선택)</span>
+                  <span className="text-[#8E8E93] text-xs">
                     {showAdvanced ? '▲ 접기' : '▼ 기본값으로 계산 중 — 수정 가능'}
                   </span>
                 </button>
@@ -1975,7 +1975,7 @@ function CompareInner() {
                         value={form.advanced.ownershipYears}
                         onChange={(e) => setForm((f) => ({ ...f, advanced: { ...f.advanced, ownershipYears: Number(e.target.value) } }))}
                         className="w-full" style={{ accentColor: ACCENT }} />
-                      <div className="flex justify-between text-base text-[#8E8E93] mt-0.5">
+                      <div className="flex justify-between text-xs text-[#8E8E93] mt-0.5">
                         {[1,2,3,4,5,6,7].map((n) => <span key={n}>{n}년</span>)}
                       </div>
                     </div>
@@ -2060,9 +2060,9 @@ function CompareInner() {
               className="flex flex-col gap-4">
 
               <div>
-                <p className="text-[#8E8E93] text-lg font-medium mb-1">비교 완료</p>
+                <p className="text-[#8E8E93] text-sm font-medium mb-1">비교 완료</p>
                 <h2 className="text-[#1C1C1E] text-xl font-bold">{decision.summary}</h2>
-                <p className="text-[#6B7280] text-lg mt-1">
+                <p className="text-[#6B7280] text-sm mt-1">
                   {form.brand === '__manual__' ? '직접입력' : form.brand} {form.model} / {form.carPriceMk}만원 / {form.advanced.ownershipYears}년
                 </p>
               </div>
@@ -2081,19 +2081,19 @@ function CompareInner() {
                   <div className="bg-white rounded-2xl shadow-sm border border-[#E5E7EB] p-5">
                     <div className="flex items-center justify-between mb-3">
                       <div className="text-center flex-1">
-                        <p className="text-[#8E8E93] text-[13px] font-medium mb-1">
+                        <p className="text-[#8E8E93] text-[11px] font-medium mb-1">
                           {form.hasCurrentVehicle ? '현재 차량 월비용' : '현재 교통비'}
                         </p>
                         <p className="text-[#1C1C1E] text-xl font-bold">{Math.round(currentMk)}만원</p>
                       </div>
                       <div className="text-[#D1D1D6] text-lg px-2">vs</div>
                       <div className="text-center flex-1">
-                        <p className="text-[#8E8E93] text-[13px] font-medium mb-1">신차 최저 월비용</p>
+                        <p className="text-[#8E8E93] text-[11px] font-medium mb-1">신차 최저 월비용</p>
                         <p className="text-[#1C1C1E] text-xl font-bold">{Math.round(lowestMonthlyMk)}만원</p>
                       </div>
                     </div>
                     <div className={[
-                      'rounded-xl px-4 py-2.5 text-center text-lg font-semibold',
+                      'rounded-xl px-4 py-2.5 text-center text-sm font-semibold',
                       isAhead
                         ? 'bg-green-50 border border-green-200 text-green-700'
                         : 'bg-blue-50 border border-blue-200 text-blue-700',
@@ -2137,8 +2137,8 @@ function CompareInner() {
                   <>
                     {/* N년 총비용 비교 막대그래프 */}
                     <div className="bg-white rounded-2xl shadow-sm border border-[#E5E7EB] p-4">
-                      <p className="text-[#1C1C1E] text-lg font-semibold mb-0.5">{_oy}년 총비용 비교</p>
-                      <p className="text-[#8E8E93] text-[13px] mb-3">단위: 만원 · 중간값 기준</p>
+                      <p className="text-[#1C1C1E] text-sm font-semibold mb-0.5">{_oy}년 총비용 비교</p>
+                      <p className="text-[#8E8E93] text-[11px] mb-3">단위: 만원 · 중간값 기준</p>
                       <ResponsiveContainer width="100%" height={180}>
                         <BarChart data={_barData} margin={{ top: 22, right: 8, left: 8, bottom: 0 }}>
                           <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#6B7280' }} axisLine={false} tickLine={false} />
@@ -2222,18 +2222,18 @@ function CompareInner() {
               <div className="bg-white rounded-2xl shadow-sm border border-[#E5E7EB] overflow-hidden">
                 <button type="button" onClick={() => setShowAssumptions((p) => !p)}
                   className="w-full px-5 py-4 flex justify-between items-center">
-                  <span className="text-[#6B7280] text-lg">📋 계산 가정 보기</span>
-                  <span className="text-[#8E8E93] text-base">{showAssumptions ? '▲' : '▼'}</span>
+                  <span className="text-[#6B7280] text-sm">📋 계산 가정 보기</span>
+                  <span className="text-[#8E8E93] text-xs">{showAssumptions ? '▲' : '▼'}</span>
                 </button>
                 {showAssumptions && (
                   <div className="px-5 pb-4 space-y-1.5 border-t border-[#F0F0F5]">
                     {cmpResult.assumptions.map((a, i) => (
                       <div key={i} className="flex items-start gap-2">
-                        <span className="text-[#C7C7CC] text-base mt-0.5">•</span>
-                        <span className="text-[#6B7280] text-base leading-relaxed">{a}</span>
+                        <span className="text-[#C7C7CC] text-xs mt-0.5">•</span>
+                        <span className="text-[#6B7280] text-xs leading-relaxed">{a}</span>
                       </div>
                     ))}
-                    <p className="text-[#C7C7CC] text-base pt-2 border-t border-[#F0F0F5]">
+                    <p className="text-[#C7C7CC] text-xs pt-2 border-t border-[#F0F0F5]">
                       기준일: {new Date().toLocaleDateString('ko-KR')} / 렌테일러 비교 엔진 v1
                     </p>
                   </div>
@@ -2243,18 +2243,18 @@ function CompareInner() {
               {/* 공유 / PDF 버튼 */}
               <div className="grid grid-cols-2 gap-2.5 diagnosis-no-print">
                 <button type="button" onClick={handleShare}
-                  className="flex items-center justify-center gap-1.5 py-3 rounded-xl border border-[#E5E7EB] bg-white text-[#1C1C1E] text-lg font-medium hover:bg-[#F2F2F7] transition-colors">
+                  className="flex items-center justify-center gap-1.5 py-3 rounded-xl border border-[#E5E7EB] bg-white text-[#1C1C1E] text-sm font-medium hover:bg-[#F2F2F7] transition-colors">
                   🔗 {shareToast ? '복사됨!' : '링크 공유'}
                 </button>
                 <button type="button"
                   onClick={() => { setTimeout(() => window.print(), 100); }}
-                  className="flex items-center justify-center gap-1.5 py-3 rounded-xl border border-[#E5E7EB] bg-white text-[#1C1C1E] text-lg font-medium hover:bg-[#F2F2F7] transition-colors">
+                  className="flex items-center justify-center gap-1.5 py-3 rounded-xl border border-[#E5E7EB] bg-white text-[#1C1C1E] text-sm font-medium hover:bg-[#F2F2F7] transition-colors">
                   ↓ PDF 저장
                 </button>
               </div>
 
               <button type="button" onClick={() => { setDir(-1); setPhase('group1'); }}
-                className="text-[#8E8E93] text-lg hover:text-[#6B7280] transition-colors text-center diagnosis-no-print">
+                className="text-[#8E8E93] text-sm hover:text-[#6B7280] transition-colors text-center diagnosis-no-print">
                 ← 조건 변경하기
               </button>
 
@@ -2264,23 +2264,23 @@ function CompareInner() {
                   <div className="text-center py-4">
                     <p className="text-2xl mb-2" style={{ color: ACCENT }}>✓</p>
                     <p className="text-[#1C1C1E] font-semibold">신청 완료!</p>
-                    <p className="text-[#6B7280] text-lg mt-1">렌테일러 전문가가 빠르게 연락드립니다.</p>
+                    <p className="text-[#6B7280] text-sm mt-1">렌테일러 전문가가 빠르게 연락드립니다.</p>
                   </div>
                 ) : (
                   <>
                     <p className="text-[#1C1C1E] font-semibold mb-1">무료 맞춤 견적 비교</p>
-                    <p className="text-[#6B7280] text-base mb-4">비교 결과를 바탕으로 실제 시장 견적을 받아보세요.</p>
+                    <p className="text-[#6B7280] text-xs mb-4">비교 결과를 바탕으로 실제 시장 견적을 받아보세요.</p>
                     <form onSubmit={submitLead} className="flex flex-col gap-3">
                       <input type="text" placeholder="이름" value={leadData.name} required
                         onChange={(e) => setLeadData((d) => ({ ...d, name: e.target.value }))}
-                        className="px-4 py-3 rounded-xl border border-[#E5E7EB] text-[#1C1C1E] text-lg focus:outline-none focus:border-[#C9A84C]" />
+                        className="px-4 py-3 rounded-xl border border-[#E5E7EB] text-[#1C1C1E] text-sm focus:outline-none focus:border-[#C9A84C]" />
                       <input type="tel" placeholder="연락처" value={leadData.phone} required
                         onChange={(e) => setLeadData((d) => ({ ...d, phone: e.target.value }))}
-                        className="px-4 py-3 rounded-xl border border-[#E5E7EB] text-[#1C1C1E] text-lg focus:outline-none focus:border-[#C9A84C]" />
-                      {leadError && <p className="text-red-500 text-base">{leadError}</p>}
-                      <p className="text-[#8E8E93] text-base">개인정보는 견적 안내 목적으로만 사용됩니다.</p>
+                        className="px-4 py-3 rounded-xl border border-[#E5E7EB] text-[#1C1C1E] text-sm focus:outline-none focus:border-[#C9A84C]" />
+                      {leadError && <p className="text-red-500 text-xs">{leadError}</p>}
+                      <p className="text-[#8E8E93] text-xs">개인정보는 견적 안내 목적으로만 사용됩니다.</p>
                       <button type="submit" disabled={leadSubmitting}
-                        className="py-3.5 rounded-xl text-white font-semibold text-lg transition-all disabled:opacity-50"
+                        className="py-3.5 rounded-xl text-white font-semibold text-sm transition-all disabled:opacity-50"
                         style={{ backgroundColor: ACCENT }}>
                         {leadSubmitting ? '전송 중…' : '무료 견적 비교 신청 →'}
                       </button>

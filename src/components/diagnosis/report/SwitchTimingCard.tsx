@@ -31,12 +31,12 @@ function CostRow({
   return (
     <div className="flex items-start justify-between py-2 border-b border-[#F2F2F7] last:border-0">
       <div>
-        <p className={`text-[14px] ${highlight ? 'font-bold text-[#1C1C1E]' : 'text-[#6D6D72]'}`}>
+        <p className={`text-[12px] ${highlight ? 'font-bold text-[#1C1C1E]' : 'text-[#6D6D72]'}`}>
           {label}
         </p>
-        {sub && <p className="text-[12px] text-[#8E8E93] mt-0.5">{sub}</p>}
+        {sub && <p className="text-[10px] text-[#8E8E93] mt-0.5">{sub}</p>}
       </div>
-      <p className={`text-[15px] font-semibold ml-4 shrink-0 ${highlight ? 'text-[#1C1C1E]' : 'text-[#3A3A3C]'}`}>
+      <p className={`text-[13px] font-semibold ml-4 shrink-0 ${highlight ? 'text-[#1C1C1E]' : 'text-[#3A3A3C]'}`}>
         {value}
       </p>
     </div>
@@ -79,7 +79,7 @@ export function SwitchTimingCard({
 
       {/* 현재 차 1년 실비용 */}
       <div>
-        <p className="text-[13px] font-bold text-[#8E8E93] uppercase tracking-wide mb-2">
+        <p className="text-[11px] font-bold text-[#8E8E93] uppercase tracking-wide mb-2">
           현재 차 1년 실비용
         </p>
         <div>
@@ -111,8 +111,8 @@ export function SwitchTimingCard({
             highlight
           />
           <div className="mt-2 px-3 py-2 bg-[#F2F2F7] rounded-xl flex justify-between items-center">
-            <p className="text-[13px] text-[#8E8E93]">월 환산</p>
-            <p className="text-[17px] font-bold text-[#1C1C1E]">
+            <p className="text-[11px] text-[#8E8E93]">월 환산</p>
+            <p className="text-[15px] font-bold text-[#1C1C1E]">
               ≈ {fmt(Math.round(monthlyEquiv))}/월
             </p>
           </div>
@@ -121,7 +121,7 @@ export function SwitchTimingCard({
 
       {/* 비교 비율 바 */}
       <div>
-        <p className="text-[13px] font-bold text-[#8E8E93] uppercase tracking-wide mb-2">
+        <p className="text-[11px] font-bold text-[#8E8E93] uppercase tracking-wide mb-2">
           장기렌트 전환 시
         </p>
         <div className="space-y-2">
@@ -133,7 +133,7 @@ export function SwitchTimingCard({
             return (
               <div className="space-y-2">
                 <div>
-                  <div className="flex justify-between text-[13px] mb-1">
+                  <div className="flex justify-between text-[11px] mb-1">
                     <span className="text-[#8E8E93]">현재 차 유지 (월 환산)</span>
                     <span className="font-semibold text-[#FF9500]">{fmt(Math.round(monthlyEquiv))}</span>
                   </div>
@@ -142,7 +142,7 @@ export function SwitchTimingCard({
                   </div>
                 </div>
                 <div>
-                  <div className="flex justify-between text-[13px] mb-1">
+                  <div className="flex justify-between text-[11px] mb-1">
                     <span className="text-[#8E8E93]">장기렌트 월납입금 (신차)</span>
                     <span className="font-semibold text-[#34C759]">{fmt(monthlyRent)}</span>
                   </div>
@@ -167,10 +167,10 @@ export function SwitchTimingCard({
         <div>
           {rentCheaper ? (
             <>
-              <p className="text-[15px] font-bold text-[#1C1C1E]">
+              <p className="text-[13px] font-bold text-[#1C1C1E]">
                 지금 전환이 오히려 저렴합니다
               </p>
-              <p className="text-[13px] text-[#8E8E93] mt-0.5">
+              <p className="text-[11px] text-[#8E8E93] mt-0.5">
                 현재 차 실비용(월 {fmt(Math.round(monthlyEquiv))})이 장기렌트({fmt(monthlyRent)})보다
                 월 <span className="font-semibold text-[#34C759]">{fmt(absDiff)}</span> 더 비쌉니다.
                 감가상각 손실({fmt(depreciation1yr)}/년)이 주요 원인입니다.
@@ -178,10 +178,10 @@ export function SwitchTimingCard({
             </>
           ) : (
             <>
-              <p className="text-[15px] font-bold text-[#1C1C1E]">
+              <p className="text-[13px] font-bold text-[#1C1C1E]">
                 월 {fmt(diff)} 추가로 새 차로 전환
               </p>
-              <p className="text-[13px] text-[#8E8E93] mt-0.5">
+              <p className="text-[11px] text-[#8E8E93] mt-0.5">
                 {strong
                   ? `현재 차 유지(월 ${fmt(Math.round(monthlyEquiv))})가 더 경제적이나, 감가상각 손실(${fmt(depreciation1yr)}/년)과 신차 편의성을 감안하면 전환 검토 가치가 있습니다.`
                   : `차이가 크지 않습니다. 신차 편의성·보증·최신 안전사양을 원한다면 지금이 좋은 전환 시점입니다.`
@@ -192,7 +192,7 @@ export function SwitchTimingCard({
         </div>
       </div>
 
-      <p className="text-[12px] text-[#8E8E93]">
+      <p className="text-[10px] text-[#8E8E93]">
         ※ 장기렌트 월납입금은 신차가 기준 60개월 추정치. 현재 차 실비용의 감가는 엔카 데이터 기반 추정이며 실제 시세와 다를 수 있습니다.
         {(annualInsurance == null || monthlyFuel == null) && ' 보험료·유류비 미반영 항목 있음.'}
       </p>

@@ -351,12 +351,12 @@ export default function ReportPage() {
   }
 
   return (
-    <div className="h-dvh overflow-y-auto scroll-smooth snap-y snap-proximity bg-[#F2F2F7] pb-24 diagnosis-print-root">
+    <div className="min-h-screen bg-[#F2F2F7] pb-24 diagnosis-print-root">
       <ConsultationSheet isOpen={isSheetOpen} onClose={() => setIsSheetOpen(false)} />
       {/* PDF 저장 안내 토스트 */}
       {pdfToast && (
         <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 diagnosis-no-print
-          bg-[#1C1C1E] text-white text-[14px] font-medium px-4 py-2.5 rounded-xl shadow-lg
+          bg-[#1C1C1E] text-white text-[12px] font-medium px-4 py-2.5 rounded-xl shadow-lg
           flex items-center gap-2 whitespace-nowrap">
           <span>🖨️</span>
           <span>인쇄 화면에서 <strong>'PDF로 저장'</strong> 선택 (Chrome 권장)</span>
@@ -367,14 +367,14 @@ export default function ReportPage() {
       <div className="bg-white border-b border-[#E5E7EB] sticky top-0 z-10 diagnosis-print-header">
         <div className="max-w-lg mx-auto px-5 py-4 flex items-center justify-between">
           <div>
-            <h1 className="text-[20px] font-bold text-[#1C1C1E]">차량 감가상각 진단</h1>
-            <p className="text-[13px] text-[#8E8E93]">엔카 실데이터 기반</p>
+            <h1 className="text-[17px] font-bold text-[#1C1C1E]">차량 감가상각 진단</h1>
+            <p className="text-[11px] text-[#8E8E93]">엔카 실데이터 기반</p>
           </div>
           <div className="flex items-center gap-2">
             {step === 'result' && (
               <button
                 onClick={handlePdfSave}
-                className="diagnosis-no-print flex items-center gap-1 text-[14px] font-semibold text-[#5856D6] border border-[#5856D6] rounded-lg px-2.5 py-1 hover:bg-[#5856D610] transition-colors"
+                className="diagnosis-no-print flex items-center gap-1 text-[12px] font-semibold text-[#5856D6] border border-[#5856D6] rounded-lg px-2.5 py-1 hover:bg-[#5856D610] transition-colors"
               >
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                   <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
@@ -387,7 +387,7 @@ export default function ReportPage() {
             {step === 'result' && (
               <button
                 onClick={handleReset}
-                className="diagnosis-no-print text-[15px] font-semibold text-[#007AFF]"
+                className="diagnosis-no-print text-[13px] font-semibold text-[#007AFF]"
               >
                 다시 진단
               </button>
@@ -398,8 +398,8 @@ export default function ReportPage() {
 
       <div className="max-w-lg mx-auto px-4 py-5 space-y-4 diagnosis-print-content">
         {/* ── 입력 폼 ───────────────────────────────────────────────── */}
-        <div className="bg-white rounded-2xl shadow-sm border border-[#F2F2F7] p-5 diagnosis-no-print snap-start scroll-mt-4">
-          <p className="text-[15px] font-bold text-[#8E8E93] uppercase tracking-wide mb-4">
+        <div className="bg-white rounded-2xl shadow-sm border border-[#F2F2F7] p-5 diagnosis-no-print">
+          <p className="text-[13px] font-bold text-[#8E8E93] uppercase tracking-wide mb-4">
             차량 정보 입력
           </p>
           <DiagnosisForm
@@ -418,7 +418,7 @@ export default function ReportPage() {
               className="flex flex-col items-center justify-center py-12 gap-3 diagnosis-no-print"
             >
               <div className="w-10 h-10 rounded-full border-2 border-[#007AFF] border-t-transparent animate-spin" />
-              <p className="text-[15px] text-[#8E8E93]">감가상각 분석 중…</p>
+              <p className="text-[13px] text-[#8E8E93]">감가상각 분석 중…</p>
             </motion.div>
           )}
         </AnimatePresence>
@@ -447,13 +447,13 @@ export default function ReportPage() {
               >
                 <div className="flex items-end justify-between mb-4">
                   <div>
-                    <p className="text-[13px] text-[#8E8E93] mb-0.5">
+                    <p className="text-[11px] text-[#8E8E93] mb-0.5">
                       {report.formData.brand} {report.formData.model} · {report.formData.trimData.model_year}년식
                     </p>
-                    <p className="text-[32px] font-bold text-[#1C1C1E] leading-tight">
+                    <p className="text-[28px] font-bold text-[#1C1C1E] leading-tight">
                       {fmtMk(report.depResult.currentValue)}
                     </p>
-                    <p className="text-[14px] text-[#8E8E93] mt-0.5">
+                    <p className="text-[12px] text-[#8E8E93] mt-0.5">
                       현재 예상 시세 ({['저주행', '일반', '고주행'][['low', 'mid', 'high'].indexOf(report.formData.mileageGroup)]} 기준)
                     </p>
                   </div>
@@ -461,12 +461,12 @@ export default function ReportPage() {
                     {report.depResult.retentionRate !== null && (
                       <>
                         <p
-                          className="text-[36px] font-bold leading-tight"
+                          className="text-[32px] font-bold leading-tight"
                           style={{ color: retentionColor(report.depResult.retentionRate) }}
                         >
                           {Math.round(report.depResult.retentionRate * 100)}%
                         </p>
-                        <p className="text-[13px] text-[#8E8E93]">잔존가치율</p>
+                        <p className="text-[11px] text-[#8E8E93]">잔존가치율</p>
                       </>
                     )}
                   </div>
@@ -475,7 +475,7 @@ export default function ReportPage() {
                 {/* 신차가 vs 현재 시세 바 */}
                 {report.depResult.msrp && (
                   <div>
-                    <div className="flex justify-between text-[13px] text-[#8E8E93] mb-1.5">
+                    <div className="flex justify-between text-[11px] text-[#8E8E93] mb-1.5">
                       <span>현재 시세</span>
                       <span>신차가 {fmtMk(report.depResult.msrp)}</span>
                     </div>
@@ -491,7 +491,7 @@ export default function ReportPage() {
                         }}
                       />
                     </div>
-                    <div className="flex justify-between text-[13px] mt-1">
+                    <div className="flex justify-between text-[11px] mt-1">
                       <span
                         className="font-semibold"
                         style={{ color: retentionColor(report.depResult.retentionRate) }}
@@ -513,8 +513,8 @@ export default function ReportPage() {
                       { label: '배기량', value: report.isEV ? 'EV (면제)' : `${report.cc.toLocaleString()}cc` },
                     ].map((item) => (
                       <div key={item.label}>
-                        <p className="text-[12px] text-[#8E8E93]">{item.label}</p>
-                        <p className="text-[14px] font-semibold text-[#1C1C1E] truncate">{item.value}</p>
+                        <p className="text-[10px] text-[#8E8E93]">{item.label}</p>
+                        <p className="text-[12px] font-semibold text-[#1C1C1E] truncate">{item.value}</p>
                       </div>
                     ))}
                   </div>
@@ -541,8 +541,8 @@ export default function ReportPage() {
                     { label: '10년차', value: report.curve.find((r) => r.age === 10)?.value },
                   ].map((item) => (
                     <div key={item.label} className="text-center px-2 py-2.5 bg-[#F2F2F7] rounded-xl">
-                      <p className="text-[12px] text-[#8E8E93] mb-1">{item.label}</p>
-                      <p className="text-[15px] font-bold text-[#1C1C1E]">
+                      <p className="text-[10px] text-[#8E8E93] mb-1">{item.label}</p>
+                      <p className="text-[13px] font-bold text-[#1C1C1E]">
                         {item.value ? fmtMk(item.value) : '-'}
                       </p>
                     </div>
@@ -634,7 +634,7 @@ export default function ReportPage() {
 
                 {/* 타임라인 그래프 */}
                 <div className="mb-5">
-                  <p className="text-[13px] font-bold text-[#8E8E93] uppercase tracking-wide mb-3">
+                  <p className="text-[11px] font-bold text-[#8E8E93] uppercase tracking-wide mb-3">
                     누적 비용 타임라인
                   </p>
                   <CostTimelineChart
@@ -742,10 +742,10 @@ export default function ReportPage() {
 
               {/* ── 하단 CTA ───────────────────────────────────────── */}
               <div className="bg-white rounded-2xl shadow-sm border border-[#F2F2F7] p-5 text-center diagnosis-no-print">
-                <p className="text-[16px] font-bold text-[#1C1C1E] mb-1">
+                <p className="text-[14px] font-bold text-[#1C1C1E] mb-1">
                   장기렌트가 유리한지 확인해 보셨나요?
                 </p>
-                <p className="text-[14px] text-[#8E8E93] mb-4">
+                <p className="text-[12px] text-[#8E8E93] mb-4">
                   렌테일러 전문가가 무료로 최적 조건을 비교해 드립니다
                 </p>
                 <Button

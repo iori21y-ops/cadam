@@ -51,19 +51,19 @@ export function SimulationCalculator({
 
   return (
     <div className="p-5 rounded-2xl bg-surface shadow-sm">
-      <p className="text-lg font-bold text-text mb-1">월 납입금 시뮬레이션</p>
-      <p className="text-base text-text-muted mb-4">{carName} · {carPrice.toLocaleString()}만원 기준</p>
+      <p className="text-sm font-bold text-text mb-1">월 납입금 시뮬레이션</p>
+      <p className="text-xs text-text-muted mb-4">{carName} · {carPrice.toLocaleString()}만원 기준</p>
 
       {/* 계약 기간 */}
       <div className="mb-4">
-        <label className="block text-[13px] font-semibold text-text-sub mb-2">계약 기간</label>
+        <label className="block text-[11px] font-semibold text-text-sub mb-2">계약 기간</label>
         <div className="flex gap-2">
           {PERIODS.map((p) => (
             <button
               key={p}
               type="button"
               onClick={() => setPeriod(p)}
-              className={`flex-1 py-2 rounded-xl text-base font-semibold transition-all ${
+              className={`flex-1 py-2 rounded-xl text-xs font-semibold transition-all ${
                 period === p
                   ? 'bg-primary text-white shadow-sm'
                   : 'bg-surface-secondary text-text-sub hover:bg-surface-secondary/80'
@@ -77,14 +77,14 @@ export function SimulationCalculator({
 
       {/* 연간 주행거리 */}
       <div className="mb-4">
-        <label className="block text-[13px] font-semibold text-text-sub mb-2">연간 주행거리</label>
+        <label className="block text-[11px] font-semibold text-text-sub mb-2">연간 주행거리</label>
         <div className="flex gap-2">
           {MILEAGES.map((m) => (
             <button
               key={m}
               type="button"
               onClick={() => setMileage(m)}
-              className={`flex-1 py-2 rounded-xl text-base font-semibold transition-all ${
+              className={`flex-1 py-2 rounded-xl text-xs font-semibold transition-all ${
                 mileage === m
                   ? 'bg-primary text-white shadow-sm'
                   : 'bg-surface-secondary text-text-sub hover:bg-surface-secondary/80'
@@ -98,7 +98,7 @@ export function SimulationCalculator({
 
       {/* 선납금/보증금 비율 */}
       <div className="mb-5">
-        <label className="block text-[13px] font-semibold text-text-sub mb-2">
+        <label className="block text-[11px] font-semibold text-text-sub mb-2">
           선납금/보증금 {downRate}% ({Math.round(carPrice * downRate / 100).toLocaleString()}만원)
         </label>
         <div className="flex gap-2">
@@ -107,7 +107,7 @@ export function SimulationCalculator({
               key={d}
               type="button"
               onClick={() => setDownRate(d)}
-              className={`flex-1 py-2 rounded-xl text-base font-semibold transition-all ${
+              className={`flex-1 py-2 rounded-xl text-xs font-semibold transition-all ${
                 downRate === d
                   ? 'bg-primary text-white shadow-sm'
                   : 'bg-surface-secondary text-text-sub hover:bg-surface-secondary/80'
@@ -133,13 +133,13 @@ export function SimulationCalculator({
                 }`}
               >
                 {isRecommended && (
-                  <span className="absolute -top-2 left-1/2 -translate-x-1/2 text-[11px] font-bold px-1.5 py-0.5 rounded-full bg-primary text-white whitespace-nowrap">
+                  <span className="absolute -top-2 left-1/2 -translate-x-1/2 text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-primary text-white whitespace-nowrap">
                     추천
                   </span>
                 )}
-                <span className="text-lg">{product.emoji}</span>
-                <p className="text-[12px] text-text-muted mt-1">{product.name}</p>
-                <p className="text-lg font-bold mt-0.5" style={{ color: product.color }}>
+                <span className="text-base">{product.emoji}</span>
+                <p className="text-[10px] text-text-muted mt-1">{product.name}</p>
+                <p className="text-sm font-bold mt-0.5" style={{ color: product.color }}>
                   {key === 'cash' ? '일시불' : `${monthly.toLocaleString()}만`}
                 </p>
               </div>
@@ -149,13 +149,13 @@ export function SimulationCalculator({
 
         {/* 총 비용 비교 */}
         <div className="border-t border-border pt-2">
-          <p className="text-[12px] text-text-muted mb-1">총 예상 비용 (선납금/보증금 포함)</p>
+          <p className="text-[10px] text-text-muted mb-1">총 예상 비용 (선납금/보증금 포함)</p>
           <div className="grid grid-cols-4 gap-2">
             {results.map(({ key, totalCost }) => {
               const product = DEFAULT_PRODUCTS[key];
               return (
                 <div key={key} className="text-center">
-                  <p className="text-[13px] font-semibold" style={{ color: product.color }}>
+                  <p className="text-[11px] font-semibold" style={{ color: product.color }}>
                     {totalCost.toLocaleString()}만
                   </p>
                 </div>
@@ -167,7 +167,7 @@ export function SimulationCalculator({
         {/* 유류비 포함 실질 월비용 */}
         {monthlyFuelMk != null && (
           <div className="border-t border-border pt-2 mt-1">
-            <p className="text-[12px] text-text-muted mb-1">
+            <p className="text-[10px] text-text-muted mb-1">
               월 연료비 <span className="font-semibold text-[#FF9500]">{monthlyFuelMk.toLocaleString()}만원</span> 포함 시 실질 월비용
             </p>
             <div className="grid grid-cols-4 gap-2">
@@ -176,7 +176,7 @@ export function SimulationCalculator({
                 const total = key === 'cash' ? null : monthly + monthlyFuelMk;
                 return (
                   <div key={key} className="text-center">
-                    <p className="text-[13px] font-bold" style={{ color: product.color }}>
+                    <p className="text-[11px] font-bold" style={{ color: product.color }}>
                       {total != null ? `${total.toLocaleString()}만` : '-'}
                     </p>
                   </div>
@@ -187,7 +187,7 @@ export function SimulationCalculator({
         )}
       </div>
 
-      <p className="text-[12px] text-text-muted mt-3 leading-relaxed">
+      <p className="text-[10px] text-text-muted mt-3 leading-relaxed">
         * 할부 {(RATES.installment * 100).toFixed(1)}%, 리스 {(RATES.lease * 100).toFixed(1)}%, 렌트 {(RATES.rent * 100).toFixed(1)}%+관리비 {Math.round(RENT_INSURANCE_RATE * 100)}% 기준 참고용 예상 금액입니다.
         실제 금액은 신용등급, 금융사, 프로모션에 따라 달라집니다.
       </p>

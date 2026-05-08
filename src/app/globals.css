@@ -63,14 +63,11 @@ body {
     display: none !important;
   }
 
-  /* 리포트 컨테이너 — snap scroll 리셋 */
+  /* 리포트 컨테이너 */
   .diagnosis-print-root {
     background: #fff !important;
     padding: 0 !important;
     padding-bottom: 0 !important;
-    height: auto !important;
-    overflow: visible !important;
-    scroll-snap-type: none !important;
   }
 
   /* 헤더 고정 해제 */

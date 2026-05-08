@@ -24,11 +24,11 @@ function TaxRow({
   return (
     <div className="flex items-start justify-between py-2.5 border-b border-[#F2F2F7] last:border-0">
       <div>
-        <p className="text-[15px] font-medium text-[#1C1C1E]">{label}</p>
-        {sub && <p className="text-[13px] text-[#8E8E93] mt-0.5">{sub}</p>}
+        <p className="text-[13px] font-medium text-[#1C1C1E]">{label}</p>
+        {sub && <p className="text-[11px] text-[#8E8E93] mt-0.5">{sub}</p>}
       </div>
       <p
-        className={`text-[16px] font-bold text-right ml-4 shrink-0 ${
+        className={`text-[14px] font-bold text-right ml-4 shrink-0 ${
           highlight ? 'text-[#007AFF]' : 'text-[#1C1C1E]'
         }`}
       >
@@ -51,7 +51,7 @@ export function TaxSummaryCard({ autoTax, acqTax, isEV, vehicleAge }: Props) {
     <div className="space-y-6">
       {/* 자동차세 */}
       <div>
-        <p className="text-[15px] font-bold text-[#8E8E93] uppercase tracking-wide mb-2">
+        <p className="text-[13px] font-bold text-[#8E8E93] uppercase tracking-wide mb-2">
           자동차세
         </p>
 
@@ -59,10 +59,10 @@ export function TaxSummaryCard({ autoTax, acqTax, isEV, vehicleAge }: Props) {
           <div className="flex items-center gap-3 py-3 px-4 bg-[#34C75910] rounded-xl">
             <span className="text-2xl">⚡</span>
             <div>
-              <p className="text-[16px] font-bold text-[#34C759]">전기차 — 자동차세 면제</p>
-              <p className="text-[13px] text-[#8E8E93] mt-0.5">연 100,000원 정액 (지방교육세 포함)</p>
+              <p className="text-[14px] font-bold text-[#34C759]">전기차 — 자동차세 면제</p>
+              <p className="text-[11px] text-[#8E8E93] mt-0.5">연 100,000원 정액 (지방교육세 포함)</p>
             </div>
-            <p className="ml-auto text-[16px] font-bold text-[#34C759]">13만원/년</p>
+            <p className="ml-auto text-[14px] font-bold text-[#34C759]">13만원/년</p>
           </div>
         ) : (
           <>
@@ -83,7 +83,7 @@ export function TaxSummaryCard({ autoTax, acqTax, isEV, vehicleAge }: Props) {
 
       {/* 취등록세 */}
       <div>
-        <p className="text-[15px] font-bold text-[#8E8E93] uppercase tracking-wide mb-2">
+        <p className="text-[13px] font-bold text-[#8E8E93] uppercase tracking-wide mb-2">
           취등록세 비교 (신차 기준)
         </p>
 
@@ -96,16 +96,16 @@ export function TaxSummaryCard({ autoTax, acqTax, isEV, vehicleAge }: Props) {
 
         <div className="flex items-center justify-between py-2.5">
           <div>
-            <p className="text-[15px] font-medium text-[#1C1C1E]">장기렌트 시 취득세</p>
-            <p className="text-[13px] text-[#8E8E93] mt-0.5">렌터카 회사가 명의, 고객 부담 없음</p>
+            <p className="text-[13px] font-medium text-[#1C1C1E]">장기렌트 시 취득세</p>
+            <p className="text-[11px] text-[#8E8E93] mt-0.5">렌터카 회사가 명의, 고객 부담 없음</p>
           </div>
-          <p className="text-[16px] font-bold text-[#34C759]">0원</p>
+          <p className="text-[14px] font-bold text-[#34C759]">0원</p>
         </div>
 
         {acqTax.finalTax > 0 && (
           <div className="mt-2 flex items-center gap-2 px-4 py-3 bg-[#34C75910] rounded-xl">
             <span className="text-lg">💡</span>
-            <p className="text-[14px] text-[#1C1C1E]">
+            <p className="text-[12px] text-[#1C1C1E]">
               장기렌트 선택 시 취득세{' '}
               <span className="font-bold text-[#34C759]">{fmtWon(acqTax.finalTax)}</span>{' '}
               절감 가능
