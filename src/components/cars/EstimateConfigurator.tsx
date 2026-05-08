@@ -32,16 +32,19 @@ const PRODUCT_OPTIONS = [
 ];
 
 const DEPOSIT_OPTIONS = [
+  { label: '0%', value: 0 },
   { label: '10%', value: 10 },
   { label: '20%', value: 20 },
   { label: '30%', value: 30 },
 ];
 
-// 직접 선택 가능한 기본 조건
 const DEFAULT_CONTRACT = 60;
 const DEFAULT_KM = 10000;
 const DEFAULT_PRODUCT = 'rent';
-const DEFAULT_DEPOSIT = 30;
+const DEFAULT_PREPAY = 30;   // 선납금 기본 자유 선택값
+const DEFAULT_GUARANTEE = 0; // 보증금 기본 자유 선택값
+
+type DepositType = 'prepay' | 'guarantee';
 
 function formatPrice(value: number): string {
   return Math.round(value).toLocaleString();
@@ -62,10 +65,11 @@ export function EstimateConfigurator({
   const [contractMonths, setContractMonths] = useState(DEFAULT_CONTRACT);
   const [annualKm, setAnnualKm] = useState(DEFAULT_KM);
   const [product, setProduct] = useState(DEFAULT_PRODUCT);
-  const [depositRatio, setDepositRatio] = useState(DEFAULT_DEPOSIT);
+  const [depositType, setDepositType] = useState<DepositType>('prepay');
+  const [prepayRatio, setPrepayRatio] = useState(DEFAULT_PREPAY);
+  const [guaranteeRatio, setGuaranteeRatio] = useState(DEFAULT_GUARANTEE);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
-  // 맞춤 조건 안내 모달: 선택 조건 텍스트 저장, null이면 닫힘
-  const [consultCondition, setConsultCondition] = useState<string | null>(null);
+  const [sheetNote, setSheetNote] = useState<string | undefined>(undefined);
 
   const matchedPrice = useMemo(() => {
     return priceRanges.find(
@@ -75,29 +79,23 @@ export function EstimateConfigurator({
 
   const hasPrice = matchedPrice != null;
 
+  const openSheet = (note?: string) => {
+    setSelectionPath('car');
+    setCarBrand(vehicle.brand);
+    setCarModel(vehicle.model);
+    setTrim(vehicle.trims[0] ?? null);
+    setCurrentStep(3);
+    setSheetNote(note);
+    setIsSheetOpen(true);
+  };
+
   const handleQuoteClick = () => {
     gtag.seoCtaClick(vehicle.slug, 'quote');
-    setSelectionPath('car');
-    setCarBrand(vehicle.brand);
-    setCarModel(vehicle.model);
-    setTrim(vehicle.trims[0] ?? null);
-    setCurrentStep(3);
-    setIsSheetOpen(true);
+    openSheet();
   };
 
-  // 비기본 조건 클릭 시 상담 모달 표시
   const handleNonDefault = (conditionLabel: string) => {
-    setConsultCondition(conditionLabel);
-  };
-
-  const openSheetFromConsult = () => {
-    setConsultCondition(null);
-    setSelectionPath('car');
-    setCarBrand(vehicle.brand);
-    setCarModel(vehicle.model);
-    setTrim(vehicle.trims[0] ?? null);
-    setCurrentStep(3);
-    setIsSheetOpen(true);
+    openSheet(conditionLabel);
   };
 
   const btnClass = (active: boolean) =>
@@ -107,44 +105,16 @@ export function EstimateConfigurator({
         : 'border-border-solid bg-white text-text hover:border-text-sub'
     }`;
 
+  const activeDepositValue = depositType === 'prepay' ? prepayRatio : guaranteeRatio;
+  const defaultDepositValue = depositType === 'prepay' ? DEFAULT_PREPAY : DEFAULT_GUARANTEE;
+
   return (
     <section className="mx-5 mt-6 rounded-2xl bg-white border border-accent shadow-sm overflow-hidden">
-      <ConsultationSheet isOpen={isSheetOpen} onClose={() => setIsSheetOpen(false)} />
-
-      {/* 맞춤 조건 안내 모달 */}
-      {consultCondition !== null && (
-        <div
-          className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-5"
-          onClick={() => setConsultCondition(null)}
-        >
-          <div
-            className="bg-white rounded-2xl w-full max-w-sm p-6 shadow-xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <p className="text-base font-bold text-text mb-2">맞춤 조건 상담</p>
-            <p className="text-sm text-text-sub leading-relaxed mb-4">
-              선택하신 조건은 맞춤 상담을 통해 정확한 견적을 받으실 수 있습니다.
-            </p>
-            <div className="bg-accent/10 rounded-xl px-4 py-2.5 mb-5">
-              <p className="text-sm font-semibold text-accent">{consultCondition}</p>
-            </div>
-            <button
-              type="button"
-              onClick={openSheetFromConsult}
-              className="w-full py-3 rounded-xl bg-primary text-white font-bold text-sm hover:bg-primary/90 transition-colors mb-2"
-            >
-              상담 신청하기
-            </button>
-            <button
-              type="button"
-              onClick={() => setConsultCondition(null)}
-              className="w-full py-2.5 rounded-xl bg-gray-100 text-sm text-text hover:bg-gray-200 transition-colors"
-            >
-              닫기
-            </button>
-          </div>
-        </div>
-      )}
+      <ConsultationSheet
+        isOpen={isSheetOpen}
+        onClose={() => setIsSheetOpen(false)}
+        note={sheetNote}
+      />
 
       {/* 가격 표시 */}
       <div className="px-5 pt-5 pb-4 border-b border-border-solid">
@@ -227,6 +197,56 @@ export function EstimateConfigurator({
           </div>
         </div>
 
+        {/* 선납금/보증금 */}
+        <div>
+          {/* 탭 헤더 */}
+          <div className="flex items-center gap-0 mb-2.5">
+            <button
+              type="button"
+              onClick={() => setDepositType('prepay')}
+              className={`text-sm font-semibold px-1 pb-0.5 border-b-2 transition-all ${
+                depositType === 'prepay'
+                  ? 'border-accent text-accent'
+                  : 'border-transparent text-text-sub hover:text-text'
+              }`}
+            >
+              선납금
+            </button>
+            <span className="text-text-sub mx-2 text-sm">/</span>
+            <button
+              type="button"
+              onClick={() => setDepositType('guarantee')}
+              className={`text-sm font-semibold px-1 pb-0.5 border-b-2 transition-all ${
+                depositType === 'guarantee'
+                  ? 'border-accent text-accent'
+                  : 'border-transparent text-text-sub hover:text-text'
+              }`}
+            >
+              보증금
+            </button>
+          </div>
+          <div className="grid grid-cols-4 gap-2">
+            {DEPOSIT_OPTIONS.map((opt) => (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => {
+                  if (opt.value === defaultDepositValue) {
+                    if (depositType === 'prepay') setPrepayRatio(opt.value);
+                    else setGuaranteeRatio(opt.value);
+                  } else {
+                    const typeLabel = depositType === 'prepay' ? '선납금' : '보증금';
+                    handleNonDefault(`${typeLabel} ${opt.label}`);
+                  }
+                }}
+                className={btnClass(activeDepositValue === opt.value)}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* 이용 상품 */}
         <div>
           <p className="text-sm font-semibold text-text mb-2.5">이용 상품</p>
@@ -258,29 +278,6 @@ export function EstimateConfigurator({
                 <span className="block text-[10px] text-text-sub mt-0.5 leading-tight">
                   {opt.sub}
                 </span>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* 선납금/보증금 */}
-        <div>
-          <p className="text-sm font-semibold text-text mb-2.5">선납금/보증금</p>
-          <div className="grid grid-cols-3 gap-2">
-            {DEPOSIT_OPTIONS.map((opt) => (
-              <button
-                key={opt.value}
-                type="button"
-                onClick={() => {
-                  if (opt.value === DEFAULT_DEPOSIT) {
-                    setDepositRatio(opt.value);
-                  } else {
-                    handleNonDefault(`선납금/보증금 ${opt.label}`);
-                  }
-                }}
-                className={btnClass(depositRatio === opt.value)}
-              >
-                {opt.label}
               </button>
             ))}
           </div>

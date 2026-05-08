@@ -5,9 +5,10 @@ import { useState, useEffect } from 'react';
 interface ConsultationSheetProps {
   isOpen: boolean;
   onClose: () => void;
+  note?: string;
 }
 
-export function ConsultationSheet({ isOpen, onClose }: ConsultationSheetProps) {
+export function ConsultationSheet({ isOpen, onClose, note }: ConsultationSheetProps) {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [agreed, setAgreed] = useState(false);
@@ -133,6 +134,12 @@ export function ConsultationSheet({ isOpen, onClose }: ConsultationSheetProps) {
                   <p className="text-base font-bold text-text">무료 견적 신청</p>
                   <button onClick={onClose} className="text-text-muted text-xl shrink-0">✕</button>
                 </div>
+                {note && (
+                  <div className="bg-accent/10 rounded-xl px-4 py-2.5 mb-4">
+                    <p className="text-xs text-text-sub mb-0.5">선택 조건</p>
+                    <p className="text-sm font-semibold text-accent">{note}</p>
+                  </div>
+                )}
 
                 <form id="consult-sheet-form" onSubmit={handleSubmit} className="space-y-3">
                   <div>
