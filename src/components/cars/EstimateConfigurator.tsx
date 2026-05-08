@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useRef } from 'react';
+import { useState, useMemo } from 'react';
 import { useQuoteStore } from '@/store/quoteStore';
 import { gtag } from '@/lib/gtag';
 import { ConsultationSheet } from '@/components/ui/ConsultationSheet';
@@ -35,10 +35,7 @@ const PRODUCT_OPTIONS = [
 const DEFAULT_CONTRACT = 60;
 const DEFAULT_KM = 10000;
 const DEFAULT_PRODUCT = 'rent';
-const DEFAULT_PREPAY = 30;   // 선납금 기본 자유 선택값
-const DEFAULT_GUARANTEE = 0; // 보증금 기본 자유 선택값
-
-type DepositType = 'prepay' | 'guarantee';
+const DEFAULT_PREPAY = 30;
 
 function formatPrice(value: number): string {
   return Math.round(value).toLocaleString();
@@ -59,11 +56,7 @@ export function EstimateConfigurator({
   const [contractMonths, setContractMonths] = useState(DEFAULT_CONTRACT);
   const [annualKm, setAnnualKm] = useState(DEFAULT_KM);
   const [product, setProduct] = useState(DEFAULT_PRODUCT);
-  const [depositType, setDepositType] = useState<DepositType>('prepay');
-  const depositTypeRef = useRef<DepositType>('prepay');
-  depositTypeRef.current = depositType; // 매 렌더마다 동기화 — onClick 클로저에서 항상 최신값 참조
   const [prepayRatio, setPrepayRatio] = useState(DEFAULT_PREPAY);
-  const [guaranteeRatio, setGuaranteeRatio] = useState(DEFAULT_GUARANTEE);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [sheetNote, setSheetNote] = useState<string | undefined>(undefined);
 
@@ -97,7 +90,6 @@ export function EstimateConfigurator({
         : 'border-border-solid bg-white text-text hover:border-text-sub'
     }`;
 
-  const activeDepositValue = depositType === 'prepay' ? prepayRatio : guaranteeRatio;
 
   return (
     <section className="mx-5 mt-6 rounded-2xl bg-white border border-accent shadow-sm overflow-hidden">
@@ -188,51 +180,14 @@ export function EstimateConfigurator({
           </div>
         </div>
 
-        {/* 선납금/보증금 */}
+        {/* 선납금 */}
         <div>
-          {/* 탭 헤더 */}
-          <div className="flex items-center gap-0 mb-2.5">
-            <button
-              type="button"
-              onClick={() => setDepositType('prepay')}
-              className={`text-sm font-semibold px-1 pb-0.5 border-b-2 transition-all ${
-                depositType === 'prepay'
-                  ? 'border-accent text-accent'
-                  : 'border-transparent text-text-sub hover:text-text'
-              }`}
-            >
-              선납금
-            </button>
-            <span className="text-text-sub mx-2 text-sm">/</span>
-            <button
-              type="button"
-              onClick={() => setDepositType('guarantee')}
-              className={`text-sm font-semibold px-1 pb-0.5 border-b-2 transition-all ${
-                depositType === 'guarantee'
-                  ? 'border-accent text-accent'
-                  : 'border-transparent text-text-sub hover:text-text'
-              }`}
-            >
-              보증금
-            </button>
-          </div>
+          <p className="text-sm font-semibold text-text mb-2.5">선납금</p>
           <div className="grid grid-cols-4 gap-2">
-            {/* 0% */}
-            <button type="button"
-              onClick={() => depositTypeRef.current === 'prepay' ? openSheet('선납금 0%') : setGuaranteeRatio(0)}
-              className={btnClass(activeDepositValue === 0)}>0%</button>
-            {/* 10% */}
-            <button type="button"
-              onClick={() => openSheet(depositTypeRef.current === 'prepay' ? '선납금 10%' : '보증금 10%')}
-              className={btnClass(activeDepositValue === 10)}>10%</button>
-            {/* 20% */}
-            <button type="button"
-              onClick={() => openSheet(depositTypeRef.current === 'prepay' ? '선납금 20%' : '보증금 20%')}
-              className={btnClass(activeDepositValue === 20)}>20%</button>
-            {/* 30% */}
-            <button type="button"
-              onClick={() => depositTypeRef.current === 'prepay' ? setPrepayRatio(30) : openSheet('보증금 30%')}
-              className={btnClass(activeDepositValue === 30)}>30%</button>
+            <button type="button" onClick={() => openSheet('선납금 0%')}  className={btnClass(prepayRatio === 0)}>0%</button>
+            <button type="button" onClick={() => openSheet('선납금 10%')} className={btnClass(prepayRatio === 10)}>10%</button>
+            <button type="button" onClick={() => openSheet('선납금 20%')} className={btnClass(prepayRatio === 20)}>20%</button>
+            <button type="button" onClick={() => setPrepayRatio(30)}      className={btnClass(prepayRatio === 30)}>30%</button>
           </div>
         </div>
 
