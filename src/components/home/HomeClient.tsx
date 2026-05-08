@@ -192,7 +192,7 @@ export function HomeClient({ vehicles }: Props) {
                     src={`/cars/${vehicle.imageKey}.webp`}
                     alt={`${vehicle.brand} ${vehicle.model}`}
                     fill
-                    className="object-contain p-3"
+                    className="object-contain p-4"
                     sizes="(max-width: 640px) 50vw, 320px"
                   />
                 </div>
