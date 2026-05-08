@@ -84,14 +84,14 @@ export function TaxSavingCard({ businessType, monthlyRentMk }: Props) {
       <div className="flex items-center gap-2 px-4 py-3 bg-[#34C75910] rounded-xl">
         <span className="text-xl">🧾</span>
         <div>
-          <p className="text-[13px] font-bold text-[#1C1C1E]">
+          <p className="text-[15px] font-bold text-[#1C1C1E]">
             {label} 차량 비용처리 연간 절세 예상액
           </p>
-          <p className="text-[11px] text-[#8E8E93] mt-0.5">
+          <p className="text-[13px] text-[#8E8E93] mt-0.5">
             업무사용비율 70% · 운행일지 미작성 기준
           </p>
         </div>
-        <p className="ml-auto text-[18px] font-bold text-[#34C759] shrink-0">
+        <p className="ml-auto text-[20px] font-bold text-[#34C759] shrink-0">
           {fmtWon(result.annualSaving)}
         </p>
       </div>
@@ -127,11 +127,11 @@ export function TaxSavingCard({ businessType, monthlyRentMk }: Props) {
             className="flex items-start justify-between py-2.5 border-b border-[#F2F2F7] last:border-0"
           >
             <div>
-              <p className="text-[13px] font-medium text-[#1C1C1E]">{row.label}</p>
-              <p className="text-[11px] text-[#8E8E93] mt-0.5">{row.sub}</p>
+              <p className="text-[15px] font-medium text-[#1C1C1E]">{row.label}</p>
+              <p className="text-[13px] text-[#8E8E93] mt-0.5">{row.sub}</p>
             </div>
             <p
-              className={`text-[14px] font-bold ml-4 shrink-0 ${
+              className={`text-[16px] font-bold ml-4 shrink-0 ${
                 row.highlight ? 'text-[#34C759]' : 'text-[#1C1C1E]'
               }`}
             >
@@ -141,7 +141,7 @@ export function TaxSavingCard({ businessType, monthlyRentMk }: Props) {
         ))}
       </div>
 
-      <p className="text-[10px] text-[#8E8E93] leading-relaxed">
+      <p className="text-[12px] text-[#8E8E93] leading-relaxed">
         * 업무용승용차 비용처리 한도: 연 1,500만원 (운행일지 미작성 시). 법인세법 시행령 §50의2.
         실제 절세액은 업종·소득 규모에 따라 달라지므로 세무사 상담을 권장합니다.
       </p>

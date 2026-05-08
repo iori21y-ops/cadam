@@ -80,15 +80,15 @@ export default function DiagnosisPage() {
         {/* 상단: 진단 현황 + 상담 CTA */}
         <section className="px-5 pt-6 pb-0 max-w-lg mx-auto flex flex-col gap-3">
           <div className="flex items-center justify-between px-4 py-3 rounded-2xl bg-surface">
-            <span className="text-sm text-text-sub">아직 진단 내역이 없습니다</span>
-            <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-white text-text-sub shadow-sm">
+            <span className="text-lg text-text-sub">아직 진단 내역이 없습니다</span>
+            <span className="text-base font-medium px-2.5 py-1 rounded-full bg-white text-text-sub shadow-sm">
               진단 0건
             </span>
           </div>
 
           <button
             onClick={() => setIsSheetOpen(true)}
-            className="w-full py-3.5 rounded-2xl font-semibold text-[15px] text-white transition-all active:scale-[0.98] shadow-sm"
+            className="w-full py-3.5 rounded-2xl font-semibold text-[17px] text-white transition-all active:scale-[0.98] shadow-sm"
             style={{ backgroundColor: ACCENT }}
           >
             즉시 상담 신청
@@ -115,17 +115,17 @@ export default function DiagnosisPage() {
                 </span>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-0.5">
-                    <p className={`text-[16px] font-semibold transition-colors ${isActive ? 'text-white' : 'text-text'}`}>
+                    <p className={`text-[18px] font-semibold transition-colors ${isActive ? 'text-white' : 'text-text'}`}>
                       {HERO_SERVICE.title}
                     </p>
                     <span
-                      className="text-[10px] font-bold px-1.5 py-0.5 rounded-md shrink-0"
+                      className="text-[12px] font-bold px-1.5 py-0.5 rounded-md shrink-0"
                       style={{ backgroundColor: ACCENT + '20', color: ACCENT }}
                     >
                       {HERO_SERVICE.badge}
                     </span>
                   </div>
-                  <p className={`text-sm leading-relaxed line-clamp-2 transition-colors ${isActive ? 'text-white/70' : 'text-text-sub'}`}>
+                  <p className={`text-lg leading-relaxed line-clamp-2 transition-colors ${isActive ? 'text-white/70' : 'text-text-sub'}`}>
                     {HERO_SERVICE.description}
                   </p>
                 </div>
@@ -154,10 +154,10 @@ export default function DiagnosisPage() {
                   <service.Icon size={28} className={isActive ? 'text-white' : service.color} />
                 </span>
                 <div className="flex-1 min-w-0">
-                  <p className={`text-[16px] font-semibold mb-0.5 transition-colors ${isActive ? 'text-white' : 'text-text'}`}>
+                  <p className={`text-[18px] font-semibold mb-0.5 transition-colors ${isActive ? 'text-white' : 'text-text'}`}>
                     {service.title}
                   </p>
-                  <p className={`text-sm leading-relaxed line-clamp-2 transition-colors ${isActive ? 'text-white/70' : 'text-text-sub'}`}>
+                  <p className={`text-lg leading-relaxed line-clamp-2 transition-colors ${isActive ? 'text-white/70' : 'text-text-sub'}`}>
                     {service.description}
                   </p>
                 </div>
@@ -173,7 +173,7 @@ export default function DiagnosisPage() {
             {BADGES.map((badge) => (
               <div key={badge.text} className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-surface shadow-sm">
                 <badge.Icon size={15} className="text-primary" />
-                <span className="text-[13px] text-text-sub font-medium">{badge.text}</span>
+                <span className="text-[15px] text-text-sub font-medium">{badge.text}</span>
               </div>
             ))}
           </div>

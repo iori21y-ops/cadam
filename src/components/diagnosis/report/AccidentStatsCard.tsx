@@ -57,18 +57,18 @@ export function AccidentStatsCard({ carType, stats, year, isAnnual, trend }: Pro
 
       {/* 헤더 */}
       <div className="px-4 py-3 flex items-center gap-2 bg-[#F2F2F7]">
-        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full text-white bg-[#8E8E93]">
+        <span className="text-[12px] font-bold px-2 py-0.5 rounded-full text-white bg-[#8E8E93]">
           참고
         </span>
-        <p className="text-[13px] font-bold text-[#1C1C1E]">사고 통계</p>
-        <span className="ml-auto text-[11px] text-[#8E8E93]">{periodLabel}</span>
+        <p className="text-[15px] font-bold text-[#1C1C1E]">사고 통계</p>
+        <span className="ml-auto text-[13px] text-[#8E8E93]">{periodLabel}</span>
       </div>
 
       <div className="px-4 pt-4 pb-3 space-y-4">
 
         {/* 손해율 비교 바 */}
         <div className="space-y-2">
-          <p className="text-[10px] font-bold text-[#8E8E93] uppercase tracking-wide">
+          <p className="text-[12px] font-bold text-[#8E8E93] uppercase tracking-wide">
             차종별 손해율 비교
           </p>
           {availTypes.map((ct) => {
@@ -83,7 +83,7 @@ export function AccidentStatsCard({ carType, stats, year, isAnnual, trend }: Pro
                       className="w-2 h-2 rounded-full shrink-0"
                       style={{ background: BAR_COLORS[ct] }}
                     />
-                    <span className={`text-[11px] font-semibold ${isCur ? 'text-[#1C1C1E]' : 'text-[#6D6D72]'}`}>
+                    <span className={`text-[13px] font-semibold ${isCur ? 'text-[#1C1C1E]' : 'text-[#6D6D72]'}`}>
                       {ct}
                     </span>
                   </div>
@@ -94,11 +94,11 @@ export function AccidentStatsCard({ carType, stats, year, isAnnual, trend }: Pro
                     />
                   </div>
                   <div className="w-16 text-right shrink-0 flex items-center justify-end gap-1">
-                    <span className={`text-[12px] font-bold ${isCur ? 'text-[#1C1C1E]' : 'text-[#6D6D72]'}`}>
+                    <span className={`text-[14px] font-bold ${isCur ? 'text-[#1C1C1E]' : 'text-[#6D6D72]'}`}>
                       {s.lossRate}%
                     </span>
                     {isCur && (
-                      <span className="text-[9px] font-semibold text-white bg-[#8E8E93] px-1 py-0.5 rounded-full">
+                      <span className="text-[11px] font-semibold text-white bg-[#8E8E93] px-1 py-0.5 rounded-full">
                         이 차
                       </span>
                     )}
@@ -107,7 +107,7 @@ export function AccidentStatsCard({ carType, stats, year, isAnnual, trend }: Pro
               </div>
             );
           })}
-          <p className="text-[10px] text-[#8E8E93] mt-1">
+          <p className="text-[12px] text-[#8E8E93] mt-1">
             손해율 = 지급 보험금 ÷ 수입 보험료 · 차종 간 최대 차이{' '}
             <span className="font-semibold text-[#1C1C1E]">{diffPp}%p</span>
           </p>
@@ -115,19 +115,19 @@ export function AccidentStatsCard({ carType, stats, year, isAnnual, trend }: Pro
 
         {/* 이 차종 상세 */}
         <div className="rounded-xl bg-[#F9F9F9] border border-[#F2F2F7] px-3.5 py-3">
-          <p className="text-[10px] font-bold text-[#8E8E93] uppercase tracking-wide mb-2">
+          <p className="text-[12px] font-bold text-[#8E8E93] uppercase tracking-wide mb-2">
             이 차종({carType}) {year}년 전국 집계
           </p>
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <p className="text-[10px] text-[#8E8E93]">총 부상자</p>
-              <p className="text-[14px] font-bold text-[#1C1C1E]">
+              <p className="text-[12px] text-[#8E8E93]">총 부상자</p>
+              <p className="text-[16px] font-bold text-[#1C1C1E]">
                 {fmtNum(current.totalInjured)}명
               </p>
             </div>
             <div>
-              <p className="text-[10px] text-[#8E8E93]">총 사망자</p>
-              <p className="text-[14px] font-bold text-[#1C1C1E]">
+              <p className="text-[12px] text-[#8E8E93]">총 사망자</p>
+              <p className="text-[16px] font-bold text-[#1C1C1E]">
                 {fmtNum(current.totalDeath)}명
               </p>
             </div>
@@ -137,7 +137,7 @@ export function AccidentStatsCard({ carType, stats, year, isAnnual, trend }: Pro
         {/* 8개년 손해율 추이 */}
         {myTrend.length >= 3 && (
           <div className="space-y-1.5">
-            <p className="text-[10px] font-bold text-[#8E8E93] uppercase tracking-wide">
+            <p className="text-[12px] font-bold text-[#8E8E93] uppercase tracking-wide">
               이 차종 손해율 추이 (8개년)
             </p>
             <div className="h-[48px] flex items-end gap-[3px]">
@@ -169,11 +169,11 @@ export function AccidentStatsCard({ carType, stats, year, isAnnual, trend }: Pro
                 );
               })}
             </div>
-            <p className="text-[9px] text-[#8E8E93] text-right">
+            <p className="text-[11px] text-[#8E8E93] text-right">
               % · 8개년 변동 폭{' '}
               <span className="font-semibold text-[#1C1C1E]">{trendDiff}%p</span>
             </p>
-            <p className="text-[9px] text-[#8E8E93]">
+            <p className="text-[11px] text-[#8E8E93]">
               코로나 영향으로 2021~23년 손해율 하락 후 2024~25년 회복 추세
             </p>
           </div>
@@ -181,8 +181,8 @@ export function AccidentStatsCard({ carType, stats, year, isAnnual, trend }: Pro
 
         {/* 솔직한 해석 */}
         <div className="flex items-start gap-2 px-3 py-2.5 rounded-xl bg-[#007AFF08] border border-[#007AFF15]">
-          <span className="text-[12px] mt-0.5 shrink-0">ℹ️</span>
-          <p className="text-[11px] text-[#374151] leading-relaxed">
+          <span className="text-[14px] mt-0.5 shrink-0">ℹ️</span>
+          <p className="text-[13px] text-[#374151] leading-relaxed">
             차종 간 손해율 차이가{' '}
             <span className="font-semibold">{diffPp}%p 수준으로 매우 작습니다.</span>{' '}
             실제 사고 위험은 차종보다 <span className="font-semibold">운전 습관·도로 환경</span>에
@@ -193,7 +193,7 @@ export function AccidentStatsCard({ carType, stats, year, isAnnual, trend }: Pro
 
       {/* 면책 */}
       <div className="px-4 pb-4">
-        <p className="text-[10px] text-[#8E8E93] leading-relaxed">
+        <p className="text-[12px] text-[#8E8E93] leading-relaxed">
           * 금융위원회 자동차보험통계 {year}년 {isAnnual ? '연간' : '누적'} 기준.
           개인용 보험 기준. 손해상황은 보험금 지급 청구 기준이며 실제 사고 건수와 다를 수 있음.
         </p>

@@ -64,46 +64,46 @@ export function InsuranceInsightCard({ annualMk, breakdown, ageGroup, sex, trend
       {/* 헤더 */}
       <div className="px-4 py-3 flex items-center gap-2" style={{ background: `${severityColor}10` }}>
         <span
-          className="text-[10px] font-bold px-2 py-0.5 rounded-full text-white"
+          className="text-[12px] font-bold px-2 py-0.5 rounded-full text-white"
           style={{ background: severityColor }}
         >
           {severityLabel}
         </span>
-        <p className="text-[13px] font-bold text-[#1C1C1E]">보험료 분석</p>
-        <span className="ml-auto text-[11px] text-[#8E8E93]">2026년 추정</span>
+        <p className="text-[15px] font-bold text-[#1C1C1E]">보험료 분석</p>
+        <span className="ml-auto text-[13px] text-[#8E8E93]">2026년 추정</span>
       </div>
 
       {/* 핵심 수치 */}
       <div className="px-4 pt-4 pb-3 space-y-3.5">
         <div className="flex items-end gap-3">
           <div>
-            <p className="text-[11px] text-[#8E8E93] mb-0.5 flex items-center gap-1.5">
+            <p className="text-[13px] text-[#8E8E93] mb-0.5 flex items-center gap-1.5">
               연간 보험료 추정
               {contextLabel && (
-                <span className="inline-flex items-center text-[10px] font-semibold text-[#FF9500] bg-[#FF950015] px-1.5 py-0.5 rounded-full">
+                <span className="inline-flex items-center text-[12px] font-semibold text-[#FF9500] bg-[#FF950015] px-1.5 py-0.5 rounded-full">
                   {contextLabel} 기준
                 </span>
               )}
             </p>
-            <p className="text-[26px] font-bold text-[#1C1C1E] leading-tight">{fmtMk(annualMk)}</p>
+            <p className="text-[30px] font-bold text-[#1C1C1E] leading-tight">{fmtMk(annualMk)}</p>
           </div>
-          <p className="text-[14px] text-[#8E8E93] mb-1">≈ 월 {fmtMk(monthlyMk)}</p>
+          <p className="text-[16px] text-[#8E8E93] mb-1">≈ 월 {fmtMk(monthlyMk)}</p>
         </div>
 
         {/* 담보별 바 차트 */}
         {coverageEntries.length > 0 && (
           <div className="space-y-2">
-            <p className="text-[10px] font-bold text-[#8E8E93] uppercase tracking-wide">담보별 월 보험료</p>
+            <p className="text-[12px] font-bold text-[#8E8E93] uppercase tracking-wide">담보별 월 보험료</p>
             {coverageEntries.map(({ key, label, won, color }) => (
               <div key={key} className="flex items-center gap-2">
-                <span className="text-[11px] text-[#6D6D72] w-14 shrink-0">{label}</span>
+                <span className="text-[13px] text-[#6D6D72] w-14 shrink-0">{label}</span>
                 <div className="flex-1 h-2 bg-[#F2F2F7] rounded-full overflow-hidden">
                   <div
                     className="h-full rounded-full"
                     style={{ width: `${(won / maxWon) * 100}%`, background: color }}
                   />
                 </div>
-                <span className="text-[11px] font-semibold text-[#1C1C1E] w-14 text-right shrink-0">
+                <span className="text-[13px] font-semibold text-[#1C1C1E] w-14 text-right shrink-0">
                   {fmtWon(won)}
                 </span>
               </div>
@@ -114,7 +114,7 @@ export function InsuranceInsightCard({ annualMk, breakdown, ageGroup, sex, trend
         {/* 연도별 보험료 추이 미니 차트 */}
         {trend && trend.length >= 3 && (
           <div className="space-y-1.5">
-            <p className="text-[10px] font-bold text-[#8E8E93] uppercase tracking-wide">연도별 보험료 추이</p>
+            <p className="text-[12px] font-bold text-[#8E8E93] uppercase tracking-wide">연도별 보험료 추이</p>
             <div className="h-[56px] flex items-end gap-[3px]">
               {trend.map(({ year, annual_mk }, i) => {
                 const isLast = i === trend!.length - 1;
@@ -144,13 +144,13 @@ export function InsuranceInsightCard({ annualMk, breakdown, ageGroup, sex, trend
                 );
               })}
             </div>
-            <p className="text-[9px] text-[#8E8E93] text-right">만원/년 · {trend[0].year}~{trend[trend.length-1].year}년</p>
+            <p className="text-[11px] text-[#8E8E93] text-right">만원/년 · {trend[0].year}~{trend[trend.length-1].year}년</p>
           </div>
         )}
 
         {/* 장기렌트 포함 안내 */}
         <div className="rounded-xl bg-[#34C75912] px-3.5 py-3 space-y-2">
-          <p className="text-[11px] font-bold text-[#34C759] uppercase tracking-wide">장기렌트는</p>
+          <p className="text-[13px] font-bold text-[#34C759] uppercase tracking-wide">장기렌트는</p>
           {[
             {
               icon: '✓',
@@ -172,10 +172,10 @@ export function InsuranceInsightCard({ annualMk, breakdown, ageGroup, sex, trend
             },
           ].map(({ icon, text, sub, bold }, idx) => (
             <div key={idx} className="flex items-start gap-2">
-              <span className="text-[11px] font-bold text-[#34C759] mt-0.5 shrink-0">{icon}</span>
+              <span className="text-[13px] font-bold text-[#34C759] mt-0.5 shrink-0">{icon}</span>
               <div>
-                <p className={`text-[12px] text-[#1C1C1E] ${bold ? 'font-semibold' : ''}`}>{text}</p>
-                {sub && <p className="text-[10px] text-[#8E8E93] mt-0.5 leading-relaxed">{sub}</p>}
+                <p className={`text-[14px] text-[#1C1C1E] ${bold ? 'font-semibold' : ''}`}>{text}</p>
+                {sub && <p className="text-[12px] text-[#8E8E93] mt-0.5 leading-relaxed">{sub}</p>}
               </div>
             </div>
           ))}
@@ -184,7 +184,7 @@ export function InsuranceInsightCard({ annualMk, breakdown, ageGroup, sex, trend
 
       {/* 면책 */}
       <div className="px-4 pb-4">
-        <p className="text-[10px] text-[#8E8E93] leading-relaxed">
+        <p className="text-[12px] text-[#8E8E93] leading-relaxed">
           * 금융위원회 자동차보험 통계 기반 추정치
           {contextLabel ? ` (${contextLabel} 개인용 기준)` : ' (개인용 기준)'}.
           실제 보험료는 운전자 사고이력·차량 연식 등에 따라 다릅니다.

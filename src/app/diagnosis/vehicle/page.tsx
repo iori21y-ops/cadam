@@ -64,7 +64,7 @@ function RankBadge({ rank }: { rank: number }) {
   const colors = ['#EF4444', '#F59E0B', '#8E8E93'];
   return (
     <span
-      className="text-[10px] font-bold px-2 py-0.5 rounded-full text-white"
+      className="text-[12px] font-bold px-2 py-0.5 rounded-full text-white"
       style={{ backgroundColor: colors[rank] ?? '#8E8E93' }}
     >
       {badges[rank] ?? ''}
@@ -165,12 +165,12 @@ function VehResult({ answers, mode, restart, toDetail, onHome, vehicles }: {
   };
 
   return (
-    <div className="min-h-screen bg-white pb-16">
+    <div className="h-dvh overflow-y-auto scroll-smooth snap-y snap-proximity bg-white pb-16">
       <ConsultationSheet isOpen={isSheetOpen} onClose={() => setIsSheetOpen(false)} />
       <div className="px-5 pt-10 max-w-lg mx-auto">
         {/* 모드 배지 + 공유 */}
         <div className="flex items-center justify-between mb-5">
-          <span className="text-xs px-3 py-1 rounded-full bg-vehicle/8 text-vehicle font-semibold">
+          <span className="text-base px-3 py-1 rounded-full bg-vehicle/8 text-vehicle font-semibold">
             {mode === 'basic' ? '간편 진단' : '상세 진단'} · {answerCount}개 응답
           </span>
           <div className="flex gap-1.5">
@@ -193,7 +193,7 @@ function VehResult({ answers, mode, restart, toDetail, onHome, vehicles }: {
 
         {/* 헤드라인 */}
         <motion.div initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.35, ease: 'easeOut' }}>
-          <p className="text-sm text-text-sub mb-1">차종 추천 결과</p>
+          <p className="text-lg text-text-sub mb-1">차종 추천 결과</p>
           <h1 className="text-2xl font-bold text-text tracking-tight mb-4">
             <span className="text-gold-gradient">{best.name}</span>을(를)<br />추천합니다
           </h1>
@@ -210,7 +210,7 @@ function VehResult({ answers, mode, restart, toDetail, onHome, vehicles }: {
           initial={{ opacity: 0, x: 40 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.1, duration: 0.35, ease: 'easeOut' }}
-          className="rounded-2xl bg-surface shadow-sm mb-4 overflow-hidden"
+          className="rounded-2xl bg-surface shadow-sm mb-4 overflow-hidden snap-start scroll-mt-4"
         >
           {scored.map((v, i) => {
             const slug = matchSlug(v.name);
@@ -232,15 +232,15 @@ function VehResult({ answers, mode, restart, toDetail, onHome, vehicles }: {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-0.5">
-                      <p className="font-bold text-text text-[17px]">{v.brand} {v.name}</p>
+                      <p className="font-bold text-text text-[20px]">{v.brand} {v.name}</p>
                     </div>
-                    <p className="text-xs text-text-muted">{v.class} · {v.price.toLocaleString()}만원~</p>
+                    <p className="text-base text-text-muted">{v.class} · {v.price.toLocaleString()}만원~</p>
                   </div>
                   <div className="flex flex-col gap-1 shrink-0">
                     {slug && (
                       <button
                         onClick={() => router.push(`/cars/${slug}`)}
-                        className="text-[11px] font-semibold px-2.5 py-1 rounded-lg text-vehicle border border-vehicle/20 hover:bg-vehicle/5 transition-colors"
+                        className="text-[13px] font-semibold px-2.5 py-1 rounded-lg text-vehicle border border-vehicle/20 hover:bg-vehicle/5 transition-colors"
                       >
                         상세 →
                       </button>
@@ -248,7 +248,7 @@ function VehResult({ answers, mode, restart, toDetail, onHome, vehicles }: {
                     {isBest && (
                       <button
                         onClick={() => router.push(`/simulator/compare?brand=${encodeURIComponent(v.brand)}&model=${encodeURIComponent(v.name)}`)}
-                        className="text-[11px] font-semibold px-2.5 py-1 rounded-lg text-primary border border-primary/20 hover:bg-primary/5 transition-colors"
+                        className="text-[13px] font-semibold px-2.5 py-1 rounded-lg text-primary border border-primary/20 hover:bg-primary/5 transition-colors"
                       >
                         비교 →
                       </button>
@@ -260,25 +260,25 @@ function VehResult({ answers, mode, restart, toDetail, onHome, vehicles }: {
                 <div className="grid grid-cols-4 gap-1.5 mb-1.5">
                   {PRODUCT_KEYS.map((key) => (
                     <div key={key} className="text-center py-2 rounded-xl" style={{ backgroundColor: DEFAULT_PRODUCTS[key].lightBg }}>
-                      <p className="text-[10px] text-text-muted">{DEFAULT_PRODUCTS[key].name}</p>
-                      <p className="text-xs font-bold" style={{ color: DEFAULT_PRODUCTS[key].color }}>
+                      <p className="text-[12px] text-text-muted">{DEFAULT_PRODUCTS[key].name}</p>
+                      <p className="text-base font-bold" style={{ color: DEFAULT_PRODUCTS[key].color }}>
                         {key === 'cash' ? '일시불' : `${calcMonthly(v.price, key, DEFAULT_PERIOD, DEFAULT_DOWN_RATE, DEFAULT_MILEAGE)}만`}
                       </p>
                     </div>
                   ))}
                 </div>
-                <p className="text-[9px] text-text-muted mb-3">{conditionLabel()} (참고용)</p>
+                <p className="text-[11px] text-text-muted mb-3">{conditionLabel()} (참고용)</p>
 
                 {/* 추천 트림 (옵션 태그가 있을 때) */}
                 {vBestTrim && (
                   <div className="p-3 rounded-xl bg-surface-secondary mb-2">
                     <div className="flex items-center justify-between mb-1.5">
-                      <p className="text-xs font-semibold text-text">추천 트림: {vBestTrim.name}</p>
-                      <p className="text-xs font-bold text-text">{vBestTrim.price.toLocaleString()}만원</p>
+                      <p className="text-base font-semibold text-text">추천 트림: {vBestTrim.name}</p>
+                      <p className="text-base font-bold text-text">{vBestTrim.price.toLocaleString()}만원</p>
                     </div>
                     <div className="flex flex-wrap gap-1">
                       {vBestTrim.feats.map((f) => (
-                        <span key={f} className="text-[10px] px-1.5 py-0.5 rounded-md bg-white text-text-sub">{f}</span>
+                        <span key={f} className="text-[12px] px-1.5 py-0.5 rounded-md bg-white text-text-sub">{f}</span>
                       ))}
                     </div>
                   </div>
@@ -289,15 +289,15 @@ function VehResult({ answers, mode, restart, toDetail, onHome, vehicles }: {
                   <div className="mt-2">
                     {/* 핵심 스펙 */}
                     <div className="flex flex-wrap gap-1.5 mb-3">
-                      {v.seats && <span className="text-[10px] px-2 py-0.5 rounded-md bg-surface-secondary text-text-sub">{v.seats}</span>}
-                      {v.engine && <span className="text-[10px] px-2 py-0.5 rounded-md bg-surface-secondary text-text-sub">{v.engine}</span>}
+                      {v.seats && <span className="text-[12px] px-2 py-0.5 rounded-md bg-surface-secondary text-text-sub">{v.seats}</span>}
+                      {v.engine && <span className="text-[12px] px-2 py-0.5 rounded-md bg-surface-secondary text-text-sub">{v.engine}</span>}
                     </div>
 
                     {/* 핵심 특징 */}
                     {v.highlights && v.highlights.length > 0 && (
                       <div className="flex flex-col gap-1 mb-3">
                         {v.highlights.map((h, hi) => (
-                          <p key={hi} className="text-xs text-text-sub"><span className="text-primary mr-1">✓</span>{h}</p>
+                          <p key={hi} className="text-base text-text-sub"><span className="text-primary mr-1">✓</span>{h}</p>
                         ))}
                       </div>
                     )}
@@ -306,15 +306,15 @@ function VehResult({ answers, mode, restart, toDetail, onHome, vehicles }: {
                     {v.pros && v.cons && (
                       <div className="grid grid-cols-2 gap-3 mb-3">
                         <div>
-                          <p className="text-[11px] font-semibold text-success mb-1">장점</p>
+                          <p className="text-[13px] font-semibold text-success mb-1">장점</p>
                           {v.pros.map((p) => (
-                            <p key={p} className="text-[11px] text-text-sub mb-0.5">✓ {p}</p>
+                            <p key={p} className="text-[13px] text-text-sub mb-0.5">✓ {p}</p>
                           ))}
                         </div>
                         <div>
-                          <p className="text-[11px] font-semibold text-danger mb-1">유의사항</p>
+                          <p className="text-[13px] font-semibold text-danger mb-1">유의사항</p>
                           {v.cons.map((c) => (
-                            <p key={c} className="text-[11px] text-text-sub mb-0.5">· {c}</p>
+                            <p key={c} className="text-[13px] text-text-sub mb-0.5">· {c}</p>
                           ))}
                         </div>
                       </div>
@@ -322,36 +322,36 @@ function VehResult({ answers, mode, restart, toDetail, onHome, vehicles }: {
 
                     {/* 추천 대상 */}
                     {v.bestFor && (
-                      <p className="text-[11px] text-text-muted">이런 분께 최적: {v.bestFor}</p>
+                      <p className="text-[13px] text-text-muted">이런 분께 최적: {v.bestFor}</p>
                     )}
 
                     {/* 진단 답변 기반 추천 이유 */}
                     {Object.keys(answers).length > 0 && (
                       <div className="mt-3 pt-3 border-t border-border">
-                        <p className="text-[11px] font-semibold text-text-sub mb-2">고객님의 진단 결과 기반 추천 이유</p>
+                        <p className="text-[13px] font-semibold text-text-sub mb-2">고객님의 진단 결과 기반 추천 이유</p>
                         <div className="flex flex-wrap gap-1.5">
                           {answers['v_purpose'] && (
-                            <span className="text-[11px] font-semibold px-2 py-1 rounded-lg bg-primary/10 text-primary">
+                            <span className="text-[13px] font-semibold px-2 py-1 rounded-lg bg-primary/10 text-primary">
                               용도: {answers['v_purpose'].label}
                             </span>
                           )}
                           {answers['v_budget'] && (
-                            <span className="text-[11px] font-semibold px-2 py-1 rounded-lg bg-primary/10 text-primary">
+                            <span className="text-[13px] font-semibold px-2 py-1 rounded-lg bg-primary/10 text-primary">
                               예산: {answers['v_budget'].label}
                             </span>
                           )}
                           {answers['v_people'] && (
-                            <span className="text-[11px] font-semibold px-2 py-1 rounded-lg bg-primary/10 text-primary">
+                            <span className="text-[13px] font-semibold px-2 py-1 rounded-lg bg-primary/10 text-primary">
                               인원: {answers['v_people'].label}
                             </span>
                           )}
                           {answers['v_fuel'] && (
-                            <span className="text-[11px] font-semibold px-2 py-1 rounded-lg bg-primary/10 text-primary">
+                            <span className="text-[13px] font-semibold px-2 py-1 rounded-lg bg-primary/10 text-primary">
                               연료: {answers['v_fuel'].label}
                             </span>
                           )}
                           {answers['v_priority'] && (
-                            <span className="text-[11px] font-semibold px-2 py-1 rounded-lg bg-primary/10 text-primary">
+                            <span className="text-[13px] font-semibold px-2 py-1 rounded-lg bg-primary/10 text-primary">
                               우선: {answers['v_priority'].label}
                             </span>
                           )}
@@ -368,9 +368,9 @@ function VehResult({ answers, mode, restart, toDetail, onHome, vehicles }: {
           {scored.length > 1 && (
             <button
               onClick={() => setExpanded(!expanded)}
-              className="w-full py-4 border-t-2 border-border text-sm font-bold text-primary bg-primary/[0.04] hover:bg-primary/[0.08] active:bg-primary/[0.12] transition-colors flex items-center justify-center gap-2"
+              className="w-full py-4 border-t-2 border-border text-lg font-bold text-primary bg-primary/[0.04] hover:bg-primary/[0.08] active:bg-primary/[0.12] transition-colors flex items-center justify-center gap-2"
             >
-              <span className="text-base">{expanded ? '▲' : '▼'}</span>
+              <span className="text-lg">{expanded ? '▲' : '▼'}</span>
               {expanded ? '접기' : '2·3순위 결과 보기'}
             </button>
           )}
@@ -404,14 +404,14 @@ function VehResult({ answers, mode, restart, toDetail, onHome, vehicles }: {
         <div className="max-w-lg mx-auto px-5 py-3 flex items-center gap-3">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5 flex-wrap">
-              <span className="text-xs font-bold text-text flex items-center gap-1"><IconCarSedan size={14} className="text-primary" /> {best.brand} {best.name}</span>
-              {financeSummary && <span className="text-xs text-text-sub flex items-center gap-1">· <IconTarget size={14} className="text-primary" /> {financeSummary}</span>}
+              <span className="text-base font-bold text-text flex items-center gap-1"><IconCarSedan size={14} className="text-primary" /> {best.brand} {best.name}</span>
+              {financeSummary && <span className="text-base text-text-sub flex items-center gap-1">· <IconTarget size={14} className="text-primary" /> {financeSummary}</span>}
             </div>
-            <p className="text-[10px] text-text-muted mt-0.5">진단 결과가 자동 반영됩니다</p>
+            <p className="text-[12px] text-text-muted mt-0.5">진단 결과가 자동 반영됩니다</p>
           </div>
           <button
             onClick={handleQuoteNav}
-            className="shrink-0 px-5 py-2.5 rounded-xl bg-primary text-white text-sm font-bold hover:opacity-90 active:scale-[0.97] transition-all"
+            className="shrink-0 px-5 py-2.5 rounded-xl bg-primary text-white text-lg font-bold hover:opacity-90 active:scale-[0.97] transition-all"
           >
             상담 신청 →
           </button>

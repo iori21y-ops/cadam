@@ -32,7 +32,7 @@ function CustomTooltip({ active, payload }: { active?: boolean; payload?: Toolti
   if (!active || !payload?.length) return null;
   const d = payload[0].payload;
   return (
-    <div className="bg-white rounded-xl shadow-lg border border-[#F2F2F7] px-3 py-2.5 text-[12px]">
+    <div className="bg-white rounded-xl shadow-lg border border-[#F2F2F7] px-3 py-2.5 text-[14px]">
       <p className="font-bold text-[#1C1C1E] mb-1">차령 {d.age}년 ({d.year}년식)</p>
       <p className="text-[#007AFF] font-semibold">{d.value.toLocaleString()}만원</p>
       {d.retentionRate !== null && (

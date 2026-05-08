@@ -60,13 +60,13 @@ export function LeasePenaltyCard({ msrp, residual5yr }: Props) {
       {/* ── 헤더 ──────────────────────────────────────────────── */}
       <div className="px-4 py-3 flex items-center gap-2" style={{ background: `${severityColor}10` }}>
         <span
-          className="text-[10px] font-bold px-2 py-0.5 rounded-full text-white"
+          className="text-[12px] font-bold px-2 py-0.5 rounded-full text-white"
           style={{ background: severityColor }}
         >
           {severityLabel}
         </span>
-        <p className="text-[13px] font-bold text-[#1C1C1E]">리스의 숨은 비용</p>
-        <span className="ml-auto text-[11px] text-[#8E8E93]">5년 기준</span>
+        <p className="text-[15px] font-bold text-[#1C1C1E]">리스의 숨은 비용</p>
+        <span className="ml-auto text-[13px] text-[#8E8E93]">5년 기준</span>
       </div>
 
       {/* ── 잔존가치 비교 시각화 ──────────────────────────────── */}
@@ -77,12 +77,12 @@ export function LeasePenaltyCard({ msrp, residual5yr }: Props) {
           <div className="flex items-center justify-between mb-1.5">
             <div className="flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-[#007AFF]" />
-              <span className="text-[12px] font-semibold text-[#1C1C1E]">할부 · 만기 후 매각</span>
+              <span className="text-[14px] font-semibold text-[#1C1C1E]">할부 · 만기 후 매각</span>
             </div>
-            <span className="text-[13px] font-bold text-[#007AFF]">+{fmt(residual5yr)}</span>
+            <span className="text-[15px] font-bold text-[#007AFF]">+{fmt(residual5yr)}</span>
           </div>
           <Bar pct={installBarPct} color="#007AFF" />
-          <p className="text-[10px] text-[#8E8E93] mt-1">
+          <p className="text-[12px] text-[#8E8E93] mt-1">
             5년 후 시세 회수 가능 (엔카 실데이터 기준 · 잔존율 {retentionPct}%)
           </p>
         </div>
@@ -92,19 +92,19 @@ export function LeasePenaltyCard({ msrp, residual5yr }: Props) {
           <div className="flex items-center justify-between mb-1.5">
             <div className="flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-[#FF3B30]" />
-              <span className="text-[12px] font-semibold text-[#1C1C1E]">리스 · 만기 반납</span>
+              <span className="text-[14px] font-semibold text-[#1C1C1E]">리스 · 만기 반납</span>
             </div>
-            <span className="text-[13px] font-bold text-[#FF3B30]">0원</span>
+            <span className="text-[15px] font-bold text-[#FF3B30]">0원</span>
           </div>
           <Bar pct={leaseBarPct} color="#FF3B30" />
-          <p className="text-[10px] text-[#8E8E93] mt-1">
+          <p className="text-[12px] text-[#8E8E93] mt-1">
             만기 후 차 반납 → 잔존가치 전액 캐피탈사 귀속
           </p>
         </div>
 
         {/* 핵심 메시지 박스 */}
         <div className="rounded-xl px-3.5 py-3 mt-1" style={{ background: `${severityColor}10` }}>
-          <p className="text-[12px] text-[#1C1C1E] leading-relaxed">
+          <p className="text-[14px] text-[#1C1C1E] leading-relaxed">
             이 차를 <span className="font-bold">리스로 5년 타면</span>{' '}
             할부 대비{' '}
             <span className="font-bold" style={{ color: severityColor }}>
@@ -112,7 +112,7 @@ export function LeasePenaltyCard({ msrp, residual5yr }: Props) {
             </span>{' '}
             의 자산을 포기하는 것과 같습니다.
           </p>
-          <p className="text-[11px] text-[#8E8E93] mt-1">
+          <p className="text-[13px] text-[#8E8E93] mt-1">
             월 환산 기회비용 ≈{' '}
             <span className="font-semibold text-[#1C1C1E]">{fmt(hiddenPerMonth)}/월</span>
           </p>
@@ -122,7 +122,7 @@ export function LeasePenaltyCard({ msrp, residual5yr }: Props) {
       {/* ── 장기렌트의 장점 (법개정 포함) ───────────────────── */}
       <div className="px-4 pt-0 pb-4">
         <div className="rounded-xl bg-[#34C75912] px-3.5 py-3 space-y-2">
-          <p className="text-[11px] font-bold text-[#34C759] uppercase tracking-wide">
+          <p className="text-[13px] font-bold text-[#34C759] uppercase tracking-wide">
             반면 장기렌트는
           </p>
           {[
@@ -137,16 +137,16 @@ export function LeasePenaltyCard({ msrp, residual5yr }: Props) {
           ].map(({ icon, text, sub, highlight }) => (
             <div key={text} className="flex items-start gap-2">
               <span
-                className={`text-[11px] font-bold mt-0.5 shrink-0 ${highlight ? 'text-[#34C759]' : 'text-[#34C759]'}`}
+                className={`text-[13px] font-bold mt-0.5 shrink-0 ${highlight ? 'text-[#34C759]' : 'text-[#34C759]'}`}
               >
                 {icon}
               </span>
               <div>
-                <p className={`text-[12px] ${highlight ? 'font-semibold text-[#1C1C1E]' : 'text-[#1C1C1E]'}`}>
+                <p className={`text-[14px] ${highlight ? 'font-semibold text-[#1C1C1E]' : 'text-[#1C1C1E]'}`}>
                   {text}
                 </p>
                 {sub && (
-                  <p className="text-[10px] text-[#8E8E93] mt-0.5 leading-relaxed">{sub}</p>
+                  <p className="text-[12px] text-[#8E8E93] mt-0.5 leading-relaxed">{sub}</p>
                 )}
               </div>
             </div>

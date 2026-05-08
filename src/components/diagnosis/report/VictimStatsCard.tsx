@@ -40,17 +40,17 @@ export function VictimStatsCard({ stats }: Props) {
 
       {/* 헤더 */}
       <div className="px-4 py-3 flex items-center gap-2 bg-[#34C75908]">
-        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full text-white bg-[#34C759]">
+        <span className="text-[12px] font-bold px-2 py-0.5 rounded-full text-white bg-[#34C759]">
           부상 통계
         </span>
-        <p className="text-[13px] font-bold text-[#1C1C1E]">교통사고 부상 경중 분포</p>
+        <p className="text-[15px] font-bold text-[#1C1C1E]">교통사고 부상 경중 분포</p>
       </div>
 
       <div className="px-4 pt-4 pb-4 space-y-3.5">
         {/* 핵심 수치 */}
         <div>
-          <p className="text-[11px] text-[#8E8E93] mb-0.5">경상(가벼운 부상) 비율</p>
-          <p className="text-[28px] font-bold text-[#34C759] leading-tight">{minorPct}%</p>
+          <p className="text-[13px] text-[#8E8E93] mb-0.5">경상(가벼운 부상) 비율</p>
+          <p className="text-[32px] font-bold text-[#34C759] leading-tight">{minorPct}%</p>
         </div>
 
         {/* 스택형 가로 바 */}
@@ -73,8 +73,8 @@ export function VictimStatsCard({ stats }: Props) {
             {BARS.map(({ key, label, color }) => (
               <div key={key} className="flex items-center gap-1">
                 <div className="w-2 h-2 rounded-sm" style={{ background: color }} />
-                <span className="text-[10px] text-[#6D6D72]">{label}</span>
-                <span className="text-[10px] font-semibold text-[#1C1C1E]">
+                <span className="text-[12px] text-[#6D6D72]">{label}</span>
+                <span className="text-[12px] font-semibold text-[#1C1C1E]">
                   {severity[key].pct}%
                 </span>
               </div>
@@ -84,22 +84,22 @@ export function VictimStatsCard({ stats }: Props) {
 
         {/* 장기렌트 연계 안내 */}
         <div className="rounded-xl bg-[#34C75912] px-3.5 py-3">
-          <p className="text-[11px] font-bold text-[#34C759] mb-1.5">장기렌트 포함 보험</p>
+          <p className="text-[13px] font-bold text-[#34C759] mb-1.5">장기렌트 포함 보험</p>
           <div className="space-y-1.5">
             {[
               { icon: '✓', text: '경상·중상·중증 전 구간 처리 — 매년 갱신·납부 없이 자동' },
               { icon: '✓', text: '렌탈사가 보험 관리 → 사고 시 창구 단일화' },
             ].map(({ icon, text }, i) => (
               <div key={i} className="flex items-start gap-2">
-                <span className="text-[11px] font-bold text-[#34C759] shrink-0">{icon}</span>
-                <p className="text-[12px] text-[#1C1C1E]">{text}</p>
+                <span className="text-[13px] font-bold text-[#34C759] shrink-0">{icon}</span>
+                <p className="text-[14px] text-[#1C1C1E]">{text}</p>
               </div>
             ))}
           </div>
         </div>
 
         {/* 면책 */}
-        <p className="text-[10px] text-[#8E8E93] leading-relaxed">
+        <p className="text-[12px] text-[#8E8E93] leading-relaxed">
           * 금융위원회 자동차보험 피해자 통계.
           {' '}{fmtYm(period.from)}~{fmtYm(period.to)} 누적 데이터 기준.
           실제 사고 결과는 개별 상황에 따라 다릅니다.

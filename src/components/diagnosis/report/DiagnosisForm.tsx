@@ -143,17 +143,17 @@ export function DiagnosisForm({ onSubmit, loading = false }: Props) {
   return (
     <div className="space-y-4">
       {apiError && (
-        <p className="text-sm text-red-500 bg-red-50 px-4 py-2 rounded-xl">{apiError}</p>
+        <p className="text-lg text-red-500 bg-red-50 px-4 py-2 rounded-xl">{apiError}</p>
       )}
 
       {/* 브랜드 */}
       <div>
-        <label className="block text-[13px] font-semibold text-[#1C1C1E] mb-1.5">브랜드</label>
+        <label className="block text-[15px] font-semibold text-[#1C1C1E] mb-1.5">브랜드</label>
         <select
           value={brand}
           onChange={(e) => setBrand(e.target.value)}
           disabled={loadingBrands}
-          className="w-full px-4 py-3 rounded-xl border border-[#E5E7EB] bg-white text-[14px] text-[#1C1C1E] appearance-none focus:outline-none focus:ring-2 focus:ring-[#007AFF]/30 disabled:opacity-50"
+          className="w-full px-4 py-3 rounded-xl border border-[#E5E7EB] bg-white text-[16px] text-[#1C1C1E] appearance-none focus:outline-none focus:ring-2 focus:ring-[#007AFF]/30 disabled:opacity-50"
         >
           <option value="">{loadingBrands ? '불러오는 중…' : '브랜드 선택'}</option>
           {brands.map((b) => (
@@ -164,12 +164,12 @@ export function DiagnosisForm({ onSubmit, loading = false }: Props) {
 
       {/* 모델 */}
       <div>
-        <label className="block text-[13px] font-semibold text-[#1C1C1E] mb-1.5">모델</label>
+        <label className="block text-[15px] font-semibold text-[#1C1C1E] mb-1.5">모델</label>
         <select
           value={model}
           onChange={(e) => setModel(e.target.value)}
           disabled={!brand || loadingModels}
-          className="w-full px-4 py-3 rounded-xl border border-[#E5E7EB] bg-white text-[14px] text-[#1C1C1E] appearance-none focus:outline-none focus:ring-2 focus:ring-[#007AFF]/30 disabled:opacity-50"
+          className="w-full px-4 py-3 rounded-xl border border-[#E5E7EB] bg-white text-[16px] text-[#1C1C1E] appearance-none focus:outline-none focus:ring-2 focus:ring-[#007AFF]/30 disabled:opacity-50"
         >
           <option value="">{loadingModels ? '불러오는 중…' : '모델 선택'}</option>
           {models.map((m) => (
@@ -180,12 +180,12 @@ export function DiagnosisForm({ onSubmit, loading = false }: Props) {
 
       {/* 연식 */}
       <div>
-        <label className="block text-[13px] font-semibold text-[#1C1C1E] mb-1.5">연식</label>
+        <label className="block text-[15px] font-semibold text-[#1C1C1E] mb-1.5">연식</label>
         <select
           value={year}
           onChange={(e) => handleYearChange(e.target.value)}
           disabled={!model || loadingTrims}
-          className="w-full px-4 py-3 rounded-xl border border-[#E5E7EB] bg-white text-[14px] text-[#1C1C1E] appearance-none focus:outline-none focus:ring-2 focus:ring-[#007AFF]/30 disabled:opacity-50"
+          className="w-full px-4 py-3 rounded-xl border border-[#E5E7EB] bg-white text-[16px] text-[#1C1C1E] appearance-none focus:outline-none focus:ring-2 focus:ring-[#007AFF]/30 disabled:opacity-50"
         >
           <option value="">{loadingTrims ? '불러오는 중…' : '연식 선택'}</option>
           {years.map((y) => (
@@ -196,15 +196,15 @@ export function DiagnosisForm({ onSubmit, loading = false }: Props) {
 
       {/* 트림 */}
       <div>
-        <label className="block text-[13px] font-semibold text-[#1C1C1E] mb-1.5">
+        <label className="block text-[15px] font-semibold text-[#1C1C1E] mb-1.5">
           트림
-          <span className="ml-1.5 text-[11px] font-normal text-[#8E8E93]">신차가 기준</span>
+          <span className="ml-1.5 text-[13px] font-normal text-[#8E8E93]">신차가 기준</span>
         </label>
         <select
           value={trimName}
           onChange={(e) => setTrimName(e.target.value)}
           disabled={!year || filteredTrims.length === 0}
-          className="w-full px-4 py-3 rounded-xl border border-[#E5E7EB] bg-white text-[14px] text-[#1C1C1E] appearance-none focus:outline-none focus:ring-2 focus:ring-[#007AFF]/30 disabled:opacity-50"
+          className="w-full px-4 py-3 rounded-xl border border-[#E5E7EB] bg-white text-[16px] text-[#1C1C1E] appearance-none focus:outline-none focus:ring-2 focus:ring-[#007AFF]/30 disabled:opacity-50"
         >
           <option value="">{!year ? '연식을 먼저 선택하세요' : '트림 선택'}</option>
           {filteredTrims.map((t) => (
@@ -217,9 +217,9 @@ export function DiagnosisForm({ onSubmit, loading = false }: Props) {
 
       {/* 주행거리 구간 */}
       <div>
-        <label className="block text-[13px] font-semibold text-[#1C1C1E] mb-2">
+        <label className="block text-[15px] font-semibold text-[#1C1C1E] mb-2">
           주행거리 구간
-          <span className="ml-1.5 text-[11px] font-normal text-[#8E8E93]">현재 주행거리 기준</span>
+          <span className="ml-1.5 text-[13px] font-normal text-[#8E8E93]">현재 주행거리 기준</span>
         </label>
         <div className="grid grid-cols-3 gap-2">
           {MILEAGE_OPTIONS.map((opt) => {
@@ -236,10 +236,10 @@ export function DiagnosisForm({ onSubmit, loading = false }: Props) {
                     : 'border-[#E5E7EB] bg-white hover:border-[#007AFF]/40',
                 ].join(' ')}
               >
-                <p className={`text-[13px] font-bold ${sel ? 'text-[#007AFF]' : 'text-[#1C1C1E]'}`}>
+                <p className={`text-[15px] font-bold ${sel ? 'text-[#007AFF]' : 'text-[#1C1C1E]'}`}>
                   {opt.label}
                 </p>
-                <p className="text-[11px] text-[#8E8E93] mt-0.5">{opt.sub}</p>
+                <p className="text-[13px] text-[#8E8E93] mt-0.5">{opt.sub}</p>
               </button>
             );
           })}
@@ -248,7 +248,7 @@ export function DiagnosisForm({ onSubmit, loading = false }: Props) {
 
       {/* 사업자 여부 */}
       <div>
-        <label className="block text-[13px] font-semibold text-[#1C1C1E] mb-2">사업자 여부</label>
+        <label className="block text-[15px] font-semibold text-[#1C1C1E] mb-2">사업자 여부</label>
         <div className="flex gap-2">
           {BUSINESS_OPTIONS.map((opt) => {
             const sel = businessType === opt.value;
@@ -258,7 +258,7 @@ export function DiagnosisForm({ onSubmit, loading = false }: Props) {
                 type="button"
                 onClick={() => setBusiness(opt.value)}
                 className={[
-                  'flex-1 py-2.5 rounded-xl border-2 text-[13px] font-semibold transition-all',
+                  'flex-1 py-2.5 rounded-xl border-2 text-[15px] font-semibold transition-all',
                   sel
                     ? 'border-[#007AFF] bg-[#007AFF] text-white'
                     : 'border-[#E5E7EB] bg-white text-[#1C1C1E] hover:border-[#007AFF]/40',
@@ -273,9 +273,9 @@ export function DiagnosisForm({ onSubmit, loading = false }: Props) {
 
       {/* 연령대 — 보험료 맞춤 추정용 (선택) */}
       <div>
-        <label className="block text-[13px] font-semibold text-[#1C1C1E] mb-1.5">
+        <label className="block text-[15px] font-semibold text-[#1C1C1E] mb-1.5">
           운전자 연령대
-          <span className="ml-1.5 text-[11px] font-normal text-[#8E8E93]">선택 시 맞춤 보험료 추정</span>
+          <span className="ml-1.5 text-[13px] font-normal text-[#8E8E93]">선택 시 맞춤 보험료 추정</span>
         </label>
         <div className="grid grid-cols-6 gap-1.5">
           {AGE_OPTIONS.map((opt) => {
@@ -286,7 +286,7 @@ export function DiagnosisForm({ onSubmit, loading = false }: Props) {
                 type="button"
                 onClick={() => setAgeGroup(sel ? null : opt.value)}
                 className={[
-                  'py-2 rounded-xl border-2 text-[12px] font-semibold transition-all text-center',
+                  'py-2 rounded-xl border-2 text-[14px] font-semibold transition-all text-center',
                   sel
                     ? 'border-[#FF9500] bg-[#FF9500]/10 text-[#FF9500]'
                     : 'border-[#E5E7EB] bg-white text-[#6D6D72] hover:border-[#FF9500]/40',
@@ -302,9 +302,9 @@ export function DiagnosisForm({ onSubmit, loading = false }: Props) {
       {/* 성별 — 연령대 선택 시만 표시 (20대는 성별 차이가 큼) */}
       {ageGroup !== null && (
         <div>
-          <label className="block text-[13px] font-semibold text-[#1C1C1E] mb-2">
+          <label className="block text-[15px] font-semibold text-[#1C1C1E] mb-2">
             성별
-            <span className="ml-1.5 text-[11px] font-normal text-[#8E8E93]">선택</span>
+            <span className="ml-1.5 text-[13px] font-normal text-[#8E8E93]">선택</span>
           </label>
           <div className="flex gap-2">
             {SEX_OPTIONS.map((opt) => {
@@ -315,7 +315,7 @@ export function DiagnosisForm({ onSubmit, loading = false }: Props) {
                   type="button"
                   onClick={() => setSex(sel ? null : opt.value)}
                   className={[
-                    'flex-1 py-2.5 rounded-xl border-2 text-[13px] font-semibold transition-all',
+                    'flex-1 py-2.5 rounded-xl border-2 text-[15px] font-semibold transition-all',
                     sel
                       ? 'border-[#FF9500] bg-[#FF9500]/10 text-[#FF9500]'
                       : 'border-[#E5E7EB] bg-white text-[#6D6D72] hover:border-[#FF9500]/40',
@@ -332,11 +332,11 @@ export function DiagnosisForm({ onSubmit, loading = false }: Props) {
       {/* 선택 요약 */}
       {selectedTrim && (
         <div className="px-4 py-3 rounded-xl bg-[#F2F2F7]">
-          <p className="text-[12px] text-[#8E8E93] mb-0.5">선택 차량</p>
-          <p className="text-[14px] font-bold text-[#1C1C1E]">
+          <p className="text-[14px] text-[#8E8E93] mb-0.5">선택 차량</p>
+          <p className="text-[16px] font-bold text-[#1C1C1E]">
             {brand} {model} · {selectedTrim.model_year}년식
           </p>
-          <p className="text-[12px] text-[#6D6D72] mt-0.5">
+          <p className="text-[14px] text-[#6D6D72] mt-0.5">
             {selectedTrim.trim_name} ·{' '}
             <span className="font-semibold text-[#8E8E93]">
               제조사 기본가 {selectedTrim.msrp_price.toLocaleString()}만원
@@ -348,9 +348,9 @@ export function DiagnosisForm({ onSubmit, loading = false }: Props) {
       {/* 실제 구매가격 입력 */}
       {selectedTrim && (
         <div>
-          <label className="block text-[13px] font-semibold text-[#1C1C1E] mb-1.5">
+          <label className="block text-[15px] font-semibold text-[#1C1C1E] mb-1.5">
             실제 구매가격
-            <span className="ml-1.5 text-[11px] font-normal text-[#8E8E93]">출고가+옵션</span>
+            <span className="ml-1.5 text-[13px] font-normal text-[#8E8E93]">출고가+옵션</span>
           </label>
           <div className="relative">
             <input
@@ -359,13 +359,13 @@ export function DiagnosisForm({ onSubmit, loading = false }: Props) {
               value={purchasePrice}
               onChange={(e) => handlePriceInput(e.target.value)}
               placeholder="예) 2,500"
-              className="w-full px-4 py-3 pr-14 rounded-xl border border-[#007AFF] bg-white text-[14px] text-[#1C1C1E] focus:outline-none focus:ring-2 focus:ring-[#007AFF]/30"
+              className="w-full px-4 py-3 pr-14 rounded-xl border border-[#007AFF] bg-white text-[16px] text-[#1C1C1E] focus:outline-none focus:ring-2 focus:ring-[#007AFF]/30"
             />
-            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[13px] font-semibold text-[#8E8E93]">
+            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[15px] font-semibold text-[#8E8E93]">
               만원
             </span>
           </div>
-          <p className="mt-1.5 text-[11px] text-[#8E8E93]">
+          <p className="mt-1.5 text-[13px] text-[#8E8E93]">
             계약서 또는 견적서의 차량 총 가격을 입력하세요
           </p>
         </div>
@@ -377,7 +377,7 @@ export function DiagnosisForm({ onSubmit, loading = false }: Props) {
         size="lg"
         disabled={!canSubmit}
         onClick={handleSubmit}
-        className="!bg-[#007AFF] !rounded-2xl !text-[15px] !font-bold disabled:!opacity-40"
+        className="!bg-[#007AFF] !rounded-2xl !text-[17px] !font-bold disabled:!opacity-40"
       >
         {loading ? '계산 중…' : '진단 시작'}
       </Button>

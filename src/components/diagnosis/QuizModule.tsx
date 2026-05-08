@@ -205,7 +205,7 @@ export function QuizModule({ basicQs, detailQs, color, onHome, savedResult, rend
           style={{ fontSize: 'clamp(26px, 5vw, 34px)' }}>
           진단 방식을<br />선택해주세요.
         </h2>
-        <p className="text-[15px] text-text-sub text-center mb-10">목적에 맞는 진단을 선택하세요</p>
+        <p className="text-[17px] text-text-sub text-center mb-10">목적에 맞는 진단을 선택하세요</p>
 
         <div className="flex flex-col gap-3.5">
           {items.map(({ m, title, desc, time, count }) => {
@@ -217,17 +217,17 @@ export function QuizModule({ basicQs, detailQs, color, onHome, savedResult, rend
               >
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between mb-3.5">
-                    <span className="text-xs font-semibold px-3 py-1 rounded-lg bg-surface-secondary text-text-sub">
+                    <span className="text-base font-semibold px-3 py-1 rounded-lg bg-surface-secondary text-text-sub">
                       {time}
                     </span>
-                    <span className="text-[13px] text-text-muted">
+                    <span className="text-[15px] text-text-muted">
                       {count}개
                     </span>
                   </div>
-                  <p className="text-[22px] font-bold mb-1.5 text-text">
+                  <p className="text-[24px] font-bold mb-1.5 text-text">
                     {title}
                   </p>
-                  <p className="text-sm text-text-sub">
+                  <p className="text-lg text-text-sub">
                     {desc}
                   </p>
                 </div>
@@ -285,7 +285,7 @@ export function QuizModule({ basicQs, detailQs, color, onHome, savedResult, rend
             >
               {q.question}
             </h2>
-            {q.subtitle && <p className="text-[15px] text-text-sub text-center mb-9">{q.subtitle}</p>}
+            {q.subtitle && <p className="text-[17px] text-text-sub text-center mb-9">{q.subtitle}</p>}
 
             <div className="flex flex-col gap-2.5">
               {q.options.map((option) => {
@@ -299,7 +299,7 @@ export function QuizModule({ basicQs, detailQs, color, onHome, savedResult, rend
                     disabled={!!selected}
                     onClick={() => handleSelect(option)}
                   >
-                    <span className={`flex-1 text-[16px] font-medium ${isSel ? 'text-primary font-semibold' : 'text-text'}`}>
+                    <span className={`flex-1 text-[18px] font-medium ${isSel ? 'text-primary font-semibold' : 'text-text'}`}>
                       {option.label}
                     </span>
                   </SelectCard>

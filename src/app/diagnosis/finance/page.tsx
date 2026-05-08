@@ -121,12 +121,12 @@ function FinResult({ answers, questions, mode, restart, toDetail, onHome }: {
   const tierColor = tier === 'high' ? '#10B981' : tier === 'mid' ? '#F59E0B' : '#8E8E93';
 
   return (
-    <div className="min-h-screen bg-white pb-16">
+    <div className="h-dvh overflow-y-auto scroll-smooth snap-y snap-proximity bg-white pb-16">
       <ConsultationSheet isOpen={isSheetOpen} onClose={() => setIsSheetOpen(false)} />
       <div className="px-5 pt-10 max-w-lg mx-auto">
         {/* 모드 배지 + 공유 */}
         <div className="flex items-center justify-between mb-5">
-          <span className="text-xs px-3 py-1 rounded-full bg-[rgba(16,185,129,0.08)] text-[#10B981] font-semibold">
+          <span className="text-base px-3 py-1 rounded-full bg-[rgba(16,185,129,0.08)] text-[#10B981] font-semibold">
             {mode === 'basic' ? '간편 진단' : '상세 진단'} · {answerCount}개 응답
           </span>
           <div className="flex gap-1.5">
@@ -149,7 +149,7 @@ function FinResult({ answers, questions, mode, restart, toDetail, onHome }: {
 
         {/* 헤드라인 */}
         <motion.div initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.35, ease: 'easeOut' }}>
-          <p className="text-sm text-text-sub mb-1">장기렌트 적합도 진단 결과</p>
+          <p className="text-lg text-text-sub mb-1">장기렌트 적합도 진단 결과</p>
           <h1 className="text-2xl font-bold text-text tracking-tight mb-4">
             {tierData.emoji} {tierData.title}
           </h1>
@@ -163,29 +163,29 @@ function FinResult({ answers, questions, mode, restart, toDetail, onHome }: {
           initial={{ opacity: 0, x: 40 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.1, duration: 0.35, ease: 'easeOut' }}
-          className="rounded-2xl bg-surface shadow-sm mb-4 overflow-hidden"
+          className="rounded-2xl bg-surface shadow-sm mb-4 overflow-hidden snap-start scroll-mt-4"
         >
           <div className="px-5 py-6">
             {/* 스코어 링 (크게) */}
             <div className="flex flex-col items-center mb-5">
               <ScoreRing pct={score} color={tierColor} size={120} />
-              <p className="text-sm font-semibold mt-3" style={{ color: tierColor }}>
+              <p className="text-lg font-semibold mt-3" style={{ color: tierColor }}>
                 장기렌트 적합도
               </p>
             </div>
 
             {/* tier 메시지 */}
-            <p className="text-[13px] text-text-sub leading-relaxed text-center mb-5">
+            <p className="text-[15px] text-text-sub leading-relaxed text-center mb-5">
               {tierData.message}
             </p>
 
             {/* 절약 포인트 */}
             {savingPoints.length > 0 && (
               <div className="mb-4">
-                <p className="text-[12px] font-semibold text-success mb-2 flex items-center gap-1"><IconTip size={13} /> 절약 포인트</p>
+                <p className="text-[14px] font-semibold text-success mb-2 flex items-center gap-1"><IconTip size={13} /> 절약 포인트</p>
                 <div className="flex flex-col gap-1.5">
                   {savingPoints.map((point, i) => (
-                    <p key={i} className="text-[12px] text-text-sub pl-1">
+                    <p key={i} className="text-[14px] text-text-sub pl-1">
                       <span className="text-success mr-1.5">✓</span>{point}
                     </p>
                   ))}
@@ -196,10 +196,10 @@ function FinResult({ answers, questions, mode, restart, toDetail, onHome }: {
             {/* 불리한 점 */}
             {reasons.length > 0 && (
               <div className="mb-4">
-                <p className="text-[12px] font-semibold text-danger mb-2 flex items-center gap-1"><IconWarning size={13} /> 참고사항</p>
+                <p className="text-[14px] font-semibold text-danger mb-2 flex items-center gap-1"><IconWarning size={13} /> 참고사항</p>
                 <div className="flex flex-col gap-1.5">
                   {reasons.map((reason, i) => (
-                    <p key={i} className="text-[12px] text-text-sub pl-1">
+                    <p key={i} className="text-[14px] text-text-sub pl-1">
                       <span className="text-danger mr-1.5">·</span>{reason}
                     </p>
                   ))}
@@ -210,10 +210,10 @@ function FinResult({ answers, questions, mode, restart, toDetail, onHome }: {
             {/* 핵심 판단 근거 */}
             {keyFactors.length > 0 && (
               <div className="pt-4 border-t border-border">
-                <p className="text-[11px] font-semibold text-text-sub mb-2">핵심 판단 근거</p>
+                <p className="text-[13px] font-semibold text-text-sub mb-2">핵심 판단 근거</p>
                 <div className="flex flex-wrap gap-1.5">
                   {keyFactors.map((f, fi) => (
-                    <span key={fi} className="text-[11px] font-semibold px-2 py-1 rounded-lg text-white"
+                    <span key={fi} className="text-[13px] font-semibold px-2 py-1 rounded-lg text-white"
                       style={{ backgroundColor: f.impact === '매우 유리' ? '#10B981' : '#C9A84C' }}>
                       {f.label}
                     </span>
@@ -224,7 +224,7 @@ function FinResult({ answers, questions, mode, restart, toDetail, onHome }: {
 
             {/* tier 설명 */}
             <div className="pt-3">
-              <p className="text-[11px] text-text-muted">{tierData.description}</p>
+              <p className="text-[13px] text-text-muted">{tierData.description}</p>
             </div>
           </div>
         </motion.div>
@@ -251,10 +251,10 @@ function FinResult({ answers, questions, mode, restart, toDetail, onHome }: {
             className="w-full flex items-center justify-between px-5 py-4 rounded-2xl border border-[rgba(16,185,129,0.25)] bg-[rgba(16,185,129,0.06)] hover:bg-[rgba(16,185,129,0.1)] transition-colors"
           >
             <div className="text-left">
-              <p className="text-sm font-bold text-[#1C1C1E]">할부·리스·렌트 총비용 비교</p>
-              <p className="text-xs text-[#8E8E93] mt-0.5">이 진단 결과를 바탕으로 결제방식을 비교해보세요</p>
+              <p className="text-lg font-bold text-[#1C1C1E]">할부·리스·렌트 총비용 비교</p>
+              <p className="text-base text-[#8E8E93] mt-0.5">이 진단 결과를 바탕으로 결제방식을 비교해보세요</p>
             </div>
-            <span className="text-[#10B981] font-bold text-sm ml-3 shrink-0">비교하기 →</span>
+            <span className="text-[#10B981] font-bold text-lg ml-3 shrink-0">비교하기 →</span>
           </button>
         </motion.div>
 
@@ -288,14 +288,14 @@ function FinResult({ answers, questions, mode, restart, toDetail, onHome }: {
         <div className="max-w-lg mx-auto px-5 py-3 flex items-center gap-3">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5 flex-wrap">
-              <span className="text-xs font-bold text-text">{tierData.emoji} 장기렌트 {score}%</span>
-              {vehicleSummary && <span className="text-xs text-text-sub flex items-center gap-1">· <IconCarSedan size={13} className="text-text-sub" /> {vehicleSummary}</span>}
+              <span className="text-base font-bold text-text">{tierData.emoji} 장기렌트 {score}%</span>
+              {vehicleSummary && <span className="text-base text-text-sub flex items-center gap-1">· <IconCarSedan size={13} className="text-text-sub" /> {vehicleSummary}</span>}
             </div>
-            <p className="text-[10px] text-text-muted mt-0.5">진단 결과가 자동 반영됩니다</p>
+            <p className="text-[12px] text-text-muted mt-0.5">진단 결과가 자동 반영됩니다</p>
           </div>
           <button
             onClick={handleQuoteNav}
-            className="shrink-0 px-5 py-2.5 rounded-xl text-white text-sm font-bold hover:opacity-90 active:scale-[0.97] transition-all"
+            className="shrink-0 px-5 py-2.5 rounded-xl text-white text-lg font-bold hover:opacity-90 active:scale-[0.97] transition-all"
             style={{ backgroundColor: tierColor }}
           >
             {tierData.cta}

@@ -38,7 +38,7 @@ function fmt(n: number) {
 
 function IncludedBadge() {
   return (
-    <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold text-[#34C759] bg-[#34C75912] px-1.5 py-0.5 rounded-full">
+    <span className="inline-flex items-center gap-0.5 text-[12px] font-semibold text-[#34C759] bg-[#34C75912] px-1.5 py-0.5 rounded-full">
       <svg width="8" height="8" viewBox="0 0 8 8" fill="none" aria-hidden="true">
         <path d="M1.5 4l2 2 3-3" stroke="#34C759" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
@@ -58,8 +58,8 @@ function BreakdownRow({
 }) {
   return (
     <div className="flex items-center justify-between">
-      <span className="text-[12px] text-[#6D6D72]">{label}</span>
-      <span className="text-[12px] font-semibold text-[#1C1C1E]">
+      <span className="text-[14px] text-[#6D6D72]">{label}</span>
+      <span className="text-[14px] font-semibold text-[#1C1C1E]">
         {included ? (
           <span className="flex items-center gap-1.5">
             <span className="text-[#8E8E93]">0원</span>
@@ -90,14 +90,14 @@ function Row({
       <div className="flex items-center justify-between mb-2.5">
         <div className="flex items-center gap-2">
           <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: row.color }} />
-          <span className="text-[15px] font-bold text-[#1C1C1E]">{row.label}</span>
+          <span className="text-[17px] font-bold text-[#1C1C1E]">{row.label}</span>
           {isCheapest && (
-            <span className="text-[10px] font-bold text-[#34C759] bg-[#34C75918] px-2 py-0.5 rounded-full">
+            <span className="text-[12px] font-bold text-[#34C759] bg-[#34C75918] px-2 py-0.5 rounded-full">
               최저 TCO
             </span>
           )}
         </div>
-        <span className="text-[14px] font-bold" style={{ color: row.color }}>
+        <span className="text-[16px] font-bold" style={{ color: row.color }}>
           월 {fmt(row.monthly)}
         </span>
       </div>
@@ -147,14 +147,14 @@ function Row({
         style={{ background: `${row.color}12` }}
       >
         <div>
-          <p className="text-[10px] text-[#8E8E93]">5년 TCO (순비용)</p>
-          <p className="text-[16px] font-bold" style={{ color: row.color }}>
+          <p className="text-[12px] text-[#8E8E93]">5년 TCO (순비용)</p>
+          <p className="text-[18px] font-bold" style={{ color: row.color }}>
             {fmt(row.tco5yr)}
           </p>
         </div>
         <div className="text-right">
-          <p className="text-[10px] text-[#8E8E93]">만기 잔존가치</p>
-          <p className="text-[13px] font-semibold text-[#34C759]">
+          <p className="text-[12px] text-[#8E8E93]">만기 잔존가치</p>
+          <p className="text-[15px] font-semibold text-[#34C759]">
             {row.residual > 0 ? `+${fmt(row.residual)}` : '-'}
           </p>
         </div>
@@ -243,13 +243,13 @@ export function CostComparisonTable({
 
   return (
     <div>
-      <p className="text-[11px] text-[#8E8E93] mb-3">
+      <p className="text-[13px] text-[#8E8E93] mb-3">
         신차가 {msrp.toLocaleString()}만원 기준 · 60개월 · 연 2만km · 선납금 없음
         {annualInsurance != null && (
           <>
             {` · 보험료 연 ${annualInsurance.toLocaleString()}만원`}
             {ageGroup && (
-              <span className="ml-1 inline-flex items-center text-[10px] font-semibold text-[#FF9500] bg-[#FF950015] px-1.5 py-0.5 rounded-full">
+              <span className="ml-1 inline-flex items-center text-[12px] font-semibold text-[#FF9500] bg-[#FF950015] px-1.5 py-0.5 rounded-full">
                 {ageGroup} 기준
               </span>
             )}
@@ -267,7 +267,7 @@ export function CostComparisonTable({
         />
       ))}
 
-      <p className="text-[10px] text-[#8E8E93] mt-3 leading-relaxed">
+      <p className="text-[12px] text-[#8E8E93] mt-3 leading-relaxed">
         * TCO = 납입금 합계 + 취득세 + 자동차세 5년
         {annualInsurance != null ? ' + 보험료 5년' : ''}
         {monthlyFuel != null ? ' + 유류비 5년' : ''}

@@ -67,7 +67,7 @@ function OptionPageInner() {
       <div className="min-h-screen bg-white pb-16">
         <div className="px-5 pt-10 max-w-lg mx-auto">
           <div className="mb-5">
-            <span className="text-xs px-3 py-1 rounded-full font-semibold" style={{ backgroundColor: `${COLOR}18`, color: COLOR }}>
+            <span className="text-base px-3 py-1 rounded-full font-semibold" style={{ backgroundColor: `${COLOR}18`, color: COLOR }}>
               옵션 추천 결과
             </span>
           </div>
@@ -89,14 +89,14 @@ function OptionPageInner() {
             >
               <div className="flex items-center justify-between mb-3">
                 <p className="font-bold text-text">{best.name}</p>
-                <p className="text-sm font-bold text-text">{best.price.toLocaleString()}만원</p>
+                <p className="text-lg font-bold text-text">{best.price.toLocaleString()}만원</p>
               </div>
               {best.add > 0 && (
-                <p className="text-xs text-text-muted mb-3">기본 대비 +{best.add.toLocaleString()}만원</p>
+                <p className="text-base text-text-muted mb-3">기본 대비 +{best.add.toLocaleString()}만원</p>
               )}
               <div className="flex flex-wrap gap-1.5 mb-4">
                 {best.feats.map((f) => (
-                  <span key={f} className="text-xs px-2 py-1 rounded-full bg-surface-secondary text-text-sub">{f}</span>
+                  <span key={f} className="text-base px-2 py-1 rounded-full bg-surface-secondary text-text-sub">{f}</span>
                 ))}
               </div>
               {/* 상품별 월 비용 */}
@@ -104,8 +104,8 @@ function OptionPageInner() {
                 <div className="grid grid-cols-4 gap-1.5">
                   {PRODUCT_KEYS.map((key) => (
                     <div key={key} className="text-center py-2 rounded-xl" style={{ backgroundColor: DEFAULT_PRODUCTS[key].lightBg }}>
-                      <p className="text-[10px] text-text-muted">{DEFAULT_PRODUCTS[key].name}</p>
-                      <p className="text-xs font-bold" style={{ color: DEFAULT_PRODUCTS[key].color }}>
+                      <p className="text-[12px] text-text-muted">{DEFAULT_PRODUCTS[key].name}</p>
+                      <p className="text-base font-bold" style={{ color: DEFAULT_PRODUCTS[key].color }}>
                         {key === 'cash' ? '일시불' : `${calcMonthly(vehicle.price, key)}만`}
                       </p>
                     </div>
@@ -123,16 +123,16 @@ function OptionPageInner() {
               transition={{ delay: 0.15, duration: 0.35, ease: 'easeOut' }}
               className="p-5 rounded-2xl bg-surface shadow-sm mb-4"
             >
-              <p className="text-sm font-bold text-text mb-3">전체 트림 비교</p>
+              <p className="text-lg font-bold text-text mb-3">전체 트림 비교</p>
               <div className="flex flex-col gap-2">
                 {trims.map((t) => (
                   <div key={t.name} className={`flex items-center justify-between p-3 rounded-xl ${t.name === best?.name ? 'border-2' : 'bg-surface-secondary'}`}
                     style={t.name === best?.name ? { borderColor: COLOR } : {}}>
                     <div>
-                      <p className="text-sm font-semibold text-text">{t.name}</p>
-                      <p className="text-xs text-text-muted">{t.feats.slice(0, 2).join(', ')}</p>
+                      <p className="text-lg font-semibold text-text">{t.name}</p>
+                      <p className="text-base text-text-muted">{t.feats.slice(0, 2).join(', ')}</p>
                     </div>
-                    <p className="text-sm font-bold text-text">{t.price.toLocaleString()}만원</p>
+                    <p className="text-lg font-bold text-text">{t.price.toLocaleString()}만원</p>
                   </div>
                 ))}
               </div>
@@ -157,14 +157,14 @@ function OptionPageInner() {
       {/* 헤더 */}
       <div className="px-5 pt-6 pb-2 max-w-lg mx-auto">
         <div className="flex items-center justify-between mb-2">
-          <button onClick={handleBack} className="text-sm text-text-sub hover:text-text transition-colors">← 이전</button>
-          <span className="text-xs text-text-muted">Q{currentIdx + 1} / {OPTION_QUESTIONS.length}</span>
+          <button onClick={handleBack} className="text-lg text-text-sub hover:text-text transition-colors">← 이전</button>
+          <span className="text-base text-text-muted">Q{currentIdx + 1} / {OPTION_QUESTIONS.length}</span>
         </div>
         <div className="h-1.5 bg-surface rounded-full overflow-hidden">
           <motion.div className="h-full rounded-full" style={{ backgroundColor: COLOR }}
             animate={{ width: `${progressPct}%` }} transition={{ duration: 0.3 }} />
         </div>
-        {carName && <p className="text-xs text-text-muted mt-2">{carName} 옵션 진단</p>}
+        {carName && <p className="text-base text-text-muted mt-2">{carName} 옵션 진단</p>}
       </div>
 
       <AnimatePresence mode="wait">
@@ -180,7 +180,7 @@ function OptionPageInner() {
             style={{ fontSize: 'clamp(26px, 5vw, 34px)' }}>
             {q.question}
           </h2>
-          {q.subtitle && <p className="text-[15px] text-text-sub text-center mb-9">{q.subtitle}</p>}
+          {q.subtitle && <p className="text-[17px] text-text-sub text-center mb-9">{q.subtitle}</p>}
           <div className="flex flex-col gap-2.5">
             {q.options.map((option, i) => {
               const isSelected = selected?.value === option.value;
@@ -194,7 +194,7 @@ function OptionPageInner() {
                   onClick={() => handleSelect(option)}
                   style={{ transition: `all 0.25s ease ${i * 0.04}s` }}
                 >
-                  <span className="flex-1 text-[16px] font-medium" style={{ color: isSelected ? '#FFF' : '#1D1D1F' }}>
+                  <span className="flex-1 text-[18px] font-medium" style={{ color: isSelected ? '#FFF' : '#1D1D1F' }}>
                     {option.label}
                   </span>
                 </SelectCard>

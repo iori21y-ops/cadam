@@ -66,10 +66,10 @@ export function FeedbackWidget({ type, mode, result, answers }: FeedbackWidgetPr
   if (submitted) {
     return (
       <div className="p-4 rounded-2xl bg-surface shadow-sm text-center">
-        <p className="text-sm text-text">
+        <p className="text-lg text-text">
           {RATING_EMOJIS[rating!]} 피드백 감사합니다!
         </p>
-        <p className="text-xs text-text-muted mt-1">
+        <p className="text-base text-text-muted mt-1">
           더 나은 진단 서비스를 위해 활용됩니다.
         </p>
       </div>
@@ -78,8 +78,8 @@ export function FeedbackWidget({ type, mode, result, answers }: FeedbackWidgetPr
 
   return (
     <div className="p-5 rounded-2xl bg-surface shadow-sm">
-      <p className="text-sm font-bold text-text text-center mb-1">진단 결과가 도움이 되셨나요?</p>
-      <p className="text-xs text-text-muted text-center mb-4">피드백은 더 정확한 추천에 사용됩니다</p>
+      <p className="text-lg font-bold text-text text-center mb-1">진단 결과가 도움이 되셨나요?</p>
+      <p className="text-base text-text-muted text-center mb-4">피드백은 더 정확한 추천에 사용됩니다</p>
       <div className="flex justify-center gap-2">
         {([1, 2, 3, 4, 5] as Rating[]).map((r) => (
           <button
@@ -94,7 +94,7 @@ export function FeedbackWidget({ type, mode, result, answers }: FeedbackWidgetPr
             }`}
           >
             <span className="text-lg">{RATING_EMOJIS[r]}</span>
-            <span className="text-[10px] text-text-sub font-medium">{RATING_LABELS[r]}</span>
+            <span className="text-[12px] text-text-sub font-medium">{RATING_LABELS[r]}</span>
           </button>
         ))}
       </div>
