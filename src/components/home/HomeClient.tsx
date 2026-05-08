@@ -187,12 +187,12 @@ export function HomeClient({ vehicles }: Props) {
                 onClick={() => openSheet(vehicle)}
                 className="text-left bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all active:scale-[0.98] overflow-hidden"
               >
-                <div className="relative aspect-[4/3] bg-gray-50">
+                <div className="relative aspect-[16/10] bg-white overflow-hidden rounded-t-xl">
                   <Image
                     src={`/cars/${vehicle.imageKey}.webp`}
                     alt={`${vehicle.brand} ${vehicle.model}`}
                     fill
-                    className="object-contain p-4"
+                    className="object-contain p-2"
                     sizes="(max-width: 640px) 50vw, 320px"
                   />
                 </div>
