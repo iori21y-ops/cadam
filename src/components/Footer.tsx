@@ -10,7 +10,7 @@ export function Footer() {
   const telHref = `tel:${PHONE.replace(/-/g, '')}`;
 
   return (
-    <footer className="bg-primary text-white/80">
+    <footer className="bg-primary text-white/80 lg:max-w-2xl lg:mx-auto">
       <div className="max-w-2xl mx-auto px-4 py-10">
         {/* 상단: 로고 + 서비스 링크 */}
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-6 mb-8">

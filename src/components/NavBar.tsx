@@ -9,7 +9,7 @@ export function NavBar() {
   if (pathname?.startsWith('/admin')) return null;
 
   return (
-    <nav className="sticky top-0 z-50 glass border-b border-border-solid overflow-hidden">
+    <nav className="sticky top-0 z-50 glass border-b border-border-solid overflow-hidden lg:max-w-2xl lg:mx-auto">
       <div className="max-w-2xl mx-auto px-4 py-3 flex items-center w-full">
         <Link
           href="/"
