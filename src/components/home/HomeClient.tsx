@@ -146,7 +146,7 @@ export function HomeClient({ vehicles }: Props) {
     <>
       <main className="pb-24 bg-background min-h-screen">
         {/* 헤더 카피 */}
-        <div className="bg-primary text-white py-10">
+        <div className="bg-primary text-white py-10 lg:max-w-2xl lg:mx-auto lg:rounded-2xl">
           <div className="max-w-2xl mx-auto px-4">
             <p className="text-xs text-accent font-semibold mb-3 tracking-widest uppercase">RenTailor</p>
             <h1 className="text-2xl font-bold leading-snug">
