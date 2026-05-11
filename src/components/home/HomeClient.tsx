@@ -246,7 +246,7 @@ export function HomeClient({ vehicles }: Props) {
 
       {/* 하단 슬라이드 시트 */}
       <div
-        className={`fixed bottom-0 left-0 right-0 z-[70] bg-white rounded-t-3xl shadow-2xl transition-transform duration-300 ease-out max-h-[85vh] flex flex-col lg:left-1/2 lg:right-auto lg:max-w-2xl lg:-translate-x-1/2 ${
+        className={`fixed bottom-0 left-0 right-0 z-[70] bg-white rounded-t-3xl shadow-2xl transition-transform duration-300 ease-out max-h-[85vh] flex flex-col max-w-2xl mx-auto ${
           isSheetOpen ? 'translate-y-0' : 'translate-y-full'
         }`}
       >
