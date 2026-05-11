@@ -63,6 +63,7 @@ export function ImageGrid({ files, vehicleMap }: Props) {
   const [applyStatus, setApplyStatus] = useState<ApplyStatus>('idle');
   const [imageVersions, setImageVersions] = useState<Record<string, number>>({});
   const [applyMsg, setApplyMsg] = useState('');
+  const [savedRepFrame, setSavedRepFrame] = useState<number | null>(null);
 
   // 섹션 2: 시작 프레임 저장 상태
   const [savedSpinFrame, setSavedSpinFrame] = useState<number | null>(null);
@@ -82,6 +83,7 @@ export function ImageGrid({ files, vehicleMap }: Props) {
     const initFrame = dbFrame ?? info?.spinStartFrame ?? null;
     setSelectedFrame(initFrame);
     setSavedSpinFrame(dbFrame);
+    setSavedRepFrame(dbFrame ?? info?.spinStartFrame ?? null);
     setWidthRatio(72);
     setVPosition(55);
     setApplyStatus('idle');
@@ -118,6 +120,7 @@ export function ImageGrid({ files, vehicleMap }: Props) {
         setApplyStatus('ok');
         setApplyMsg('저장 완료');
         setImageVersions((prev) => ({ ...prev, [imageKey]: Date.now() }));
+        if (info?.has360Spin && selectedFrame !== null) setSavedRepFrame(selectedFrame);
       }
     } catch (e) {
       setApplyStatus('error');
@@ -363,6 +366,24 @@ export function ImageGrid({ files, vehicleMap }: Props) {
                     </div>
                   </div>
                 </div>
+
+                {/* 프레임 저장 상태 (360 차종만) */}
+                {modalInfo?.has360Spin && (
+                  <>
+                    <div className="flex items-center justify-between text-xs bg-gray-50 rounded-xl px-4 py-2.5">
+                      <span className="text-gray-500">선택 중인 프레임</span>
+                      <span className="font-mono font-semibold text-blue-600">
+                        {selectedFrame !== null ? `#${String(selectedFrame + 1).padStart(3, '0')}` : '—'}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between text-xs bg-green-50 rounded-xl px-4 py-2.5">
+                      <span className="text-gray-500">현재 저장된 대표 이미지</span>
+                      <span className="font-mono font-semibold text-green-700">
+                        {savedRepFrame !== null ? `#${String(savedRepFrame + 1).padStart(3, '0')}` : '미설정 (기본값 사용)'}
+                      </span>
+                    </div>
+                  </>
+                )}
 
                 {/* 이미지 재생성·적용 버튼 */}
                 <button
