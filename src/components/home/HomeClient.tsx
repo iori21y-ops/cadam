@@ -201,7 +201,9 @@ export function HomeClient({ vehicles }: Props) {
                     alt={`${vehicle.brand} ${vehicle.model}`}
                     fill
                     className="object-contain p-2 mix-blend-multiply"
-                    sizes="(max-width: 640px) 50vw, 320px"
+                    sizes="(max-width: 768px) 50vw, 25vw"
+                    quality={60}
+                    {...(index < 4 ? { priority: true } : { loading: 'lazy' as const })}
                   />
                 </div>
                 <div className="p-3">
