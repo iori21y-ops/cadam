@@ -54,15 +54,17 @@ export function ImageGrid({ files, vehicleMap }: Props) {
   const [activeBrand, setActiveBrand] = useState<Brand>('전체');
   const [modal, setModal] = useState<string | null>(null);
 
-  // 이미지 재생성 상태
+  // 공유 상태: 프레임 그리드에서 선택한 프레임 (두 섹션 모두 이 값 사용)
   const [selectedFrame, setSelectedFrame] = useState<number | null>(null);
   const [widthRatio, setWidthRatio] = useState(72);
   const [vPosition, setVPosition] = useState(55);
+
+  // 섹션 1: 대표 이미지 재생성 상태
   const [applyStatus, setApplyStatus] = useState<ApplyStatus>('idle');
   const [imageVersions, setImageVersions] = useState<Record<string, number>>({});
   const [applyMsg, setApplyMsg] = useState('');
 
-  // 시작 프레임 저장 상태
+  // 섹션 2: 시작 프레임 저장 상태
   const [savedSpinFrame, setSavedSpinFrame] = useState<number | null>(null);
   const [spinSaveStatus, setSpinSaveStatus] = useState<ApplyStatus>('idle');
   const [spinSaveMsg, setSpinSaveMsg] = useState('');
@@ -90,6 +92,7 @@ export function ImageGrid({ files, vehicleMap }: Props) {
 
   const closeModal = () => setModal(null);
 
+  // 섹션 1: 대표 이미지 재생성·적용
   const handleApply = async () => {
     if (!modal) return;
     const imageKey = imageKeyFromFile(modal);
@@ -122,6 +125,7 @@ export function ImageGrid({ files, vehicleMap }: Props) {
     }
   };
 
+  // 섹션 2: 360° 시작 프레임 DB 저장
   const handleSaveSpinFrame = async () => {
     if (!modal || selectedFrame === null) return;
     const info = vehicleMap[imageKeyFromFile(modal)];
@@ -141,7 +145,7 @@ export function ImageGrid({ files, vehicleMap }: Props) {
         setSpinSaveMsg(json.error ?? '오류 발생');
       } else {
         setSpinSaveStatus('ok');
-        setSpinSaveMsg(`프레임 #${String(selectedFrame + 1).padStart(3, '0')} 저장 완료`);
+        setSpinSaveMsg(`#${String(selectedFrame + 1).padStart(3, '0')} 저장 완료`);
         setSavedSpinFrame(selectedFrame);
       }
     } catch (e) {
@@ -159,12 +163,12 @@ export function ImageGrid({ files, vehicleMap }: Props) {
       : modal
       ? `/cars/${modal}`
       : null;
+
   const previewLabel =
     modalInfo?.has360Spin && selectedFrame !== null
       ? `프레임 #${String(selectedFrame + 1).padStart(3, '0')}`
       : '현재 이미지';
 
-  // 시작 프레임 저장 버튼 활성화 여부
   const canSaveSpinFrame =
     modalInfo?.has360Spin &&
     selectedFrame !== null &&
@@ -227,8 +231,9 @@ export function ImageGrid({ files, vehicleMap }: Props) {
               <button onClick={closeModal} className="text-gray-400 hover:text-gray-600 text-xl leading-none">✕</button>
             </div>
 
-            <div className="p-5 space-y-5">
-              {/* 미리보기 */}
+            <div className="p-5 space-y-6">
+
+              {/* ─── 미리보기 ─── */}
               <div className="relative aspect-[4/3] bg-gray-50 rounded-xl overflow-hidden border border-gray-100">
                 {previewSrc && (
                   /* eslint-disable-next-line @next/next/no-img-element */
@@ -256,72 +261,152 @@ export function ImageGrid({ files, vehicleMap }: Props) {
                 )}
               </div>
 
-              {/* 360 프레임 선택 + 시작 프레임 저장 */}
-              {modalInfo?.has360Spin ? (
-                <div className="space-y-3">
-                  {/* 제목 + 현재 저장값 안내 */}
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium text-gray-700">
-                      360° 프레임 선택
+              {/* ─── 섹션 1: 대표 이미지 설정 ─── */}
+              <div className="space-y-4">
+                <p className="text-sm font-bold text-gray-800 flex items-center gap-2">
+                  <span className="w-5 h-5 rounded-full bg-gray-800 text-white text-[10px] flex items-center justify-center font-bold">1</span>
+                  대표 이미지 설정
+                </p>
+
+                {/* 360° 프레임 선택 그리드 */}
+                {modalInfo?.has360Spin ? (
+                  <div>
+                    <p className="text-xs text-gray-500 mb-2">
+                      썸네일로 사용할 프레임을 선택하세요.
                       {selectedFrame !== null && (
-                        <span className="ml-2 text-xs text-gray-400 font-mono">
+                        <span className="ml-1 font-mono text-blue-600">
                           #{String(selectedFrame + 1).padStart(3, '0')} / {frameCount}
                         </span>
                       )}
                     </p>
-                    {savedSpinFrame !== null && (
-                      <span className="text-xs text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
-                        저장됨: #{String(savedSpinFrame + 1).padStart(3, '0')}
-                      </span>
-                    )}
-                  </div>
-
-                  {/* 프레임 그리드 */}
-                  <div className="grid grid-cols-8 gap-1 max-h-64 overflow-y-auto rounded-xl border border-gray-100 p-2 bg-gray-50">
-                    {Array.from({ length: frameCount }, (_, i) => {
-                      const isSelected = selectedFrame === i;
-                      const isSaved = savedSpinFrame === i;
-                      return (
-                        <button
-                          key={i}
-                          onClick={() => setSelectedFrame(i)}
-                          className={`relative aspect-square rounded-md overflow-hidden border-2 transition-all ${
-                            isSelected && isSaved
-                              ? 'border-green-500 shadow-md scale-105'
-                              : isSelected
-                              ? 'border-blue-500 shadow-md scale-105'
-                              : isSaved
-                              ? 'border-green-400 opacity-80'
-                              : 'border-transparent hover:border-gray-300'
-                          }`}
-                          title={`프레임 ${i + 1}${isSaved ? ' (저장된 시작 프레임)' : ''}`}
-                        >
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
-                            src={frameUrl(modalInfo.slug, i)}
-                            alt={`frame ${i + 1}`}
-                            className="w-full h-full object-cover"
-                            loading="lazy"
-                          />
-                          <span className="absolute bottom-0 left-0 right-0 text-center text-[8px] bg-black/40 text-white leading-tight py-0.5">
-                            {String(i + 1).padStart(3, '0')}
-                          </span>
-                          {isSaved && (
-                            <span className="absolute top-0.5 right-0.5 text-[8px] bg-green-600 text-white rounded-sm px-0.5 leading-tight">
-                              S
+                    <div className="grid grid-cols-8 gap-1 max-h-56 overflow-y-auto rounded-xl border border-gray-100 p-2 bg-gray-50">
+                      {Array.from({ length: frameCount }, (_, i) => {
+                        const isSelected = selectedFrame === i;
+                        const isSaved = savedSpinFrame === i;
+                        return (
+                          <button
+                            key={i}
+                            onClick={() => setSelectedFrame(i)}
+                            className={`relative aspect-square rounded-md overflow-hidden border-2 transition-all ${
+                              isSelected && isSaved
+                                ? 'border-green-500 shadow-md scale-105'
+                                : isSelected
+                                ? 'border-blue-500 shadow-md scale-105'
+                                : isSaved
+                                ? 'border-green-400'
+                                : 'border-transparent hover:border-gray-300'
+                            }`}
+                            title={`프레임 ${i + 1}${isSaved ? ' ★시작프레임' : ''}`}
+                          >
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={frameUrl(modalInfo.slug, i)}
+                              alt={`frame ${i + 1}`}
+                              className="w-full h-full object-cover"
+                              loading="lazy"
+                            />
+                            <span className="absolute bottom-0 left-0 right-0 text-center text-[8px] bg-black/40 text-white leading-tight py-0.5">
+                              {String(i + 1).padStart(3, '0')}
                             </span>
-                          )}
-                        </button>
-                      );
-                    })}
+                            {isSaved && (
+                              <span className="absolute top-0.5 right-0.5 text-[7px] bg-green-600 text-white rounded-sm px-0.5 leading-tight">S</span>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
+                ) : (
+                  <p className="text-xs text-gray-400 bg-gray-50 rounded-xl px-4 py-3">
+                    360 스핀 없음 — 백업 파일에서 크기·위치만 조정합니다.
+                  </p>
+                )}
 
-                  {/* 시작 프레임 저장 버튼 */}
-                  <div className="flex items-center gap-3">
+                {/* 슬라이더 */}
+                <div className="space-y-3">
+                  <div>
+                    <label className="flex justify-between text-sm font-medium text-gray-700 mb-1">
+                      <span>가로 비율 (차량 크기)</span>
+                      <span className="text-blue-600 font-mono">{widthRatio}%</span>
+                    </label>
+                    <input
+                      type="range" min={50} max={90} value={widthRatio}
+                      onChange={(e) => setWidthRatio(Number(e.target.value))}
+                      className="w-full accent-blue-500"
+                    />
+                    <div className="flex justify-between text-xs text-gray-400 mt-0.5">
+                      <span>50% (작게)</span><span>72% (현재)</span><span>90% (크게)</span>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="flex justify-between text-sm font-medium text-gray-700 mb-1">
+                      <span>세로 위치 (차량 높이)</span>
+                      <span className="text-blue-600 font-mono">{vPosition}%</span>
+                    </label>
+                    <input
+                      type="range" min={40} max={70} value={vPosition}
+                      onChange={(e) => setVPosition(Number(e.target.value))}
+                      className="w-full accent-blue-500"
+                    />
+                    <div className="flex justify-between text-xs text-gray-400 mt-0.5">
+                      <span>40% (위쪽)</span><span>55% (현재)</span><span>70% (아래쪽)</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 이미지 재생성·적용 버튼 */}
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={handleApply}
+                    disabled={applyStatus === 'loading'}
+                    className="flex-1 py-2.5 rounded-xl bg-gray-900 text-white text-sm font-medium hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {applyStatus === 'loading' ? '처리 중...' : '이미지 재생성 · 적용'}
+                  </button>
+                  <button
+                    onClick={closeModal}
+                    className="px-5 py-2.5 rounded-xl bg-gray-100 text-sm text-gray-700 hover:bg-gray-200 transition-colors"
+                  >
+                    닫기
+                  </button>
+                </div>
+                {applyMsg && (
+                  <p className={`text-xs text-center ${applyStatus === 'ok' ? 'text-green-600' : 'text-red-500'}`}>
+                    {applyMsg}
+                  </p>
+                )}
+              </div>
+
+              {/* ─── 섹션 2: 360° 시작 프레임 설정 (360 차종만) ─── */}
+              {modalInfo?.has360Spin && (
+                <>
+                  <hr className="border-gray-100" />
+                  <div className="space-y-3">
+                    <p className="text-sm font-bold text-gray-800 flex items-center gap-2">
+                      <span className="w-5 h-5 rounded-full bg-green-600 text-white text-[10px] flex items-center justify-center font-bold">2</span>
+                      360° 시작 프레임 설정
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      차량 상세 페이지 360° 뷰어가 처음 보여줄 프레임입니다. 위 그리드에서 프레임을 선택한 뒤 저장하세요.
+                    </p>
+
+                    <div className="flex items-center justify-between text-xs bg-gray-50 rounded-xl px-4 py-2.5">
+                      <span className="text-gray-500">선택 중인 프레임</span>
+                      <span className="font-mono font-semibold text-blue-600">
+                        {selectedFrame !== null ? `#${String(selectedFrame + 1).padStart(3, '0')}` : '—'}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between text-xs bg-green-50 rounded-xl px-4 py-2.5">
+                      <span className="text-gray-500">현재 저장된 시작 프레임</span>
+                      <span className="font-mono font-semibold text-green-700">
+                        {savedSpinFrame !== null ? `#${String(savedSpinFrame + 1).padStart(3, '0')}` : '미설정 (기본값 사용)'}
+                      </span>
+                    </div>
+
                     <button
                       onClick={handleSaveSpinFrame}
                       disabled={!canSaveSpinFrame}
-                      className={`flex-1 py-2 rounded-xl text-sm font-medium transition-colors ${
+                      className={`w-full py-2.5 rounded-xl text-sm font-medium transition-colors ${
                         canSaveSpinFrame
                           ? 'bg-green-600 text-white hover:bg-green-700'
                           : 'bg-gray-100 text-gray-400 cursor-not-allowed'
@@ -330,87 +415,18 @@ export function ImageGrid({ files, vehicleMap }: Props) {
                       {spinSaveStatus === 'loading'
                         ? '저장 중...'
                         : selectedFrame === savedSpinFrame
-                        ? '이미 저장된 시작 프레임'
+                        ? '이미 저장된 시작 프레임입니다'
                         : `#${String((selectedFrame ?? 0) + 1).padStart(3, '0')} 을 시작 프레임으로 저장`}
                     </button>
+                    {spinSaveMsg && (
+                      <p className={`text-xs text-center ${spinSaveStatus === 'ok' ? 'text-green-600' : 'text-red-500'}`}>
+                        {spinSaveMsg}
+                      </p>
+                    )}
                   </div>
-                  {spinSaveMsg && (
-                    <p className={`text-xs text-center ${spinSaveStatus === 'ok' ? 'text-green-600' : 'text-red-500'}`}>
-                      {spinSaveMsg}
-                    </p>
-                  )}
-                </div>
-              ) : (
-                <div className="flex items-center gap-2 text-sm text-gray-500 bg-gray-50 rounded-xl px-4 py-3">
-                  <span className="text-lg">🔄</span>
-                  <span>360 스핀 없음 — 기존 파일(백업)에서 크기/위치만 조정합니다.</span>
-                </div>
+                </>
               )}
 
-              {/* 슬라이더 */}
-              <div className="space-y-4">
-                <div>
-                  <label className="flex justify-between text-sm font-medium text-gray-700 mb-1">
-                    <span>가로 비율 (차량 크기)</span>
-                    <span className="text-blue-600 font-mono">{widthRatio}%</span>
-                  </label>
-                  <input
-                    type="range"
-                    min={50}
-                    max={90}
-                    value={widthRatio}
-                    onChange={(e) => setWidthRatio(Number(e.target.value))}
-                    className="w-full accent-blue-500"
-                  />
-                  <div className="flex justify-between text-xs text-gray-400 mt-0.5">
-                    <span>50% (작게)</span>
-                    <span>72% (현재)</span>
-                    <span>90% (크게)</span>
-                  </div>
-                </div>
-                <div>
-                  <label className="flex justify-between text-sm font-medium text-gray-700 mb-1">
-                    <span>세로 위치 (차량 높이)</span>
-                    <span className="text-blue-600 font-mono">{vPosition}%</span>
-                  </label>
-                  <input
-                    type="range"
-                    min={40}
-                    max={70}
-                    value={vPosition}
-                    onChange={(e) => setVPosition(Number(e.target.value))}
-                    className="w-full accent-blue-500"
-                  />
-                  <div className="flex justify-between text-xs text-gray-400 mt-0.5">
-                    <span>40% (위쪽)</span>
-                    <span>55% (현재)</span>
-                    <span>70% (아래쪽)</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* 적용 버튼 */}
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={handleApply}
-                  disabled={applyStatus === 'loading'}
-                  className="flex-1 py-2.5 rounded-xl bg-gray-900 text-white text-sm font-medium hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {applyStatus === 'loading' ? '처리 중...' : '이미지 재생성 · 적용'}
-                </button>
-                <button
-                  onClick={closeModal}
-                  className="px-5 py-2.5 rounded-xl bg-gray-100 text-sm text-gray-700 hover:bg-gray-200 transition-colors"
-                >
-                  닫기
-                </button>
-              </div>
-
-              {applyMsg && (
-                <p className={`text-sm text-center ${applyStatus === 'ok' ? 'text-green-600' : 'text-red-500'}`}>
-                  {applyMsg}
-                </p>
-              )}
             </div>
           </div>
         </div>
