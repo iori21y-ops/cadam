@@ -9,6 +9,7 @@ interface VehicleRow {
   id: string;
   is_active: boolean | null;
   display_order: number | null;
+  spin_start_frame: number | null;
 }
 
 interface PriceRangeRow {
@@ -24,7 +25,7 @@ export default async function HomePage() {
   try {
     const supabase = await createServerSupabaseClient();
     const [{ data: allVehicles }, { data: priceRanges }] = await Promise.all([
-      supabase.from('vehicles').select('slug, id, is_active, display_order'),
+      supabase.from('vehicles').select('slug, id, is_active, display_order, spin_start_frame'),
       supabase
         .from('pricing')
         .select('vehicle_id, min_monthly, max_monthly')
@@ -72,6 +73,7 @@ export default async function HomePage() {
       isActive: settingMap.get(v.slug)?.is_active !== false,
       displayOrder: settingMap.get(v.slug)?.display_order ?? 999,
       price: priceMap[v.slug] ?? null,
+      dbSpinStartFrame: settingMap.get(v.slug)?.spin_start_frame ?? null,
     }));
 
   return <HomeClient vehicles={vehicles} />;

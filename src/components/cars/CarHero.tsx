@@ -11,9 +11,10 @@ interface CarHeroProps {
   vehicle: Vehicle;
   galleryPath?: string | null;
   galleryCount?: number | null;
+  dbSpinStartFrame?: number | null;
 }
 
-export function CarHero({ vehicle, galleryPath, galleryCount }: CarHeroProps) {
+export function CarHero({ vehicle, galleryPath, galleryCount, dbSpinStartFrame }: CarHeroProps) {
   const [imageError, setImageError] = useState(false);
   const [spinFailed, setSpinFailed] = useState(false);
 
@@ -24,7 +25,7 @@ export function CarHero({ vehicle, galleryPath, galleryCount }: CarHeroProps) {
     <section>
       {/* 차량 이미지 영역 */}
       {showSpin ? (
-        <CarSpinViewer slug={vehicle.slug} startFrame={vehicle.spinStartFrame ?? 0} frameCount={vehicle.frameCount ?? 61} onFailed={() => setSpinFailed(true)} />
+        <CarSpinViewer slug={vehicle.slug} startFrame={dbSpinStartFrame ?? vehicle.spinStartFrame ?? 0} frameCount={vehicle.frameCount ?? 61} onFailed={() => setSpinFailed(true)} />
       ) : showGallery ? (
         <div className="mx-4 mt-4 rounded-2xl overflow-hidden shadow-sm">
           <GallerySlider path={galleryPath!} count={galleryCount!} />

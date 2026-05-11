@@ -2,19 +2,37 @@ import { readdirSync } from 'fs';
 import { join } from 'path';
 import { ImageGrid } from './ImageGrid';
 import { VEHICLE_LIST } from '@/constants/vehicles';
+import { createServerSupabaseClient } from '@/lib/supabase-server';
 
 export const metadata = { title: '차량 이미지 관리 | Admin' };
 
-export default function AdminImagesPage() {
+export default async function AdminImagesPage() {
   const carsDir = join(process.cwd(), 'public', 'cars');
   const files = readdirSync(carsDir)
     .filter((f) => f.endsWith('-v2.webp'))
     .sort();
 
+  const supabase = await createServerSupabaseClient();
+  const { data: dbVehicles } = await supabase
+    .from('vehicles')
+    .select('slug, spin_start_frame');
+
+  const dbSpinMap = new Map<string, number | null>(
+    ((dbVehicles ?? []) as { slug: string; spin_start_frame: number | null }[])
+      .map((r) => [r.slug, r.spin_start_frame])
+  );
+
   const vehicleMap = Object.fromEntries(
     VEHICLE_LIST.map((v) => [
       v.imageKey,
-      { slug: v.slug, has360Spin: v.has360Spin ?? false, frameCount: v.frameCount ?? 61, spinStartFrame: v.spinStartFrame ?? 0, model: v.model },
+      {
+        slug: v.slug,
+        has360Spin: v.has360Spin ?? false,
+        frameCount: v.frameCount ?? 61,
+        spinStartFrame: v.spinStartFrame ?? 0,
+        dbSpinStartFrame: dbSpinMap.has(v.slug) ? (dbSpinMap.get(v.slug) ?? null) : null,
+        model: v.model,
+      },
     ])
   );
 

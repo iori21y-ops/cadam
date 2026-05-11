@@ -9,6 +9,7 @@ interface VehicleInfo {
   has360Spin: boolean;
   frameCount: number;
   spinStartFrame: number;
+  dbSpinStartFrame: number | null;
   model: string;
 }
 
@@ -53,13 +54,18 @@ export function ImageGrid({ files, vehicleMap }: Props) {
   const [activeBrand, setActiveBrand] = useState<Brand>('전체');
   const [modal, setModal] = useState<string | null>(null);
 
-  // modal state
+  // 이미지 재생성 상태
   const [selectedFrame, setSelectedFrame] = useState<number | null>(null);
   const [widthRatio, setWidthRatio] = useState(72);
   const [vPosition, setVPosition] = useState(55);
   const [applyStatus, setApplyStatus] = useState<ApplyStatus>('idle');
   const [imageVersions, setImageVersions] = useState<Record<string, number>>({});
   const [applyMsg, setApplyMsg] = useState('');
+
+  // 시작 프레임 저장 상태
+  const [savedSpinFrame, setSavedSpinFrame] = useState<number | null>(null);
+  const [spinSaveStatus, setSpinSaveStatus] = useState<ApplyStatus>('idle');
+  const [spinSaveMsg, setSpinSaveMsg] = useState('');
 
   const brands: Brand[] = ['전체', '현대', '기아', '제네시스', '르노', 'KGM', '수입'];
 
@@ -70,11 +76,16 @@ export function ImageGrid({ files, vehicleMap }: Props) {
   const openModal = useCallback((file: string) => {
     const info = vehicleMap[imageKeyFromFile(file)];
     setModal(file);
-    setSelectedFrame(info?.spinStartFrame ?? null);
+    const dbFrame = info?.dbSpinStartFrame ?? null;
+    const initFrame = dbFrame ?? info?.spinStartFrame ?? null;
+    setSelectedFrame(initFrame);
+    setSavedSpinFrame(dbFrame);
     setWidthRatio(72);
     setVPosition(55);
     setApplyStatus('idle');
     setApplyMsg('');
+    setSpinSaveStatus('idle');
+    setSpinSaveMsg('');
   }, [vehicleMap]);
 
   const closeModal = () => setModal(null);
@@ -86,11 +97,7 @@ export function ImageGrid({ files, vehicleMap }: Props) {
     setApplyStatus('loading');
     setApplyMsg('');
     try {
-      const body: Record<string, unknown> = {
-        imageKey,
-        widthRatio,
-        vPosition,
-      };
+      const body: Record<string, unknown> = { imageKey, widthRatio, vPosition };
       if (info?.has360Spin && selectedFrame !== null) {
         body.frameIndex = selectedFrame;
         body.slug = info.slug;
@@ -115,6 +122,34 @@ export function ImageGrid({ files, vehicleMap }: Props) {
     }
   };
 
+  const handleSaveSpinFrame = async () => {
+    if (!modal || selectedFrame === null) return;
+    const info = vehicleMap[imageKeyFromFile(modal)];
+    if (!info?.has360Spin || !info.slug) return;
+
+    setSpinSaveStatus('loading');
+    setSpinSaveMsg('');
+    try {
+      const res = await fetch('/api/admin/update-spin-frame', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slug: info.slug, spinStartFrame: selectedFrame }),
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        setSpinSaveStatus('error');
+        setSpinSaveMsg(json.error ?? '오류 발생');
+      } else {
+        setSpinSaveStatus('ok');
+        setSpinSaveMsg(`프레임 #${String(selectedFrame + 1).padStart(3, '0')} 저장 완료`);
+        setSavedSpinFrame(selectedFrame);
+      }
+    } catch (e) {
+      setSpinSaveStatus('error');
+      setSpinSaveMsg(String(e));
+    }
+  };
+
   const modalInfo = modal ? vehicleMap[imageKeyFromFile(modal)] : null;
   const frameCount = modalInfo?.frameCount ?? 61;
 
@@ -128,6 +163,13 @@ export function ImageGrid({ files, vehicleMap }: Props) {
     modalInfo?.has360Spin && selectedFrame !== null
       ? `프레임 #${String(selectedFrame + 1).padStart(3, '0')}`
       : '현재 이미지';
+
+  // 시작 프레임 저장 버튼 활성화 여부
+  const canSaveSpinFrame =
+    modalInfo?.has360Spin &&
+    selectedFrame !== null &&
+    selectedFrame !== savedSpinFrame &&
+    spinSaveStatus !== 'loading';
 
   return (
     <>
@@ -186,7 +228,7 @@ export function ImageGrid({ files, vehicleMap }: Props) {
             </div>
 
             <div className="p-5 space-y-5">
-              {/* 미리보기 — 프레임 선택·슬라이더 조정 실시간 반영 */}
+              {/* 미리보기 */}
               <div className="relative aspect-[4/3] bg-gray-50 rounded-xl overflow-hidden border border-gray-100">
                 {previewSrc && (
                   /* eslint-disable-next-line @next/next/no-img-element */
@@ -207,42 +249,96 @@ export function ImageGrid({ files, vehicleMap }: Props) {
                 <span className="absolute top-2 left-2 text-[10px] bg-black/50 text-white px-2 py-0.5 rounded-full">
                   {previewLabel}
                 </span>
+                {savedSpinFrame !== null && selectedFrame === savedSpinFrame && (
+                  <span className="absolute top-2 right-2 text-[10px] bg-green-600/80 text-white px-2 py-0.5 rounded-full">
+                    저장된 시작 프레임
+                  </span>
+                )}
               </div>
 
-              {/* 360 프레임 선택 */}
+              {/* 360 프레임 선택 + 시작 프레임 저장 */}
               {modalInfo?.has360Spin ? (
-                <div>
-                  <p className="text-sm font-medium text-gray-700 mb-2">
-                    360° 프레임 선택
-                    {selectedFrame !== null && (
-                      <span className="ml-2 text-xs text-gray-400">
-                        #{String(selectedFrame + 1).padStart(3, '0')} / {frameCount}
+                <div className="space-y-3">
+                  {/* 제목 + 현재 저장값 안내 */}
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm font-medium text-gray-700">
+                      360° 프레임 선택
+                      {selectedFrame !== null && (
+                        <span className="ml-2 text-xs text-gray-400 font-mono">
+                          #{String(selectedFrame + 1).padStart(3, '0')} / {frameCount}
+                        </span>
+                      )}
+                    </p>
+                    {savedSpinFrame !== null && (
+                      <span className="text-xs text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
+                        저장됨: #{String(savedSpinFrame + 1).padStart(3, '0')}
                       </span>
                     )}
-                  </p>
-                  <div className="grid grid-cols-8 gap-1 max-h-64 overflow-y-auto rounded-xl border border-gray-100 p-2 bg-gray-50">
-                    {Array.from({ length: frameCount }, (_, i) => (
-                      <button
-                        key={i}
-                        onClick={() => setSelectedFrame(i)}
-                        className={`relative aspect-square rounded-md overflow-hidden border-2 transition-all ${
-                          selectedFrame === i ? 'border-blue-500 shadow-md scale-105' : 'border-transparent hover:border-gray-300'
-                        }`}
-                        title={`프레임 ${i + 1}`}
-                      >
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={frameUrl(modalInfo.slug, i)}
-                          alt={`frame ${i + 1}`}
-                          className="w-full h-full object-cover"
-                          loading="lazy"
-                        />
-                        <span className="absolute bottom-0 left-0 right-0 text-center text-[8px] bg-black/40 text-white leading-tight py-0.5">
-                          {String(i + 1).padStart(3, '0')}
-                        </span>
-                      </button>
-                    ))}
                   </div>
+
+                  {/* 프레임 그리드 */}
+                  <div className="grid grid-cols-8 gap-1 max-h-64 overflow-y-auto rounded-xl border border-gray-100 p-2 bg-gray-50">
+                    {Array.from({ length: frameCount }, (_, i) => {
+                      const isSelected = selectedFrame === i;
+                      const isSaved = savedSpinFrame === i;
+                      return (
+                        <button
+                          key={i}
+                          onClick={() => setSelectedFrame(i)}
+                          className={`relative aspect-square rounded-md overflow-hidden border-2 transition-all ${
+                            isSelected && isSaved
+                              ? 'border-green-500 shadow-md scale-105'
+                              : isSelected
+                              ? 'border-blue-500 shadow-md scale-105'
+                              : isSaved
+                              ? 'border-green-400 opacity-80'
+                              : 'border-transparent hover:border-gray-300'
+                          }`}
+                          title={`프레임 ${i + 1}${isSaved ? ' (저장된 시작 프레임)' : ''}`}
+                        >
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={frameUrl(modalInfo.slug, i)}
+                            alt={`frame ${i + 1}`}
+                            className="w-full h-full object-cover"
+                            loading="lazy"
+                          />
+                          <span className="absolute bottom-0 left-0 right-0 text-center text-[8px] bg-black/40 text-white leading-tight py-0.5">
+                            {String(i + 1).padStart(3, '0')}
+                          </span>
+                          {isSaved && (
+                            <span className="absolute top-0.5 right-0.5 text-[8px] bg-green-600 text-white rounded-sm px-0.5 leading-tight">
+                              S
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* 시작 프레임 저장 버튼 */}
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={handleSaveSpinFrame}
+                      disabled={!canSaveSpinFrame}
+                      className={`flex-1 py-2 rounded-xl text-sm font-medium transition-colors ${
+                        canSaveSpinFrame
+                          ? 'bg-green-600 text-white hover:bg-green-700'
+                          : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      }`}
+                    >
+                      {spinSaveStatus === 'loading'
+                        ? '저장 중...'
+                        : selectedFrame === savedSpinFrame
+                        ? '이미 저장된 시작 프레임'
+                        : `#${String((selectedFrame ?? 0) + 1).padStart(3, '0')} 을 시작 프레임으로 저장`}
+                    </button>
+                  </div>
+                  {spinSaveMsg && (
+                    <p className={`text-xs text-center ${spinSaveStatus === 'ok' ? 'text-green-600' : 'text-red-500'}`}>
+                      {spinSaveMsg}
+                    </p>
+                  )}
                 </div>
               ) : (
                 <div className="flex items-center gap-2 text-sm text-gray-500 bg-gray-50 rounded-xl px-4 py-3">
@@ -310,7 +406,6 @@ export function ImageGrid({ files, vehicleMap }: Props) {
                 </button>
               </div>
 
-              {/* 상태 메시지 */}
               {applyMsg && (
                 <p className={`text-sm text-center ${applyStatus === 'ok' ? 'text-green-600' : 'text-red-500'}`}>
                   {applyMsg}

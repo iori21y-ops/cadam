@@ -10,6 +10,7 @@ export interface VehicleWithPrice extends Vehicle {
   isActive: boolean;
   displayOrder: number;
   price: { min: number; max: number } | null;
+  dbSpinStartFrame?: number | null;
 }
 
 interface Props {
@@ -189,10 +190,17 @@ export function HomeClient({ vehicles }: Props) {
               >
                 <div className="relative aspect-[16/10] bg-white overflow-hidden rounded-t-xl">
                   <Image
-                    src={`/cars/${vehicle.imageKey}.webp`}
+                    src={(() => {
+                      const frame = vehicle.dbSpinStartFrame ?? vehicle.spinStartFrame ?? null;
+                      if (vehicle.has360Spin && frame != null) {
+                        const padded = String(frame + 1).padStart(3, '0');
+                        return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/car-360/${vehicle.slug}/${padded}.webp`;
+                      }
+                      return `/cars/${vehicle.imageKey}.webp`;
+                    })()}
                     alt={`${vehicle.brand} ${vehicle.model}`}
                     fill
-                    className="object-contain p-2"
+                    className="object-contain p-2 mix-blend-multiply"
                     sizes="(max-width: 640px) 50vw, 320px"
                   />
                 </div>
