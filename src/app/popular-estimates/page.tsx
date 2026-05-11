@@ -1,4 +1,5 @@
 import { Suspense } from 'react';
+import type { Metadata } from 'next';
 import { VEHICLE_LIST } from '@/constants/vehicles';
 import { createServerSupabaseClient } from '@/lib/supabase-server';
 import { QuoteButton } from '@/components/ui/QuoteButton';
@@ -6,6 +7,21 @@ import { PopularEstimatesClient } from './PopularEstimatesClient';
 import type { VehicleCard, PricingEntry } from './types';
 
 export const revalidate = 60;
+
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.rentailor.co.kr';
+
+export const metadata: Metadata = {
+  title: '전체 차종 비교 | 렌테일러',
+  description: '현대, 기아, 제네시스, 르노코리아, KGM 등 전체 차종 장기렌트 월 납부금 비교. 60개월 기준 최저가를 한눈에 확인하세요.',
+  openGraph: {
+    title: '전체 차종 비교 | 렌테일러',
+    description: '전체 차종 장기렌트 월 납부금 비교. 60개월 기준 최저가를 한눈에 확인하세요.',
+    url: `${BASE_URL}/popular-estimates`,
+  },
+  alternates: {
+    canonical: `${BASE_URL}/popular-estimates`,
+  },
+};
 
 const DOMESTIC_BRANDS = new Set(['현대', '기아', '제네시스', 'KGM', '르노코리아', '쉐보레']);
 const vehicleLocalMap = new Map(VEHICLE_LIST.map(v => [v.slug, v]));

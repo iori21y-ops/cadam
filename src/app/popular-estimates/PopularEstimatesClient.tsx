@@ -1,6 +1,6 @@
 'use client';
 
-import { memo, useState, useMemo } from 'react';
+import { memo, useState, useMemo, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { SlidersHorizontal, ChevronDown } from 'lucide-react';
@@ -124,6 +124,19 @@ function sortVehicles(vehicles: VehicleCard[], sort: SortKey): VehicleCard[] {
 
 const SPIN_BASE = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/car-360`;
 
+const INITIAL_COUNT = 30;
+const PAGE_SIZE = 20;
+
+const BRAND_PLACEHOLDER: Record<string, { bg: string; text: string }> = {
+  '현대':     { bg: 'bg-blue-50',   text: 'text-blue-300' },
+  '기아':     { bg: 'bg-red-50',    text: 'text-red-300' },
+  '제네시스': { bg: 'bg-amber-50',  text: 'text-amber-400' },
+  'KGM':      { bg: 'bg-orange-50', text: 'text-orange-300' },
+  '르노코리아':{ bg: 'bg-yellow-50', text: 'text-yellow-400' },
+  '쉐보레':   { bg: 'bg-sky-50',    text: 'text-sky-300' },
+  '테슬라':   { bg: 'bg-gray-50',   text: 'text-gray-300' },
+};
+
 function VehicleCardItem({ v }: { v: VehicleCard }) {
   const [spinFailed, setSpinFailed] = useState(false);
   const [imgError, setImgError] = useState(false);
@@ -141,6 +154,8 @@ function VehicleCardItem({ v }: { v: VehicleCard }) {
       setImgError(true);
     }
   }
+
+  const brandStyle = BRAND_PLACEHOLDER[v.brand] ?? { bg: 'bg-gray-50', text: 'text-gray-300' };
 
   return (
     <Link
@@ -168,24 +183,20 @@ function VehicleCardItem({ v }: { v: VehicleCard }) {
         )}
       </div>
 
-      {/* 우측 이미지 — 홈페이지 카드와 동일한 4:3 비율 */}
-      <div className="relative w-44 aspect-[4/3] shrink-0 rounded-xl overflow-hidden bg-gray-50">
-        {!imgSrc ? (
-          <div className="absolute inset-0 flex items-center justify-center text-4xl opacity-20">
-            🚗
-          </div>
-        ) : imgError ? (
+      {/* 우측 이미지 */}
+      <div className={`relative w-44 aspect-[4/3] shrink-0 rounded-xl overflow-hidden ${brandStyle.bg}`}>
+        {!imgSrc || imgError ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-1">
-            <IconCarSedan size={36} className="opacity-20 text-text-sub" />
-            <span className="text-[10px] text-text-sub">이미지 준비 중</span>
+            <IconCarSedan size={36} className={`opacity-40 ${brandStyle.text}`} />
+            <span className={`text-[10px] font-medium opacity-60 ${brandStyle.text}`}>{v.brand}</span>
           </div>
         ) : (
           <Image
             src={imgSrc}
             alt={v.name}
             fill
-            sizes="176px"
-            className="object-contain p-3"
+            sizes="(max-width: 768px) 50vw, 300px"
+            className="object-contain p-3 mix-blend-multiply"
             onError={handleImgError}
           />
         )}
@@ -204,6 +215,8 @@ export const PopularEstimatesClient = memo(function PopularEstimatesClient({
   const [showSort, setShowSort] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
   const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS);
+  const [visibleCount, setVisibleCount] = useState(INITIAL_COUNT);
+  const sentinelRef = useRef<HTMLDivElement>(null);
 
   const activeFilterCount = useMemo(() => {
     let n = 0;
@@ -218,6 +231,27 @@ export const PopularEstimatesClient = memo(function PopularEstimatesClient({
     const filterApplied = applyFilters(tabFiltered, filters);
     return sortVehicles(filterApplied, sortKey);
   }, [vehicles, activeTab, sortKey, filters]);
+
+  // 탭·정렬·필터 변경 시 표시 개수 초기화
+  useEffect(() => {
+    setVisibleCount(INITIAL_COUNT);
+  }, [displayed]);
+
+  // 무한스크롤: sentinel 보이면 추가 로드
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisibleCount(prev => Math.min(prev + PAGE_SIZE, displayed.length));
+        }
+      },
+      { rootMargin: '300px' }
+    );
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [displayed.length]);
 
   const currentSortLabel = SORT_OPTIONS.find(o => o.key === sortKey)?.label ?? '';
 
@@ -306,11 +340,20 @@ export const PopularEstimatesClient = memo(function PopularEstimatesClient({
 
       {/* 카드 리스트 */}
       {displayed.length > 0 ? (
-        <div className="flex flex-col gap-3">
-          {displayed.map(v => (
-            <VehicleCardItem key={v.id} v={v} />
-          ))}
-        </div>
+        <>
+          <div className="flex flex-col gap-3">
+            {displayed.slice(0, visibleCount).map(v => (
+              <VehicleCardItem key={v.id} v={v} />
+            ))}
+          </div>
+          {/* 무한스크롤 sentinel */}
+          <div ref={sentinelRef} className="h-1" />
+          {visibleCount < displayed.length && (
+            <p className="text-center text-xs text-text-sub py-4">
+              {displayed.length - visibleCount}개 더 불러오는 중...
+            </p>
+          )}
+        </>
       ) : (
         <div className="py-20 text-center text-text-sub text-sm">
           해당하는 차종이 없습니다
