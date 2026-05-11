@@ -9,10 +9,6 @@ import { existsSync } from 'fs';
 const execFileAsync = promisify(execFile);
 
 export async function POST(request: Request) {
-  if (process.env.NODE_ENV === 'production') {
-    return NextResponse.json({ error: '개발 환경에서만 사용 가능합니다' }, { status: 503 });
-  }
-
   const supabase = await createServerSupabaseClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
