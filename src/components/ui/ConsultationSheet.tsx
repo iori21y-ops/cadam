@@ -78,7 +78,7 @@ export function ConsultationSheet({ isOpen, onClose, note }: ConsultationSheetPr
 
       {/* 하단 시트 */}
       <div
-        className={`fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-3xl shadow-2xl transition-transform duration-300 ease-out max-h-[85vh] flex flex-col lg:left-1/2 lg:right-auto lg:max-w-2xl lg:-translate-x-1/2 ${
+        className={`fixed bottom-0 left-4 right-4 z-50 bg-white rounded-t-3xl shadow-2xl transition-transform duration-300 ease-out max-h-[85vh] flex flex-col lg:left-1/2 lg:right-auto lg:max-w-lg lg:-translate-x-1/2 ${
           isOpen ? 'translate-y-0' : 'translate-y-full'
         }`}
       >

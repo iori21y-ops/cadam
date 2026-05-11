@@ -258,7 +258,7 @@ export function Step2Car() {
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
               transition={{ type: 'tween', duration: 0.3 }}
-              className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-white rounded-t-2xl shadow-lg max-h-[70vh] overflow-hidden"
+              className="fixed bottom-0 left-4 right-4 z-50 md:hidden bg-white rounded-t-2xl shadow-lg max-h-[70vh] overflow-hidden"
             >
               <div className="p-5 pb-8">
                 <div className="w-12 h-1 bg-[#D1D1D6] rounded-full mx-auto mb-4" />
