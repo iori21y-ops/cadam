@@ -369,9 +369,17 @@ export function ImageGrid({ files, vehicleMap }: Props) {
                   <button
                     onClick={handleApply}
                     disabled={applyStatus === 'loading'}
-                    className="flex-1 py-2.5 rounded-xl bg-gray-900 text-white text-sm font-medium hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+                      applyStatus !== 'loading'
+                        ? 'bg-green-600 text-white hover:bg-green-700'
+                        : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    }`}
                   >
-                    {applyStatus === 'loading' ? '처리 중...' : '이미지 재생성 · 적용'}
+                    {applyStatus === 'loading'
+                      ? '저장 중...'
+                      : modalInfo?.has360Spin && selectedFrame !== null
+                      ? `#${String(selectedFrame + 1).padStart(3, '0')} 을 대표 이미지로 저장`
+                      : '이미지 재생성 · 적용'}
                   </button>
                   <button
                     onClick={closeModal}
