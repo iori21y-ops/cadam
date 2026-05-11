@@ -1,9 +1,13 @@
 import { NextResponse } from 'next/server';
-import { createServerSupabaseClient } from '@/lib/supabase-server';
+import {
+  createServerSupabaseClient,
+  createServiceRoleSupabaseClient,
+} from '@/lib/supabase-server';
 
 export async function POST(request: Request) {
-  const supabase = await createServerSupabaseClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  // 인증 확인 (anon 키 + 쿠키 세션)
+  const authClient = await createServerSupabaseClient();
+  const { data: { user } } = await authClient.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   let body: unknown;
@@ -19,12 +23,17 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'spinStartFrame 형식 오류' }, { status: 400 });
   }
 
-  const { error } = await supabase
+  // DB 쓰기: service_role로 RLS 우회
+  const db = createServiceRoleSupabaseClient();
+  const { error } = await db
     .from('vehicles')
     .update({ spin_start_frame: spinStartFrame })
     .eq('slug', slug);
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) {
+    console.error('[update-spin-frame] DB error:', error.message);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
 
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ ok: true, slug, spinStartFrame });
 }

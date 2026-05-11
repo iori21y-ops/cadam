@@ -127,10 +127,18 @@ export function ImageGrid({ files, vehicleMap }: Props) {
 
   // 섹션 2: 360° 시작 프레임 DB 저장
   const handleSaveSpinFrame = async () => {
-    if (!modal || selectedFrame === null) return;
+    console.log('[spin-frame] 버튼 클릭 — modal:', modal, 'selectedFrame:', selectedFrame);
+    if (!modal || selectedFrame === null) {
+      console.warn('[spin-frame] 조기 반환 — modal 또는 selectedFrame 없음');
+      return;
+    }
     const info = vehicleMap[imageKeyFromFile(modal)];
-    if (!info?.has360Spin || !info.slug) return;
+    if (!info?.has360Spin || !info.slug) {
+      console.warn('[spin-frame] 조기 반환 — has360Spin 없거나 slug 없음', info);
+      return;
+    }
 
+    console.log('[spin-frame] API 호출 →', { slug: info.slug, spinStartFrame: selectedFrame });
     setSpinSaveStatus('loading');
     setSpinSaveMsg('');
     try {
@@ -140,6 +148,7 @@ export function ImageGrid({ files, vehicleMap }: Props) {
         body: JSON.stringify({ slug: info.slug, spinStartFrame: selectedFrame }),
       });
       const json = await res.json();
+      console.log('[spin-frame] API 응답 —', res.status, json);
       if (!res.ok) {
         setSpinSaveStatus('error');
         setSpinSaveMsg(json.error ?? '오류 발생');
@@ -149,6 +158,7 @@ export function ImageGrid({ files, vehicleMap }: Props) {
         setSavedSpinFrame(selectedFrame);
       }
     } catch (e) {
+      console.error('[spin-frame] fetch 예외:', e);
       setSpinSaveStatus('error');
       setSpinSaveMsg(String(e));
     }
