@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import DOMPurify from 'dompurify';
+import DOMPurify from 'isomorphic-dompurify';
 import { motion } from 'framer-motion';
 import { createBrowserSupabaseClient } from '@/lib/supabase';
 import { useToast } from '@/hooks/useToast';

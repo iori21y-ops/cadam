@@ -15,6 +15,7 @@ const NAV_ITEMS = [
   { href: '/admin/prices', label: '인기차종 관리' },
   { href: '/admin/finance', label: '금융 조건' },
   { href: '/admin/diagnosis', label: '진단 관리' },
+  { href: '/admin/images', label: '이미지 관리' },
   { href: '/admin/ai', label: 'AI 설정' },
 ] as const;
 
