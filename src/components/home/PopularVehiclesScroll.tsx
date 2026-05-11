@@ -107,7 +107,7 @@ export function PopularVehiclesScroll({ vehicles }: { vehicles: VehicleCard[] })
                 src={`/cars/${v.imageKey}.webp`}
                 alt={v.model}
                 fill
-                className="object-contain p-3"
+                className="object-contain p-3 mix-blend-multiply"
                 sizes="(max-width: 768px) 44vw, 200px"
                 draggable={false}
                 priority={i === 0}

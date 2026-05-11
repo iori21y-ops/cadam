@@ -131,7 +131,7 @@ export function CarSpinViewer({ slug, startFrame = 0, frameCount = 61, onFailed 
 
       <canvas
         ref={canvasRef}
-        className="absolute inset-0 w-full h-full p-4"
+        className="absolute inset-0 w-full h-full p-4 mix-blend-multiply"
         style={{ opacity: firstLoaded ? 1 : 0 }}
         width={800}
         height={600}
