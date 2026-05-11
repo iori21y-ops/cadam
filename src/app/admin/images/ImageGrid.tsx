@@ -365,29 +365,21 @@ export function ImageGrid({ files, vehicleMap }: Props) {
                 </div>
 
                 {/* 이미지 재생성·적용 버튼 */}
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={handleApply}
-                    disabled={applyStatus === 'loading'}
-                    className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-colors ${
-                      applyStatus !== 'loading'
-                        ? 'bg-green-600 text-white hover:bg-green-700'
-                        : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                    }`}
-                  >
-                    {applyStatus === 'loading'
-                      ? '저장 중...'
-                      : modalInfo?.has360Spin && selectedFrame !== null
-                      ? `#${String(selectedFrame + 1).padStart(3, '0')} 을 대표 이미지로 저장`
-                      : '이미지 재생성 · 적용'}
-                  </button>
-                  <button
-                    onClick={closeModal}
-                    className="px-5 py-2.5 rounded-xl bg-gray-100 text-sm text-gray-700 hover:bg-gray-200 transition-colors"
-                  >
-                    닫기
-                  </button>
-                </div>
+                <button
+                  onClick={handleApply}
+                  disabled={applyStatus === 'loading'}
+                  className={`w-full py-2.5 rounded-xl text-sm font-medium transition-colors ${
+                    applyStatus !== 'loading'
+                      ? 'bg-green-600 text-white hover:bg-green-700'
+                      : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  }`}
+                >
+                  {applyStatus === 'loading'
+                    ? '저장 중...'
+                    : modalInfo?.has360Spin && selectedFrame !== null
+                    ? `#${String(selectedFrame + 1).padStart(3, '0')} 을 대표 이미지로 저장`
+                    : '이미지 재생성 · 적용'}
+                </button>
                 {applyMsg && (
                   <p className={`text-xs text-center ${applyStatus === 'ok' ? 'text-green-600' : 'text-red-500'}`}>
                     {applyMsg}
@@ -444,6 +436,14 @@ export function ImageGrid({ files, vehicleMap }: Props) {
                   </div>
                 </>
               )}
+
+              {/* 닫기 버튼 (모달 최하단) */}
+              <button
+                onClick={closeModal}
+                className="w-full py-2.5 rounded-xl bg-gray-100 text-sm text-gray-500 hover:bg-gray-200 transition-colors"
+              >
+                닫기
+              </button>
 
             </div>
           </div>
