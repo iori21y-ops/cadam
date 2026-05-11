@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import {
   createServerSupabaseClient,
   createServiceRoleSupabaseClient,
@@ -34,6 +35,9 @@ export async function POST(request: Request) {
     console.error('[update-spin-frame] DB error:', error.message);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+
+  revalidatePath('/');
+  revalidatePath(`/cars/${slug}`);
 
   return NextResponse.json({ ok: true, slug, spinStartFrame });
 }

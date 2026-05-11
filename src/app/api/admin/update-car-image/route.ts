@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { createServerSupabaseClient } from '@/lib/supabase-server';
 import { execFile } from 'child_process';
 import { promisify } from 'util';
@@ -77,6 +78,11 @@ export async function POST(request: Request) {
       console.warn('[update-car-image] stderr:', stderr.trim());
     }
     console.log('[update-car-image] stdout:', stdout.trim());
+
+    revalidatePath('/');
+    if (typeof slug === 'string' && /^[a-z0-9-]+$/.test(slug)) {
+      revalidatePath(`/cars/${slug}`);
+    }
 
     return NextResponse.json({ ok: true, imageKey, message: stdout.trim() || '완료' });
   } catch (err: unknown) {

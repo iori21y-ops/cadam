@@ -102,10 +102,9 @@ export function ImageGrid({ files, vehicleMap }: Props) {
     setApplyStatus('loading');
     setApplyMsg('');
     try {
-      const body: Record<string, unknown> = { imageKey, widthRatio, vPosition };
+      const body: Record<string, unknown> = { imageKey, slug: info?.slug, widthRatio, vPosition };
       if (info?.has360Spin && selectedFrame !== null) {
         body.frameIndex = selectedFrame;
-        body.slug = info.slug;
       }
       const res = await fetch('/api/admin/update-car-image', {
         method: 'POST',
