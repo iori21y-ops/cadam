@@ -76,5 +76,21 @@ export default async function HomePage() {
       dbSpinStartFrame: settingMap.get(v.slug)?.spin_start_frame ?? null,
     }));
 
-  return <HomeClient vehicles={vehicles} />;
+  return (
+    <>
+      {/* 서버 컴포넌트 — JS 없이 첫 번째 페인트에서 h1 즉시 렌더링 */}
+      <div className="bg-primary text-white py-10 lg:max-w-2xl lg:mx-auto lg:rounded-2xl">
+        <div className="max-w-2xl mx-auto px-4">
+          <p className="text-xs text-accent font-semibold mb-3 tracking-widest uppercase">RenTailor</p>
+          <h1 className="text-2xl font-bold leading-snug">
+            내 차에 맞는<br />최적의 장기렌트를<br />찾아보세요
+          </h1>
+          <p className="text-sm text-white/60 mt-3">
+            차량을 선택하고 무료 견적을 신청하세요
+          </p>
+        </div>
+      </div>
+      <HomeClient vehicles={vehicles} />
+    </>
+  );
 }
