@@ -7,6 +7,7 @@ import { SlidersHorizontal, ChevronDown } from 'lucide-react';
 import { IconCarSedan } from '@/components/icons/RentailorIcons';
 import { FilterModal } from './FilterModal';
 import type { VehicleCard, SortKey, TabKey, FilterState } from './types';
+import { carImageUrl } from '@/lib/car-image-url';
 
 const TABS: { key: TabKey; label: string }[] = [
   { key: 'all', label: '전체' },
@@ -144,7 +145,7 @@ function VehicleCardItem({ v }: { v: VehicleCard }) {
   const spinSrc = v.has360Spin
     ? `${SPIN_BASE}/${v.slug}/${String(v.spinStartFrame + 1).padStart(3, '0')}.webp`
     : null;
-  const staticSrc = v.imageKey ? `/cars/${v.imageKey}.webp` : null;
+  const staticSrc = v.imageKey ? carImageUrl(v.imageKey) : null;
   const imgSrc = spinSrc && !spinFailed ? spinSrc : staticSrc;
 
   function handleImgError() {

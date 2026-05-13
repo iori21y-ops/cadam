@@ -3,6 +3,7 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { VEHICLE_LIST, getVehicleBySlug } from '@/constants/vehicles';
 import { createServerSupabaseClient } from '@/lib/supabase-server';
+import { carImageUrl } from '@/lib/car-image-url';
 import { CarHero } from '@/components/cars/CarHero';
 import { EstimateConfigurator } from '@/components/cars/EstimateConfigurator';
 import { ServiceSteps } from '@/components/cars/ServiceSteps';
@@ -55,7 +56,7 @@ export async function generateMetadata({
   if (!vehicle) return { title: '차량을 찾을 수 없습니다' };
 
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.rentailor.co.kr';
-  const imageUrl = `${baseUrl}/cars/${vehicle.imageKey}.webp`;
+  const imageUrl = carImageUrl(vehicle.imageKey);
 
   return {
     title: vehicle.seoTitle,
@@ -208,7 +209,7 @@ export default async function CarPage({
     '@type': 'Product',
     name: `${vehicle.brand} ${vehicle.model} 장기렌트`,
     description: vehicle.seoDescription,
-    image: `${baseUrl}/cars/${vehicle.imageKey}.webp`,
+    image: carImageUrl(vehicle.imageKey),
     brand: {
       '@type': 'Brand',
       name: vehicle.brand,

@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { RenderIcon, IconKakao, IconLink, IconCheck, IconCarSedan, IconTarget } from '@/components/icons/RentailorIcons';
 import { QuizModule } from '@/components/diagnosis/QuizModule';
+import { carImageUrl } from '@/lib/car-image-url';
 import { ParkAI } from '@/components/diagnosis/ParkAI';
 import { DEFAULT_VEHICLE_BASIC, DEFAULT_VEHICLE_DETAIL } from '@/data/diagnosis-vehicle';
 import { VEHICLES, TRIMS } from '@/data/diagnosis-vehicles';
@@ -54,7 +55,7 @@ function VehicleImage({ imageKey, brand, name, img }: { imageKey?: string; brand
   }
   return (
     <div className="w-16 h-10 relative">
-      <Image src={`/cars/${imageKey}.webp`} alt={`${brand} ${name}`} fill sizes="64px" className="object-contain" onError={() => setFailed(true)} />
+      <Image src={carImageUrl(imageKey)} alt={`${brand} ${name}`} fill sizes="64px" className="object-contain" onError={() => setFailed(true)} />
     </div>
   );
 }

@@ -2,7 +2,7 @@ import { readdirSync } from 'fs';
 import { join } from 'path';
 import { ImageGrid } from './ImageGrid';
 import { VEHICLE_LIST } from '@/constants/vehicles';
-import { createServerSupabaseClient } from '@/lib/supabase-server';
+import { createServerSupabaseClient, createServiceRoleSupabaseClient } from '@/lib/supabase-server';
 
 export const metadata = { title: '차량 이미지 관리 | Admin' };
 
@@ -36,6 +36,16 @@ export default async function AdminImagesPage() {
     ])
   );
 
+  // Supabase Storage의 updated_at 타임스탬프로 이미지 캐시 무효화용 버전맵 생성
+  const adminClient = createServiceRoleSupabaseClient();
+  const { data: storageFiles } = await adminClient.storage.from('car-images').list('', { limit: 1000 });
+  const imageVersionMap = Object.fromEntries(
+    (storageFiles ?? []).map((f) => [
+      f.name.replace('.webp', ''),
+      new Date(f.updated_at ?? f.created_at ?? 0).getTime(),
+    ])
+  );
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       <div className="mb-6">
@@ -44,7 +54,7 @@ export default async function AdminImagesPage() {
           총 {files.length}개 · public/cars/*-v2.webp · 실제 카드 비율(4:3)로 표시
         </p>
       </div>
-      <ImageGrid files={files} vehicleMap={vehicleMap} />
+      <ImageGrid files={files} vehicleMap={vehicleMap} imageVersionMap={imageVersionMap} />
     </div>
   );
 }

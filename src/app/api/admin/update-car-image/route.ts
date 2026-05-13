@@ -1,12 +1,19 @@
 import { NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
-import { createServerSupabaseClient } from '@/lib/supabase-server';
-import { execFile } from 'child_process';
-import { promisify } from 'util';
+import { createServerSupabaseClient, createServiceRoleSupabaseClient } from '@/lib/supabase-server';
 import { join } from 'path';
 import { existsSync } from 'fs';
+import { reprocessCarImage } from '@/lib/reprocess-car-image';
 
-const execFileAsync = promisify(execFile);
+const BUCKET = 'car-images';
+
+async function ensureBucket() {
+  const admin = createServiceRoleSupabaseClient();
+  const { data: buckets } = await admin.storage.listBuckets();
+  if (!buckets?.find((b) => b.name === BUCKET)) {
+    await admin.storage.createBucket(BUCKET, { public: true });
+  }
+}
 
 export async function POST(request: Request) {
   const supabase = await createServerSupabaseClient();
@@ -35,15 +42,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'vPosition은 40~70 사이여야 합니다' }, { status: 400 });
   }
 
-  const cwd = process.cwd();
-  const outputPath = join(cwd, 'public', 'cars', `${imageKey}.webp`);
-
-  // Python 스크립트 경로
-  const scriptPath = join(cwd, 'scripts', 'reprocess_car_image.py');
-  if (!existsSync(scriptPath)) {
-    return NextResponse.json({ error: `스크립트 없음: scripts/reprocess_car_image.py` }, { status: 500 });
-  }
-
   // 소스: 360 스핀 프레임 vs 백업 파일
   let sourceArg: string;
   if (typeof frameIndex === 'number' && typeof slug === 'string' && /^[a-z0-9-]+$/.test(slug)) {
@@ -54,7 +52,7 @@ export async function POST(request: Request) {
     }
     sourceArg = `${supabaseUrl}/storage/v1/object/public/car-360/${slug}/${paddedFrame}.webp`;
   } else {
-    const backupPath = join(cwd, 'backups', 'cars_before_resize', `${imageKey}.webp`);
+    const backupPath = join(process.cwd(), 'backups', 'cars_before_resize', `${imageKey}.webp`);
     if (!existsSync(backupPath)) {
       return NextResponse.json({ error: `백업 파일 없음: ${imageKey}.webp` }, { status: 404 });
     }
@@ -62,27 +60,35 @@ export async function POST(request: Request) {
   }
 
   try {
-    const { stdout, stderr } = await execFileAsync('python3', [
-      scriptPath,
-      '--source', sourceArg,
-      '--output', outputPath,
-      '--width-ratio', String(widthRatio),
-      '--v-position', String(vPosition),
-    ], { timeout: 60000 });
+    const buffer = await reprocessCarImage({
+      source: sourceArg,
+      widthRatio: widthRatio as number,
+      vPosition: vPosition as number,
+    });
 
-    if (stderr && stderr.trim()) {
-      console.warn('[update-car-image] stderr:', stderr.trim());
-    }
-    console.log('[update-car-image] stdout:', stdout.trim());
+    await ensureBucket();
+
+    const admin = createServiceRoleSupabaseClient();
+    const storagePath = `${imageKey}.webp`;
+    const { error: uploadError } = await admin.storage
+      .from(BUCKET)
+      .upload(storagePath, buffer, {
+        contentType: 'image/webp',
+        upsert: true,
+      });
+
+    if (uploadError) throw new Error(`Storage 업로드 실패: ${uploadError.message}`);
+
+    const { data: { publicUrl } } = admin.storage.from(BUCKET).getPublicUrl(storagePath);
 
     revalidatePath('/');
     if (typeof slug === 'string' && /^[a-z0-9-]+$/.test(slug)) {
       revalidatePath(`/cars/${slug}`);
     }
 
-    return NextResponse.json({ ok: true, imageKey, message: stdout.trim() || '완료' });
+    return NextResponse.json({ ok: true, imageKey, publicUrl, message: '완료' });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
-    return NextResponse.json({ error: `Python 오류: ${msg}` }, { status: 500 });
+    return NextResponse.json({ error: `이미지 처리 오류: ${msg}` }, { status: 500 });
   }
 }

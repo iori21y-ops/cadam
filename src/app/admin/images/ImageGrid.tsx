@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import { carImageUrl } from '@/lib/car-image-url';
 
 type Brand = '전체' | '현대' | '기아' | '제네시스' | '르노' | 'KGM' | '수입';
 
@@ -16,6 +17,7 @@ interface VehicleInfo {
 interface Props {
   files: string[];
   vehicleMap: Record<string, VehicleInfo>;
+  imageVersionMap: Record<string, number>;
 }
 
 const BRAND_PREFIXES: Record<Exclude<Brand, '전체' | '수입'>, string> = {
@@ -50,7 +52,7 @@ function frameUrl(slug: string, frameIndex: number) {
 
 type ApplyStatus = 'idle' | 'loading' | 'ok' | 'error';
 
-export function ImageGrid({ files, vehicleMap }: Props) {
+export function ImageGrid({ files, vehicleMap, imageVersionMap }: Props) {
   const [activeBrand, setActiveBrand] = useState<Brand>('전체');
   const [modal, setModal] = useState<string | null>(null);
 
@@ -61,7 +63,8 @@ export function ImageGrid({ files, vehicleMap }: Props) {
 
   // 섹션 1: 대표 이미지 재생성 상태
   const [applyStatus, setApplyStatus] = useState<ApplyStatus>('idle');
-  const [imageVersions, setImageVersions] = useState<Record<string, number>>({});
+  // 서버에서 넘어온 Storage updated_at 기반 초기값으로 캐시 무효화
+  const [imageVersions, setImageVersions] = useState<Record<string, number>>(imageVersionMap);
   const [applyMsg, setApplyMsg] = useState('');
   const [savedRepFrame, setSavedRepFrame] = useState<number | null>(null);
 
@@ -173,7 +176,7 @@ export function ImageGrid({ files, vehicleMap }: Props) {
     modal && modalInfo?.has360Spin && selectedFrame !== null
       ? frameUrl(modalInfo.slug, selectedFrame)
       : modal
-      ? `/cars/${modal}`
+      ? carImageUrl(modal)
       : null;
 
   const previewLabel =
@@ -214,7 +217,7 @@ export function ImageGrid({ files, vehicleMap }: Props) {
             <div className="aspect-[4/3] bg-white border border-gray-100 rounded-xl overflow-hidden shadow-sm group-hover:shadow-md transition-shadow">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={`/cars/${file}${imageVersions[imageKeyFromFile(file)] ? `?t=${imageVersions[imageKeyFromFile(file)]}` : ''}`}
+                src={`${carImageUrl(file)}${imageVersions[imageKeyFromFile(file)] ? `?t=${imageVersions[imageKeyFromFile(file)]}` : ''}`}
                 alt={displayName(file)}
                 className="object-contain p-2 w-full h-full"
               />
