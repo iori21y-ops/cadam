@@ -180,7 +180,7 @@ export function HomeClient({ vehicles }: Props) {
                     src={`/cars/${vehicle.imageKey}.webp`}
                     alt={`${vehicle.brand} ${vehicle.model}`}
                     fill
-                    className="object-contain mix-blend-multiply"
+                    className="object-contain"
                     sizes="(max-width: 768px) 50vw, 25vw"
                     quality={60}
                     {...(index === 0
