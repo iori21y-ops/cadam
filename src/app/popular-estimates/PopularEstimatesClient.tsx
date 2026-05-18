@@ -197,7 +197,7 @@ function VehicleCardItem({ v }: { v: VehicleCard }) {
             alt={v.name}
             fill
             sizes="(max-width: 768px) 50vw, 300px"
-            className="object-contain p-3 mix-blend-multiply"
+            className="object-contain p-3"
             onError={handleImgError}
           />
         )}
