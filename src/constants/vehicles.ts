@@ -25,8 +25,6 @@ export const VEHICLE_LIST: Vehicle[] = [
   { id: 'h01', brand: '현대', model: '캐스퍼', slug: 'casper', category: '세단', segment: '경차', fuel: '가솔린', imageKey: 'hyundai-casper-v2', has360Spin: true, spinStartFrame: 9, frameCount: 61, trims: ['스마트', '인스퍼레이션'], seoTitle: '캐스퍼 장기렌트 | 월 납부금 비교', seoDescription: '현대 캐스퍼 장기렌터카 최저가 견적. 경차 장기렌트 월 납부금을 비교해 보세요.' },
   { id: 'h02', brand: '현대', model: '아반떼 (CN7)', slug: 'avante', category: '세단', segment: '준중형', fuel: '가솔린', imageKey: 'hyundai-avante-v2', has360Spin: true, spinStartFrame: 8, frameCount: 61, trims: ['스마트', '프리미엄', '인스퍼레이션'], seoTitle: '아반떼 장기렌트 | 월 납부금 비교', seoDescription: '현대 아반떼 장기렌터카 최저가 견적. 36~60개월 조건별 월 납부금을 비교해 보세요.' },
   { id: 'h03', brand: '현대', model: '아반떼 하이브리드', slug: 'avante-hybrid', category: '세단', segment: '준중형', fuel: '하이브리드', imageKey: 'hyundai-avante-hybrid-v2', has360Spin: true, spinStartFrame: 8, frameCount: 61, trims: ['스마트', '프리미엄', '인스퍼레이션'], seoTitle: '아반떼 하이브리드 장기렌트 | 월 납부금 비교', seoDescription: '현대 아반떼 하이브리드 장기렌터카. 연비 좋은 하이브리드 장기렌트 견적을 받아보세요.' },
-  { id: 'h04', brand: '현대', model: '쏘나타 (DN8)', slug: 'sonata', category: '세단', segment: '중형', fuel: '가솔린', imageKey: 'hyundai-sonata-v2', has360Spin: true, spinStartFrame: 8, frameCount: 61, trims: ['프리미엄', '인스퍼레이션', '캘리그래피'], seoTitle: '쏘나타 장기렌트 | 월 납부금 비교', seoDescription: '현대 쏘나타 장기렌터카 최저가 견적. 중형 세단 장기렌트 조건을 비교해 보세요.' },
-  { id: 'h05', brand: '현대', model: '쏘나타 하이브리드', slug: 'sonata-hybrid', category: '세단', segment: '중형', fuel: '하이브리드', imageKey: 'hyundai-sonata-hybrid-v2', has360Spin: true, spinStartFrame: 8, frameCount: 61, trims: ['프리미엄', '인스퍼레이션', '캘리그래피'], seoTitle: '쏘나타 하이브리드 장기렌트 | 월 납부금 비교', seoDescription: '현대 쏘나타 하이브리드 장기렌터카. 연비와 성능을 모두 갖춘 장기렌트 견적.' },
   { id: 'h06', brand: '현대', model: '그랜저 (GN7)', slug: 'grandeur', category: '세단', segment: '준대형', fuel: '가솔린', imageKey: 'hyundai-grandeur-v2', has360Spin: true, spinStartFrame: 8, frameCount: 61, trims: ['프리미엄', '캘리그래피', '르블랑'], seoTitle: '그랜저 장기렌트 | 월 납부금 비교', seoDescription: '현대 그랜저 장기렌터카 최저가 견적. 준대형 세단 장기렌트 월 납부금을 비교해 보세요.' },
   { id: 'h07', brand: '현대', model: '그랜저 하이브리드', slug: 'grandeur-hybrid', category: '세단', segment: '준대형', fuel: '하이브리드', imageKey: 'hyundai-grandeur-hybrid-v2', has360Spin: true, spinStartFrame: 8, frameCount: 61, trims: ['프리미엄', '캘리그래피', '르블랑'], seoTitle: '그랜저 하이브리드 장기렌트 | 월 납부금 비교', seoDescription: '현대 그랜저 하이브리드 장기렌터카. 프리미엄 하이브리드 장기렌트 견적.' },
   { id: 'h08', brand: '현대', model: '코나 (SX2)', slug: 'kona', category: 'SUV', segment: '소형 SUV', fuel: '가솔린', imageKey: 'hyundai-kona-v2', has360Spin: true, spinStartFrame: 8, frameCount: 61, trims: ['스마트', '프리미엄', '인스퍼레이션'], seoTitle: '코나 장기렌트 | 월 납부금 비교', seoDescription: '현대 코나 장기렌터카. 소형 SUV 장기렌트 견적을 비교해 보세요.' },
@@ -50,7 +48,6 @@ export const VEHICLE_LIST: Vehicle[] = [
   // ═══════════════════════════════════
   { id: 'k01', brand: '기아', model: '모닝', slug: 'morning', category: '세단', segment: '경차', fuel: '가솔린', imageKey: 'kia-morning-v2', has360Spin: true, frameCount: 72, spinStartFrame: 8, trims: ['트렌디', '프레스티지', '시그니처'], seoTitle: '모닝 장기렌트 | 월 납부금 비교', seoDescription: '기아 모닝 장기렌터카. 경차 장기렌트 최저가 견적을 확인하세요.' },
   { id: 'k02', brand: '기아', model: '레이', slug: 'ray', category: '세단', segment: '경차', fuel: '가솔린', imageKey: 'kia-ray-v2', trims: ['트렌디', '프레스티지', '시그니처'], seoTitle: '레이 장기렌트 | 월 납부금 비교', seoDescription: '기아 레이 장기렌터카. 넓은 경차 장기렌트 견적.' },
-  { id: 'k03', brand: '기아', model: 'K3', slug: 'k3', category: '세단', segment: '준중형', fuel: '가솔린', imageKey: 'kia-k3-v2', trims: ['트렌디', '프레스티지', '시그니처'], seoTitle: 'K3 장기렌트 | 월 납부금 비교', seoDescription: '기아 K3 장기렌터카. 준중형 세단 장기렌트 견적을 비교해 보세요.' },
   { id: 'k04', brand: '기아', model: 'K5', slug: 'k5', category: '세단', segment: '중형', fuel: '가솔린', imageKey: 'kia-k5-v2', has360Spin: true, frameCount: 72, spinStartFrame: 8, trims: ['트렌디', '프레스티지', '시그니처', '그래비티'], seoTitle: 'K5 장기렌트 | 월 납부금 비교', seoDescription: '기아 K5 장기렌터카 최저가 견적. 중형 세단 장기렌트 조건을 비교하세요.' },
   { id: 'k05', brand: '기아', model: 'K5 하이브리드', slug: 'k5-hybrid', category: '세단', segment: '중형', fuel: '하이브리드', imageKey: 'kia-k5-hybrid-v2', trims: ['트렌디', '프레스티지', '시그니처', '그래비티'], seoTitle: 'K5 하이브리드 장기렌트 | 월 납부금 비교', seoDescription: '기아 K5 하이브리드 장기렌터카. 연비 좋은 중형 세단 장기렌트.' },
   { id: 'k06', brand: '기아', model: 'K8', slug: 'k8', category: '세단', segment: '준대형', fuel: '가솔린', imageKey: 'kia-k8-v2', has360Spin: true, frameCount: 72, spinStartFrame: 8, trims: ['프레스티지', '시그니처', '시그니처 AWD'], seoTitle: 'K8 장기렌트 | 월 납부금 비교', seoDescription: '기아 K8 장기렌터카. 준대형 세단 장기렌트 견적을 확인하세요.' },
@@ -101,7 +98,6 @@ export const VEHICLE_LIST: Vehicle[] = [
   { id: 'rk07', brand: '르노코리아', model: '그랑 콜레오스', slug: 'grand-koleos', category: 'SUV', segment: '중형 SUV', fuel: '가솔린', imageKey: 'renault-grand-koleos-v2', has360Spin: true, frameCount: 72, spinStartFrame: 8, trims: ['테크노', '아이코닉', '에스프리 알핀', '아이코닉 4WD', '에스카파드', '에스카파드 4WD'], seoTitle: '그랑 콜레오스 장기렌트 | 월 납부금 비교', seoDescription: '르노코리아 그랑 콜레오스 가솔린 장기렌터카. 중형 SUV 장기렌트 트림별 최저가 견적.' },
   { id: 'rk08', brand: '르노코리아', model: '그랑 콜레오스 하이브리드', slug: 'grand-koleos-hybrid', category: 'SUV', segment: '중형 SUV', fuel: '하이브리드', imageKey: 'renault-grand-koleos-hybrid-v2', trims: ['테크노', '아이코닉', '에스프리 알핀', '에스카파드'], seoTitle: '그랑 콜레오스 하이브리드 장기렌트 | 월 납부금 비교', seoDescription: '르노코리아 그랑 콜레오스 E-Tech 하이브리드 장기렌터카. 중형 SUV 하이브리드 장기렌트 견적.' },
   { id: 'rk09', brand: '르노코리아', model: '필랑트', slug: 'filante', category: '세단', segment: '대형 세단', fuel: '하이브리드', imageKey: 'renault-filante-v2', has360Spin: true, frameCount: 72, spinStartFrame: 8, trims: ['테크노', '아이코닉', 'SE', '에스프리 알핀'], seoTitle: '필랑트 장기렌트 | 월 납부금 비교', seoDescription: '르노코리아 필랑트 E-Tech 하이브리드 장기렌터카. 프리미엄 대형 세단 장기렌트 견적.' },
-  { id: 'rk10', brand: '르노코리아', model: 'SM6', slug: 'sm6', category: '세단', segment: '중형 세단', fuel: '가솔린', imageKey: 'renault-sm6-v2', has360Spin: true, frameCount: 72, spinStartFrame: 8, trims: ['인스파이어'], seoTitle: 'SM6 장기렌트 | 월 납부금 비교', seoDescription: '르노코리아 SM6 TCe 300 장기렌터카. 감성 중형 세단 장기렌트 최저가 견적.' },
 
   // ═══════════════════════════════════
   // KGM (12종)
@@ -263,7 +259,6 @@ export const VEHICLE_LIST: Vehicle[] = [
   // ═══════════════════════════════════
   // 쉐보레 (3종 — 스파크/이쿼녹스/타호/이쿼녹스EV inactive)
   // ═══════════════════════════════════
-  { id: 'ch03', brand: '쉐보레', model: '콜로라도', slug: 'colorado', category: '트럭', segment: '픽업트럭', fuel: '가솔린', imageKey: 'chevrolet-colorado-v2', trims: ['Z71'], seoTitle: '콜로라도 장기렌트 | 월 납부금 비교', seoDescription: '쉐보레 콜로라도 장기렌터카. 픽업트럭 장기렌트 사업자 전용 견적을 확인하세요.' },
 
   // ═══════════════════════════════════
   // 혼다 (2종 — ZR-V/시빅 inactive)
