@@ -6,6 +6,7 @@ import type { Vehicle } from '@/constants/vehicles';
 import { IconCarSedan } from '@/components/icons/RentailorIcons';
 import { CarSpinViewer } from './CarSpinViewer';
 import { GallerySlider } from './GallerySlider';
+import { carImageUrl } from '@/lib/car-image-url';
 
 interface CarHeroProps {
   vehicle: Vehicle;
@@ -39,7 +40,7 @@ export function CarHero({ vehicle, galleryPath, galleryCount, dbSpinStartFrame }
             </div>
           ) : (
             <Image
-              src={`/cars/${vehicle.imageKey}.webp`}
+              src={carImageUrl(vehicle.imageKey)}
               alt={`${vehicle.brand} ${vehicle.model}`}
               fill
               sizes="(max-width:768px) 100vw, 480px"
