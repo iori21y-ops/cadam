@@ -119,6 +119,7 @@ export const VEHICLE_LIST: Vehicle[] = [
   // 테슬라
   { id: 't01', brand: '테슬라', model: 'Model 3', slug: 'tesla-model-3', category: 'EV', segment: '중형 세단 (EV)', fuel: '전기', imageKey: 'tesla-model-3-v2', trims: ['Standard RWD', 'Premium Long Range RWD', 'Performance AWD'], seoTitle: 'Model 3 장기렌트 | 월 납부금 비교', seoDescription: '테슬라 Model 3 장기렌터카. 전기 세단 장기렌트 최저가 견적을 확인하세요.' },
   { id: 't02', brand: '테슬라', model: 'Model Y', slug: 'tesla-model-y', category: 'EV', segment: '중형 SUV (EV)', fuel: '전기', imageKey: 'tesla-model-y-v2', trims: ['RWD', 'Long Range AWD', 'Performance'], seoTitle: 'Model Y 장기렌트 | 월 납부금 비교', seoDescription: '테슬라 Model Y 장기렌터카. 전기 SUV 장기렌트 최저가 견적을 확인하세요.' },
+  { id: 't05', brand: '테슬라', model: 'Model Y Long Range', slug: 'tesla-model-y-l', category: 'EV', segment: '준대형 SUV (EV)', fuel: '전기', imageKey: 'tesla-model-y-l-v2', has360Spin: false, trims: ['Long Range AWD'], seoTitle: 'Model Y Long Range 장기렌트 | 월 납부금 비교', seoDescription: '테슬라 Model Y Long Range 장기렌터카. 준대형 전기 SUV 장기렌트 최저가 견적을 확인하세요.' },
 
   // ═══════════════════════════════════
   // BMW (26종) — 2026-04-29 크롤러 적재 기반
