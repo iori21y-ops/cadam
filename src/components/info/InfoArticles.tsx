@@ -58,7 +58,7 @@ function HorizontalScroll({ articles, emptyMessage = '콘텐츠가 없습니다'
     );
   }
   return (
-    <div className="flex-1 min-h-0">
+    <div className="flex-1 min-h-0 max-w-3xl mx-auto w-full">
       <div
         ref={scrollRef}
         onScroll={handleScroll}
@@ -123,7 +123,7 @@ function ClipsHorizontal({ articles, onCardClick, onActiveChange }: {
     );
   }
   return (
-    <div className="flex-1 min-h-0">
+    <div className="flex-1 min-h-0 max-w-3xl mx-auto w-full">
       <div
         ref={scrollRef}
         onScroll={handleScroll}
@@ -259,7 +259,7 @@ export function InfoArticles({ initialArticles, prices = {} }: {
     <div className="min-h-[100dvh] flex flex-col bg-white pb-24">
       {/* 통합 탭: 아티클 | 클립 | 카드뉴스 | 약관비교 */}
       <div className="shrink-0 border-b border-gray-200 bg-white">
-        <div className="flex max-w-lg mx-auto px-5">
+        <div className="flex max-w-3xl mx-auto px-5">
           <ContentTab active={section === 'article'} onClick={() => setSection('article')}>아티클</ContentTab>
           <ContentTab active={section === 'clip'} onClick={() => setSection('clip')}>클립</ContentTab>
           <ContentTab active={section === 'card-news'} onClick={() => setSection('card-news')}>카드뉴스</ContentTab>
@@ -272,7 +272,7 @@ export function InfoArticles({ initialArticles, prices = {} }: {
       ) : (
         <>
           {/* 타이틀 — 현재 보이는 카드 제목 */}
-          <div className="max-w-lg mx-auto w-full px-5 pt-6 pb-2">
+          <div className="max-w-3xl mx-auto w-full px-5 pt-6 pb-2">
             <h1 className="text-xl font-bold text-gray-900 line-clamp-2 leading-snug">
               {activeTitle ?? defaultTitle}
             </h1>
