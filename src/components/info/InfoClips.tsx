@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { YoutubeModal, extractYouTubeId } from '@/components/ui/YoutubeModal';
 import { getVehicleBySlug } from '@/constants/vehicles';
 
@@ -29,13 +30,25 @@ function ClipsHorizontal({ articles, onCardClick, onActiveChange }: {
   onActiveChange?: (index: number) => void;
 }) {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [activeIdx, setActiveIdx] = useState(0);
 
   const handleScroll = () => {
     const el = scrollRef.current;
-    if (!el || !onActiveChange) return;
-    const cardWidth = window.innerWidth * 0.9;
-    const index = Math.round(el.scrollLeft / (cardWidth + 12));
-    onActiveChange(Math.max(0, Math.min(index, articles.length - 1)));
+    if (!el) return;
+    const cardWidth = Math.min(window.innerWidth * 0.9, 632);
+    const clamped = Math.max(0, Math.min(Math.round(el.scrollLeft / (cardWidth + 12)), articles.length - 1));
+    setActiveIdx(clamped);
+    onActiveChange?.(clamped);
+  };
+
+  const goTo = (index: number) => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const card = el.children[index] as HTMLElement | undefined;
+    if (!card) return;
+    el.scrollTo({ left: card.offsetLeft - 20, behavior: 'smooth' });
+    setActiveIdx(index);
+    onActiveChange?.(index);
   };
 
   if (articles.length === 0) {
@@ -48,7 +61,27 @@ function ClipsHorizontal({ articles, onCardClick, onActiveChange }: {
     );
   }
   return (
-    <div className="flex-1 min-h-0 max-w-3xl mx-auto w-full">
+    <div className="flex-1 min-h-0 max-w-2xl mx-auto w-full relative">
+      {articles.length > 1 && (
+        <>
+          <button
+            onClick={() => goTo(activeIdx - 1)}
+            disabled={activeIdx === 0}
+            aria-label="이전"
+            className="hidden md:flex absolute left-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm shadow-md items-center justify-center hover:bg-white hover:shadow-lg transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+          >
+            <ChevronLeft size={18} className="text-gray-700" />
+          </button>
+          <button
+            onClick={() => goTo(activeIdx + 1)}
+            disabled={activeIdx === articles.length - 1}
+            aria-label="다음"
+            className="hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm shadow-md items-center justify-center hover:bg-white hover:shadow-lg transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+          >
+            <ChevronRight size={18} className="text-gray-700" />
+          </button>
+        </>
+      )}
       <div
         ref={scrollRef}
         onScroll={handleScroll}
@@ -59,7 +92,7 @@ function ClipsHorizontal({ articles, onCardClick, onActiveChange }: {
           <button
             key={article.id}
             onClick={() => onCardClick(article)}
-            className="snap-start shrink-0 w-[min(90vw,760px)] text-left"
+            className="snap-start shrink-0 w-[min(90vw,632px)] text-left"
           >
             <div className="relative aspect-video rounded-2xl overflow-hidden bg-gray-100 shadow-md">
               {article.thumbnailUrl ? (
@@ -145,7 +178,7 @@ export function InfoClips({ initialArticles, prices = {} }: {
     <div className="min-h-[100dvh] flex flex-col bg-white pb-24">
       {/* 통합 탭: 아티클 | 클립 | 카드뉴스 | 약관비교 */}
       <div className="shrink-0 border-b border-gray-200 bg-white">
-        <div className="flex max-w-3xl mx-auto px-5">
+        <div className="flex max-w-2xl mx-auto px-5">
           <Link href="/info" className="px-4 py-3 text-sm font-semibold border-b-2 -mb-px border-transparent text-gray-400 hover:text-gray-900 transition-colors whitespace-nowrap">아티클</Link>
           <span className="px-4 py-3 text-sm font-semibold border-b-2 -mb-px border-gray-900 text-gray-900 whitespace-nowrap">클립</span>
           <Link href="/info?tab=card-news" className="px-4 py-3 text-sm font-semibold border-b-2 -mb-px border-transparent text-gray-400 hover:text-gray-900 transition-colors whitespace-nowrap">카드뉴스</Link>
@@ -154,7 +187,7 @@ export function InfoClips({ initialArticles, prices = {} }: {
       </div>
 
       {/* 타이틀 — 현재 보이는 카드 제목 */}
-      <div className="max-w-3xl mx-auto w-full px-5 pt-6 pb-2">
+      <div className="max-w-2xl mx-auto w-full px-5 pt-6 pb-2">
         <h1 className="text-xl font-bold text-gray-900 line-clamp-2 leading-snug">
           {filteredClips[activeIndex]?.title ?? '렌테일러 클립'}
         </h1>
