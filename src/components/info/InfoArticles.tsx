@@ -4,9 +4,9 @@ import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { YoutubeModal, extractYouTubeId } from '@/components/ui/YoutubeModal';
 import { getVehicleBySlug } from '@/constants/vehicles';
-import { TermsComparisonTable } from '@/components/info/TermsComparisonTable';
 import { TermsComparisonCards } from '@/components/info/TermsComparisonCards';
 import { CarouselNavButtons } from '@/components/info/CarouselNavButtons';
+import { InfoSectionNav } from '@/components/info/InfoSectionNav';
 
 interface Article {
   id: string;
@@ -19,8 +19,6 @@ interface Article {
   category: string;
   vehicleSlug: string | null;
 }
-
-type Section = 'article' | 'clip' | 'card-news' | 'terms';
 
 function getDisplayType(article: Article): 'blog' | 'youtube' | 'shorts' {
   if (article.linkUrl.includes('youtube.com/shorts/')) return 'shorts';
@@ -65,15 +63,15 @@ function HorizontalScroll({ articles, emptyMessage = '콘텐츠가 없습니다'
 
   if (articles.length === 0) {
     return (
-      <div className="flex-1 flex items-center justify-center px-5">
-        <div className="text-center py-16">
+      <div className="flex items-center justify-center px-5">
+        <div className="text-center py-12">
           <p className="text-gray-500">{emptyMessage}</p>
         </div>
       </div>
     );
   }
   return (
-    <div className="flex-1 min-h-0 max-w-2xl mx-auto w-full">
+    <div className="max-w-2xl mx-auto w-full">
       <div className="relative">
         {articles.length > 1 && (
           <CarouselNavButtons
@@ -86,7 +84,7 @@ function HorizontalScroll({ articles, emptyMessage = '콘텐츠가 없습니다'
         <div
           ref={scrollRef}
           onScroll={handleScroll}
-          className="flex gap-3 overflow-x-auto snap-x snap-mandatory px-5 scroll-pl-5 pt-5 pb-8 scrollbar-hide"
+          className="flex gap-3 overflow-x-auto snap-x snap-mandatory px-5 scroll-pl-5 pt-3 pb-6 scrollbar-hide"
           style={{ WebkitOverflowScrolling: 'touch' }}
         >
           {articles.map((article) => (
@@ -152,15 +150,15 @@ function ClipsHorizontal({ articles, onCardClick, onActiveChange }: {
 
   if (articles.length === 0) {
     return (
-      <div className="flex-1 flex items-center justify-center px-5">
-        <div className="text-center py-16">
+      <div className="flex items-center justify-center px-5">
+        <div className="text-center py-12">
           <p className="text-gray-500">클립이 없습니다</p>
         </div>
       </div>
     );
   }
   return (
-    <div className="flex-1 min-h-0 max-w-2xl mx-auto w-full">
+    <div className="max-w-2xl mx-auto w-full">
       <div className="relative">
         {articles.length > 1 && (
           <CarouselNavButtons
@@ -173,7 +171,7 @@ function ClipsHorizontal({ articles, onCardClick, onActiveChange }: {
         <div
           ref={scrollRef}
           onScroll={handleScroll}
-          className="flex gap-3 overflow-x-auto snap-x snap-mandatory px-5 scroll-pl-5 pt-5 pb-8 scrollbar-hide"
+          className="flex gap-3 overflow-x-auto snap-x snap-mandatory px-5 scroll-pl-5 pt-3 pb-6 scrollbar-hide"
           style={{ WebkitOverflowScrolling: 'touch' }}
         >
           {articles.map((article) => (
@@ -214,17 +212,11 @@ function ClipsHorizontal({ articles, onCardClick, onActiveChange }: {
   );
 }
 
-function ContentTab({ active, onClick, children }: { active: boolean; onClick: () => void; children: ReactNode }) {
+function SectionSpinner() {
   return (
-    <button
-      onClick={onClick}
-      className={[
-        'px-4 py-3 text-sm font-semibold border-b-2 -mb-px transition-colors whitespace-nowrap',
-        active ? 'border-gray-900 text-gray-900' : 'border-transparent text-gray-400 hover:text-gray-900',
-      ].join(' ')}
-    >
-      {children}
-    </button>
+    <div className="py-16 flex justify-center">
+      <div className="w-8 h-8 border-2 border-gray-900 border-t-transparent rounded-full animate-spin" />
+    </div>
   );
 }
 
@@ -234,23 +226,24 @@ export function InfoArticles({ initialArticles, prices = {} }: {
 }) {
   const [articles, setArticles] = useState<Article[]>(initialArticles ?? []);
   const [loading, setLoading] = useState(!initialArticles);
-  const [section, setSection] = useState<Section>('article');
-  const [activeIndex, setActiveIndex] = useState(0);
   const [selectedClip, setSelectedClip] = useState<Article | null>(null);
   const [iframeSrc, setIframeSrc] = useState('');
 
-  // URL params로 초기 섹션 설정
+  // ?tab=xxx → 해당 섹션 앵커 스크롤 (mount only)
   useEffect(() => {
     const tab = new URLSearchParams(window.location.search).get('tab');
-    if (tab === 'card-news') setSection('card-news');
-    else if (tab === 'clip') setSection('clip');
-    else if (tab === 'terms') setSection('terms');
+    const TAB_TO_ID: Record<string, string> = {
+      'card-news': 'cardnews',
+      'clip': 'clips',
+      'terms': 'terms',
+    };
+    const targetId = TAB_TO_ID[tab ?? ''];
+    if (!targetId) return;
+    const timer = setTimeout(() => {
+      document.getElementById(targetId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 300);
+    return () => clearTimeout(timer);
   }, []);
-
-  // 탭 전환 시 카드 인덱스 초기화
-  useEffect(() => {
-    setActiveIndex(0);
-  }, [section]);
 
   useEffect(() => {
     if (initialArticles) return;
@@ -261,19 +254,20 @@ export function InfoArticles({ initialArticles, prices = {} }: {
       .finally(() => setLoading(false));
   }, [initialArticles]);
 
-  const filteredArticles = useMemo(() => {
-    if (section === 'card-news') {
-      return articles.filter((a) => getDisplayType(a) === 'blog' && a.category === 'card-news');
-    }
-    return articles.filter((a) => getDisplayType(a) === 'blog' && a.category !== 'card-news');
-  }, [articles, section]);
+  const regularArticles = useMemo(
+    () => articles.filter((a) => getDisplayType(a) === 'blog' && a.category !== 'card-news'),
+    [articles]
+  );
 
-  const filteredClips = useMemo(() => {
-    return articles.filter((a) => {
-      const type = getDisplayType(a);
-      return type === 'youtube' || type === 'shorts';
-    });
-  }, [articles]);
+  const cardNewsArticles = useMemo(
+    () => articles.filter((a) => getDisplayType(a) === 'blog' && a.category === 'card-news'),
+    [articles]
+  );
+
+  const filteredClips = useMemo(
+    () => articles.filter((a) => { const t = getDisplayType(a); return t === 'youtube' || t === 'shorts'; }),
+    [articles]
+  );
 
   const handleClipClick = (clip: Article) => {
     const videoId = extractYouTubeId(clip.linkUrl);
@@ -293,68 +287,65 @@ export function InfoArticles({ initialArticles, prices = {} }: {
     ? { ...selectedVehicleBase, minMonthly: selectedClip?.vehicleSlug ? prices[selectedClip.vehicleSlug] : undefined }
     : undefined;
 
-  const activeTitle = section === 'clip'
-    ? filteredClips[activeIndex]?.title
-    : filteredArticles[activeIndex]?.title;
-
-  const defaultTitle =
-    section === 'card-news' ? '렌테일러 카드뉴스' :
-    section === 'clip' ? '렌테일러 클립' :
-    '렌테일러 아티클';
-
   return (
-    <div className="min-h-[100dvh] flex flex-col bg-white pb-24">
-      {/* 통합 탭: 아티클 | 클립 | 카드뉴스 | 약관비교 */}
-      <div className="shrink-0 border-b border-gray-200 bg-white">
-        <div className="flex max-w-2xl mx-auto px-5">
-          <ContentTab active={section === 'article'} onClick={() => setSection('article')}>아티클</ContentTab>
-          <ContentTab active={section === 'clip'} onClick={() => setSection('clip')}>클립</ContentTab>
-          <ContentTab active={section === 'card-news'} onClick={() => setSection('card-news')}>카드뉴스</ContentTab>
-          <ContentTab active={section === 'terms'} onClick={() => setSection('terms')}>약관비교</ContentTab>
+    <div className="min-h-[100dvh] bg-white pb-24">
+      <InfoSectionNav />
+
+      {/* 아티클 */}
+      <section id="articles" className="scroll-mt-24 pt-10">
+        <div className="max-w-2xl mx-auto px-5 mb-4">
+          <h2 className="text-2xl font-bold text-gray-900">아티클</h2>
         </div>
-      </div>
+        {loading ? <SectionSpinner /> : (
+          <HorizontalScroll
+            articles={regularArticles}
+            emptyMessage="아티클이 없습니다"
+            aspectClass="aspect-video"
+            objectClass="object-cover"
+          />
+        )}
+      </section>
 
-      {section === 'terms' ? (
+      {/* 카드뉴스 */}
+      <section id="cardnews" className="scroll-mt-24 mt-16">
+        <div className="max-w-2xl mx-auto px-5 mb-4">
+          <h2 className="text-2xl font-bold text-gray-900">카드뉴스</h2>
+        </div>
+        {loading ? <SectionSpinner /> : (
+          <HorizontalScroll
+            articles={cardNewsArticles}
+            emptyMessage="카드뉴스가 없습니다"
+            aspectClass="aspect-[4/5] max-h-[480px]"
+            objectClass="object-contain"
+          />
+        )}
+      </section>
+
+      {/* 클립 */}
+      <section id="clips" className="scroll-mt-24 mt-16">
+        <div className="max-w-2xl mx-auto px-5 mb-4">
+          <h2 className="text-2xl font-bold text-gray-900">클립</h2>
+        </div>
+        {loading ? <SectionSpinner /> : (
+          <ClipsHorizontal
+            articles={filteredClips}
+            onCardClick={handleClipClick}
+          />
+        )}
+      </section>
+
+      {/* 약관비교 */}
+      <section id="terms" className="scroll-mt-24 mt-16">
         <TermsComparisonCards />
-      ) : (
-        <>
-          {/* 타이틀 — 현재 보이는 카드 제목 */}
-          <div className="max-w-2xl mx-auto w-full px-5 pt-6 pb-2">
-            <h1 className="text-xl font-bold text-gray-900 line-clamp-2 leading-snug">
-              {activeTitle ?? defaultTitle}
-            </h1>
-          </div>
+      </section>
 
-          {/* 콘텐츠 */}
-          {loading ? (
-            <div className="flex-1 flex items-center justify-center">
-              <div className="w-8 h-8 border-2 border-gray-900 border-t-transparent rounded-full animate-spin" />
-            </div>
-          ) : section === 'clip' ? (
-            <ClipsHorizontal
-              articles={filteredClips}
-              onCardClick={handleClipClick}
-              onActiveChange={setActiveIndex}
-            />
-          ) : (
-            <HorizontalScroll
-              articles={filteredArticles}
-              emptyMessage={section === 'card-news' ? '카드뉴스가 없습니다' : '아티클이 없습니다'}
-              onActiveChange={setActiveIndex}
-              aspectClass={section === 'card-news' ? 'aspect-[4/5]' : 'aspect-video'}
-              objectClass={section === 'card-news' ? 'object-contain' : 'object-cover'}
-            />
-          )}
-
-          {selectedClip && (
-            <YoutubeModal
-              title={selectedClip.title}
-              iframeSrc={iframeSrc}
-              onClose={handleClipClose}
-              vehicle={selectedVehicle}
-            />
-          )}
-        </>
+      {selectedClip && (
+        <YoutubeModal
+          title={selectedClip.title}
+          iframeSrc={iframeSrc}
+          onClose={handleClipClose}
+          vehicle={selectedVehicle}
+        />
       )}
     </div>
   );
