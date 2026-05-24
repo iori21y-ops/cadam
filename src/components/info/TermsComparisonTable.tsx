@@ -202,49 +202,48 @@ function getCellClass(value: string): string {
 // ─── 비교 테이블 ─────────────────────────────────────────────────
 
 function CompareTable({ data }: { data: TabData }) {
-  const colCount = data.columns.length + 1; // +1 for company col
   return (
     <div className="rounded-2xl border border-border-solid overflow-hidden bg-white">
       <div className="overflow-x-auto">
         <table
           className="w-full border-collapse"
-          style={{ minWidth: `${colCount * 96}px` }}
+          style={{ minWidth: `${140 + data.rows.length * 120}px` }}
         >
           <thead>
             <tr>
-              <th className="bg-primary text-white text-[11px] font-semibold px-3 py-3 text-left sticky left-0 z-10 whitespace-nowrap min-w-[76px]">
-                회사
+              <th className="bg-primary text-white text-[11px] font-semibold px-3 py-3 text-left sticky left-0 z-10 min-w-[140px] shadow-[2px_0_4px_rgba(0,0,0,0.05)]">
+                조건항목
               </th>
-              {data.columns.map((col, i) => (
+              {data.rows.map((row, i) => (
                 <th
                   key={i}
-                  className="bg-primary text-white text-[11px] font-semibold px-3 py-3 text-center whitespace-pre-line min-w-[88px]"
+                  className="bg-primary text-white text-[11px] font-semibold px-3 py-3 text-center whitespace-pre-line min-w-[120px]"
                 >
-                  {col}
+                  {row.company}
                 </th>
               ))}
             </tr>
           </thead>
           <tbody>
-            {data.rows.map((row, rowIdx) => {
-              const rowBg = rowIdx % 2 === 0 ? 'bg-white' : 'bg-surface-secondary';
+            {data.columns.map((col, colIdx) => {
+              const rowBg = colIdx % 2 === 0 ? 'bg-white' : 'bg-surface-secondary';
               return (
-                <tr key={row.company} className={rowBg}>
+                <tr key={colIdx} className={rowBg}>
                   <td
-                    className={`px-3 py-3 sticky left-0 z-10 border-r border-border-solid font-semibold text-[12px] text-primary whitespace-pre-line align-top ${rowBg}`}
+                    className={`px-3 py-2 sticky left-0 z-10 border-r border-border-solid font-medium text-[12px] text-text whitespace-pre-line align-top min-w-[140px] shadow-[2px_0_4px_rgba(0,0,0,0.05)] ${rowBg}`}
                   >
-                    {row.company}
+                    {col}
                   </td>
-                  {row.values.map((val, colIdx) => (
+                  {data.rows.map((row, rowIdx) => (
                     <td
-                      key={colIdx}
-                      className="px-3 py-3 border-b border-border-solid text-center align-top"
+                      key={rowIdx}
+                      className="px-3 py-2 border-b border-border-solid text-center align-top min-w-[120px]"
                     >
-                      <span className={getCellClass(val)}>
-                        {val.split('\n').map((line, li) => (
+                      <span className={getCellClass(row.values[colIdx] ?? '')}>
+                        {(row.values[colIdx] ?? '').split('\n').map((line, li, arr) => (
                           <span key={li}>
                             {line}
-                            {li < val.split('\n').length - 1 && <br />}
+                            {li < arr.length - 1 && <br />}
                           </span>
                         ))}
                       </span>
@@ -269,7 +268,7 @@ export function TermsComparisonTable() {
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
       <div className="flex-1 overflow-y-auto">
-        <div className="max-w-lg mx-auto px-4 pt-5 pb-8">
+        <div className="max-w-3xl mx-auto px-4 pt-5 pb-8">
 
           {/* 타이틀 + 도입 문구 */}
           <div className="mb-5">
