@@ -1,4 +1,4 @@
-import { TermsComparisonTable } from '@/components/info/TermsComparisonTable';
+import { TermsComparisonCards } from '@/components/info/TermsComparisonCards';
 
 export const metadata = {
   title: '약관 비교 | 카담',
@@ -9,7 +9,7 @@ export const metadata = {
 export default function TermsComparisonPage() {
   return (
     <div className="min-h-[100dvh] flex flex-col bg-white pb-24">
-      <TermsComparisonTable />
+      <TermsComparisonCards />
     </div>
   );
 }

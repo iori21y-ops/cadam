@@ -2,9 +2,9 @@
 
 import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { YoutubeModal, extractYouTubeId } from '@/components/ui/YoutubeModal';
 import { getVehicleBySlug } from '@/constants/vehicles';
+import { CarouselNavButtons } from '@/components/info/CarouselNavButtons';
 
 interface Article {
   id: string;
@@ -61,66 +61,55 @@ function ClipsHorizontal({ articles, onCardClick, onActiveChange }: {
     );
   }
   return (
-    <div className="flex-1 min-h-0 max-w-2xl mx-auto w-full relative">
-      {articles.length > 1 && (
-        <>
-          <button
-            onClick={() => goTo(activeIdx - 1)}
-            disabled={activeIdx === 0}
-            aria-label="이전"
-            className="hidden md:flex absolute left-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm shadow-md items-center justify-center hover:bg-white hover:shadow-lg transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-          >
-            <ChevronLeft size={18} className="text-gray-700" />
-          </button>
-          <button
-            onClick={() => goTo(activeIdx + 1)}
-            disabled={activeIdx === articles.length - 1}
-            aria-label="다음"
-            className="hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm shadow-md items-center justify-center hover:bg-white hover:shadow-lg transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-          >
-            <ChevronRight size={18} className="text-gray-700" />
-          </button>
-        </>
-      )}
-      <div
-        ref={scrollRef}
-        onScroll={handleScroll}
-        className="flex gap-3 overflow-x-auto snap-x snap-mandatory px-5 scroll-pl-5 pt-5 pb-8 scrollbar-hide"
-        style={{ WebkitOverflowScrolling: 'touch' }}
-      >
-        {articles.map((article) => (
-          <button
-            key={article.id}
-            onClick={() => onCardClick(article)}
-            className="snap-start shrink-0 w-[min(90vw,632px)] text-left"
-          >
-            <div className="relative aspect-video rounded-2xl overflow-hidden bg-gray-100 shadow-md">
-              {article.thumbnailUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={article.thumbnailUrl}
-                  alt={article.title}
-                  loading="lazy"
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    const el = e.currentTarget;
-                    if (el.src.includes('maxresdefault')) el.src = el.src.replace('maxresdefault', 'hqdefault');
-                  }}
-                />
-              ) : (
-                <div className="w-full h-full" style={{ background: 'linear-gradient(135deg, #FF3B30 0%, #FF9500 100%)' }} />
-              )}
-              {/* 재생 버튼 */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-16 h-16 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z" /></svg>
+    <div className="flex-1 min-h-0 max-w-2xl mx-auto w-full">
+      <div className="relative">
+        {articles.length > 1 && (
+          <CarouselNavButtons
+            onPrev={() => goTo(activeIdx - 1)}
+            onNext={() => goTo(activeIdx + 1)}
+            canPrev={activeIdx > 0}
+            canNext={activeIdx < articles.length - 1}
+          />
+        )}
+        <div
+          ref={scrollRef}
+          onScroll={handleScroll}
+          className="flex gap-3 overflow-x-auto snap-x snap-mandatory px-5 scroll-pl-5 pt-5 pb-8 scrollbar-hide"
+          style={{ WebkitOverflowScrolling: 'touch' }}
+        >
+          {articles.map((article) => (
+            <button
+              key={article.id}
+              onClick={() => onCardClick(article)}
+              className="snap-start shrink-0 w-[min(90vw,632px)] text-left"
+            >
+              <div className="relative aspect-video rounded-2xl overflow-hidden bg-gray-100 shadow-md">
+                {article.thumbnailUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={article.thumbnailUrl}
+                    alt={article.title}
+                    loading="lazy"
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      const el = e.currentTarget;
+                      if (el.src.includes('maxresdefault')) el.src = el.src.replace('maxresdefault', 'hqdefault');
+                    }}
+                  />
+                ) : (
+                  <div className="w-full h-full" style={{ background: 'linear-gradient(135deg, #FF3B30 0%, #FF9500 100%)' }} />
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-16 h-16 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z" /></svg>
+                  </div>
                 </div>
               </div>
-            </div>
-          </button>
-        ))}
-        <div className="shrink-0 w-1" />
+            </button>
+          ))}
+          <div className="shrink-0 w-1" />
+        </div>
       </div>
     </div>
   );
