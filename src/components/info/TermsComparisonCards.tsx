@@ -216,20 +216,19 @@ function TermCard({ column, rows, colIdx }: { column: string; rows: CompanyRow[]
         <p className="text-white text-sm font-semibold whitespace-pre-line leading-snug">{column}</p>
       </div>
 
-      {/* 회사별 그리드 */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-0 divide-y sm:divide-y-0 divide-border-solid">
+      {/* 회사별 리스트 */}
+      <div>
         {rows.map((row, i) => {
           const value = row.values[colIdx] ?? '';
-          const isEven = i % 2 === 0;
           return (
             <div
               key={i}
-              className={`px-4 py-3 flex flex-col gap-1 ${isEven ? 'bg-white' : 'bg-surface-secondary'} sm:border-b sm:border-border-solid`}
+              className="flex items-start gap-3 px-4 py-3 border-b border-gray-100 last:border-b-0"
             >
-              <span className="text-[11px] font-semibold text-primary whitespace-pre-line leading-tight">
+              <span className="flex-shrink-0 w-24 md:w-32 text-[11px] font-semibold text-primary whitespace-pre-line leading-snug pt-0.5">
                 {row.company}
               </span>
-              <span className={getCellClass(value)}>
+              <span className={`flex-1 ${getCellClass(value)}`}>
                 {renderLines(value || '미기재')}
               </span>
             </div>
