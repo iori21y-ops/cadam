@@ -99,13 +99,15 @@ export default async function InfoArticlePage({
         </header>
 
         {article.thumbnail_url && (
-          /* eslint-disable-next-line @next/next/no-img-element */
-          <img
-            src={article.thumbnail_url}
-            alt={article.title}
-            className="mt-6 w-full rounded-2xl object-cover"
-            loading="eager"
-          />
+          <div className="mt-6 relative w-full aspect-video overflow-hidden rounded-2xl">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={article.thumbnail_url}
+              alt={article.title}
+              className="absolute inset-0 w-full h-full object-cover"
+              loading="eager"
+            />
+          </div>
         )}
 
         <SafeHtml html={article.content} className="wp-content mt-8 text-text" />

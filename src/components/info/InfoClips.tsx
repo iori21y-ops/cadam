@@ -59,9 +59,9 @@ function ClipsHorizontal({ articles, onCardClick, onActiveChange }: {
           <button
             key={article.id}
             onClick={() => onCardClick(article)}
-            className="snap-start shrink-0 w-[90vw] text-left"
+            className="snap-start shrink-0 w-[min(90vw,760px)] text-left"
           >
-            <div className="relative aspect-square rounded-2xl overflow-hidden bg-gray-100 shadow-md">
+            <div className="relative aspect-video rounded-2xl overflow-hidden bg-gray-100 shadow-md">
               {article.thumbnailUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img

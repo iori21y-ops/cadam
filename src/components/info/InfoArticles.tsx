@@ -32,10 +32,11 @@ function CardLink({ href, className, children }: { href: string; className: stri
   return <a href={href} target="_blank" rel="noopener noreferrer" className={className}>{children}</a>;
 }
 
-function HorizontalScroll({ articles, emptyMessage = '콘텐츠가 없습니다', onActiveChange }: {
+function HorizontalScroll({ articles, emptyMessage = '콘텐츠가 없습니다', onActiveChange, aspectClass = 'aspect-video' }: {
   articles: Article[];
   emptyMessage?: string;
   onActiveChange?: (index: number) => void;
+  aspectClass?: string;
 }) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -68,9 +69,9 @@ function HorizontalScroll({ articles, emptyMessage = '콘텐츠가 없습니다'
           <CardLink
             key={article.id}
             href={article.linkUrl}
-            className="snap-start shrink-0 w-[90vw]"
+            className="snap-start shrink-0 w-[min(90vw,760px)]"
           >
-            <div className="aspect-square rounded-2xl overflow-hidden bg-gray-100 shadow-md">
+            <div className={`${aspectClass} rounded-2xl overflow-hidden bg-gray-100 shadow-md`}>
               {article.thumbnailUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -133,9 +134,9 @@ function ClipsHorizontal({ articles, onCardClick, onActiveChange }: {
           <button
             key={article.id}
             onClick={() => onCardClick(article)}
-            className="snap-start shrink-0 w-[90vw] text-left"
+            className="snap-start shrink-0 w-[min(90vw,760px)] text-left"
           >
-            <div className="relative aspect-square rounded-2xl overflow-hidden bg-gray-100 shadow-md">
+            <div className="relative aspect-video rounded-2xl overflow-hidden bg-gray-100 shadow-md">
               {article.thumbnailUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -293,6 +294,7 @@ export function InfoArticles({ initialArticles, prices = {} }: {
               articles={filteredArticles}
               emptyMessage={section === 'card-news' ? '카드뉴스가 없습니다' : '아티클이 없습니다'}
               onActiveChange={setActiveIndex}
+              aspectClass={section === 'card-news' ? 'aspect-[4/5]' : 'aspect-video'}
             />
           )}
 
