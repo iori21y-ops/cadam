@@ -32,12 +32,14 @@ function CardLink({ href, className, children }: { href: string; className: stri
   return <a href={href} target="_blank" rel="noopener noreferrer" className={className}>{children}</a>;
 }
 
-function HorizontalScroll({ articles, emptyMessage = '콘텐츠가 없습니다', onActiveChange, aspectClass = 'aspect-video', objectClass = 'object-cover' }: {
+function HorizontalScroll({ articles, emptyMessage = '콘텐츠가 없습니다', onActiveChange, aspectClass = 'aspect-video', objectClass = 'object-cover', showTitleOverlay = false, multiCol = false }: {
   articles: Article[];
   emptyMessage?: string;
   onActiveChange?: (index: number) => void;
   aspectClass?: string;
   objectClass?: string;
+  showTitleOverlay?: boolean;
+  multiCol?: boolean;
 }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [activeIdx, setActiveIdx] = useState(0);
@@ -45,7 +47,7 @@ function HorizontalScroll({ articles, emptyMessage = '콘텐츠가 없습니다'
   const handleScroll = () => {
     const el = scrollRef.current;
     if (!el) return;
-    const cardWidth = Math.min(window.innerWidth * 0.9, 632);
+    const cardWidth = (el.children[0] as HTMLElement | undefined)?.offsetWidth ?? Math.min(window.innerWidth * 0.9, 632);
     const clamped = Math.max(0, Math.min(Math.round(el.scrollLeft / (cardWidth + 12)), articles.length - 1));
     setActiveIdx(clamped);
     onActiveChange?.(clamped);
@@ -91,9 +93,9 @@ function HorizontalScroll({ articles, emptyMessage = '콘텐츠가 없습니다'
             <CardLink
               key={article.id}
               href={article.linkUrl}
-              className="snap-start shrink-0 w-[min(90vw,632px)]"
+              className={multiCol ? 'snap-start shrink-0 w-[min(90vw,632px)] md:w-[calc(50%-6px)] lg:w-[calc(50%-6px)]' : 'snap-start shrink-0 w-[min(90vw,632px)]'}
             >
-              <div className={`${aspectClass} rounded-2xl overflow-hidden bg-gray-100 shadow-md`}>
+              <div className={`${aspectClass} rounded-2xl overflow-hidden bg-gray-100 shadow-md relative`}>
                 {article.thumbnailUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
@@ -111,12 +113,32 @@ function HorizontalScroll({ articles, emptyMessage = '콘텐츠가 없습니다'
                     <span className="text-gray-400 text-sm">RENTAILOR</span>
                   </div>
                 )}
+                {showTitleOverlay && (
+                  <>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent pointer-events-none" />
+                    <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6">
+                      <p className="text-white font-semibold text-lg md:text-xl line-clamp-2">{article.title}</p>
+                    </div>
+                  </>
+                )}
               </div>
             </CardLink>
           ))}
           <div className="shrink-0 w-1" />
         </div>
       </div>
+      {articles.length > 1 && (
+        <div className="flex justify-center gap-1.5 pb-4">
+          {articles.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => goTo(i)}
+              aria-label={`${i + 1}번째 항목`}
+              className={`w-1.5 h-1.5 rounded-full transition-all ${i === activeIdx ? 'bg-primary w-4' : 'bg-gray-300'}`}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -208,6 +230,18 @@ function ClipsHorizontal({ articles, onCardClick, onActiveChange }: {
           <div className="shrink-0 w-1" />
         </div>
       </div>
+      {articles.length > 1 && (
+        <div className="flex justify-center gap-1.5 pb-4">
+          {articles.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => goTo(i)}
+              aria-label={`${i + 1}번째 항목`}
+              className={`w-1.5 h-1.5 rounded-full transition-all ${i === activeIdx ? 'bg-primary w-4' : 'bg-gray-300'}`}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -302,6 +336,7 @@ export function InfoArticles({ initialArticles, prices = {} }: {
             emptyMessage="아티클이 없습니다"
             aspectClass="aspect-video"
             objectClass="object-cover"
+            showTitleOverlay
           />
         )}
       </section>
@@ -317,6 +352,7 @@ export function InfoArticles({ initialArticles, prices = {} }: {
             emptyMessage="카드뉴스가 없습니다"
             aspectClass="aspect-[4/5] max-h-[480px]"
             objectClass="object-contain"
+            multiCol
           />
         )}
       </section>

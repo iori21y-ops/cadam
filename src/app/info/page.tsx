@@ -87,7 +87,7 @@ function mergeArticles(supabaseArticles: InfoArticleShape[], wpArticles: InfoArt
 export default async function InfoPage() {
   const [articles, wpArticles, prices] = await Promise.all([
     getArticles(),
-    fetchWpPosts(),
+    fetchWpPosts({ perPage: 50 }),
     getPrices(),
   ]);
   return <InfoArticles initialArticles={mergeArticles(articles, wpArticles)} prices={prices} />;

@@ -26,7 +26,7 @@ export async function GET() {
         .eq('is_active', true)
         .order('display_order', { ascending: true })
         .order('published_at', { ascending: false, nullsFirst: false }),
-      fetchWpPosts(),
+      fetchWpPosts({ perPage: 50 }),
     ]);
 
     const { data, error } = supabaseResult;
