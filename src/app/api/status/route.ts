@@ -1,6 +1,14 @@
 import { NextResponse } from 'next/server'
 import { execSync } from 'child_process'
 import fs from 'fs'
+import { createServerSupabaseClient } from '@/lib/supabase-server'
+
+const HOME = process.env.HOME ?? '/Users/kim'
+const PUBLISH_LOG  = `${HOME}/projects/cadam/cadam-naver/publish.log`
+const BACKUP_LOG   = `${HOME}/backup.log`
+const NAVER_COOKIES = `${HOME}/projects/cadam/cadam-naver/naver-cookies.json`
+const OPENCLAW     = `${HOME}/.openclaw`
+const SESSIONS_DIR = `${OPENCLAW}/agents/main/sessions`
 
 async function check(url: string) {
   try {
@@ -17,6 +25,10 @@ function checkPort(port: number): boolean {
 }
 
 export async function GET() {
+  const supabase = await createServerSupabaseClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
   const [ollama, n8n, naver] = await Promise.all([
     check('http://127.0.0.1:11434'),
     check('http://127.0.0.1:5678'),
@@ -50,7 +62,7 @@ export async function GET() {
   } catch {}
 
   try {
-    blogCount = parseInt(execSync("grep -c '발행 완료' /Users/kim/projects/cadam/cadam-naver/publish.log 2>/dev/null || echo 0").toString().trim())
+    blogCount = parseInt(execSync(`grep -c '발행 완료' ${PUBLISH_LOG} 2>/dev/null || echo 0`).toString().trim())
   } catch {}
 
   try {
@@ -85,18 +97,18 @@ export async function GET() {
   } catch {}
 
   try {
-    const log = execSync("grep '발행 완료' /Users/kim/projects/cadam/cadam-naver/publish.log | tail -1").toString().trim()
+    const log = execSync(`grep '발행 완료' ${PUBLISH_LOG} | tail -1`).toString().trim()
     const match = log.match(/\[(.+?)\]/)
     if (match) lastBlog = match[1]
   } catch {}
 
   try {
-    const log = execSync("tail -1 /Users/kim/backup.log").toString().trim()
+    const log = execSync(`tail -1 ${BACKUP_LOG}`).toString().trim()
     if (log) lastBackup = log.replace(': 백업 완료 →', '').split('/backups')[0].trim()
   } catch {}
 
   try {
-    const stat = execSync("stat -f %m /Users/kim/projects/cadam/cadam-naver/naver-cookies.json").toString().trim()
+    const stat = execSync(`stat -f %m ${NAVER_COOKIES}`).toString().trim()
     const modified = new Date(parseInt(stat) * 1000)
     const daysSince = Math.floor((Date.now() - modified.getTime()) / 1000 / 60 / 60 / 24)
     cookieStatus = {
@@ -117,7 +129,7 @@ export async function GET() {
   } catch {}
 
   try {
-    const jobs = JSON.parse(fs.readFileSync('/Users/kim/.openclaw/cron/jobs.json', 'utf8'))
+    const jobs = JSON.parse(fs.readFileSync(`${OPENCLAW}/cron/jobs.json`, 'utf8'))
     cronJobs = jobs.jobs.map((j: any) => ({
       name: j.name,
       schedule: j.schedule.expr,
@@ -127,18 +139,17 @@ export async function GET() {
   } catch {}
 
   try {
-    const config = JSON.parse(fs.readFileSync('/Users/kim/.openclaw/openclaw.json', 'utf8'))
+    const config = JSON.parse(fs.readFileSync(`${OPENCLAW}/openclaw.json`, 'utf8'))
     const hb = config.agents?.defaults?.heartbeat
     let lastHbTime = null
     let lastHbResult = 'unknown'
-    const sessionsDir = '/Users/kim/.openclaw/agents/main/sessions'
-    const files = fs.readdirSync(sessionsDir)
+    const files = fs.readdirSync(SESSIONS_DIR)
       .filter(f => f.endsWith('.jsonl'))
-      .map(f => ({ f, mt: fs.statSync(`${sessionsDir}/${f}`).mtimeMs }))
+      .map(f => ({ f, mt: fs.statSync(`${SESSIONS_DIR}/${f}`).mtimeMs }))
       .sort((a, b) => b.mt - a.mt)
       .slice(0, 3)
     for (const { f } of files) {
-      const lines = fs.readFileSync(`${sessionsDir}/${f}`, 'utf8').split('\n').filter(Boolean)
+      const lines = fs.readFileSync(`${SESSIONS_DIR}/${f}`, 'utf8').split('\n').filter(Boolean)
       for (const line of lines.reverse()) {
         try {
           const d = JSON.parse(line)
@@ -167,7 +178,7 @@ export async function GET() {
 
   // 하트비트 체크 항목 (HEARTBEAT.md 읽기)
   try {
-    const hbMd = fs.readFileSync('/Users/kim/.openclaw/workspace/HEARTBEAT.md', 'utf8')
+    const hbMd = fs.readFileSync(`${OPENCLAW}/workspace/HEARTBEAT.md`, 'utf8')
     const lines = hbMd.split('\n')
     let currentType = '항상'
     for (const line of lines) {
@@ -227,7 +238,7 @@ export async function GET() {
 
   // 텔레그램 명령어 (TOOLS.md 읽기)
   try {
-    const tools = fs.readFileSync('/Users/kim/.openclaw/workspace/TOOLS.md', 'utf8')
+    const tools = fs.readFileSync(`${OPENCLAW}/workspace/TOOLS.md`, 'utf8')
     const lines = tools.split('\n')
     let inCmd = false
     for (const line of lines) {
@@ -244,7 +255,7 @@ export async function GET() {
 
   // 커스텀 명령어 (custom-commands.json 읽기)
   try {
-    const customCmds = JSON.parse(fs.readFileSync('/Users/kim/.openclaw/workspace/custom-commands.json', 'utf8'))
+    const customCmds = JSON.parse(fs.readFileSync(`${OPENCLAW}/workspace/custom-commands.json`, 'utf8'))
     for (const c of customCmds) {
       if (c.key && c.desc) telegramCmds.push({ key: c.key, desc: c.desc, custom: true })
     }
@@ -263,12 +274,11 @@ export async function GET() {
     }
   } catch {}
   try {
-    const sd = '/Users/kim/.openclaw/agents/main/sessions'
-    const sf = fs.readdirSync(sd).filter((f: string) => f.endsWith('.jsonl'))
-      .map((f: string) => ({ f, mt: fs.statSync(`${sd}/${f}`).mtimeMs }))
+    const sf = fs.readdirSync(SESSIONS_DIR).filter((f: string) => f.endsWith('.jsonl'))
+      .map((f: string) => ({ f, mt: fs.statSync(`${SESSIONS_DIR}/${f}`).mtimeMs }))
       .sort((a: any, b: any) => b.mt - a.mt).slice(0, 5)
     outerTps: for (const { f } of sf) {
-      const ln = fs.readFileSync(`${sd}/${f}`, 'utf8').split('\n').filter(Boolean)
+      const ln = fs.readFileSync(`${SESSIONS_DIR}/${f}`, 'utf8').split('\n').filter(Boolean)
       for (const l of [...ln].reverse()) {
         try {
           const d = JSON.parse(l)
@@ -287,7 +297,7 @@ export async function GET() {
   let blogStats = { success: 0, fail: 0 }
   let nextPublish = 'N/A'
   try {
-    const plog = execSync('cat /Users/kim/projects/cadam/cadam-naver/publish.log 2>/dev/null').toString()
+    const plog = execSync(`cat ${PUBLISH_LOG} 2>/dev/null`).toString()
     for (const l of plog.split('\n').filter(Boolean)) {
       if (l.includes('발행 완료')) blogStats.success++
       else if (l.includes('발행 실패') || l.includes('ERROR')) blogStats.fail++
@@ -356,12 +366,11 @@ export async function GET() {
   // ── 하트비트 히스토리 (최근 10회) ────────────────────
   let hbHistory: {time: string, result: string}[] = []
   try {
-    const sd2 = '/Users/kim/.openclaw/agents/main/sessions'
-    const sf2 = fs.readdirSync(sd2).filter((f: string) => f.endsWith('.jsonl'))
-      .map((f: string) => ({ f, mt: fs.statSync(`${sd2}/${f}`).mtimeMs }))
+    const sf2 = fs.readdirSync(SESSIONS_DIR).filter((f: string) => f.endsWith('.jsonl'))
+      .map((f: string) => ({ f, mt: fs.statSync(`${SESSIONS_DIR}/${f}`).mtimeMs }))
       .sort((a: any, b: any) => b.mt - a.mt).slice(0, 20)
     for (const { f } of sf2) {
-      for (const l of fs.readFileSync(`${sd2}/${f}`, 'utf8').split('\n').filter(Boolean)) {
+      for (const l of fs.readFileSync(`${SESSIONS_DIR}/${f}`, 'utf8').split('\n').filter(Boolean)) {
         try {
           const d = JSON.parse(l)
           if (d.type === 'message' && d.message?.role === 'assistant') {
