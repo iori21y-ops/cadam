@@ -5,7 +5,13 @@ import { useQuoteStore } from '@/store/quoteStore';
 import { gtag } from '@/lib/gtag';
 import { ConsultationSheet } from '@/components/ui/ConsultationSheet';
 import type { Vehicle } from '@/constants/vehicles';
-import type { PriceRangeRow } from './PriceCompareTable';
+
+interface PriceRangeRow {
+  contract_months: number;
+  annual_km: number;
+  min_monthly: number;
+  max_monthly: number;
+}
 
 interface EstimateConfiguratorProps {
   vehicle: Vehicle;
