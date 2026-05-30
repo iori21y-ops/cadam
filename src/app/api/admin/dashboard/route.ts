@@ -24,6 +24,9 @@ export async function GET() {
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+    if (process.env.ADMIN_EMAIL && user.email !== process.env.ADMIN_EMAIL) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
     const todayStart = getTodayStart();
     const weekStart = getThisWeekMonday();
 

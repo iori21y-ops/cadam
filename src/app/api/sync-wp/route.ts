@@ -5,7 +5,10 @@ import { NextResponse } from 'next/server';
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 const wpApiUrl = process.env.NEXT_PUBLIC_WP_API_URL!;
-const syncSecret = process.env.SYNC_WP_SECRET || 'cadam-sync-2026';
+const syncSecret = process.env.SYNC_WP_SECRET;
+if (!syncSecret) {
+  console.error('SYNC_WP_SECRET 환경변수가 설정되지 않았습니다.');
+}
 
 interface WpPost {
   id: number;
@@ -43,6 +46,9 @@ function stripHtml(html: string): string {
 }
 
 export async function POST(request: Request) {
+  if (!syncSecret) {
+    return NextResponse.json({ error: 'Server misconfiguration' }, { status: 500 });
+  }
   const { searchParams } = new URL(request.url);
   const secret = searchParams.get('secret') || request.headers.get('x-sync-secret');
   if (secret !== syncSecret) {

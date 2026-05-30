@@ -1,9 +1,43 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { createServerClient } from '@supabase/ssr';
 
 const THIRTY_DAYS = 60 * 60 * 24 * 30;
 const TWENTY_FOUR_HOURS = 60 * 60 * 24;
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
+  // ── 어드민 라우트 서버 측 인증 가드 ──────────────────────
+  const pathname = request.nextUrl.pathname;
+  const isAdminRoute = pathname.startsWith('/admin');
+  const isLoginPage = pathname === '/admin/login';
+
+  if (isAdminRoute && !isLoginPage) {
+    let response = NextResponse.next({ request });
+
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() { return request.cookies.getAll() },
+          setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              response.cookies.set(name, value, options)
+            );
+          },
+        },
+      }
+    );
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      const loginUrl = new URL('/admin/login', request.url);
+      return NextResponse.redirect(loginUrl);
+    }
+
+    return response;
+  }
+
+  // ── 공개 라우트 쿠키 처리 ─────────────────────────────────
   const response = NextResponse.next();
 
   // 1. User-Agent → device_type
@@ -35,5 +69,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/', '/info', '/popular-estimates', '/cars/:path*'],
+  matcher: ['/', '/info', '/popular-estimates', '/cars/:path*', '/admin/:path*'],
 };

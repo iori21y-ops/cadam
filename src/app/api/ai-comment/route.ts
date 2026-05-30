@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
+import Anthropic from '@anthropic-ai/sdk';
 import { rateLimiter } from '@/lib/rateLimit';
 import type { AIConfig } from '@/types/diagnosis';
-
-const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 
 const REPORT_SYSTEM_PROMPT = `당신은 AI 자동차 전문가입니다.
 고객의 진단 결과를 바탕으로 맞춤형 분석 리포트를 작성합니다.
@@ -48,8 +47,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Missing context or config' }, { status: 400 });
   }
 
-  if (!ANTHROPIC_API_KEY) {
-    // Fallback if API key not configured
+  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
+  if (!process.env.ANTHROPIC_API_KEY) {
     const fallback = config.fallbacks?.[0] || '고객님, 진단 결과가 나왔습니다! 😊';
     return NextResponse.json({ comment: fallback, cached: false });
   }
@@ -62,37 +62,18 @@ export async function POST(req: NextRequest) {
         .replace('{charName}', config.charName)
         .replace('{context}', context);
 
-  // 4) Call Claude API
+  // 4) Call Claude API via SDK
   try {
-    const messages: { role: string; content: string }[] = [
-      { role: 'user', content: prompt },
-    ];
-
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model: config.model || 'claude-sonnet-4-20250514',
-        max_tokens: isReport ? 800 : 300,
-        system: isReport ? REPORT_SYSTEM_PROMPT : undefined,
-        messages,
-      }),
+    const message = await anthropic.messages.create({
+      model: config.model || 'claude-sonnet-4-20250514',
+      max_tokens: isReport ? 800 : 300,
+      system: isReport ? REPORT_SYSTEM_PROMPT : undefined,
+      messages: [{ role: 'user', content: prompt }],
     });
 
-    if (!response.ok) {
-      throw new Error(`API returned ${response.status}`);
-    }
-
-    const data = await response.json();
-    const comment = data.content
-      ?.map((block: { type: string; text?: string }) =>
-        block.type === 'text' ? block.text : ''
-      )
-      .filter(Boolean)
+    const comment = message.content
+      .filter((block) => block.type === 'text')
+      .map((block) => block.text)
       .join('') || '';
 
     return NextResponse.json({ comment, cached: false });

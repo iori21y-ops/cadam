@@ -18,6 +18,9 @@ export async function PATCH(req: NextRequest) {
     const auth = await createServerSupabaseClient();
     const { data: { user } } = await auth.auth.getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (process.env.ADMIN_EMAIL && user.email !== process.env.ADMIN_EMAIL) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
 
     const parsed = Schema.safeParse(await req.json());
     if (!parsed.success) return NextResponse.json({ error: '잘못된 요청' }, { status: 400 });
