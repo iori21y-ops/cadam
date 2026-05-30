@@ -14,6 +14,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { unstable_cache } from 'next/cache';
 import { createClient } from '@supabase/supabase-js';
 import { applyRateLimit, secureError } from '@/lib/api/security';
 
@@ -32,26 +33,17 @@ export async function GET(req: NextRequest) {
   if (rl) return rl;
 
   try {
-    // 연간 데이터 우선: 최신 12월(YYYY12) → 없으면 최신 월
-    const { data: decRows } = await supabase
-      .from('insurance_stats')
-      .select('base_ym')
-      .eq('stat_kind', 'loss')
-      .like('base_ym', '%12')
-      .order('base_ym', { ascending: false })
-      .limit(1);
-
-    let base_ym = decRows?.[0]?.base_ym ?? null;
-
-    if (!base_ym) {
-      const { data: latestRows } = await supabase
-        .from('insurance_stats')
-        .select('base_ym')
+    // 최신 12월(YYYY12)과 최신 월을 병렬 조회 → 12월 우선, 없으면 최신 월 사용
+    const [{ data: decRows }, { data: latestRows }] = await Promise.all([
+      supabase.from('insurance_stats').select('base_ym')
+        .eq('stat_kind', 'loss').like('base_ym', '%12')
+        .order('base_ym', { ascending: false }).limit(1),
+      supabase.from('insurance_stats').select('base_ym')
         .eq('stat_kind', 'loss')
-        .order('base_ym', { ascending: false })
-        .limit(1);
-      base_ym = latestRows?.[0]?.base_ym ?? null;
-    }
+        .order('base_ym', { ascending: false }).limit(1),
+    ]);
+
+    const base_ym = decRows?.[0]?.base_ym ?? latestRows?.[0]?.base_ym ?? null;
 
     if (!base_ym) {
       return NextResponse.json({ error: '데이터 없음' }, { status: 404 });
@@ -114,32 +106,36 @@ export async function GET(req: NextRequest) {
     let trend: { year: string; lossRates: Record<string, number> }[] | undefined;
 
     if (includeTrend) {
-      // 연도별 개별 쿼리 (메인 라우트와 동일한 패턴, 8개 병렬)
-      const yearResults = await Promise.all(
-        TREND_YMS.map(async (ym) => {
+      // 역사적 데이터 — 16회 개별 쿼리 → 2회 일괄 쿼리 + 1시간 캐시
+      const fetchTrendData = unstable_cache(
+        async () => {
           const [lRes, cRes] = await Promise.all([
             supabase.from('insurance_stats')
-              .select('car_type, coverage_type, loss_amount')
+              .select('base_ym, car_type, coverage_type, loss_amount')
               .eq('stat_kind', 'loss')
-              .eq('base_ym', ym)
+              .in('base_ym', [...TREND_YMS])
               .in('car_type', [...TARGET_CAR_TYPES]),
             supabase.from('insurance_stats')
-              .select('car_type, coverage_type, elapsed_premium')
+              .select('base_ym, car_type, coverage_type, elapsed_premium')
               .eq('stat_kind', 'contract')
               .eq('insurance_type', '개인용')
-              .eq('base_ym', ym)
+              .in('base_ym', [...TREND_YMS])
               .in('car_type', [...TARGET_CAR_TYPES]),
           ]);
-          return { ym, lossData: lRes.data ?? [], contrData: cRes.data ?? [] };
-        }),
+          return { lossRows: lRes.data ?? [], contrRows: cRes.data ?? [] };
+        },
+        ['accident-stats-trend'],
+        { revalidate: 3600 },
       );
 
+      const { lossRows: allLoss, contrRows: allContr } = await fetchTrendData();
+
       trend = [];
-      for (const { ym, lossData: ld, contrData: cd } of yearResults) {
+      for (const ym of TREND_YMS) {
         const lossRates: Record<string, number> = {};
         for (const ct of TARGET_CAR_TYPES) {
-          const lRows = ld.filter((r) => r.car_type === ct && COVERAGES.includes(r.coverage_type as typeof COVERAGES[number]));
-          const cRows = cd.filter((r) => r.car_type === ct && COVERAGES.includes(r.coverage_type as typeof COVERAGES[number]));
+          const lRows = allLoss.filter((r) => r.base_ym === ym && r.car_type === ct && COVERAGES.includes(r.coverage_type as typeof COVERAGES[number]));
+          const cRows = allContr.filter((r) => r.base_ym === ym && r.car_type === ct && COVERAGES.includes(r.coverage_type as typeof COVERAGES[number]));
           const totalLoss = lRows.reduce((s, r) => s + (r.loss_amount    ?? 0), 0);
           const totalPrem = cRows.reduce((s, r) => s + (r.elapsed_premium ?? 0), 0);
           if (totalPrem > 0) lossRates[ct] = Math.round((totalLoss / totalPrem) * 1000) / 10;

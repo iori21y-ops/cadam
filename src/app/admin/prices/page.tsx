@@ -371,9 +371,11 @@ export default function AdminPricesPage() {
         if (settingsError) throw new Error(`설정 저장 실패: ${settingsError.message}`);
       }
 
-      // 2. pricing: 기존 비활성화 후 신규 삽입 (DELETE 권한 불필요)
+      // 2. pricing: 데이터 수집 후 1회 일괄 비활성화 + 1회 일괄 삽입 (N+1 → 2회)
       let priceUpdated = 0;
       const priceErrors: string[] = [];
+      const modelsToDeactivate: { brand: string; model: string }[] = [];
+      const allToInsert: Record<string, unknown>[] = [];
 
       for (const row of rows) {
         const slug = row[0]?.trim();
@@ -396,26 +398,32 @@ export default function AdminPricesPage() {
         }
 
         if (toInsert.length > 0) {
-          // 기존 레코드 비활성화
-          const { error: deactivateError } = await supabase
-            .from('pricing')
-            .update({ is_active: false })
-            .eq('car_brand', brand)
-            .eq('car_model', model)
-            .eq('is_active', true);
-
-          if (deactivateError) {
-            priceErrors.push(`${model} 비활성화 실패: ${deactivateError.message}`);
-            continue;
-          }
-
-          // 신규 삽입
-          const { error: insertError } = await supabase.from('pricing').insert(toInsert);
-          if (insertError) {
-            priceErrors.push(`${model} 가격 저장 실패: ${insertError.message}`);
-            continue;
-          }
+          modelsToDeactivate.push({ brand, model });
+          allToInsert.push(...toInsert);
           priceUpdated++;
+        }
+      }
+
+      if (modelsToDeactivate.length > 0) {
+        // 1회 일괄 비활성화
+        const orFilter = modelsToDeactivate
+          .map(({ brand, model }) => `and(car_brand.eq.${brand},car_model.eq.${model})`)
+          .join(',');
+        const { error: deactivateError } = await supabase
+          .from('pricing')
+          .update({ is_active: false })
+          .or(orFilter)
+          .eq('is_active', true);
+
+        if (deactivateError) {
+          priceErrors.push(`비활성화 실패: ${deactivateError.message}`);
+        } else {
+          // 1회 일괄 삽입
+          const { error: insertError } = await supabase.from('pricing').insert(allToInsert);
+          if (insertError) {
+            priceErrors.push(`가격 저장 실패: ${insertError.message}`);
+            priceUpdated = 0;
+          }
         }
       }
 

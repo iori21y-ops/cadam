@@ -135,7 +135,26 @@ export async function POST(request: NextRequest) {
     const referrer = request.cookies.get('referrer')?.value ?? null;
     const inflowPageCookie = request.cookies.get('inflow_page')?.value ?? null;
 
-    // 7단계 - Supabase INSERT
+    // 6.5단계 - 가격 매칭 (INSERT 전 조회하여 별도 UPDATE 라운드트립 제거)
+    let estimatedMin: number | null = null;
+    let estimatedMax: number | null = null;
+    if (input.carBrand && input.carModel && input.contractMonths && input.annualKm) {
+      const { data: priceRange } = await supabase
+        .from('pricing')
+        .select('min_monthly, max_monthly')
+        .eq('car_brand', input.carBrand)
+        .eq('car_model', input.carModel)
+        .eq('contract_months', input.contractMonths)
+        .eq('annual_km', input.annualKm)
+        .eq('is_active', true)
+        .maybeSingle();
+      if (priceRange) {
+        estimatedMin = priceRange.min_monthly;
+        estimatedMax = priceRange.max_monthly;
+      }
+    }
+
+    // 7단계 - Supabase INSERT (estimated_min/max 포함)
     const { data: consultation, error: insertError } = await supabase
       .from('consultations')
       .insert({
@@ -151,8 +170,8 @@ export async function POST(request: NextRequest) {
         deposit: input.deposit,
         prepayment_pct: input.prepaymentPct,
         monthly_budget: input.monthlyBudget,
-        estimated_min: null,
-        estimated_max: null,
+        estimated_min: estimatedMin,
+        estimated_max: estimatedMax,
         status: 'pending',
         step_completed: input.stepCompleted ?? 6,
         privacy_agreed: input.privacyAgreed,
@@ -173,40 +192,6 @@ export async function POST(request: NextRequest) {
         { error: 'Failed to save consultation' },
         { status: 500 }
       );
-    }
-
-    let estimatedMin: number | null = null;
-    let estimatedMax: number | null = null;
-
-    // 가격 매칭 (차종 정보가 있을 때)
-    if (
-      input.carBrand &&
-      input.carModel &&
-      input.contractMonths &&
-      input.annualKm
-    ) {
-      const { data: priceRange } = await supabase
-        .from('pricing')
-        .select('min_monthly, max_monthly')
-        .eq('car_brand', input.carBrand)
-        .eq('car_model', input.carModel)
-        .eq('contract_months', input.contractMonths)
-        .eq('annual_km', input.annualKm)
-        .eq('is_active', true)
-        .maybeSingle();
-
-      if (priceRange) {
-        estimatedMin = priceRange.min_monthly;
-        estimatedMax = priceRange.max_monthly;
-        await supabase
-          .from('consultations')
-          .update({
-            estimated_min: estimatedMin,
-            estimated_max: estimatedMax,
-            updated_at: new Date().toISOString(),
-          })
-          .eq('id', consultation.id);
-      }
     }
 
     // 9단계 - 이메일 발송 (실패해도 상담 신청은 성공)

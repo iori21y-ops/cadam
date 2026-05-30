@@ -20,7 +20,47 @@ import type { AcquisitionVehicleType } from '@/lib/domain/acquisition-tax-calcul
 import type { YearPrices } from '@/lib/domain/depreciation-calculator';
 import { LEGAL_REFS } from '@/data/legal-references';
 import type { LegalRefKey } from '@/data/legal-references';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, LabelList } from 'recharts';
+import dynamic from 'next/dynamic';
+
+type BarDataItem = { name: string; total: number; color: string; isBest: boolean; excluded: boolean };
+
+const CompareCostChart = dynamic(
+  () => import('recharts').then((m) => {
+    const { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, LabelList } = m;
+    function Chart({ data, ownershipYears }: { data: BarDataItem[]; ownershipYears: number }) {
+      return (
+        <ResponsiveContainer width="100%" height={180}>
+          <BarChart data={data} margin={{ top: 22, right: 8, left: 8, bottom: 0 }}>
+            <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#6B7280' }} axisLine={false} tickLine={false} />
+            <YAxis hide />
+            <Tooltip
+              formatter={(v: unknown) => [`${typeof v === 'number' ? v.toLocaleString() : v}만원`, `${ownershipYears}년 총비용`]}
+              contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #E5E7EB' }}
+              cursor={{ fill: '#F9FAFB' }}
+            />
+            <Bar dataKey="total" radius={[6, 6, 0, 0]} maxBarSize={52}>
+              {data.map((entry, i) => (
+                <Cell
+                  key={i}
+                  fill={entry.color}
+                  fillOpacity={entry.excluded ? 0.2 : (entry.isBest || entry.color === '#9CA3AF' ? 1 : 0.45)}
+                />
+              ))}
+              <LabelList
+                dataKey="total"
+                position="top"
+                formatter={(v: unknown) => typeof v === 'number' ? `${v.toLocaleString()}만` : String(v)}
+                style={{ fontSize: 10, fill: '#6B7280' }}
+              />
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      );
+    }
+    return { default: Chart };
+  }),
+  { ssr: false, loading: () => <div className="h-[180px] bg-gray-50 rounded-lg animate-pulse" /> },
+);
 
 // ── 타입 ──────────────────────────────────────────────────────────────
 
@@ -2139,32 +2179,7 @@ function CompareInner() {
                     <div className="bg-white rounded-2xl shadow-sm border border-[#E5E7EB] p-4">
                       <p className="text-[#1C1C1E] text-sm font-semibold mb-0.5">{_oy}년 총비용 비교</p>
                       <p className="text-[#8E8E93] text-[11px] mb-3">단위: 만원 · 중간값 기준</p>
-                      <ResponsiveContainer width="100%" height={180}>
-                        <BarChart data={_barData} margin={{ top: 22, right: 8, left: 8, bottom: 0 }}>
-                          <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#6B7280' }} axisLine={false} tickLine={false} />
-                          <YAxis hide />
-                          <Tooltip
-                            formatter={(v: unknown) => [`${typeof v === 'number' ? v.toLocaleString() : v}만원`, `${_oy}년 총비용`]}
-                            contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #E5E7EB' }}
-                            cursor={{ fill: '#F9FAFB' }}
-                          />
-                          <Bar dataKey="total" radius={[6, 6, 0, 0]} maxBarSize={52}>
-                            {_barData.map((entry, i) => (
-                              <Cell
-                                key={i}
-                                fill={entry.color}
-                                fillOpacity={entry.excluded ? 0.2 : (entry.isBest || entry.color === '#9CA3AF' ? 1 : 0.45)}
-                              />
-                            ))}
-                            <LabelList
-                              dataKey="total"
-                              position="top"
-                              formatter={(v: unknown) => typeof v === 'number' ? `${v.toLocaleString()}만` : String(v)}
-                              style={{ fontSize: 10, fill: '#6B7280' }}
-                            />
-                          </Bar>
-                        </BarChart>
-                      </ResponsiveContainer>
+                      <CompareCostChart data={_barData} ownershipYears={_oy} />
                     </div>
 
                     {/* 상단 요약 탭 3개 */}
