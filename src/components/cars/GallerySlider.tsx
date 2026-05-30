@@ -68,24 +68,6 @@ export function GallerySlider({ path, count }: Props) {
         </button>
       )}
 
-      {/* 이미지 카운터 */}
-      <div className="absolute bottom-2 right-3 text-[11px] text-gray-400 font-medium tabular-nums">
-        {idx + 1} / {count}
-      </div>
-
-      {/* 점 인디케이터 (9개 이하일 때만) */}
-      {count <= 9 && (
-        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
-          {images.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setIdx(i)}
-              className={`w-1.5 h-1.5 rounded-full transition-colors ${i === idx ? 'bg-gray-600' : 'bg-gray-300'}`}
-              aria-label={`${i + 1}번 이미지`}
-            />
-          ))}
-        </div>
-      )}
     </div>
   );
 }
