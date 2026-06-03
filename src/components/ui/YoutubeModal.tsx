@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import Link from 'next/link';
 import { X } from 'lucide-react';
+import { carImageUrl } from '@/lib/car-image-url';
 
 export function extractYouTubeId(url: string): string | null {
   const patterns = [
@@ -85,7 +86,7 @@ export function YoutubeModal({ title, iframeSrc, onClose, vehicle }: YoutubeModa
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={`/cars/${vehicle.imageKey}.webp`}
+                src={carImageUrl(vehicle.imageKey)}
                 alt={vehicle.model}
                 className="w-24 h-16 object-contain shrink-0"
               />

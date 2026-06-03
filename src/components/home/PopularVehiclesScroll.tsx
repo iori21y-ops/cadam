@@ -3,6 +3,7 @@
 import { useRef, useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { carImageUrl } from '@/lib/car-image-url';
 import type { Category } from '@/constants/vehicles';
 
 interface VehicleCard {
@@ -104,7 +105,7 @@ export function PopularVehiclesScroll({ vehicles }: { vehicles: VehicleCard[] })
           >
             <div className="aspect-[4/3] bg-white relative">
               <Image
-                src={`/cars/${v.imageKey}.webp`}
+                src={carImageUrl(v.imageKey)}
                 alt={v.model}
                 fill
                 className="object-contain p-3"

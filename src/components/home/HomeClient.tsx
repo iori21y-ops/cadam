@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { carImageUrl } from '@/lib/car-image-url';
 import { Footer } from '@/components/Footer';
 import type { Vehicle } from '@/constants/vehicles';
 
@@ -177,7 +178,7 @@ export function HomeClient({ vehicles }: Props) {
               >
                 <div className="relative aspect-[16/10] bg-white overflow-hidden rounded-t-xl">
                   <Image
-                    src={`/cars/${vehicle.imageKey}.webp`}
+                    src={carImageUrl(vehicle.imageKey)}
                     alt={`${vehicle.brand} ${vehicle.model}`}
                     fill
                     className="object-contain"
@@ -316,7 +317,7 @@ export function HomeClient({ vehicles }: Props) {
                     <div className="flex items-center gap-3 mb-3">
                       <div className="relative w-20 h-12 shrink-0 bg-surface-secondary rounded-lg">
                         <Image
-                          src={`/cars/${selectedVehicle.imageKey}.webp`}
+                          src={carImageUrl(selectedVehicle.imageKey)}
                           alt={selectedVehicle.model}
                           fill
                           className="object-contain p-1"
