@@ -103,7 +103,7 @@ export const VEHICLE_LIST: Vehicle[] = [
   { id: 'rk09', brand: '르노코리아', model: '필랑트', slug: 'filante', category: '세단', segment: '대형 세단', fuel: '하이브리드', imageKey: 'renault-filante-v2', has360Spin: false, frameCount: 72, spinStartFrame: 8, trims: ['테크노', '아이코닉', 'SE', '에스프리 알핀'], seoTitle: '필랑트 장기렌트 | 월 납부금 비교', seoDescription: '르노코리아 필랑트 E-Tech 하이브리드 장기렌터카. 프리미엄 대형 세단 장기렌트 견적.' },
 
   // ═══════════════════════════════════
-  // KGM (12종)
+  // KGM (11종)
   // ═══════════════════════════════════
   { id: 'kg01', brand: 'KGM', model: '더 뉴 티볼리 1.6 가솔린', slug: 'tivoli', category: 'SUV', segment: '소형 SUV', fuel: '가솔린', imageKey: 'kgm-tivoli-v2', has360Spin: false, frameCount: 36, spinStartFrame: 4, trims: ['스마트', '퍼펙트'], seoTitle: '티볼리 장기렌트 | 월 납부금 비교', seoDescription: 'KGM 티볼리 장기렌터카. 소형 SUV 장기렌트 최저가 견적을 확인하세요.' },
   { id: 'kg02', brand: 'KGM', model: '더 뉴 티볼리 1.5 가솔린 터보', slug: 'tivoli-turbo', category: 'SUV', segment: '소형 SUV', fuel: '가솔린', imageKey: 'kgm-tivoli-turbo-v2', trims: ['스마트', '퍼펙트'], seoTitle: '티볼리 터보 장기렌트 | 월 납부금 비교', seoDescription: 'KGM 티볼리 1.5 터보 장기렌터카. 소형 SUV 터보 엔진 장기렌트 견적을 확인하세요.' },
@@ -115,7 +115,7 @@ export const VEHICLE_LIST: Vehicle[] = [
   { id: 'kg09', brand: 'KGM', model: '렉스턴 뉴 아레나', slug: 'rexton', category: 'SUV', segment: '대형 SUV', fuel: '디젤', imageKey: 'kgm-rexton-v2', trims: ['스마트', '퍼펙트'], seoTitle: '렉스턴 장기렌트 | 월 납부금 비교', seoDescription: 'KGM 렉스턴 장기렌터카. 대형 SUV 장기렌트 최저가 견적을 확인하세요.' },
   { id: 'kg10', brand: 'KGM', model: '렉스턴 써밋 4인승', slug: 'rexton-summit', category: 'SUV', segment: '대형 SUV', fuel: '디젤', imageKey: 'kgm-rexton-summit-v2', trims: ['써밋'], seoTitle: '렉스턴 써밋 장기렌트 | 월 납부금 비교', seoDescription: 'KGM 렉스턴 써밋 장기렌터카. 프리미엄 대형 SUV 장기렌트 견적을 확인하세요.' },
   { id: 'kg11', brand: 'KGM', model: '무쏘', slug: 'musso', category: '트럭', segment: '픽업트럭', fuel: '디젤', imageKey: 'kgm-musso-v2', trims: ['스마트', '퍼펙트', '프리미엄'], seoTitle: '무쏘 장기렌트 | 월 납부금 비교', seoDescription: 'KGM 무쏘 픽업트럭 장기렌터카. 픽업트럭 장기렌트 최저가 견적을 확인하세요.' },
-  { id: 'kg12', brand: 'KGM', model: '무쏘 EV', slug: 'musso-ev', category: 'EV', segment: '픽업트럭 (EV)', fuel: '전기', imageKey: 'kgm-musso-ev-v2', trims: ['스마트', '퍼펙트'], seoTitle: '무쏘 EV 장기렌트 | 월 납부금 비교', seoDescription: 'KGM 무쏘 전기 픽업트럭 장기렌터카. 전기 픽업트럭 장기렌트 견적을 확인하세요.' },
+  { id: 'kg13', brand: 'KGM', model: '무쏘 EV', slug: 'musso-ev', category: 'EV', segment: '픽업트럭 (EV)', fuel: '전기', imageKey: 'kgm-musso-ev-v2', trims: ['스마트', '퍼펙트'], seoTitle: '무쏘 EV 장기렌트 | 월 납부금 비교', seoDescription: 'KGM 무쏘 전기 픽업트럭 장기렌터카. 전기 픽업트럭 장기렌트 견적을 확인하세요.' },
   // 테슬라
   { id: 't01', brand: '테슬라', model: 'Model 3', slug: 'tesla-model-3', category: 'EV', segment: '중형 세단 (EV)', fuel: '전기', imageKey: 'tesla-model-3-v2', trims: ['Standard RWD', 'Premium Long Range RWD', 'Performance AWD'], seoTitle: 'Model 3 장기렌트 | 월 납부금 비교', seoDescription: '테슬라 Model 3 장기렌터카. 전기 세단 장기렌트 최저가 견적을 확인하세요.' },
   { id: 't02', brand: '테슬라', model: 'Model Y', slug: 'tesla-model-y', category: 'EV', segment: '중형 SUV (EV)', fuel: '전기', imageKey: 'tesla-model-y-v2', trims: ['RWD', 'Long Range AWD', 'Performance'], seoTitle: 'Model Y 장기렌트 | 월 납부금 비교', seoDescription: '테슬라 Model Y 장기렌터카. 전기 SUV 장기렌트 최저가 견적을 확인하세요.' },
