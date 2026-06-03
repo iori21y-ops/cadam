@@ -444,7 +444,7 @@ export default function VehiclePage() {
             price: v.base_price ?? 0,
             tags: v.diagnosis_tags ?? [],
             img: emojiToIconName(v.img_emoji ?? '🚗', v.diagnosis_class ?? ''),
-            imageKey: v.image_key ?? undefined,
+            imageKey: v.image_key ? (v.image_key.endsWith('-v2') ? v.image_key : `${v.image_key}-v2`) : undefined,
             parentName: v.parent_name ?? undefined,
             highlights: v.highlights ?? undefined,
             pros: v.pros ?? undefined,
