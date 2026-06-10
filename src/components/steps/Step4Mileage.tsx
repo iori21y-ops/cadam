@@ -23,10 +23,19 @@ const OPTIONS: MileageOption[] = [
 
 const TRANSITION_DELAY_MS = 300;
 
-export function Step4Mileage() {
+interface Step4MileageProps {
+  /** 제공되면 다음 단계 전환을 이 콜백에 위임(/estimate 독립 마법사용). 없으면 기존 store.setCurrentStep(3) 동작. */
+  onAdvance?: () => void;
+  /** true면 1만/2만/3만 km 3개만 노출(4만km+ 제외). /estimate 단순화용. */
+  simple?: boolean;
+}
+
+export function Step4Mileage({ onAdvance, simple = false }: Step4MileageProps = {}) {
   const [selectedValue, setSelectedValue] = useState<AnnualKm | null>(null);
   const setAnnualKm = useQuoteStore((s) => s.setAnnualKm);
   const setCurrentStep = useQuoteStore((s) => s.setCurrentStep);
+
+  const options = simple ? OPTIONS.filter((o) => o.value !== 40000) : OPTIONS;
 
   const handleSelect = useCallback(
     (value: AnnualKm) => {
@@ -36,10 +45,11 @@ export function Step4Mileage() {
       setAnnualKm(value);
       gtag.stepComplete(2, opt?.label ?? String(value));
       setTimeout(() => {
-        setCurrentStep(3);
+        if (onAdvance) onAdvance();
+        else setCurrentStep(3);
       }, TRANSITION_DELAY_MS);
     },
-    [selectedValue, setAnnualKm, setCurrentStep]
+    [selectedValue, setAnnualKm, setCurrentStep, onAdvance]
   );
 
   return (
@@ -53,7 +63,7 @@ export function Step4Mileage() {
         </p>
       </div>
       <div className="flex flex-col gap-2.5 px-5 py-3">
-        {OPTIONS.map((opt) => (
+        {options.map((opt) => (
           <SelectCard
             key={opt.value}
             selected={selectedValue === opt.value}

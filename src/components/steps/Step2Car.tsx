@@ -11,6 +11,7 @@ import {
 import { useQuoteStore } from '@/store/quoteStore';
 import { gtag } from '@/lib/gtag';
 import { SelectCard } from '@/components/ui/SelectCard';
+import { normalizeModelName } from '@/lib/normalizeModel';
 
 type CategoryFilter = '전체' | '세단' | 'SUV' | 'EV';
 
@@ -24,7 +25,12 @@ function filterByCategory(vehicles: Vehicle[], category: CategoryFilter): Vehicl
   return vehicles.filter((v) => v.category === category);
 }
 
-export function Step2Car() {
+interface Step2CarProps {
+  /** 제공되면 다음 단계 전환을 이 콜백에 위임(/estimate 독립 마법사용). 없으면 기존 store.setCurrentStep(3) 동작. */
+  onAdvance?: () => void;
+}
+
+export function Step2Car({ onAdvance }: Step2CarProps = {}) {
   const [activeBrand, setActiveBrand] = useState<Brand>('현대');
   const [activeCategory, setActiveCategory] = useState<CategoryFilter>('전체');
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
@@ -71,14 +77,17 @@ export function Step2Car() {
     (vehicle: Vehicle, trim: string) => {
       setSelectedTrim(trim);
       setCarBrand(vehicle.brand);
-      setCarModel(vehicle.model);
+      // pricing 테이블 키와 매칭되도록 정규화된 모델명을 저장(괄호 코드 제거).
+      // 카드 UI는 그대로 vehicle.model(표시명)을 보여주므로 화면 표기는 변하지 않는다.
+      setCarModel(normalizeModelName(vehicle.model));
       setTrim(trim);
       gtag.stepComplete(2, `${vehicle.model} ${trim}`);
       setTimeout(() => {
-        setCurrentStep(3);
+        if (onAdvance) onAdvance();
+        else setCurrentStep(3);
       }, TRANSITION_DELAY_MS);
     },
-    [setCarBrand, setCarModel, setTrim, setCurrentStep]
+    [setCarBrand, setCarModel, setTrim, setCurrentStep, onAdvance]
   );
 
   const closeTrimSheet = useCallback(() => {

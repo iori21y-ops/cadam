@@ -22,7 +22,12 @@ const OPTIONS: PeriodOption[] = [
 
 const TRANSITION_DELAY_MS = 300;
 
-export function Step3Period() {
+interface Step3PeriodProps {
+  /** 제공되면 다음 단계 전환을 이 콜백에 위임(/estimate 독립 마법사용). 없으면 기존 store.setCurrentStep(2) 동작. */
+  onAdvance?: () => void;
+}
+
+export function Step3Period({ onAdvance }: Step3PeriodProps = {}) {
   const [selectedValue, setSelectedValue] = useState<ContractMonths | null>(null);
   const setContractMonths = useQuoteStore((s) => s.setContractMonths);
   const setCurrentStep = useQuoteStore((s) => s.setCurrentStep);
@@ -35,10 +40,11 @@ export function Step3Period() {
       setContractMonths(value);
       gtag.stepComplete(1, opt?.label ?? String(value));
       setTimeout(() => {
-        setCurrentStep(2);
+        if (onAdvance) onAdvance();
+        else setCurrentStep(2);
       }, TRANSITION_DELAY_MS);
     },
-    [selectedValue, setContractMonths, setCurrentStep]
+    [selectedValue, setContractMonths, setCurrentStep, onAdvance]
   );
 
   return (
