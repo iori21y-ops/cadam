@@ -60,7 +60,7 @@ export function EstimateResult({ onAdvance }: EstimateResultProps) {
   const conditionLine = [
     contractMonths ? PERIOD_LABEL[contractMonths] : null,
     annualKm ? KM_LABEL[annualKm] : null,
-    prepaymentPct ? `보증금 ${prepaymentPct}%` : '보증금 없음',
+    prepaymentPct ? `선납금 ${prepaymentPct}%` : '선납금 없음',
   ]
     .filter(Boolean)
     .join(' · ');

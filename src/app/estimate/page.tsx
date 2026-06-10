@@ -8,7 +8,7 @@ import { ProgressBar } from '@/components/steps/ProgressBar';
 import { Step2Car } from '@/components/steps/Step2Car';
 import { Step3Period } from '@/components/steps/Step3Period';
 import { Step4Mileage } from '@/components/steps/Step4Mileage';
-import { EstimateDeposit } from '@/components/estimate/EstimateDeposit';
+import { EstimatePrepayment } from '@/components/estimate/EstimatePrepayment';
 import { EstimateResult } from '@/components/estimate/EstimateResult';
 import { EstimateContact } from '@/components/estimate/EstimateContact';
 import { Button } from '@/components/ui/Button';
@@ -19,10 +19,10 @@ const TOTAL_STEPS = 6;
 /**
  * /estimate — 토스 스타일 단계형 견적 마법사 (독립 플로우).
  *
- * 한 화면 한 질문: 차종 → 기간 → 주행거리 → 보증금 → 결과(월 예상 납입금) → 상담 신청.
+ * 한 화면 한 질문: 차종 → 기간 → 주행거리 → 선납금 → 결과(월 예상 납입금) → 상담 신청.
  * 기존 /quote(진단 퍼널 연동)와 분리된 라우트이며, 단계 전환은 store.currentStep이 아니라
  * 이 페이지의 로컬 step 상태로 제어한다(재사용 컴포넌트엔 onAdvance 콜백 주입).
- * 선택값(차종·기간·주행·보증금)은 quoteStore에 저장되어 결과 조회·상담 저장에 그대로 쓰인다.
+ * 선택값(차종·기간·주행·선납금)은 quoteStore에 저장되어 결과 조회·상담 저장에 그대로 쓰인다.
  */
 export default function EstimatePage() {
   const hydrated = useHydrated();
@@ -100,7 +100,7 @@ export default function EstimatePage() {
           {step === 1 && <Step2Car onAdvance={goNext} />}
           {step === 2 && <Step3Period onAdvance={goNext} />}
           {step === 3 && <Step4Mileage onAdvance={goNext} simple />}
-          {step === 4 && <EstimateDeposit onAdvance={goNext} />}
+          {step === 4 && <EstimatePrepayment onAdvance={goNext} />}
           {step === 5 && <EstimateResult onAdvance={goNext} />}
           {step === 6 && <EstimateContact onSubmitted={() => setDone(true)} />}
         </div>

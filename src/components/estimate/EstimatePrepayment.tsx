@@ -6,20 +6,21 @@ import { gtag } from '@/lib/gtag';
 import { SelectCard } from '@/components/ui/SelectCard';
 import { IconShield } from '@/components/icons/RentailorIcons';
 
-interface EstimateDepositProps {
+interface EstimatePrepaymentProps {
   onAdvance: () => void;
 }
 
 const TRANSITION_DELAY_MS = 300;
 
-// 없음(0%) / 30% 두 가지만. 보증금은 견적 숫자에 영향을 주지 않고(가격표가 보증금별로
-// 나뉘어 있지 않음) 상담 리드에 기록되는 메타데이터다. prepaymentPct 필드(비율)에 저장한다.
+// 없음(0%) / 30% 두 가지. 선납금은 견적 숫자에 영향을 주지 않고(가격표가 선납률별로 나뉘어
+// 있지 않음) 상담 리드에 기록되는 메타데이터다. prepaymentPct 필드(비율)에 저장 → 운영자
+// 알림에도 '선납금 30%'로 일관되게 표기된다.
 const OPTIONS = [
-  { pct: 0 as const, label: '보증금 없음', sub: '초기 비용 부담이 가장 적어요' },
-  { pct: 30 as const, label: '보증금 30%', sub: '월 납부금을 낮추고 싶을 때' },
+  { pct: 0 as const, label: '선납금 없음', sub: '초기 비용 부담이 가장 적어요' },
+  { pct: 30 as const, label: '선납금 30%', sub: '월 납부금을 낮추고 싶을 때' },
 ];
 
-export function EstimateDeposit({ onAdvance }: EstimateDepositProps) {
+export function EstimatePrepayment({ onAdvance }: EstimatePrepaymentProps) {
   const [selected, setSelected] = useState<number | null>(null);
   const [showHelp, setShowHelp] = useState(false);
   const setPrepaymentPct = useQuoteStore((s) => s.setPrepaymentPct);
@@ -31,7 +32,7 @@ export function EstimateDeposit({ onAdvance }: EstimateDepositProps) {
       setSelected(pct);
       setPrepaymentPct(pct);
       setDeposit(0);
-      gtag.stepComplete(4, `보증금 ${pct}%`);
+      gtag.stepComplete(4, `선납금 ${pct}%`);
       setTimeout(onAdvance, TRANSITION_DELAY_MS);
     },
     [selected, setPrepaymentPct, setDeposit, onAdvance]
@@ -41,7 +42,7 @@ export function EstimateDeposit({ onAdvance }: EstimateDepositProps) {
     <>
       <div className="pt-7 px-5 pb-2 text-center">
         <h2 className="text-[22px] font-bold text-text leading-snug">
-          보증금을 선택해 주세요
+          선납금을 선택해 주세요
         </h2>
         <p className="text-sm text-text-sub mt-2">
           나중에 상담에서 조정할 수 있어요
@@ -70,23 +71,23 @@ export function EstimateDeposit({ onAdvance }: EstimateDepositProps) {
         ))}
       </div>
 
-      {/* "보증금이 뭐예요?" 쉬운 설명 토글 */}
+      {/* "선납금이 뭐예요?" 쉬운 설명 토글 — 보증금과의 차이까지 짚어줌 */}
       <div className="px-5 pb-4">
         <button
           type="button"
           onClick={() => setShowHelp((v) => !v)}
           className="w-full text-left text-sm font-semibold text-primary py-2"
         >
-          보증금이 뭐예요? {showHelp ? '▲' : '▼'}
+          선납금이 뭐예요? {showHelp ? '▲' : '▼'}
         </button>
         {showHelp && (
           <div className="mt-1 p-4 rounded-2xl bg-primary/5 border border-primary/15 text-sm text-text-sub leading-relaxed">
             <p className="mb-2">
-              <b className="text-text">보증금</b>은 계약을 시작할 때 미리 맡겨두는 돈이에요.
-              계약이 끝나면 <b className="text-text">돌려받습니다.</b>
+              <b className="text-text">선납금</b>은 계약할 때 일부를 미리 내는 돈이에요.
+              미리 내면 <b className="text-text">매달 내는 돈(월 납부금)이 줄어듭니다.</b>
             </p>
             <p>
-              보증금을 더 내면 <b className="text-text">매달 내는 금액(월 납부금)이 낮아져요.</b>
+              나중에 <b className="text-text">돌려받는 보증금과는 달라요.</b>
               부담이 없다면 <b className="text-text">‘없음’</b>을 골라도 됩니다.
             </p>
           </div>

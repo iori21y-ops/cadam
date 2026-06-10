@@ -10,6 +10,7 @@ import {
   type ConsultationEmailData,
 } from '@/lib/notification';
 import { createServiceRoleSupabaseClient } from '@/lib/supabase-server';
+import { getRentEstimateManwon } from '@/lib/estimatePricing';
 
 const consultationSchema = z.object({
   name: z.string().min(1).max(50),
@@ -135,22 +136,21 @@ export async function POST(request: NextRequest) {
     const referrer = request.cookies.get('referrer')?.value ?? null;
     const inflowPageCookie = request.cookies.get('inflow_page')?.value ?? null;
 
-    // 6.5단계 - 가격 매칭 (INSERT 전 조회하여 별도 UPDATE 라운드트립 제거)
+    // 6.5단계 - 가격 매칭 (결과 화면 /api/estimate-preview 와 동일한 엄격 필터 공유 → @/lib/estimatePricing)
+    // 헬퍼는 만원 단위를 반환 → consultations/이메일/텔레그램/result 가 기대하는 '원' 단위로 환산(×10000).
+    // (구버전은 .maybeSingle() 로 13개 중복 행에 걸려 항상 null 저장되던 버그가 있었다)
     let estimatedMin: number | null = null;
     let estimatedMax: number | null = null;
-    if (input.carBrand && input.carModel && input.contractMonths && input.annualKm) {
-      const { data: priceRange } = await supabase
-        .from('pricing')
-        .select('min_monthly, max_monthly')
-        .eq('car_brand', input.carBrand)
-        .eq('car_model', input.carModel)
-        .eq('contract_months', input.contractMonths)
-        .eq('annual_km', input.annualKm)
-        .eq('is_active', true)
-        .maybeSingle();
-      if (priceRange) {
-        estimatedMin = priceRange.min_monthly;
-        estimatedMax = priceRange.max_monthly;
+    {
+      const est = await getRentEstimateManwon(supabase, {
+        brand: input.carBrand,
+        model: input.carModel,
+        contractMonths: input.contractMonths,
+        annualKm: input.annualKm,
+      });
+      if (est) {
+        estimatedMin = est.min * 10000;
+        estimatedMax = est.max * 10000;
       }
     }
 
