@@ -11,6 +11,7 @@ import {
 import { useQuoteStore } from '@/store/quoteStore';
 import { gtag } from '@/lib/gtag';
 import { SelectCard } from '@/components/ui/SelectCard';
+import { CarImageFallback } from '@/components/cars/CarImageFallback';
 import { normalizeModelName } from '@/lib/normalizeModel';
 
 type CategoryFilter = '전체' | '세단' | 'SUV' | 'EV';
@@ -184,16 +185,25 @@ export function Step2Car({ onAdvance }: Step2CarProps = {}) {
                   disabled={disabled}
                   onClick={() => handleVehicleSelect(vehicle)}
                 >
-                  <div className="flex-1 text-center">
+                  {/* 대표 이미지 (public/cars/{imageKey}.webp, 없으면 자동 폴백) */}
+                  <div className="relative w-12 h-12 shrink-0">
+                    <CarImageFallback
+                      src={`/cars/${vehicle.imageKey}.webp`}
+                      alt={vehicle.model}
+                      sizes="48px"
+                      className="object-contain"
+                    />
+                  </div>
+                  <div className="flex-1 min-w-0 text-left">
                     <div
-                      className={`text-[13px] font-medium ${
+                      className={`text-[13px] font-medium truncate ${
                         isVehicleSelected ? 'text-white' : 'text-text'
                       }`}
                     >
-                      {vehicle.model}
+                      {normalizeModelName(vehicle.model)}
                     </div>
                     <div
-                      className={`text-[10px] mt-0.5 ${
+                      className={`text-[10px] mt-0.5 truncate ${
                         isVehicleSelected ? 'text-white/60' : 'text-text-muted'
                       }`}
                     >
@@ -272,7 +282,7 @@ export function Step2Car({ onAdvance }: Step2CarProps = {}) {
               <div className="p-5 pb-8">
                 <div className="w-12 h-1 bg-[#D1D1D6] rounded-full mx-auto mb-4" />
                 <h3 className="text-base font-bold text-text mb-1">
-                  {selectedVehicle.model}
+                  {normalizeModelName(selectedVehicle.model)}
                 </h3>
                 <p className="text-sm text-text-sub mb-4">
                   트림을 선택해 주세요

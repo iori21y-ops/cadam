@@ -22,6 +22,8 @@ export default function MobileTabBar() {
   const pathname = usePathname();
 
   if (pathname.startsWith('/admin')) return null;
+  // /estimate 견적 마법사는 집중 퍼널 — 하단 탭바 숨김(CTA 가림 방지)
+  if (pathname.startsWith('/estimate')) return null;
 
   return (
     <>
