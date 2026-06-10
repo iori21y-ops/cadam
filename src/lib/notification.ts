@@ -1,6 +1,12 @@
 import { Resend } from 'resend';
+import { Agent } from 'undici';
 import { BRAND } from '@/constants/brand';
 import { type LeadDimensions, DIMENSION_LABELS, DIMENSION_MAX } from '@/lib/leadScore';
+
+// api.telegram.org 는 IPv4+IPv6 듀얼스택인데 일부 환경(로컬 dev 등)은 IPv6 경로가 없어,
+// Node(undici) fetch 가 happy-eyeballs 처리 중 IPv4 연결까지 ETIMEDOUT 으로 실패한다(curl 은 정상).
+// telegram 호출만 IPv4 로 강제해 알림 발송을 견고하게 만든다.
+const telegramIpv4Dispatcher = new Agent({ connect: { family: 4 } });
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const adminEmail = process.env.ADMIN_EMAIL ?? 'iori21y@gmail.com';
@@ -778,7 +784,9 @@ export async function sendTelegramNotification(
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: lines.join('\n') }),
-      }
+        // IPv4 강제(undici dispatcher) — 듀얼스택 IPv6 미연결 환경의 fetch 타임아웃 방지
+        dispatcher: telegramIpv4Dispatcher,
+      } as RequestInit & { dispatcher: Agent }
     );
     if (!res.ok) {
       const err = await res.text();
