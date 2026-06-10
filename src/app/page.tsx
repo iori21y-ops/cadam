@@ -88,6 +88,15 @@ export default async function HomePage() {
           <p className="text-sm text-white/60 mt-3">
             차량을 선택하고 무료 견적을 신청하세요
           </p>
+          <a
+            href="/estimate"
+            className="mt-5 inline-flex items-center justify-center w-full sm:w-auto px-6 py-3.5 bg-white text-primary rounded-xl font-bold text-base shadow-sm transition-transform active:scale-[0.98]"
+          >
+            30초 만에 월 렌트료 확인하기
+          </a>
+          <p className="text-xs text-white/50 mt-2">
+            가입·전화번호 없이 바로 확인
+          </p>
         </div>
       </div>
       <HomeClient vehicles={vehicles} />
