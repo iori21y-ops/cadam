@@ -6,7 +6,7 @@
  * 모두 만족하는 "깨끗한 행"만 신뢰한다(사장님 결정 2026-06-10):
  *   - source = 'auto'        (자동생성 최신 파이프라인)
  *   - product_type = 'rent'  (장기렌트 기준)
- *   - 만원 단위            (min_monthly < MANWON_MAX → 원 단위 레거시 행 배제)
+ *   - 단위 자동 판정       (min_monthly < 3000 → 만원 / 이상 → 원으로 보고 ÷10000)
  *   - 최신 price_date
  * 조건을 만족하는 행이 없으면 null(→ 결과화면 '상담 안내', 리드 estimate는 null).
  *
@@ -17,8 +17,14 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { normalizeModelName } from '@/lib/normalizeModel';
 
-// 만원 단위 판정 상한: min_monthly 가 이 값 이상이면 원 단위 레거시 행으로 보고 배제
-const MANWON_MAX = 3000;
+// 단위 자동 판정 임계값: min_monthly 가 이 값 미만이면 '만원', 이상이면 '원'으로 보고 ÷10000.
+// (전환기: 구 만원 스냅샷·신 원 스냅샷이 공존해도 양쪽 모두 정상 처리)
+const MANWON_THRESHOLD = 3000;
+
+/** pricing 원본값을 만원 단위로 정규화 (원 단위면 ÷10000) */
+function toManwon(v: number): number {
+  return v < MANWON_THRESHOLD ? v : v / 10000;
+}
 
 function parseConditions(raw: unknown): Record<string, unknown> {
   if (raw && typeof raw === 'object') return raw as Record<string, unknown>;
@@ -76,9 +82,8 @@ export async function getRentEstimateManwon(
       c.product_type === 'rent' &&
       typeof r.min_monthly === 'number' &&
       r.min_monthly > 0 &&
-      r.min_monthly < MANWON_MAX &&
       typeof r.max_monthly === 'number' &&
-      r.max_monthly < MANWON_MAX
+      r.max_monthly > 0
     );
   });
 
@@ -86,5 +91,5 @@ export async function getRentEstimateManwon(
 
   clean.sort((a, b) => String(b.price_date).localeCompare(String(a.price_date)));
   const latest = clean[0];
-  return { min: latest.min_monthly as number, max: latest.max_monthly as number };
+  return { min: toManwon(latest.min_monthly as number), max: toManwon(latest.max_monthly as number) };
 }
