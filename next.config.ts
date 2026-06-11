@@ -18,6 +18,12 @@ const nextConfig: NextConfig = {
         destination: '/diagnosis/compare',
         permanent: true,
       },
+      {
+        // 구 약관비교 고아 스텁 → 검수 연동된 신규 비교표로 301 통합 (SEO 분산 방지)
+        source: '/info/terms-comparison',
+        destination: '/compare/terms',
+        statusCode: 301,
+      },
     ];
   },
   compress: true,
