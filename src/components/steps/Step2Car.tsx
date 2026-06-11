@@ -16,7 +16,7 @@ import { normalizeModelName } from '@/lib/normalizeModel';
 
 type CategoryFilter = '전체' | '세단' | 'SUV' | 'EV';
 
-const BRANDS: Brand[] = ['현대', '기아', '제네시스'];
+const BRANDS: Brand[] = ['현대', '기아', '제네시스', '르노코리아', 'KGM', '테슬라'];
 const CATEGORY_FILTERS: CategoryFilter[] = ['전체', '세단', 'SUV', 'EV'];
 
 const TRANSITION_DELAY_MS = 300;
@@ -78,9 +78,10 @@ export function Step2Car({ onAdvance }: Step2CarProps = {}) {
     (vehicle: Vehicle, trim: string) => {
       setSelectedTrim(trim);
       setCarBrand(vehicle.brand);
-      // pricing 테이블 키와 매칭되도록 정규화된 모델명을 저장(괄호 코드 제거).
+      // pricing 테이블 키와 매칭되도록 조회용 모델명을 저장.
+      // 표시명과 DB 저장명이 다른 차종은 pricingModel 우선, 없으면 정규화된 표시명(괄호 제거) 사용.
       // 카드 UI는 그대로 vehicle.model(표시명)을 보여주므로 화면 표기는 변하지 않는다.
-      setCarModel(normalizeModelName(vehicle.model));
+      setCarModel(vehicle.pricingModel ?? normalizeModelName(vehicle.model));
       setTrim(trim);
       gtag.stepComplete(2, `${vehicle.model} ${trim}`);
       setTimeout(() => {

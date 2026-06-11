@@ -5,6 +5,8 @@ export interface Vehicle {
   id: string;
   brand: Brand;
   model: string;
+  /** pricing 테이블 car_model 조회 키. 표시명(model)과 DB 저장명이 다를 때만 지정. 없으면 normalizeModelName(model) 사용. */
+  pricingModel?: string;
   slug: string;
   category: Category;
   segment: string;
@@ -96,23 +98,23 @@ export const VEHICLE_LIST: Vehicle[] = [
   // ═══════════════════════════════════
   // 르노코리아 (10종)
   // ═══════════════════════════════════
-  { id: 'rk04', brand: '르노코리아', model: '아르카나 하이브리드', slug: 'arkana', category: 'SUV', segment: '소형 SUV 쿠페', fuel: '하이브리드', imageKey: 'renault-arkana-v2', has360Spin: false, frameCount: 72, spinStartFrame: 8, trims: ['아이코닉'], seoTitle: '아르카나 하이브리드 장기렌트 | 월 납부금 비교', seoDescription: '르노코리아 아르카나 E-Tech 하이브리드 장기렌터카. 스타일리시한 쿠페형 SUV 장기렌트 견적.' },
-  { id: 'rk06', brand: '르노코리아', model: '아르카나 가솔린', slug: 'arkana-gasoline', category: 'SUV', segment: '소형 SUV 쿠페', fuel: '가솔린', imageKey: 'renault-arkana-gasoline-v2', trims: ['아이코닉'], seoTitle: '아르카나 가솔린 장기렌트 | 월 납부금 비교', seoDescription: '르노코리아 아르카나 1.6 GTe 가솔린 장기렌터카. 쿠페형 소형 SUV 장기렌트 최저가 견적.' },
+  { id: 'rk04', brand: '르노코리아', model: '아르카나 하이브리드', pricingModel: '아르카나', slug: 'arkana', category: 'SUV', segment: '소형 SUV 쿠페', fuel: '하이브리드', imageKey: 'renault-arkana-v2', has360Spin: false, frameCount: 72, spinStartFrame: 8, trims: ['아이코닉'], seoTitle: '아르카나 하이브리드 장기렌트 | 월 납부금 비교', seoDescription: '르노코리아 아르카나 E-Tech 하이브리드 장기렌터카. 스타일리시한 쿠페형 SUV 장기렌트 견적.' },
+  { id: 'rk06', brand: '르노코리아', model: '아르카나 가솔린', pricingModel: '아르카나 1.6 GTe', slug: 'arkana-gasoline', category: 'SUV', segment: '소형 SUV 쿠페', fuel: '가솔린', imageKey: 'renault-arkana-gasoline-v2', trims: ['아이코닉'], seoTitle: '아르카나 가솔린 장기렌트 | 월 납부금 비교', seoDescription: '르노코리아 아르카나 1.6 GTe 가솔린 장기렌터카. 쿠페형 소형 SUV 장기렌트 최저가 견적.' },
   { id: 'rk07', brand: '르노코리아', model: '그랑 콜레오스', slug: 'grand-koleos', category: 'SUV', segment: '중형 SUV', fuel: '가솔린', imageKey: 'renault-grand-koleos-v2', has360Spin: false, frameCount: 72, spinStartFrame: 8, trims: ['테크노', '아이코닉', '에스프리 알핀', '아이코닉 4WD', '에스카파드', '에스카파드 4WD'], seoTitle: '그랑 콜레오스 장기렌트 | 월 납부금 비교', seoDescription: '르노코리아 그랑 콜레오스 가솔린 장기렌터카. 중형 SUV 장기렌트 트림별 최저가 견적.' },
-  { id: 'rk08', brand: '르노코리아', model: '그랑 콜레오스 하이브리드', slug: 'grand-koleos-hybrid', category: 'SUV', segment: '중형 SUV', fuel: '하이브리드', imageKey: 'renault-grand-koleos-hybrid-v2', trims: ['테크노', '아이코닉', '에스프리 알핀', '에스카파드'], seoTitle: '그랑 콜레오스 하이브리드 장기렌트 | 월 납부금 비교', seoDescription: '르노코리아 그랑 콜레오스 E-Tech 하이브리드 장기렌터카. 중형 SUV 하이브리드 장기렌트 견적.' },
-  { id: 'rk09', brand: '르노코리아', model: '필랑트', slug: 'filante', category: '세단', segment: '대형 세단', fuel: '하이브리드', imageKey: 'renault-filante-v2', has360Spin: false, frameCount: 72, spinStartFrame: 8, trims: ['테크노', '아이코닉', 'SE', '에스프리 알핀'], seoTitle: '필랑트 장기렌트 | 월 납부금 비교', seoDescription: '르노코리아 필랑트 E-Tech 하이브리드 장기렌터카. 프리미엄 대형 세단 장기렌트 견적.' },
+  { id: 'rk08', brand: '르노코리아', model: '그랑 콜레오스 하이브리드', pricingModel: '그랑 콜레오스 하이브리드 E-Tech', slug: 'grand-koleos-hybrid', category: 'SUV', segment: '중형 SUV', fuel: '하이브리드', imageKey: 'renault-grand-koleos-hybrid-v2', trims: ['테크노', '아이코닉', '에스프리 알핀', '에스카파드'], seoTitle: '그랑 콜레오스 하이브리드 장기렌트 | 월 납부금 비교', seoDescription: '르노코리아 그랑 콜레오스 E-Tech 하이브리드 장기렌터카. 중형 SUV 하이브리드 장기렌트 견적.' },
+  { id: 'rk09', brand: '르노코리아', model: '필랑트', pricingModel: '필랑트 하이브리드 E-Tech', slug: 'filante', category: '세단', segment: '대형 세단', fuel: '하이브리드', imageKey: 'renault-filante-v2', has360Spin: false, frameCount: 72, spinStartFrame: 8, trims: ['테크노', '아이코닉', 'SE', '에스프리 알핀'], seoTitle: '필랑트 장기렌트 | 월 납부금 비교', seoDescription: '르노코리아 필랑트 E-Tech 하이브리드 장기렌터카. 프리미엄 대형 세단 장기렌트 견적.' },
 
   // ═══════════════════════════════════
   // KGM (11종)
   // ═══════════════════════════════════
-  { id: 'kg01', brand: 'KGM', model: '더 뉴 티볼리 1.6 가솔린', slug: 'tivoli', category: 'SUV', segment: '소형 SUV', fuel: '가솔린', imageKey: 'kgm-tivoli-v2', has360Spin: false, frameCount: 36, spinStartFrame: 4, trims: ['스마트', '퍼펙트'], seoTitle: '티볼리 장기렌트 | 월 납부금 비교', seoDescription: 'KGM 티볼리 장기렌터카. 소형 SUV 장기렌트 최저가 견적을 확인하세요.' },
+  { id: 'kg01', brand: 'KGM', model: '더 뉴 티볼리 1.6 가솔린', pricingModel: '티볼리', slug: 'tivoli', category: 'SUV', segment: '소형 SUV', fuel: '가솔린', imageKey: 'kgm-tivoli-v2', has360Spin: false, frameCount: 36, spinStartFrame: 4, trims: ['스마트', '퍼펙트'], seoTitle: '티볼리 장기렌트 | 월 납부금 비교', seoDescription: 'KGM 티볼리 장기렌터카. 소형 SUV 장기렌트 최저가 견적을 확인하세요.' },
   { id: 'kg02', brand: 'KGM', model: '더 뉴 티볼리 1.5 가솔린 터보', slug: 'tivoli-turbo', category: 'SUV', segment: '소형 SUV', fuel: '가솔린', imageKey: 'kgm-tivoli-turbo-v2', trims: ['스마트', '퍼펙트'], seoTitle: '티볼리 터보 장기렌트 | 월 납부금 비교', seoDescription: 'KGM 티볼리 1.5 터보 장기렌터카. 소형 SUV 터보 엔진 장기렌트 견적을 확인하세요.' },
   { id: 'kg12', brand: 'KGM', model: '액티언', slug: 'actyon', category: 'SUV', segment: '준중형 SUV', fuel: '가솔린', imageKey: 'kgm-actyon-v2', trims: ['스마트', '프리미엄', '퍼펙트'], seoTitle: '액티언 장기렌트 | 월 납부금 비교', seoDescription: 'KGM 액티언 장기렌터카. 준중형 SUV 장기렌트 최저가 견적을 확인하세요.' },
   { id: 'kg03', brand: 'KGM', model: '액티언 하이브리드', slug: 'actyon-hybrid', category: 'SUV', segment: '준중형 SUV', fuel: '하이브리드', imageKey: 'kgm-actyon-hybrid-v2', has360Spin: false, frameCount: 36, spinStartFrame: 4, trims: ['퍼펙트'], seoTitle: '액티언 하이브리드 장기렌트 | 월 납부금 비교', seoDescription: 'KGM 액티언 하이브리드 장기렌터카. 준중형 SUV 하이브리드 장기렌트 견적을 확인하세요.' },
   { id: 'kg04', brand: 'KGM', model: '토레스', slug: 'torres', category: 'SUV', segment: '중형 SUV', fuel: '가솔린', imageKey: 'kgm-torres-v2', has360Spin: false, frameCount: 36, spinStartFrame: 4, trims: ['스마트', '퍼펙트', '프리미엄'], seoTitle: '토레스 장기렌트 | 월 납부금 비교', seoDescription: 'KGM 토레스 장기렌터카. 중형 SUV 장기렌트 최저가 견적을 확인하세요.' },
   { id: 'kg05', brand: 'KGM', model: '토레스 하이브리드', slug: 'torres-hybrid', category: 'SUV', segment: '중형 SUV', fuel: '하이브리드', imageKey: 'kgm-torres-hybrid-v2', has360Spin: false, frameCount: 36, spinStartFrame: 4, trims: ['스마트', '퍼펙트', '프리미엄'], seoTitle: '토레스 하이브리드 장기렌트 | 월 납부금 비교', seoDescription: 'KGM 토레스 하이브리드 장기렌터카. 중형 SUV 하이브리드 장기렌트 견적을 확인하세요.' },
   { id: 'kg06', brand: 'KGM', model: '토레스 밴', slug: 'torres-van', category: 'SUV', segment: '중형 SUV', fuel: '가솔린', imageKey: 'kgm-torres-van-v2', trims: ['스마트', '퍼펙트'], seoTitle: '토레스 밴 장기렌트 | 월 납부금 비교', seoDescription: 'KGM 토레스 밴 장기렌터카. 실용적인 SUV 밴 장기렌트 견적을 확인하세요.' },
-  { id: 'kg09', brand: 'KGM', model: '렉스턴 뉴 아레나', slug: 'rexton', category: 'SUV', segment: '대형 SUV', fuel: '디젤', imageKey: 'kgm-rexton-v2', trims: ['스마트', '퍼펙트'], seoTitle: '렉스턴 장기렌트 | 월 납부금 비교', seoDescription: 'KGM 렉스턴 장기렌터카. 대형 SUV 장기렌트 최저가 견적을 확인하세요.' },
+  { id: 'kg09', brand: 'KGM', model: '렉스턴 뉴 아레나', pricingModel: '렉스턴', slug: 'rexton', category: 'SUV', segment: '대형 SUV', fuel: '디젤', imageKey: 'kgm-rexton-v2', trims: ['스마트', '퍼펙트'], seoTitle: '렉스턴 장기렌트 | 월 납부금 비교', seoDescription: 'KGM 렉스턴 장기렌터카. 대형 SUV 장기렌트 최저가 견적을 확인하세요.' },
   { id: 'kg10', brand: 'KGM', model: '렉스턴 써밋 4인승', slug: 'rexton-summit', category: 'SUV', segment: '대형 SUV', fuel: '디젤', imageKey: 'kgm-rexton-summit-v2', trims: ['써밋'], seoTitle: '렉스턴 써밋 장기렌트 | 월 납부금 비교', seoDescription: 'KGM 렉스턴 써밋 장기렌터카. 프리미엄 대형 SUV 장기렌트 견적을 확인하세요.' },
   { id: 'kg11', brand: 'KGM', model: '무쏘', slug: 'musso', category: '트럭', segment: '픽업트럭', fuel: '디젤', imageKey: 'kgm-musso-v2', trims: ['스마트', '퍼펙트', '프리미엄'], seoTitle: '무쏘 장기렌트 | 월 납부금 비교', seoDescription: 'KGM 무쏘 픽업트럭 장기렌터카. 픽업트럭 장기렌트 최저가 견적을 확인하세요.' },
   { id: 'kg13', brand: 'KGM', model: '무쏘 EV', slug: 'musso-ev', category: 'EV', segment: '픽업트럭 (EV)', fuel: '전기', imageKey: 'kgm-musso-ev-v2', trims: ['스마트', '퍼펙트'], seoTitle: '무쏘 EV 장기렌트 | 월 납부금 비교', seoDescription: 'KGM 무쏘 전기 픽업트럭 장기렌터카. 전기 픽업트럭 장기렌트 견적을 확인하세요.' },
