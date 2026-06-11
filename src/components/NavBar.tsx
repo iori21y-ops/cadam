@@ -19,6 +19,16 @@ export function NavBar() {
         >
           <LogoAnimated size={28} />
         </Link>
+        <Link
+          href="/guide"
+          className={`ml-auto text-sm font-medium transition-colors ${
+            pathname?.startsWith('/guide')
+              ? 'text-accent'
+              : 'text-text-sub hover:text-text'
+          }`}
+        >
+          가이드
+        </Link>
       </div>
     </nav>
   );

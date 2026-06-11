@@ -19,7 +19,8 @@ export interface GuideArticle extends GuideMeta {
 // 카테고리 코드 → 한글 라벨 (목록 그룹 헤더용)
 export const GUIDE_CATEGORY_LABELS: Record<string, string> = {
   contract: '계약·만기',
-  cost: '비용·절세',
+  insurance: '보험·사고',
+  cost: '비용·세금',
   guide: '입문 가이드',
 };
 
