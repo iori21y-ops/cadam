@@ -35,6 +35,9 @@ export function Footer() {
             <Link href="/info" className="hover:text-[#C9A84C] transition-colors">
               렌트 가이드
             </Link>
+            <Link href="/compare/terms" className="hover:text-[#C9A84C] transition-colors">
+              약관 비교
+            </Link>
             <Link href="/quote" className="hover:text-[#C9A84C] transition-colors">
               상담 신청
             </Link>
