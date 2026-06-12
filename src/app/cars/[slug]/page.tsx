@@ -11,6 +11,7 @@ import { CarArticles } from '@/components/cars/CarArticles';
 import { CarCtaSection } from '@/components/cars/CarCtaSection';
 import { CarFaq } from '@/components/cars/CarFaq';
 import { RelatedCars } from '@/components/cars/RelatedCars';
+import { CarGuideLinks } from '@/components/cars/CarGuideLinks';
 import { CarSeoAnalytics } from '@/components/cars/CarSeoAnalytics';
 import { TrimOptionSelectorWrapper } from '@/components/cars/TrimOptionSelectorWrapper';
 import { ScrollToTop } from '@/components/ui/ScrollToTop';
@@ -190,6 +191,9 @@ async function CarPageContent({ slug }: { slug: string }) {
 
       {/* 8. 비슷한 차종 */}
       <RelatedCars currentVehicle={vehicle} />
+
+      {/* 9. 장기렌터카 가이드 */}
+      <CarGuideLinks />
     </div>
   );
 }
