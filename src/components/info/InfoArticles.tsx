@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { YoutubeModal, extractYouTubeId } from '@/components/ui/YoutubeModal';
 import { getVehicleBySlug } from '@/constants/vehicles';
-import { TermsComparisonCards } from '@/components/info/TermsComparisonCards';
 import { CarouselNavButtons } from '@/components/info/CarouselNavButtons';
 import { InfoSectionNav } from '@/components/info/InfoSectionNav';
 
@@ -372,7 +371,20 @@ export function InfoArticles({ initialArticles, prices = {} }: {
 
       {/* 약관비교 */}
       <section id="terms" className="scroll-mt-24 mt-16">
-        <TermsComparisonCards />
+        <div className="max-w-2xl mx-auto px-5 mb-4">
+          <h2 className="text-2xl font-bold text-gray-900">약관비교</h2>
+        </div>
+        <div className="max-w-2xl mx-auto px-5">
+          <CardLink
+            href="/compare/terms"
+            className="block bg-white rounded-2xl border border-border-solid shadow-md p-5 hover:border-primary transition-colors"
+          >
+            <p className="text-lg font-bold text-primary mb-1.5">장기렌터카 약관 핵심조항 비교</p>
+            <p className="text-sm text-text-sub leading-relaxed">
+              5개사 약관 원문 기준 중도해지·초과주행·승계 조건 비교
+            </p>
+          </CardLink>
+        </div>
       </section>
 
       {selectedClip && (
