@@ -6,6 +6,7 @@ import { getAllGuides } from '@/lib/guide';
 const GUIDE_SLUGS = [
   'contract-end-options',
   'early-termination',
+  'mileage-limit',
   'accident-deductible',
   'tax-benefit',
 ];
