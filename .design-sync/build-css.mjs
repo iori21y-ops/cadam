@@ -46,8 +46,25 @@ const result = await postcss([tailwind()]).process(css, {
   to: undefined,
 });
 
+// Ship the brand body font (Pretendard). It loads via next/font at runtime in
+// the real app, so the bundle never saw it and --font-pretendard was undefined
+// (the body fell back to system sans). Define the @font-face + the var here so
+// the converter copies the woff2 into fonts/ and the closure carries the real
+// face. url() is relative to this compiled.css (in .ds-sync/). Cormorant/Outfit
+// are intentionally NOT shipped — no synced component uses them.
+const fontBlock = `
+@font-face {
+  font-family: 'Pretendard';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('../src/app/fonts/PretendardVariable.woff2') format('woff2');
+}
+:root { --font-pretendard: 'Pretendard'; }
+`;
+
 const outDir = join(repo, '.ds-sync');
 mkdirSync(outDir, { recursive: true });
 const outPath = join(outDir, 'compiled.css');
-writeFileSync(outPath, result.css);
-console.error(`[build-css] wrote ${outPath} (${(result.css.length / 1024).toFixed(1)} KB)`);
+writeFileSync(outPath, result.css + fontBlock);
+console.error(`[build-css] wrote ${outPath} (${((result.css.length + fontBlock.length) / 1024).toFixed(1)} KB) + Pretendard @font-face`);

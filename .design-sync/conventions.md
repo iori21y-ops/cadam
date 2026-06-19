@@ -27,9 +27,9 @@ lives in the bundled stylesheet — read `_ds/<folder>/_ds_bundle.css` before st
 
 (`brand-navy`/`brand-gold` are aliases of `primary`/`accent` — use those.)
 
-**Fonts**: the brand faces (Pretendard sans, Cormorant serif) are loaded by the host
-app at runtime and are **not shipped in this bundle**, so cards render in a system
-sans fallback. Use `font-sans` for body; don't depend on a specific brand face.
+**Fonts**: the body face **Pretendard** (the brand Korean sans) IS bundled and applied
+by default — use `font-sans` for body text. The display serif (Cormorant) and Latin
+face (Outfit) are not bundled, so don't rely on a specific display face.
 
 **Brand-effect utility classes** (defined in the stylesheet, use directly):
 `cta-gold` (animated gold CTA), `text-gold-gradient` (gold gradient text),
