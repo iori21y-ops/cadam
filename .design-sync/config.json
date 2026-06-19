@@ -1,0 +1,39 @@
+{
+  "pkg": "cadam",
+  "globalName": "CadamDS",
+  "projectId": "95520e32-8fc9-422f-80e1-be88e46686d0",
+  "shape": "package",
+  "tsconfig": "./tsconfig.json",
+  "cssEntry": "./.ds-sync/compiled.css",
+  "readmeHeader": ".design-sync/conventions.md",
+  "componentSrcMap": {
+    "Button": "src/components/ui/Button.tsx",
+    "FilterPill": "src/components/ui/FilterPill.tsx",
+    "SelectCard": "src/components/ui/SelectCard.tsx",
+    "ConsultationSheet": "src/components/ui/ConsultationSheet.tsx",
+    "QuoteButton": "src/components/ui/QuoteButton.tsx",
+    "IconAIDiag": "src/components/icons/IconAIDiag.tsx",
+    "IconCalculator": "src/components/icons/IconCalculator.tsx",
+    "IconCar": "src/components/icons/IconCar.tsx",
+    "IconClock24": "src/components/icons/IconClock24.tsx",
+    "IconCompare": "src/components/icons/IconCompare.tsx",
+    "IconConsult": "src/components/icons/IconConsult.tsx",
+    "IconContract": "src/components/icons/IconContract.tsx",
+    "IconHome": "src/components/icons/IconHome.tsx",
+    "IconLightning": "src/components/icons/IconLightning.tsx",
+    "IconMenu": "src/components/icons/IconMenu.tsx",
+    "IconMyPage": "src/components/icons/IconMyPage.tsx",
+    "IconPhone": "src/components/icons/IconPhone.tsx",
+    "IconPrice": "src/components/icons/IconPrice.tsx",
+    "IconSearch": "src/components/icons/IconSearch.tsx",
+    "IconShield": "src/components/icons/IconShield.tsx",
+    "IconTailor": "src/components/icons/IconTailor.tsx",
+    "LogoAnimated": "src/components/icons/LogoAnimated.tsx"
+  },
+  "dtsPropsFor": {
+    "Button": "variant?: 'primary' | 'secondary' | 'surface' | 'outline' | 'ghost' | 'kakao' | 'danger'; size?: 'sm' | 'md' | 'lg'; fullWidth?: boolean; className?: string; children?: React.ReactNode; disabled?: boolean; onClick?: React.MouseEventHandler<HTMLButtonElement>"
+  },
+  "overrides": {
+    "ConsultationSheet": { "cardMode": "single", "viewport": "420x760", "primaryStory": "Open" }
+  }
+}
