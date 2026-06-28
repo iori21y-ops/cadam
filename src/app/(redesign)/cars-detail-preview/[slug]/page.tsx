@@ -33,6 +33,7 @@ import {
   type InfoArticleLike,
 } from '@/lib/rentailor/catalog';
 import '../detail.css';
+import { RtTermDefs } from '@/lib/rentailor/personalize';
 
 const ACCENT = '#C9A84C';
 const SAVE_KEY = 'rt-saved';
@@ -337,6 +338,20 @@ export default function CarsDetailPreviewPage() {
               <h2 className="rt-sec-title">견적 조건</h2>
               <p className="rt-sec-sub">상품·기간·주행거리를 바꾸면 월 납부금과 최저가 캐피탈이 바로 반영돼요.</p>
             </div>
+          </div>
+
+          {/* A2 personalize: 이해도 레벨별 용어설명(초급 펼침/중급 접힘/고급 숨김) */}
+          <div style={{ padding: '0 var(--rt-pad)' }}>
+            <RtTermDefs
+              title="이 페이지 핵심 용어"
+              items={[
+                ['장기렌트', '회사가 차를 사서 빌려주는 방식. 보험·세금·정비가 월 납부금에 포함돼요.'],
+                ['오토리스', '차를 빌리되 비용처리에 유리한 금융 상품(회사 명의·운용리스).'],
+                ['할부(구매)', '내 명의로 차를 사고 매달 나눠 내는 방식. 끝나면 내 차.'],
+                ['잔존가치', '계약 끝났을 때 차의 예상 가치. 높을수록 월 납부금이 낮아져요.'],
+                ['보증금/선납', '미리 내면 월 납부금이 줄어드는 옵션.'],
+              ]}
+            />
           </div>
 
           <div className="rt-quote-group">
