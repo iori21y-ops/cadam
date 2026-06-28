@@ -1,0 +1,81 @@
+/* login.css — 고객 로그인/가입 미리보기 (co-located)
+   원본: _design_ref/rt-login.css (.rt-login-*) + 프레임은 deprec.css 복제
+   - 프레임(.rt-root/.rt-page)은 형제 프리뷰 라우트(deprec.css)와 byte-identical 하게 유지.
+     (Next 글로벌 CSS는 클라이언트 내비게이션 간 유지되므로 값이 갈라지면 안 됨)
+   - 전역리셋/디바이스프레임/.rt-viewport 는 제외(전역은 globals.css 가 담당).
+   - 인증 단계 카드(.rt-login style={{...}})는 page.tsx 인라인 스타일로 유지. */
+
+.rt-root {
+  --rt-navy: #0d1b2a;
+  --rt-ink: #0d1b2a;
+  --rt-sub: #4a5568;
+  --rt-muted: #9ca3af;
+  --rt-line: #e8eaee;
+  --rt-soft: #f6f7f9;
+  --rt-accent: #c9a84c;
+  --rt-radius: 20px;
+  --rt-nav-h: 56px;
+  --rt-pad: 22px;
+
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: #fff;
+  font-family: 'Pretendard', var(--font-pretendard), -apple-system, BlinkMacSystemFont,
+    'Apple SD Gothic Neo', sans-serif;
+  color: var(--rt-ink);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+.rt-root * { box-sizing: border-box; }
+.rt-root button { font-family: inherit; }
+
+.rt-page {
+  width: 100%;
+  height: 100%;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  container-type: inline-size;
+  container-name: page;
+}
+
+/* ===== 시작/로그인 화면 (rt-login.css 이식) ===== */
+.rt-login { position: relative; height: 100%; display: flex; flex-direction: column;
+  background: var(--rt-navy); color: #fff; overflow: hidden; }
+.rt-login-glow { position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(120% 70% at 50% -10%, rgba(201, 168, 76, .34), transparent 60%); }
+.rt-login-skip { position: relative; z-index: 2; align-self: flex-end; margin: 14px 16px 0;
+  font-size: 13px; font-weight: 700; color: rgba(255, 255, 255, .66); text-decoration: none;
+  display: inline-flex; align-items: center; gap: 3px; padding: 8px 4px; }
+.rt-login-skip:active { opacity: .6; }
+
+.rt-login-top { position: relative; z-index: 2; flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; text-align: center; padding: 0 30px; }
+.rt-login-mark { font-size: 34px; font-weight: 800; letter-spacing: -0.04em; color: #fff; }
+.rt-login-mark em { font-style: normal; color: var(--rt-accent); }
+.rt-login-tag { font-size: 15px; font-weight: 500; line-height: 1.6; color: rgba(255, 255, 255, .74);
+  margin: 16px 0 0; word-break: keep-all; }
+.rt-login-stats { display: flex; gap: 0; margin-top: 30px; border: 1px solid rgba(255, 255, 255, .14);
+  border-radius: 16px; overflow: hidden; background: rgba(255, 255, 255, .04); }
+.rt-login-stat { flex: 1; padding: 14px 18px; }
+.rt-login-stat + .rt-login-stat { border-left: 1px solid rgba(255, 255, 255, .12); }
+.rt-login-stat b { display: block; font-size: 19px; font-weight: 800; color: var(--rt-accent); letter-spacing: -0.02em; }
+.rt-login-stat span { font-size: 11.5px; color: rgba(255, 255, 255, .6); margin-top: 3px; display: block; }
+
+.rt-login-actions { position: relative; z-index: 2; padding: 0 22px calc(26px + env(safe-area-inset-bottom)); }
+.rt-login-btn { width: 100%; display: flex; align-items: center; justify-content: center; gap: 9px;
+  height: 56px; border: 0; border-radius: 16px; font-size: 15.5px; font-weight: 800; letter-spacing: -0.02em;
+  cursor: pointer; margin-top: 11px; transition: transform .14s, filter .14s; text-decoration: none; }
+.rt-login-btn:active { transform: scale(.985); }
+.rt-login-btn.kakao { background: #FEE500; color: #191600; }
+.rt-login-btn.phone { background: var(--rt-accent); color: var(--rt-navy); }
+.rt-login-btn.guest { background: transparent; color: rgba(255, 255, 255, .8); border: 1.5px solid rgba(255, 255, 255, .22);
+  height: 52px; font-size: 14.5px; }
+.rt-login-divider { display: flex; align-items: center; gap: 12px; margin: 20px 2px 4px;
+  color: rgba(255, 255, 255, .4); font-size: 12px; font-weight: 600; }
+.rt-login-divider::before, .rt-login-divider::after { content: ""; flex: 1; height: 1px; background: rgba(255, 255, 255, .13); }
+.rt-login-terms { font-size: 11px; color: rgba(255, 255, 255, .45); text-align: center; line-height: 1.6; margin: 18px 0 0; }
+.rt-login-terms a { color: rgba(255, 255, 255, .7); text-decoration: underline; }
