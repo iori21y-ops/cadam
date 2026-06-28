@@ -11,6 +11,7 @@ import {
   PT_REDEEM_POLICY,
   PT_PAYOUT,
   type PtCostKey,
+  type PtTxn,
   type PtTxnType,
   ptLoad,
   ptBalance,
@@ -25,6 +26,43 @@ import './points.css';
 
 const ACCENT = '#C9A84C';
 const cssVar = (vars: Record<string, string | number>): React.CSSProperties => vars as React.CSSProperties;
+
+// ── /api/points 응답 매핑 (회원 로그인 시 실 원장 바인딩) ──
+// 비회원(OTP 미활성)·fetch 실패 시에는 시드 UI 유지 → 라이브 퇴행 방지.
+interface ApiLedgerRow {
+  id: string;
+  type: 'earn' | 'redeem' | 'expire' | 'adjust';
+  label: string | null;
+  amount: number | null;
+  balance_after: number | null;
+  status: string | null;
+  created_at: string | null;
+}
+interface ApiPointsResp {
+  member: boolean;
+  balance: number;
+  ledger: ApiLedgerRow[];
+}
+function ptFmtDate(iso: string | null): string {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return '';
+  const p = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}.${p(d.getMonth() + 1)}.${p(d.getDate())}`;
+}
+function ptStatusKo(s: string | null): string | undefined {
+  if (s === 'pending') return '승인 대기';
+  if (s === 'confirmed') return '완료';
+  if (s === 'cancelled') return '취소';
+  return undefined;
+}
+function ptMapLedger(rows: ApiLedgerRow[]): PtTxn[] {
+  return rows.map((r) => {
+    const amt = r.amount ?? 0;
+    const type: PtTxnType = r.type === 'adjust' ? (amt >= 0 ? 'earn' : 'redeem') : r.type;
+    return { type, label: r.label ?? '', amt, date: ptFmtDate(r.created_at), status: ptStatusKo(r.status) };
+  });
+}
 
 // ── 아이콘 ──
 function PtIcon({ name }: { name: 'chev' | 'info' | 'clock' | 'coin' }) {
@@ -74,9 +112,10 @@ function PtExpiryBanner({ days, version }: { days: number; version: number }) {
 
 // ── 원장 리스트 ──
 type LedgerFilter = 'all' | PtTxnType;
-function PtLedgerList({ filter, version }: { filter: LedgerFilter; version: number }) {
+function PtLedgerList({ filter, version, source }: { filter: LedgerFilter; version: number; source?: PtTxn[] }) {
   void version;
-  const txns = ptLoad().txns.filter((t) => filter === 'all' || t.type === filter);
+  const all = source ?? ptLoad().txns;
+  const txns = all.filter((t) => filter === 'all' || t.type === filter);
   if (!txns.length) return <div className="rt-pt-empty">내역이 없어요.</div>;
   const sign = (n: number): string => (n >= 0 ? '+' : '') + ptComma(n) + 'P';
   const color = (t: PtTxnType): string => (t === 'earn' ? '#1F8A5B' : t === 'expire' ? '#9CA3AF' : '#E0544B');
@@ -242,15 +281,36 @@ export default function PointsPage() {
   const [toast, setToast] = useState<string | null>(null);
   const [version, setVersion] = useState(0); // 원장 변경 후 리렌더 트리거
   const [balance, setBalance] = useState(0);
+  // 회원 로그인 시 /api/points 실 원장 바인딩. 비회원·실패 시 null → 시드 폴백.
+  const [member, setMember] = useState(false);
+  const [apiTxns, setApiTxns] = useState<PtTxn[] | null>(null);
 
   // 계약 케어에서 ptSetCtx 후 넘어온 경우 자동으로 지원 신청 화면 오픈
   useEffect(() => {
     if (ptGetCtx()) setView('redeem');
     setBalance(ptBalance());
   }, []);
+
+  // /api/points 조회 — 회원이면 실 잔액·원장으로 swap, 아니면(또는 오류) 시드 유지.
   useEffect(() => {
-    setBalance(ptBalance());
-  }, [version, view]);
+    let alive = true;
+    fetch('/api/points', { cache: 'no-store' })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d: ApiPointsResp | null) => {
+        if (!alive || !d || !d.member) return; // 비회원·실패 → 시드 폴백
+        setMember(true);
+        setApiTxns(ptMapLedger(d.ledger ?? []));
+        setBalance(d.balance ?? 0);
+      })
+      .catch(() => {/* 시드 폴백 */});
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!member) setBalance(ptBalance()); // 회원이면 API balance 유지(재계산 금지)
+  }, [version, view, member]);
 
   useEffect(() => {
     if (!toast) return;
@@ -311,8 +371,8 @@ export default function PointsPage() {
                     ))}
                   </div>
                 </div>
-                <PtExpiryBanner days={90} version={version} />
-                <PtLedgerList filter={tab} version={version} />
+                {!member && <PtExpiryBanner days={90} version={version} />}
+                <PtLedgerList filter={tab} version={version} source={member ? apiTxns ?? [] : undefined} />
               </div>
 
               <p className="rt-cc-note">
