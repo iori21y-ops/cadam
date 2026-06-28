@@ -1,0 +1,124 @@
+/* legal.css — 이용약관 · 개인정보처리방침 프리뷰 스타일
+   원본: _design_ref/rt-legal.css (+ legal-app.jsx의 .rt-root/.rt-page 프레임).
+   ⚠️ 전역 reset(*, html/body, body overflow)과 리뷰 하네스(.rt-viewport 디바이스 프레임)는
+   의도적으로 제외했다. .rt-root/.rt-page 는 풀스크린 오버레이 프레임이며, .rt-legal-* 는
+   이 프레임 내부에서만 쓰이는 고유 클래스라 전역 누수 위험이 없다(이 CSS는 두 프리뷰 라우트에서만 로드).
+   nav/footer/tabbar 공통 크롬은 globals.css가 제공하므로 여기서 재정의하지 않는다.
+   privacy-preview / terms-preview 두 라우트가 이 파일을 공유한다. */
+
+/* ---------- 풀스크린 프리뷰 오버레이 프레임 ---------- */
+.rt-root {
+  --rt-navy: #0d1b2a;
+  --rt-ink: #0d1b2a;
+  --rt-sub: #4a5568;
+  --rt-muted: #9ca3af;
+  --rt-line: #e8eaee;
+  --rt-soft: #f6f7f9;
+  --rt-accent: #c9a84c;
+  --rt-radius: 20px;
+  --rt-nav-h: 56px;
+  --rt-pad: 22px;
+
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: #fff;
+  font-family: 'Pretendard', var(--font-pretendard), -apple-system, BlinkMacSystemFont,
+    'Apple SD Gothic Neo', sans-serif;
+  color: var(--rt-ink);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+.rt-root * { box-sizing: border-box; }
+.rt-root button { font-family: inherit; }
+
+/* page = 스크롤 컨테이너 (sticky nav 가 동작하도록) */
+.rt-page {
+  width: 100%;
+  height: 100%;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+  scrollbar-width: none;
+}
+.rt-page::-webkit-scrollbar { width: 0; height: 0; }
+
+/* ---------- 헤더 ---------- */
+.rt-legal-head { padding: 26px var(--rt-pad) 18px; border-bottom: 1px solid var(--rt-line); }
+.rt-legal-eyebrow {
+  font-size: 12px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--rt-accent); margin: 0 0 10px;
+}
+.rt-legal-title {
+  font-size: 25px; font-weight: 800; color: var(--rt-ink); margin: 0 0 10px; line-height: 1.25;
+  letter-spacing: -.01em;
+}
+.rt-legal-meta { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12.5px; color: var(--rt-sub); margin: 0; }
+.rt-legal-meta b { color: var(--rt-ink); font-weight: 700; }
+
+/* 요약 카드 */
+.rt-legal-summary {
+  margin: 18px var(--rt-pad) 4px; padding: 16px 18px; border-radius: var(--rt-radius);
+  background: var(--rt-ink); color: #fff;
+}
+.rt-legal-summary-t {
+  font-size: 13px; font-weight: 800; color: var(--rt-accent); margin: 0 0 10px; letter-spacing: .02em;
+}
+.rt-legal-summary-list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 9px; }
+.rt-legal-summary-list li {
+  position: relative; padding-left: 20px; font-size: 13.5px; line-height: 1.55; color: rgba(255, 255, 255, .9);
+}
+.rt-legal-summary-list li::before {
+  content: ""; position: absolute; left: 0; top: 7px; width: 8px; height: 8px;
+  border-radius: 50%; background: var(--rt-accent);
+}
+
+/* 본문 */
+.rt-legal-body { padding: 8px var(--rt-pad) 12px; }
+.rt-legal-sec { padding: 18px 0; border-bottom: 1px solid var(--rt-line); }
+.rt-legal-sec:last-child { border-bottom: none; }
+.rt-legal-sec-h { font-size: 16px; font-weight: 800; color: var(--rt-ink); margin: 0 0 12px; letter-spacing: -.01em; }
+.rt-legal-sec-h .n { color: var(--rt-accent); margin-right: 7px; }
+.rt-legal-p { font-size: 14px; line-height: 1.72; color: var(--rt-sub); margin: 0 0 10px; text-wrap: pretty; }
+.rt-legal-p:last-child { margin-bottom: 0; }
+.rt-legal-list { margin: 0 0 10px; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.rt-legal-list li { position: relative; padding-left: 16px; font-size: 14px; line-height: 1.66; color: var(--rt-sub); }
+.rt-legal-list li::before {
+  content: ""; position: absolute; left: 2px; top: 9px; width: 5px; height: 5px;
+  border-radius: 50%; background: var(--rt-accent); opacity: .7;
+}
+.rt-legal-list li b { color: var(--rt-ink); font-weight: 700; }
+
+/* 항목 테이블 (개인정보 수집·위탁 등) */
+.rt-legal-table { border: 1px solid var(--rt-line); border-radius: 14px; overflow: hidden; margin: 4px 0 10px; }
+.rt-legal-trow { display: grid; grid-template-columns: 1fr 1.4fr; }
+.rt-legal-trow + .rt-legal-trow { border-top: 1px solid var(--rt-line); }
+.rt-legal-tk {
+  padding: 11px 13px; font-size: 13px; font-weight: 700; color: var(--rt-ink);
+  background: var(--rt-soft); display: flex; align-items: center;
+}
+.rt-legal-tv {
+  padding: 11px 13px; font-size: 13px; line-height: 1.55; color: var(--rt-sub);
+  border-left: 1px solid var(--rt-line);
+}
+
+/* 문의 박스 */
+.rt-legal-contact {
+  margin: 8px var(--rt-pad) 24px; padding: 16px 18px; border: 1px solid var(--rt-line);
+  border-radius: var(--rt-radius); background: var(--rt-soft);
+}
+.rt-legal-contact-h { font-size: 13.5px; font-weight: 800; color: var(--rt-ink); margin: 0 0 6px; }
+.rt-legal-contact-p { font-size: 13px; line-height: 1.6; color: var(--rt-sub); margin: 0; }
+.rt-legal-contact-p a { color: var(--rt-accent); font-weight: 700; }
+
+/* 약관 전환 탭 (이용약관 ↔ 개인정보처리방침) */
+.rt-legal-switch { display: flex; gap: 8px; padding: 14px var(--rt-pad) 4px; }
+.rt-legal-switch a {
+  flex: 1; text-align: center; padding: 11px 10px; border-radius: 12px;
+  border: 1px solid var(--rt-line); background: #fff; font-size: 13.5px; font-weight: 700;
+  color: var(--rt-sub); text-decoration: none; transition: all .15s ease;
+}
+.rt-legal-switch a.is-on { background: var(--rt-ink); color: #fff; border-color: var(--rt-ink); }

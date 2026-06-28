@@ -13,6 +13,10 @@ interface ArticleRow {
   published_at: string | null;
   category: string | null;
   vehicle_slug: string | null;
+  content_type: string | null;
+  access: string | null;
+  duration: string | null;
+  cards: unknown;
 }
 
 export async function GET() {
@@ -22,7 +26,7 @@ export async function GET() {
     const [supabaseResult, wpArticles] = await Promise.all([
       supabase
         .from('info_articles')
-        .select('id, title, excerpt, content, link_url, thumbnail_url, source_type, published_at, category, vehicle_slug')
+        .select('id, title, excerpt, content, link_url, thumbnail_url, source_type, published_at, category, vehicle_slug, content_type, access, duration, cards')
         .eq('is_active', true)
         .order('display_order', { ascending: true })
         .order('published_at', { ascending: false, nullsFirst: false }),
@@ -36,7 +40,7 @@ export async function GET() {
     }
 
     const supabaseArticles: InfoArticleShape[] = (error ? [] : (data as ArticleRow[])).map(
-      ({ id, title, excerpt, content, link_url, thumbnail_url, source_type, published_at, category, vehicle_slug }) => ({
+      ({ id, title, excerpt, content, link_url, thumbnail_url, source_type, published_at, category, vehicle_slug, content_type, access, duration, cards }) => ({
         id,
         title,
         excerpt,
@@ -46,6 +50,10 @@ export async function GET() {
         publishedAt: published_at,
         category: category ?? 'rental',
         vehicleSlug: vehicle_slug ?? null,
+        contentType: content_type ?? 'article',
+        access: access ?? 'free',
+        duration: duration ?? null,
+        cards: cards ?? null,
       })
     );
 

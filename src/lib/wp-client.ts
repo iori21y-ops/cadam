@@ -13,6 +13,11 @@ export interface InfoArticleShape {
   publishedAt: string | null;
   category: string;
   vehicleSlug: string | null;
+  // §14.5 다포맷/회원 컬럼 (선택 — 미지정 시 클라이언트가 article/free 폴백)
+  contentType?: string;
+  access?: string;
+  duration?: string | null;
+  cards?: unknown;
 }
 
 export interface WpPost {
