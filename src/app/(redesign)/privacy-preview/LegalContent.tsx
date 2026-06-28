@@ -53,10 +53,10 @@ export default function LegalContent({ which }: { which: LegalWhich }) {
 
         {/* 약관 ↔ 개인정보처리방침 전환 (.html → 실 운영 라우트, 규칙 6) */}
         <div className="rt-legal-switch">
-          <Link href="/terms" className={which === 'terms' ? 'is-on' : ''}>
+          <Link href="/terms-preview" className={which === 'terms' ? 'is-on' : ''}>
             이용약관
           </Link>
-          <Link href="/privacy" className={which === 'privacy' ? 'is-on' : ''}>
+          <Link href="/privacy-preview" className={which === 'privacy' ? 'is-on' : ''}>
             개인정보처리방침
           </Link>
         </div>

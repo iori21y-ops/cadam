@@ -98,7 +98,7 @@ function CcgCalc() {
       </div>
       <p className="rt-ccg-note">
         대략적인 가상계산이에요. 정확한 금액·기준은 캐피탈/리스사·계약서로 확인하세요. 계약 중이라면{' '}
-        <Link href="/mypage">마이페이지 › 계약 케어</Link>에서 내 계약값으로 자동 계산돼요.
+        <Link href="/mypage-preview">마이페이지 › 계약 케어</Link>에서 내 계약값으로 자동 계산돼요.
       </p>
     </div>
   );

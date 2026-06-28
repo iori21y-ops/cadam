@@ -180,7 +180,7 @@ function RtNav() {
           Rentailor
         </a>
         <nav className="rt-nav-links">
-          <Link href="/terms">이용약관</Link>
+          <Link href="/terms-preview">이용약관</Link>
           <Link href="/privacy">개인정보</Link>
         </nav>
       </div>
@@ -765,7 +765,7 @@ function RtFooter() {
       <div className="rt-footer-row">
         <span className="rt-footer-brand">Rentailor</span>
         <div className="rt-footer-links">
-          <Link href="/terms">이용약관</Link>
+          <Link href="/terms-preview">이용약관</Link>
           <Link href="/privacy">개인정보</Link>
         </div>
       </div>

@@ -78,7 +78,7 @@ function LoginHome({ onPhone }: { onPhone: () => void }) {
         </button>
         <div className="rt-login-divider">또는</div>
         <a className="rt-login-btn guest" href="/">비회원으로 둘러보기</a>
-        <p className="rt-login-terms">시작하면 <a href="/terms" target="_blank" rel="noopener">이용약관</a> 및
+        <p className="rt-login-terms">시작하면 <a href="/terms-preview" target="_blank" rel="noopener">이용약관</a> 및
           <a href="/privacy" target="_blank" rel="noopener"> 개인정보처리방침</a>에 동의하게 됩니다.</p>
       </div>
     </div>

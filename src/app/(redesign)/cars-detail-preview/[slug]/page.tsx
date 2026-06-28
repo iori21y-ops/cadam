@@ -392,7 +392,7 @@ export default function CarsDetailPreviewPage() {
         <section className="rt-sec">
           <div className="rt-sec-hd">
             <div><h2 className="rt-sec-title">비슷한 차종</h2></div>
-            <Link className="rt-sec-link" href="/cars-preview" data-guest="allow">전체 보기</Link>
+            <Link className="rt-sec-link" href="/popular-estimates-preview" data-guest="allow">전체 보기</Link>
           </div>
           <div className="rt-similar-rail">
             {similar.map((c) => (
@@ -495,7 +495,7 @@ export default function CarsDetailPreviewPage() {
       {toast && (
         <div className="rt-vcmp-toast is-show">
           <span>{toast.msg}</span>
-          {toast.link && <Link href="/cars-preview" data-guest="allow">비교하기 →</Link>}
+          {toast.link && <Link href="/popular-estimates-preview" data-guest="allow">비교하기 →</Link>}
         </div>
       )}
     </div>
