@@ -27,6 +27,7 @@ import {
 } from '@/lib/rentailor/landing-data';
 import { RT_CATALOG, FUEL, type Car } from '@/lib/rentailor/catalog';
 import { rtMarkConsulted } from '@/lib/rentailor/guest-adapter';
+import { RtMarketInsight } from '@/components/rentailor/RtMarketInsight';
 import './landing.css';
 
 const ACCENT = '#C9A84C';
@@ -792,7 +793,7 @@ export default function HomePreview() {
           <main className="rt-main">
             {flow.step === 'intro' ? <RtHero /> : <QuoteBody flow={flow} />}
           </main>
-          {flow.step === 'intro' && <RtFooter />}
+          {flow.step === 'intro' && <><RtMarketInsight /><RtFooter /></>}
           <RtBottomBar flow={flow} />
         </div>
       </div>
