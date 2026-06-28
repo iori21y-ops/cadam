@@ -39,6 +39,9 @@ const consultationSchema = z.object({
   vehicleAnswers: z.record(z.string(), z.object({ value: z.string(), label: z.string() })).nullish(),
   financeAnswers: z.record(z.string(), z.object({ value: z.string(), label: z.string() })).nullish(),
   stepCompleted: z.number().optional(),
+  // §3.4C — 정규 컬럼에 안 맞는 진입점별 맥락(차급 cls 라벨·비교/계산 결과 등) 단일 jsonb.
+  // 미전송 시 서버가 vehicleAnswers/financeAnswers/selectionPath 로 폴백 구성(아래 insert).
+  context: z.record(z.string(), z.unknown()).nullish(),
 });
 
 type ConsultationInput = z.infer<typeof consultationSchema>;
@@ -155,6 +158,18 @@ export async function POST(request: NextRequest) {
     }
 
     // 7단계 - Supabase INSERT (estimated_min/max 포함)
+    // §3.4C — context jsonb 구성: 명시 context 우선, 없으면 진입점 맥락(선택경로·차종/금융 답변)으로 폴백.
+    // 정규 컬럼(monthly_budget 등)·lead_dimensions(점수)는 그대로 두고, 쿼리 가능한 원본 맥락만 보존.
+    const contextPayload: Record<string, unknown> | null =
+      input.context ??
+      (input.vehicleAnswers || input.financeAnswers || input.selectionPath
+        ? {
+            selectionPath: input.selectionPath ?? null,
+            vehicleAnswers: input.vehicleAnswers ?? null,
+            financeAnswers: input.financeAnswers ?? null,
+          }
+        : null);
+
     const { data: consultation, error: insertError } = await supabase
       .from('consultations')
       .insert({
@@ -181,6 +196,7 @@ export async function POST(request: NextRequest) {
         inflow_page: inflowPageCookie,
         lead_score: leadScore,
         lead_dimensions: leadDimensions as unknown as Record<string, unknown>,
+        context: contextPayload,
         ip_hash: ipHash,
       })
       .select('id')
