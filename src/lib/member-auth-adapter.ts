@@ -53,19 +53,36 @@ export function makeKakaoAlimTalkAdapter(provider: OtpMessageProvider): AuthAdap
   };
 }
 
-/** 현재 stub 모드인지(요청 라우트의 devHint 노출 조건). */
+/** 현재 stub 모드인지(MEMBER_OTP_MODE !== 'live'). */
 export function isStubMode(): boolean {
   return process.env.MEMBER_OTP_MODE !== 'live';
 }
+const isProd = () => process.env.NODE_ENV === 'production';
+
+/** ★ 프로덕션에서 OTP 발신 준비됨? stub 모드는 production 에서 미준비(고객 데이터 무단접근 차단). */
+export function isMemberOtpReady(): boolean {
+  return !isStubMode() || !isProd();
+}
+
+/** 미준비 어댑터 — 프로덕션 stub: 발송·검증 모두 거부(000000 우회 불가). 발신번호 등록 시 즉시 live 전환. */
+const notReadyAdapter: AuthAdapter = {
+  async sendOtp() {
+    return { ok: false, error: 'provider_not_ready' };
+  },
+  async verifyOtp() {
+    return { ok: false, error: 'provider_not_ready' };
+  },
+};
 
 let override: AuthAdapter | null = null;
 let resolved: AuthAdapter | null = null;
 
-/** 활성 어댑터. 기본 = env(MEMBER_OTP_MODE) 기반. stub 기본(템플릿 심사 전 안전). */
+/** 활성 어댑터. live=실 OTP / stub+개발=devStub(000000) / ★stub+프로덕션=notReady(거부). */
 export function getAuthAdapter(): AuthAdapter {
   if (override) return override;
   if (!resolved) {
-    resolved = isStubMode() ? devStubAuthAdapter : makeKakaoAlimTalkAdapter(getOtpProvider());
+    if (!isStubMode()) resolved = makeKakaoAlimTalkAdapter(getOtpProvider());
+    else resolved = isProd() ? notReadyAdapter : devStubAuthAdapter;
   }
   return resolved;
 }
