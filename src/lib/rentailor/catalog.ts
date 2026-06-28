@@ -1,5 +1,6 @@
 // catalog.ts — Rentailor 전체 차종 카탈로그 (목록/상세/견적/진단 공통 데이터 모델)
-// 원본 프로토타입: _design_ref/catalog.jsx (window 전역 → 모듈 export 로 이식)
+// 원본 프로토타입: _design_ref/catalog.jsx → B4: RT_CATALOG 시드를 실 VEHICLE_LIST(81종) 바인딩.
+import { VEHICLE_LIST, type Vehicle } from '@/constants/vehicles';
 
 export type FuelKey = 'gasoline' | 'diesel' | 'hybrid' | 'ev';
 export type ProductKey = 'rent' | 'lease' | 'install';
@@ -31,6 +32,11 @@ export interface Car {
   hue: number;
   spec: CarSpec;
   trims: CarTrim[];
+  // 실 이미지(B5): public/cars/{imageKey}.webp + 360 스핀(CarSpinViewer)
+  imageKey?: string;
+  has360Spin?: boolean;
+  frameCount?: number;
+  spinStartFrame?: number;
 }
 interface CarInput {
   id: string;
@@ -48,6 +54,10 @@ interface CarInput {
   spec?: CarSpec;
   trims?: CarTrim[];
   trimNames?: string[];
+  imageKey?: string;
+  has360Spin?: boolean;
+  frameCount?: number;
+  spinStartFrame?: number;
 }
 
 // 카테고리 탭
@@ -119,32 +129,61 @@ function car(o: CarInput): Car {
     hue: o.hue ?? 0,
     spec: o.spec ?? {},
     trims,
+    imageKey: o.imageKey,
+    has360Spin: o.has360Spin,
+    frameCount: o.frameCount,
+    spinStartFrame: o.spinStartFrame,
   };
 }
 
-// ── 차량 카탈로그 (월 from = 사이트 표시 최저가, 만원) ──────
-export const RT_CATALOG: Car[] = [
-  car({ id: 'avante', brand: '현대', model: '아반떼 (CN7)', segLabel: '준중형 세단', seg: 'sedan', fuel: 'gasoline', from: 45, best: true, badges: ['인기'], hue: 218, spec: { eff: '15.4km/L', power: '123마력', seats: 5 } }),
-  car({ id: 'k5', brand: '기아', model: 'K5', segLabel: '중형 세단', seg: 'sedan', fuel: 'gasoline', from: 61, hue: 222, spec: { eff: '13.6km/L', power: '160마력', seats: 5 } }),
-  car({ id: 'tucson', brand: '현대', model: '투싼 (NX4)', segLabel: '준중형 SUV', seg: 'suv', fuel: 'hybrid', from: 63, badges: [], hue: 150, spec: { eff: '16.2km/L', power: '230마력', seats: 5 } }),
-  car({ id: 'sportage', brand: '기아', model: '스포티지 (NQ5)', segLabel: '준중형 SUV', seg: 'suv', fuel: 'gasoline', from: 64, hue: 14, spec: { eff: '12.4km/L', power: '160마력', seats: 5 } }),
-  car({ id: 'sorento', brand: '기아', model: '쏘렌토 (MQ4)', segLabel: '중형 SUV', seg: 'suv', fuel: 'hybrid', from: 80, best: true, badges: ['인기'], hue: 200, spec: { eff: '15.3km/L', power: '230마력', seats: 7, seatLabel: '7인승' } }),
-  car({ id: 'santafe', brand: '현대', model: '싼타페 (MX5)', segLabel: '중형 SUV', seg: 'suv', fuel: 'hybrid', from: 80, hue: 40, spec: { eff: '15.5km/L', power: '235마력', seats: 7, seatLabel: '7인승' } }),
-  car({ id: 'grandeur', brand: '현대', model: '그랜저 (GN7)', segLabel: '준대형 세단', seg: 'premium', fuel: 'gasoline', from: 85, best: true, hue: 226, spec: { eff: '11.7km/L', power: '198마력', seats: 5 } }),
-  car({ id: 'carnival', brand: '기아', model: '카니발 (KA4)', segLabel: '미니밴', seg: 'suv', fuel: 'diesel', from: 80, hue: 206, trimNames: ['디젤 9인승 프레스티지', '디젤 7인승 노블레스', '디젤 7인승 시그니처'], spec: { eff: '13.1km/L', power: '202마력', seats: 9, seatLabel: '9인승' } }),
-  car({ id: 'k8', brand: '기아', model: 'K8', segLabel: '준대형 세단', seg: 'premium', fuel: 'gasoline', from: 82, hue: 230, spec: { eff: '12.0km/L', power: '198마력', seats: 5 } }),
-  car({ id: 'palisade', brand: '현대', model: '팰리세이드 (LX2)', segLabel: '대형 SUV', seg: 'suv', fuel: 'gasoline', from: 96, best: true, hue: 212, spec: { eff: '9.6km/L', power: '295마력', seats: 7, seatLabel: '7인승' } }),
-  car({ id: 'ioniq5', brand: '현대', model: '아이오닉 5 (NE1)', segLabel: '준중형 전기 SUV', seg: 'suv', fuel: 'ev', from: 110, best: true, isNew: true, badges: ['전기차'], hue: 196, trimNames: ['롱레인지 2WD 익스클루시브', '롱레인지 2WD 프레스티지', '롱레인지 AWD 프레스티지'], spec: { eff: '458km', power: '217마력', seats: 5, effLabel: '1회 충전 주행' } }),
-  car({ id: 'ev6', brand: '기아', model: 'EV6', segLabel: '준중형 전기 SUV', seg: 'suv', fuel: 'ev', from: 101, isNew: true, badges: ['전기차'], hue: 340, trimNames: ['롱레인지 2WD 에어', '롱레인지 2WD 어스', '롱레인지 AWD GT-라인'], spec: { eff: '475km', power: '229마력', seats: 5, effLabel: '1회 충전 주행' } }),
-  car({ id: 'ioniq6', brand: '현대', model: '아이오닉 6 (CE1)', segLabel: '중형 전기 세단', seg: 'sedan', fuel: 'ev', from: 112, isNew: true, badges: ['전기차'], hue: 208, trimNames: ['롱레인지 2WD 익스클루시브', '롱레인지 2WD 프레스티지', '롱레인지 AWD 프레스티지'], spec: { eff: '524km', power: '229마력', seats: 5, effLabel: '1회 충전 주행' } }),
-  car({ id: 'ev9', brand: '기아', model: 'EV9', segLabel: '대형 전기 SUV', seg: 'suv', fuel: 'ev', from: 143, best: true, isNew: true, badges: ['전기차'], hue: 184, trimNames: ['롱레인지 2WD 에어', '롱레인지 AWD 어스', '롱레인지 AWD GT-라인'], spec: { eff: '501km', power: '384마력', seats: 7, seatLabel: '7인승', effLabel: '1회 충전 주행' } }),
-  car({ id: 'torres', brand: 'KGM', model: '토레스', segLabel: '중형 SUV', seg: 'suv', fuel: 'gasoline', from: 64, hue: 30, spec: { eff: '11.2km/L', power: '170마력', seats: 5 } }),
-  car({ id: 'g80', brand: '제네시스', model: 'G80', segLabel: '대형 세단', seg: 'premium', fuel: 'gasoline', from: 119, hue: 230, spec: { eff: '10.8km/L', power: '304마력', seats: 5 } }),
-  car({ id: 'gv70', brand: '제네시스', model: 'GV70', segLabel: '프리미엄 SUV', seg: 'premium', fuel: 'gasoline', from: 122, best: true, hue: 184, spec: { eff: '10.0km/L', power: '304마력', seats: 5 } }),
-  car({ id: 'model3', brand: '테슬라', model: '모델 3', segLabel: '중형 전기 세단', seg: 'sedan', origin: 'imported', fuel: 'ev', from: 99, isNew: true, badges: ['전기차'], hue: 0, trimNames: ['RWD', '롱레인지 AWD', '퍼포먼스 AWD'], spec: { eff: '403km', power: '283마력', seats: 5, effLabel: '1회 충전 주행' } }),
-  car({ id: 'modely', brand: '테슬라', model: '모델 Y', segLabel: '준중형 전기 SUV', seg: 'suv', origin: 'imported', fuel: 'ev', from: 109, best: true, isNew: true, badges: ['전기차'], hue: 350, trimNames: ['RWD', '롱레인지 AWD', '퍼포먼스 AWD'], spec: { eff: '450km', power: '299마력', seats: 5, effLabel: '1회 충전 주행' } }),
-  car({ id: 'arkana', brand: '르노', model: '아르카나', segLabel: '소형 SUV', seg: 'suv', fuel: 'hybrid', from: 55, hue: 46, spec: { eff: '17.5km/L', power: '145마력', seats: 5 } }),
-];
+// ── 차량 카탈로그 — 실 81종(VEHICLE_LIST) 바인딩 (B4). id=slug, 이미지=imageKey ──
+const FUEL_MAP: Record<string, FuelKey> = {
+  '가솔린': 'gasoline', '디젤': 'diesel', '전기': 'ev', '하이브리드': 'hybrid', '플러그인 하이브리드': 'hybrid',
+};
+function vSeg(v: Vehicle): string {
+  const s = v.segment;
+  if (v.brand === '제네시스' || /플래그십|대형 세단/.test(s)) return 'premium';
+  if (v.category === '세단' || /세단/.test(s)) return 'sedan';
+  return 'suv';
+}
+// from(월 만원) — 세그먼트 밴드 근사(실 pricing 정밀바인딩은 후속). 카드/상세 표시·견적기 base.
+function vFrom(v: Vehicle): number {
+  const s = v.segment;
+  let base = 58;
+  if (/경차/.test(s)) base = 30;
+  else if (/소형/.test(s)) base = 42;
+  else if (/준중형/.test(s)) base = 50;
+  else if (/플래그십/.test(s)) base = 130;
+  else if (/준대형/.test(s)) base = 75;
+  else if (/대형/.test(s)) base = 95;
+  else if (/픽업|트럭/.test(s)) base = 65;
+  else if (/다목적/.test(s)) base = 75;
+  else if (/중형/.test(s)) base = 58;
+  if (/EV|전기/.test(s) || v.fuel === '전기') base += 15;
+  return base;
+}
+const HUES = [218, 222, 150, 14, 200, 40, 226, 206, 230, 196, 340, 184, 30, 46, 208, 340];
+function vehicleToCar(v: Vehicle, i: number): Car {
+  const fuel = FUEL_MAP[v.fuel] ?? 'gasoline';
+  return car({
+    id: v.slug,
+    brand: v.brand,
+    model: v.model,
+    segLabel: v.segment,
+    seg: vSeg(v),
+    fuel,
+    from: vFrom(v),
+    origin: v.brand === '테슬라' ? 'imported' : 'domestic',
+    badges: fuel === 'ev' ? ['전기차'] : [],
+    hue: HUES[i % HUES.length],
+    trimNames: v.trims,
+    imageKey: v.imageKey,
+    has360Spin: v.has360Spin,
+    frameCount: v.frameCount,
+    spinStartFrame: v.spinStartFrame,
+  });
+}
+export const RT_CATALOG: Car[] = VEHICLE_LIST.map(vehicleToCar);
 
 // 카테고리 매칭
 export function rtCarInTab(c: Car, tab: string): boolean {

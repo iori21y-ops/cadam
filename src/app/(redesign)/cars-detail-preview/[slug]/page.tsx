@@ -15,6 +15,7 @@ import { RtConsultSheet } from '@/components/rentailor/RtConsultSheet';
 import { RtGuestGate } from '@/components/rentailor/RtGuestGate';
 import { RtIconConsult, RtIconCompare, RtIconContract, RtIconCar } from '@/components/rentailor/RtIcons';
 import { Button } from '@/components/ui/Button';
+import { CarSpinViewer } from '@/components/cars/CarSpinViewer';
 import {
   rtFindCar,
   rtSimilar,
@@ -227,6 +228,17 @@ export default function CarsDetailPreviewPage() {
         {/* 히어로 */}
         <div className="rt-dhero">
           <div className="rt-dhero-media" style={{ '--hue': car.hue } as React.CSSProperties}>
+            {car.has360Spin ? (
+              <CarSpinViewer slug={car.id} frameCount={car.frameCount} startFrame={car.spinStartFrame ?? 0} onFailed={() => {}} />
+            ) : car.imageKey ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={`/cars/${car.imageKey}.webp`}
+                alt={car.model}
+                style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', padding: '6%' }}
+                onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+              />
+            ) : null}
             <span className="rt-dhero-media-label">{car.brand}</span>
             <div className="rt-dhero-badges">
               {badges.map((b, i) => (

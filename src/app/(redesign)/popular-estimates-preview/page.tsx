@@ -87,6 +87,16 @@ function VCard({ car, saved, onToggleSave, inVs, onToggleVs }: VCardProps) {
       style={{ ['--hue']: car.hue } as React.CSSProperties}
     >
       <div className="rt-vcard-media">
+        {car.imageKey && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={`/cars/${car.imageKey}.webp`}
+            alt={car.model}
+            loading="lazy"
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', padding: '8%' }}
+            onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+          />
+        )}
         <div className="rt-vcard-badges">
           {badges.map((b, i) => (
             <span className={'rt-badge ' + b.cls} key={i}>{b.label}</span>
