@@ -47,7 +47,7 @@ function LegalSection({ s }: { s: LegalSectionData }) {
 export default function LegalContent({ which }: { which: LegalWhich }) {
   const doc = RT_LEGAL[which];
   return (
-    <div className="rt-root">
+    <div data-rt="privacy-preview" className="rt-root">
       <div className="rt-page" id="top">
         <RtTopNav title={doc.title} backHref="/" showSearch={false} />
 

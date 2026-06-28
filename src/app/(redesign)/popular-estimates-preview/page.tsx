@@ -271,7 +271,7 @@ export default function PopularEstimatesPreviewPage() {
   const clearLanding = () => { setBudget(null); setSeg('all'); };
 
   return (
-    <div className="rt-root">
+    <div data-rt="popular-estimates-preview" className="rt-root">
       <div className="rt-page" data-page="list" id="top">
         <RtTopNav />
         <RtGuestGate accent={ACCENT} />

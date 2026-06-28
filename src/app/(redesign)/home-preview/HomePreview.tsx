@@ -784,7 +784,7 @@ export default function HomePreview() {
   }, [flow.step]);
 
   return (
-    <div className="rt-root" style={cssVar({ '--rt-accent': ACCENT, '--rt-radius': '20px' })}>
+    <div data-rt="home-preview" className="rt-root" style={cssVar({ '--rt-accent': ACCENT, '--rt-radius': '20px' })}>
       <div className="rt-page" data-dir="c" data-step={flow.step} id="top">
         <div className={'rt-scroll' + (locked ? ' rt-anim-lock' : '')} ref={flow.scrollRef}>
           <RtNav />

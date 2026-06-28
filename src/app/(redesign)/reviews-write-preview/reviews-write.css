@@ -1,10 +1,11 @@
+/* @scoped data-rt="reviews-write-preview" */
 /* reviews-write.css — 후기 작성 미리보기 (co-located)
    - 프레임(.rt-root/.rt-page/.rt-scroll/.rt-bar/.rt-fade-up/.rt-anim-lock)은
      형제 프리뷰 라우트(diagnosis-report-preview/deprec.css)와 byte-identical 하게 유지한다.
    - .rt-rw-* 는 _design_ref/rt-reviews.css 에서 이식.
    - .rt-nav / .rt-gold / .rt-tabbar 은 globals.css 전역 정의를 그대로 사용한다. */
 
-.rt-root {
+.rt-root[data-rt="reviews-write-preview"] {
   --rt-navy: #0d1b2a;
   --rt-ink: #0d1b2a;
   --rt-sub: #4a5568;
@@ -26,10 +27,10 @@
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
-.rt-root * { box-sizing: border-box; }
-.rt-root button { font-family: inherit; }
+.rt-root[data-rt="reviews-write-preview"] * { box-sizing: border-box; }
+.rt-root[data-rt="reviews-write-preview"] button { font-family: inherit; }
 
-.rt-page {
+[data-rt="reviews-write-preview"] .rt-page {
   width: 100%;
   height: 100%;
   background: #fff;
@@ -40,7 +41,7 @@
   container-type: inline-size;
   container-name: page;
 }
-.rt-scroll {
+[data-rt="reviews-write-preview"] .rt-scroll {
   flex: 1;
   min-height: 0;
   display: flex;
@@ -49,11 +50,11 @@
   overflow-x: hidden;
   scrollbar-width: none;
 }
-.rt-scroll > * { flex-shrink: 0; }
-.rt-scroll::-webkit-scrollbar { width: 0; height: 0; }
+[data-rt="reviews-write-preview"] .rt-scroll > * { flex-shrink: 0; }
+[data-rt="reviews-write-preview"] .rt-scroll::-webkit-scrollbar { width: 0; height: 0; }
 
 /* ---------- bottom bar ---------- */
-.rt-bar {
+[data-rt="reviews-write-preview"] .rt-bar {
   position: sticky;
   bottom: 0;
   z-index: 28;
@@ -63,61 +64,61 @@
   border-top: 1px solid var(--rt-line);
   box-shadow: 0 -10px 30px rgba(13, 27, 42, 0.07);
 }
-.rt-bar-inner { padding: 14px var(--rt-pad) calc(14px + env(safe-area-inset-bottom)); }
-.rt-bar button:active { transform: scale(0.97); }
-.rt-bar .rt-gold {
+[data-rt="reviews-write-preview"] .rt-bar-inner { padding: 14px var(--rt-pad) calc(14px + env(safe-area-inset-bottom)); }
+[data-rt="reviews-write-preview"] .rt-bar button:active { transform: scale(0.97); }
+[data-rt="reviews-write-preview"] .rt-bar .rt-gold {
   background: var(--rt-accent) !important;
   color: var(--rt-navy) !important;
   box-shadow: 0 8px 22px rgba(201, 168, 76, 0.32);
 }
-.rt-bar .rt-gold:hover { filter: brightness(1.04); }
-.rt-bar-row { display: flex; gap: 10px; align-items: stretch; }
+[data-rt="reviews-write-preview"] .rt-bar .rt-gold:hover { filter: brightness(1.04); }
+[data-rt="reviews-write-preview"] .rt-bar-row { display: flex; gap: 10px; align-items: stretch; }
 
 /* ---------- fade-up ---------- */
 @keyframes rtFadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
-.rt-fade-up { animation: rtFadeUp 0.5s cubic-bezier(0.16, 0.84, 0.44, 1) both; animation-delay: var(--d, 0ms); }
-.rt-anim-lock .rt-fade-up { opacity: 1 !important; transform: none !important; }
+[data-rt="reviews-write-preview"] .rt-fade-up { animation: rtFadeUp 0.5s cubic-bezier(0.16, 0.84, 0.44, 1) both; animation-delay: var(--d, 0ms); }
+[data-rt="reviews-write-preview"] .rt-anim-lock .rt-fade-up { opacity: 1 !important; transform: none !important; }
 @media (prefers-reduced-motion: reduce) {
-  .rt-fade-up { animation: none !important; opacity: 1 !important; transform: none !important; }
+  [data-rt="reviews-write-preview"] .rt-fade-up { animation: none !important; opacity: 1 !important; transform: none !important; }
 }
 
 /* ===== 후기 작성 (rt-reviews.css) ===== */
-.rt-rw-head{ padding:20px var(--rt-pad) 2px; }
-.rt-rw-title{ font-size:23px; font-weight:800; letter-spacing:-0.035em; line-height:1.25; margin:0; color:var(--rt-ink); }
-.rt-rw-desc{ font-size:14px; color:var(--rt-sub); margin:8px 0 0; line-height:1.55; }
-.rt-rw-body{ padding:8px var(--rt-pad) 8px; }
-.rt-rw-field{ margin-top:20px; }
-.rt-rw-label{ font-size:13.5px; font-weight:800; color:var(--rt-ink); margin:0 0 10px; display:flex;
+[data-rt="reviews-write-preview"] .rt-rw-head { padding:20px var(--rt-pad) 2px; }
+[data-rt="reviews-write-preview"] .rt-rw-title { font-size:23px; font-weight:800; letter-spacing:-0.035em; line-height:1.25; margin:0; color:var(--rt-ink); }
+[data-rt="reviews-write-preview"] .rt-rw-desc { font-size:14px; color:var(--rt-sub); margin:8px 0 0; line-height:1.55; }
+[data-rt="reviews-write-preview"] .rt-rw-body { padding:8px var(--rt-pad) 8px; }
+[data-rt="reviews-write-preview"] .rt-rw-field { margin-top:20px; }
+[data-rt="reviews-write-preview"] .rt-rw-label { font-size:13.5px; font-weight:800; color:var(--rt-ink); margin:0 0 10px; display:flex;
   align-items:center; gap:6px; letter-spacing:-0.01em; }
-.rt-rw-label em{ font-style:normal; font-size:12px; font-weight:600; color:var(--rt-muted); }
-.rt-rw-stars{ display:flex; gap:8px; }
-.rt-rw-star{ background:none; border:0; padding:0; cursor:pointer; color:#E2E5EA; transition:transform .12s; }
-.rt-rw-star:active{ transform:scale(.9); }
-.rt-rw-star.on{ color:var(--rt-accent); }
-.rt-rw-rate-txt{ font-size:13px; font-weight:700; color:var(--rt-accent); margin-left:6px; align-self:center; }
-.rt-rw-select{ width:100%; height:52px; border:1.5px solid var(--rt-line); border-radius:13px; background:#fff;
+[data-rt="reviews-write-preview"] .rt-rw-label em { font-style:normal; font-size:12px; font-weight:600; color:var(--rt-muted); }
+[data-rt="reviews-write-preview"] .rt-rw-stars { display:flex; gap:8px; }
+[data-rt="reviews-write-preview"] .rt-rw-star { background:none; border:0; padding:0; cursor:pointer; color:#E2E5EA; transition:transform .12s; }
+[data-rt="reviews-write-preview"] .rt-rw-star:active { transform:scale(.9); }
+[data-rt="reviews-write-preview"] .rt-rw-star.on { color:var(--rt-accent); }
+[data-rt="reviews-write-preview"] .rt-rw-rate-txt { font-size:13px; font-weight:700; color:var(--rt-accent); margin-left:6px; align-self:center; }
+[data-rt="reviews-write-preview"] .rt-rw-select { width:100%; height:52px; border:1.5px solid var(--rt-line); border-radius:13px; background:#fff;
   padding:0 15px; font-size:14.5px; font-family:inherit; color:var(--rt-ink); outline:0;
   -webkit-appearance:none; appearance:none;
   background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' fill='none' stroke='%238A93A0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>");
   background-repeat:no-repeat; background-position:right 13px center; }
-.rt-rw-select:focus{ border-color:var(--rt-accent); }
-.rt-rw-chips{ display:flex; gap:8px; }
-.rt-rw-chip{ flex:1; padding:12px 0; border:1.5px solid var(--rt-line); border-radius:12px; background:#fff;
+[data-rt="reviews-write-preview"] .rt-rw-select:focus { border-color:var(--rt-accent); }
+[data-rt="reviews-write-preview"] .rt-rw-chips { display:flex; gap:8px; }
+[data-rt="reviews-write-preview"] .rt-rw-chip { flex:1; padding:12px 0; border:1.5px solid var(--rt-line); border-radius:12px; background:#fff;
   font-size:13.5px; font-weight:700; color:var(--rt-sub); cursor:pointer; transition:all .15s; }
-.rt-rw-chip.is-on{ border-color:var(--rt-accent); background:rgba(201,168,76,.08); color:var(--rt-navy); }
-.rt-rw-input{ width:100%; height:52px; border:1.5px solid var(--rt-line); border-radius:13px; background:#fff;
+[data-rt="reviews-write-preview"] .rt-rw-chip.is-on { border-color:var(--rt-accent); background:rgba(201,168,76,.08); color:var(--rt-navy); }
+[data-rt="reviews-write-preview"] .rt-rw-input { width:100%; height:52px; border:1.5px solid var(--rt-line); border-radius:13px; background:#fff;
   padding:0 15px; font-size:14.5px; font-family:inherit; color:var(--rt-ink); outline:0; }
-.rt-rw-input:focus{ border-color:var(--rt-accent); }
-.rt-rw-textarea{ width:100%; min-height:120px; border:1.5px solid var(--rt-line); border-radius:13px; background:#fff;
+[data-rt="reviews-write-preview"] .rt-rw-input:focus { border-color:var(--rt-accent); }
+[data-rt="reviews-write-preview"] .rt-rw-textarea { width:100%; min-height:120px; border:1.5px solid var(--rt-line); border-radius:13px; background:#fff;
   padding:14px 15px; font-size:14px; font-family:inherit; color:var(--rt-ink); outline:0; line-height:1.6; resize:none; }
-.rt-rw-textarea:focus{ border-color:var(--rt-accent); }
-.rt-rw-count{ font-size:11.5px; color:var(--rt-muted); text-align:right; margin:6px 2px 0; }
-.rt-rw-note{ font-size:11.5px; color:var(--rt-muted); line-height:1.55; margin:14px 0 0; }
-.rt-rw-done{ display:flex; flex-direction:column; align-items:center; text-align:center; padding:56px 30px; }
-.rt-rw-done-ic{ width:64px; height:64px; border-radius:50%; background:var(--rt-accent); display:flex;
+[data-rt="reviews-write-preview"] .rt-rw-textarea:focus { border-color:var(--rt-accent); }
+[data-rt="reviews-write-preview"] .rt-rw-count { font-size:11.5px; color:var(--rt-muted); text-align:right; margin:6px 2px 0; }
+[data-rt="reviews-write-preview"] .rt-rw-note { font-size:11.5px; color:var(--rt-muted); line-height:1.55; margin:14px 0 0; }
+[data-rt="reviews-write-preview"] .rt-rw-done { display:flex; flex-direction:column; align-items:center; text-align:center; padding:56px 30px; }
+[data-rt="reviews-write-preview"] .rt-rw-done-ic { width:64px; height:64px; border-radius:50%; background:var(--rt-accent); display:flex;
   align-items:center; justify-content:center; margin-bottom:20px; }
-.rt-rw-done-t{ font-size:21px; font-weight:800; color:var(--rt-ink); letter-spacing:-0.03em; margin:0; }
-.rt-rw-done-d{ font-size:14px; color:var(--rt-sub); line-height:1.6; margin:10px 0 0; word-break:keep-all; }
+[data-rt="reviews-write-preview"] .rt-rw-done-t { font-size:21px; font-weight:800; color:var(--rt-ink); letter-spacing:-0.03em; margin:0; }
+[data-rt="reviews-write-preview"] .rt-rw-done-d { font-size:14px; color:var(--rt-sub); line-height:1.6; margin:10px 0 0; word-break:keep-all; }
 
 /* 로딩 상태 */
-.rt-rw-state{ flex:1; display:flex; align-items:center; justify-content:center; font-size:13.5px; color:var(--rt-muted); }
+[data-rt="reviews-write-preview"] .rt-rw-state { flex:1; display:flex; align-items:center; justify-content:center; font-size:13.5px; color:var(--rt-muted); }

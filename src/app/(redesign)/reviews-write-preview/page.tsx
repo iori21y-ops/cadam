@@ -285,7 +285,7 @@ export default function ReviewsWritePreview() {
   }, []);
 
   return (
-    <div className="rt-root" style={cssVar({ '--rt-accent': ACCENT, '--rt-radius': '20px' })}>
+    <div data-rt="reviews-write-preview" className="rt-root" style={cssVar({ '--rt-accent': ACCENT, '--rt-radius': '20px' })}>
       {member === undefined ? (
         <div className="rt-page" data-page="review-write">
           <div className="rt-scroll">

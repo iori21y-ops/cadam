@@ -1,3 +1,4 @@
+/* @scoped data-rt="diagnosis-vehicle-preview" */
 /* diagnosis.css — 차종 추천 진단 미리보기 (co-located)
    - 프레임(.rt-root/.rt-page/.rt-scroll/.rt-bar/.rt-fade-up/.rt-anim-lock)은
      형제 프리뷰 라우트(diagnosis-report-preview/deprec.css)와 byte-identical 하게 유지한다.
@@ -7,7 +8,7 @@
    - .rt-nav, .rt-sheet, .rt-gold 은 globals.css 전역 정의를 그대로 사용한다.
    - 프로토타입 전용 image-slot 규칙은 제외(색상 플레이스홀더 div 로 대체). */
 
-.rt-root {
+.rt-root[data-rt="diagnosis-vehicle-preview"] {
   --rt-navy: #0d1b2a;
   --rt-ink: #0d1b2a;
   --rt-sub: #4a5568;
@@ -29,10 +30,10 @@
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
-.rt-root * { box-sizing: border-box; }
-.rt-root button { font-family: inherit; }
+.rt-root[data-rt="diagnosis-vehicle-preview"] * { box-sizing: border-box; }
+.rt-root[data-rt="diagnosis-vehicle-preview"] button { font-family: inherit; }
 
-.rt-page {
+[data-rt="diagnosis-vehicle-preview"] .rt-page {
   width: 100%;
   height: 100%;
   background: #fff;
@@ -43,7 +44,7 @@
   container-type: inline-size;
   container-name: page;
 }
-.rt-scroll {
+[data-rt="diagnosis-vehicle-preview"] .rt-scroll {
   flex: 1;
   min-height: 0;
   display: flex;
@@ -52,11 +53,11 @@
   overflow-x: hidden;
   scrollbar-width: none;
 }
-.rt-scroll > * { flex-shrink: 0; }
-.rt-scroll::-webkit-scrollbar { width: 0; height: 0; }
+[data-rt="diagnosis-vehicle-preview"] .rt-scroll > * { flex-shrink: 0; }
+[data-rt="diagnosis-vehicle-preview"] .rt-scroll::-webkit-scrollbar { width: 0; height: 0; }
 
 /* ---------- bottom bar ---------- */
-.rt-bar {
+[data-rt="diagnosis-vehicle-preview"] .rt-bar {
   position: sticky;
   bottom: 0;
   z-index: 28;
@@ -66,16 +67,16 @@
   border-top: 1px solid var(--rt-line);
   box-shadow: 0 -10px 30px rgba(13, 27, 42, 0.07);
 }
-.rt-bar-inner { padding: 14px var(--rt-pad) calc(14px + env(safe-area-inset-bottom)); }
-.rt-bar button:active { transform: scale(0.97); }
-.rt-bar .rt-gold {
+[data-rt="diagnosis-vehicle-preview"] .rt-bar-inner { padding: 14px var(--rt-pad) calc(14px + env(safe-area-inset-bottom)); }
+[data-rt="diagnosis-vehicle-preview"] .rt-bar button:active { transform: scale(0.97); }
+[data-rt="diagnosis-vehicle-preview"] .rt-bar .rt-gold {
   background: var(--rt-accent) !important;
   color: var(--rt-navy) !important;
   box-shadow: 0 8px 22px rgba(201, 168, 76, 0.32);
 }
-.rt-bar .rt-gold:hover { filter: brightness(1.04); }
-.rt-bar-row { display: flex; gap: 10px; align-items: stretch; }
-.rt-bar-call {
+[data-rt="diagnosis-vehicle-preview"] .rt-bar .rt-gold:hover { filter: brightness(1.04); }
+[data-rt="diagnosis-vehicle-preview"] .rt-bar-row { display: flex; gap: 10px; align-items: stretch; }
+[data-rt="diagnosis-vehicle-preview"] .rt-bar-call {
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
@@ -90,212 +91,212 @@
   font-size: 12px;
   font-weight: 700;
 }
-.rt-bar-call:active { transform: scale(0.97); }
-.rt-bar-row > :last-child { flex: 1; }
+[data-rt="diagnosis-vehicle-preview"] .rt-bar-call:active { transform: scale(0.97); }
+[data-rt="diagnosis-vehicle-preview"] .rt-bar-row > :last-child { flex: 1; }
 
 /* ---------- fade-up ---------- */
 @keyframes rtFadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
-.rt-fade-up { animation: rtFadeUp 0.5s cubic-bezier(0.16, 0.84, 0.44, 1) both; animation-delay: var(--d, 0ms); }
-.rt-anim-lock .rt-fade-up { opacity: 1 !important; transform: none !important; }
+[data-rt="diagnosis-vehicle-preview"] .rt-fade-up { animation: rtFadeUp 0.5s cubic-bezier(0.16, 0.84, 0.44, 1) both; animation-delay: var(--d, 0ms); }
+[data-rt="diagnosis-vehicle-preview"] .rt-anim-lock .rt-fade-up { opacity: 1 !important; transform: none !important; }
 @media (prefers-reduced-motion: reduce) {
-  .rt-fade-up { animation: none !important; opacity: 1 !important; transform: none !important; }
+  [data-rt="diagnosis-vehicle-preview"] .rt-fade-up { animation: none !important; opacity: 1 !important; transform: none !important; }
 }
 
 /* ===== 단계 래퍼 + 전환 (rt-quote.css) ===== */
-.rt-qwrap { flex: 1 0 auto; }
+[data-rt="diagnosis-vehicle-preview"] .rt-qwrap { flex: 1 0 auto; }
 @keyframes rtQSlideIn { from { transform: translateX(24px); } to { transform: none; } }
 @keyframes rtQSlideInBack { from { transform: translateX(-24px); } to { transform: none; } }
-.rt-qin { animation: rtQSlideIn 0.3s cubic-bezier(0.16, 0.84, 0.44, 1) both; }
-.rt-qwrap.is-back .rt-qin { animation-name: rtQSlideInBack; }
-.rt-anim-lock .rt-qin { animation: none !important; transform: none !important; }
+[data-rt="diagnosis-vehicle-preview"] .rt-qin { animation: rtQSlideIn 0.3s cubic-bezier(0.16, 0.84, 0.44, 1) both; }
+[data-rt="diagnosis-vehicle-preview"] .rt-qwrap.is-back .rt-qin { animation-name: rtQSlideInBack; }
+[data-rt="diagnosis-vehicle-preview"] .rt-anim-lock .rt-qin { animation: none !important; transform: none !important; }
 @media (prefers-reduced-motion: reduce) {
-  .rt-qin { animation: none !important; transform: none !important; }
+  [data-rt="diagnosis-vehicle-preview"] .rt-qin { animation: none !important; transform: none !important; }
 }
 
 /* ===== 진행 바 (rt-quote.css) ===== */
-.rt-qprogress { display: flex; align-items: center; gap: 12px; padding: 14px var(--rt-pad) 4px; }
-.rt-qback { flex-shrink: 0; width: 38px; height: 38px; border-radius: 11px; border: 1px solid var(--rt-line);
+[data-rt="diagnosis-vehicle-preview"] .rt-qprogress { display: flex; align-items: center; gap: 12px; padding: 14px var(--rt-pad) 4px; }
+[data-rt="diagnosis-vehicle-preview"] .rt-qback { flex-shrink: 0; width: 38px; height: 38px; border-radius: 11px; border: 1px solid var(--rt-line);
   background: #fff; color: var(--rt-ink); display: flex; align-items: center; justify-content: center;
   cursor: pointer; transition: background 0.15s, border-color 0.15s; }
-.rt-qback:hover { border-color: var(--rt-accent); }
-.rt-qback:active { transform: scale(0.95); }
-.rt-qtrack { flex: 1; height: 6px; border-radius: 999px; background: var(--rt-line); overflow: hidden; }
-.rt-qfill { height: 100%; border-radius: 999px; background: var(--rt-accent);
+[data-rt="diagnosis-vehicle-preview"] .rt-qback:hover { border-color: var(--rt-accent); }
+[data-rt="diagnosis-vehicle-preview"] .rt-qback:active { transform: scale(0.95); }
+[data-rt="diagnosis-vehicle-preview"] .rt-qtrack { flex: 1; height: 6px; border-radius: 999px; background: var(--rt-line); overflow: hidden; }
+[data-rt="diagnosis-vehicle-preview"] .rt-qfill { height: 100%; border-radius: 999px; background: var(--rt-accent);
   transition: width 0.42s cubic-bezier(0.4, 0, 0.2, 1); }
-.rt-qstepn { flex-shrink: 0; font-size: 12.5px; font-weight: 700; color: var(--rt-muted);
+[data-rt="diagnosis-vehicle-preview"] .rt-qstepn { flex-shrink: 0; font-size: 12.5px; font-weight: 700; color: var(--rt-muted);
   font-variant-numeric: tabular-nums; }
 
 /* ===== 질문 본문 (rt-quote.css) ===== */
-.rt-qbody { padding: 24px var(--rt-pad) 28px; }
-.rt-qeyebrow { font-size: 12px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase;
+[data-rt="diagnosis-vehicle-preview"] .rt-qbody { padding: 24px var(--rt-pad) 28px; }
+[data-rt="diagnosis-vehicle-preview"] .rt-qeyebrow { font-size: 12px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase;
   color: var(--rt-accent); margin: 0 0 12px; }
-.rt-qtitle { font-size: 26px; line-height: 1.26; font-weight: 800; letter-spacing: -0.03em;
+[data-rt="diagnosis-vehicle-preview"] .rt-qtitle { font-size: 26px; line-height: 1.26; font-weight: 800; letter-spacing: -0.03em;
   margin: 0; color: var(--rt-ink); text-wrap: balance; }
-.rt-qdesc { font-size: 15px; line-height: 1.6; color: var(--rt-sub); margin: 12px 0 0; text-wrap: pretty; }
-.rt-qcontent { margin-top: 20px; }
+[data-rt="diagnosis-vehicle-preview"] .rt-qdesc { font-size: 15px; line-height: 1.6; color: var(--rt-sub); margin: 12px 0 0; text-wrap: pretty; }
+[data-rt="diagnosis-vehicle-preview"] .rt-qcontent { margin-top: 20px; }
 
 /* ===== 옵션 카드 (rt-quote.css) ===== */
-.rt-opts { display: flex; flex-direction: column; gap: 12px; }
-.rt-opt { display: flex; align-items: center; gap: 14px; width: 100%; text-align: left; cursor: pointer;
+[data-rt="diagnosis-vehicle-preview"] .rt-opts { display: flex; flex-direction: column; gap: 12px; }
+[data-rt="diagnosis-vehicle-preview"] .rt-opt { display: flex; align-items: center; gap: 14px; width: 100%; text-align: left; cursor: pointer;
   background: #fff; border: 1.5px solid var(--rt-line); border-radius: 16px; padding: 17px 18px;
   font-family: inherit; transition: border-color 0.16s, box-shadow 0.16s, transform 0.12s, background 0.16s; }
-.rt-opt:hover { border-color: rgba(201, 168, 76, 0.55); box-shadow: 0 6px 18px rgba(13, 27, 42, 0.06); }
-.rt-opt:active { transform: scale(0.99); }
-.rt-opt.is-on { border-color: var(--rt-accent); background: rgba(201, 168, 76, 0.07);
+[data-rt="diagnosis-vehicle-preview"] .rt-opt:hover { border-color: rgba(201, 168, 76, 0.55); box-shadow: 0 6px 18px rgba(13, 27, 42, 0.06); }
+[data-rt="diagnosis-vehicle-preview"] .rt-opt:active { transform: scale(0.99); }
+[data-rt="diagnosis-vehicle-preview"] .rt-opt.is-on { border-color: var(--rt-accent); background: rgba(201, 168, 76, 0.07);
   box-shadow: 0 8px 22px rgba(201, 168, 76, 0.16); }
-.rt-opt-main { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0; }
-.rt-opt-label { font-size: 18px; font-weight: 800; letter-spacing: -0.02em; color: var(--rt-ink); line-height: 1.25; }
-.rt-opt-label em { font-size: 14px; font-weight: 700; font-style: normal; color: var(--rt-sub); margin-left: 3px; }
-.rt-opt-sub { font-size: 13.5px; font-weight: 500; color: var(--rt-muted); line-height: 1.4; }
-.rt-opt-check { flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--rt-line);
+[data-rt="diagnosis-vehicle-preview"] .rt-opt-main { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0; }
+[data-rt="diagnosis-vehicle-preview"] .rt-opt-label { font-size: 18px; font-weight: 800; letter-spacing: -0.02em; color: var(--rt-ink); line-height: 1.25; }
+[data-rt="diagnosis-vehicle-preview"] .rt-opt-label em { font-size: 14px; font-weight: 700; font-style: normal; color: var(--rt-sub); margin-left: 3px; }
+[data-rt="diagnosis-vehicle-preview"] .rt-opt-sub { font-size: 13.5px; font-weight: 500; color: var(--rt-muted); line-height: 1.4; }
+[data-rt="diagnosis-vehicle-preview"] .rt-opt-check { flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--rt-line);
   display: flex; align-items: center; justify-content: center; transition: background 0.16s, border-color 0.16s; }
-.rt-opt-check svg { opacity: 0; transform: scale(0.5); transition: opacity 0.16s, transform 0.16s; }
-.rt-opt.is-on .rt-opt-check { background: var(--rt-accent); border-color: var(--rt-accent); }
-.rt-opt.is-on .rt-opt-check svg { opacity: 1; transform: scale(1); }
+[data-rt="diagnosis-vehicle-preview"] .rt-opt-check svg { opacity: 0; transform: scale(0.5); transition: opacity 0.16s, transform 0.16s; }
+[data-rt="diagnosis-vehicle-preview"] .rt-opt.is-on .rt-opt-check { background: var(--rt-accent); border-color: var(--rt-accent); }
+[data-rt="diagnosis-vehicle-preview"] .rt-opt.is-on .rt-opt-check svg { opacity: 1; transform: scale(1); }
 
 /* ===== 결과 공통 (rt-quote.css) ===== */
-.rt-qresult { padding: 22px var(--rt-pad) 28px; }
-.rt-qresult-kicker { font-size: 12.5px; font-weight: 800; letter-spacing: 0.02em; color: var(--rt-accent); margin: 0; }
-.rt-qresult-title { font-size: 25px; font-weight: 800; letter-spacing: -0.03em; color: var(--rt-ink);
+[data-rt="diagnosis-vehicle-preview"] .rt-qresult { padding: 22px var(--rt-pad) 28px; }
+[data-rt="diagnosis-vehicle-preview"] .rt-qresult-kicker { font-size: 12.5px; font-weight: 800; letter-spacing: 0.02em; color: var(--rt-accent); margin: 0; }
+[data-rt="diagnosis-vehicle-preview"] .rt-qresult-title { font-size: 25px; font-weight: 800; letter-spacing: -0.03em; color: var(--rt-ink);
   margin: 7px 0 0; line-height: 1.25; text-wrap: balance; }
-.rt-qblock { margin-top: 26px; }
-.rt-qblock-t { font-size: 16px; font-weight: 800; letter-spacing: -0.02em; color: var(--rt-ink); margin: 0 0 13px; }
+[data-rt="diagnosis-vehicle-preview"] .rt-qblock { margin-top: 26px; }
+[data-rt="diagnosis-vehicle-preview"] .rt-qblock-t { font-size: 16px; font-weight: 800; letter-spacing: -0.02em; color: var(--rt-ink); margin: 0 0 13px; }
 
 /* ===== 대안 차량 카드 (rt-quote.css) ===== */
-.rt-qcars { display: flex; flex-direction: column; gap: 11px; }
-.rt-qcar { display: flex; align-items: center; gap: 13px; text-decoration: none; color: inherit;
+[data-rt="diagnosis-vehicle-preview"] .rt-qcars { display: flex; flex-direction: column; gap: 11px; }
+[data-rt="diagnosis-vehicle-preview"] .rt-qcar { display: flex; align-items: center; gap: 13px; text-decoration: none; color: inherit;
   background: #fff; border: 1px solid var(--rt-line); border-radius: 16px; padding: 11px;
   transition: transform 0.12s, border-color 0.15s, box-shadow 0.15s; }
-.rt-qcar:hover { border-color: rgba(201, 168, 76, 0.5); box-shadow: 0 8px 20px rgba(13, 27, 42, 0.07); }
-.rt-qcar:active { transform: scale(0.99); }
-.rt-qcar-thumb { flex-shrink: 0; width: 92px; aspect-ratio: 16/11; border-radius: 11px; overflow: hidden;
+[data-rt="diagnosis-vehicle-preview"] .rt-qcar:hover { border-color: rgba(201, 168, 76, 0.5); box-shadow: 0 8px 20px rgba(13, 27, 42, 0.07); }
+[data-rt="diagnosis-vehicle-preview"] .rt-qcar:active { transform: scale(0.99); }
+[data-rt="diagnosis-vehicle-preview"] .rt-qcar-thumb { flex-shrink: 0; width: 92px; aspect-ratio: 16/11; border-radius: 11px; overflow: hidden;
   display: flex; align-items: center; justify-content: center;
   background: linear-gradient(150deg, hsl(var(--hue, 210) 32% 92%), hsl(var(--hue, 210) 26% 82%));
   color: hsl(var(--hue, 210) 30% 42%); font-size: 10.5px; font-weight: 700; }
-.rt-qcar-meta { flex: 1; min-width: 0; }
-.rt-qcar-brand { font-size: 11.5px; font-weight: 700; color: var(--rt-muted); }
-.rt-qcar-name { font-size: 16px; font-weight: 800; letter-spacing: -0.02em; color: var(--rt-ink); margin-top: 2px;
+[data-rt="diagnosis-vehicle-preview"] .rt-qcar-meta { flex: 1; min-width: 0; }
+[data-rt="diagnosis-vehicle-preview"] .rt-qcar-brand { font-size: 11.5px; font-weight: 700; color: var(--rt-muted); }
+[data-rt="diagnosis-vehicle-preview"] .rt-qcar-name { font-size: 16px; font-weight: 800; letter-spacing: -0.02em; color: var(--rt-ink); margin-top: 2px;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.rt-qcar-seg { font-size: 12px; color: var(--rt-sub); margin-top: 2px; }
-.rt-qcar-price { flex-shrink: 0; text-align: right; }
-.rt-qcar-price b { font-size: 16px; font-weight: 800; letter-spacing: -0.02em; color: var(--rt-ink);
+[data-rt="diagnosis-vehicle-preview"] .rt-qcar-seg { font-size: 12px; color: var(--rt-sub); margin-top: 2px; }
+[data-rt="diagnosis-vehicle-preview"] .rt-qcar-price { flex-shrink: 0; text-align: right; }
+[data-rt="diagnosis-vehicle-preview"] .rt-qcar-price b { font-size: 16px; font-weight: 800; letter-spacing: -0.02em; color: var(--rt-ink);
   font-variant-numeric: tabular-nums; }
-.rt-qcar-price span { font-size: 11.5px; font-weight: 700; color: var(--rt-muted); display: block; margin-top: 1px; }
+[data-rt="diagnosis-vehicle-preview"] .rt-qcar-price span { font-size: 11.5px; font-weight: 700; color: var(--rt-muted); display: block; margin-top: 1px; }
 
 /* ===== 신뢰 밴드 (rt-quote.css) ===== */
-.rt-qtrust { display: flex; background: var(--rt-soft); border: 1px solid var(--rt-line); border-radius: 16px;
+[data-rt="diagnosis-vehicle-preview"] .rt-qtrust { display: flex; background: var(--rt-soft); border: 1px solid var(--rt-line); border-radius: 16px;
   overflow: hidden; }
-.rt-qtrust-cell { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 16px 8px;
+[data-rt="diagnosis-vehicle-preview"] .rt-qtrust-cell { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 16px 8px;
   position: relative; }
-.rt-qtrust-cell + .rt-qtrust-cell::before { content: ''; position: absolute; left: 0; top: 22%; bottom: 22%;
+[data-rt="diagnosis-vehicle-preview"] .rt-qtrust-cell + .rt-qtrust-cell::before { content: ''; position: absolute; left: 0; top: 22%; bottom: 22%;
   width: 1px; background: var(--rt-line); }
-.rt-qtrust-v { font-size: 19px; font-weight: 800; letter-spacing: -0.02em; color: var(--rt-accent);
+[data-rt="diagnosis-vehicle-preview"] .rt-qtrust-v { font-size: 19px; font-weight: 800; letter-spacing: -0.02em; color: var(--rt-accent);
   font-variant-numeric: tabular-nums; }
-.rt-qtrust-l { font-size: 11.5px; font-weight: 600; color: var(--rt-sub); }
+[data-rt="diagnosis-vehicle-preview"] .rt-qtrust-l { font-size: 11.5px; font-weight: 600; color: var(--rt-sub); }
 
 /* ===== 인트로 히어로 (rt-diagnosis.css) ===== */
-.rt-dhero-intro { padding: 34px var(--rt-pad) 20px; }
-.rt-dbadge { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 800;
+[data-rt="diagnosis-vehicle-preview"] .rt-dhero-intro { padding: 34px var(--rt-pad) 20px; }
+[data-rt="diagnosis-vehicle-preview"] .rt-dbadge { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 800;
   letter-spacing: 0.02em; color: var(--rt-accent); background: rgba(201, 168, 76, 0.12); padding: 7px 13px;
   border-radius: 999px; margin-bottom: 18px; }
-.rt-dbadge i { width: 6px; height: 6px; border-radius: 50%; background: var(--rt-accent);
+[data-rt="diagnosis-vehicle-preview"] .rt-dbadge i { width: 6px; height: 6px; border-radius: 50%; background: var(--rt-accent);
   box-shadow: 0 0 0 0 rgba(201, 168, 76, 0.5); animation: rtPulse 1.6s ease-out infinite; }
 @keyframes rtPulse {
   0% { box-shadow: 0 0 0 0 rgba(201, 168, 76, 0.5); }
   70% { box-shadow: 0 0 0 8px rgba(201, 168, 76, 0); }
   100% { box-shadow: 0 0 0 0 rgba(201, 168, 76, 0); }
 }
-.rt-dhero-title { font-size: 30px; line-height: 1.2; font-weight: 800; letter-spacing: -0.035em;
+[data-rt="diagnosis-vehicle-preview"] .rt-dhero-title { font-size: 30px; line-height: 1.2; font-weight: 800; letter-spacing: -0.035em;
   margin: 0; color: var(--rt-ink); text-wrap: balance; }
-.rt-dhero-title em { font-style: normal; color: var(--rt-accent); }
-.rt-dhero-desc { font-size: 15px; line-height: 1.6; color: var(--rt-sub); margin: 14px 0 0; text-wrap: pretty; }
-.rt-dfeats { display: flex; flex-direction: column; gap: 10px; margin-top: 24px; }
-.rt-dfeat { display: flex; align-items: center; gap: 13px; padding: 15px 16px; border: 1px solid var(--rt-line);
+[data-rt="diagnosis-vehicle-preview"] .rt-dhero-title em { font-style: normal; color: var(--rt-accent); }
+[data-rt="diagnosis-vehicle-preview"] .rt-dhero-desc { font-size: 15px; line-height: 1.6; color: var(--rt-sub); margin: 14px 0 0; text-wrap: pretty; }
+[data-rt="diagnosis-vehicle-preview"] .rt-dfeats { display: flex; flex-direction: column; gap: 10px; margin-top: 24px; }
+[data-rt="diagnosis-vehicle-preview"] .rt-dfeat { display: flex; align-items: center; gap: 13px; padding: 15px 16px; border: 1px solid var(--rt-line);
   border-radius: 15px; background: #fff; box-shadow: 0 2px 12px rgba(13, 27, 42, 0.05); }
-.rt-dfeat-ic { flex-shrink: 0; width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center;
+[data-rt="diagnosis-vehicle-preview"] .rt-dfeat-ic { flex-shrink: 0; width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center;
   justify-content: center; background: rgba(201, 168, 76, 0.13); color: var(--rt-accent); }
-.rt-dfeat-t { font-size: 14.5px; font-weight: 800; letter-spacing: -0.02em; color: var(--rt-ink); }
-.rt-dfeat-d { font-size: 12.5px; color: var(--rt-sub); margin-top: 2px; }
+[data-rt="diagnosis-vehicle-preview"] .rt-dfeat-t { font-size: 14.5px; font-weight: 800; letter-spacing: -0.02em; color: var(--rt-ink); }
+[data-rt="diagnosis-vehicle-preview"] .rt-dfeat-d { font-size: 12.5px; color: var(--rt-sub); margin-top: 2px; }
 
 /* ===== 분석 중 로딩 (rt-diagnosis.css) ===== */
-.rt-dload { min-height: 440px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+[data-rt="diagnosis-vehicle-preview"] .rt-dload { min-height: 440px; display: flex; flex-direction: column; align-items: center; justify-content: center;
   padding: 40px var(--rt-pad); text-align: center; }
-.rt-dload-ring { width: 62px; height: 62px; border-radius: 50%; border: 4px solid var(--rt-line);
+[data-rt="diagnosis-vehicle-preview"] .rt-dload-ring { width: 62px; height: 62px; border-radius: 50%; border: 4px solid var(--rt-line);
   border-top-color: var(--rt-accent); animation: rtSpin 0.9s linear infinite; }
 @keyframes rtSpin { to { transform: rotate(360deg); } }
-.rt-dload-t { font-size: 19px; font-weight: 800; color: var(--rt-ink); margin: 24px 0 0; letter-spacing: -0.02em; }
-.rt-dload-d { font-size: 13.5px; color: var(--rt-sub); margin: 8px 0 0; line-height: 1.5; }
-.rt-dload-list { margin-top: 22px; display: flex; flex-direction: column; gap: 9px; width: 100%; max-width: 280px; }
-.rt-dload-row { display: flex; align-items: center; gap: 9px; font-size: 13px; font-weight: 600; color: var(--rt-muted);
+[data-rt="diagnosis-vehicle-preview"] .rt-dload-t { font-size: 19px; font-weight: 800; color: var(--rt-ink); margin: 24px 0 0; letter-spacing: -0.02em; }
+[data-rt="diagnosis-vehicle-preview"] .rt-dload-d { font-size: 13.5px; color: var(--rt-sub); margin: 8px 0 0; line-height: 1.5; }
+[data-rt="diagnosis-vehicle-preview"] .rt-dload-list { margin-top: 22px; display: flex; flex-direction: column; gap: 9px; width: 100%; max-width: 280px; }
+[data-rt="diagnosis-vehicle-preview"] .rt-dload-row { display: flex; align-items: center; gap: 9px; font-size: 13px; font-weight: 600; color: var(--rt-muted);
   opacity: 0; animation: rtFadeUp 0.4s ease forwards; }
-.rt-dload-row.r1 { animation-delay: 0.1s; }
-.rt-dload-row.r2 { animation-delay: 0.5s; }
-.rt-dload-row.r3 { animation-delay: 0.95s; }
-.rt-dload-row svg { color: var(--rt-accent); flex-shrink: 0; }
+[data-rt="diagnosis-vehicle-preview"] .rt-dload-row.r1 { animation-delay: 0.1s; }
+[data-rt="diagnosis-vehicle-preview"] .rt-dload-row.r2 { animation-delay: 0.5s; }
+[data-rt="diagnosis-vehicle-preview"] .rt-dload-row.r3 { animation-delay: 0.95s; }
+[data-rt="diagnosis-vehicle-preview"] .rt-dload-row svg { color: var(--rt-accent); flex-shrink: 0; }
 
 /* ===== 결과 추천 히어로 카드 (rt-diagnosis.css) ===== */
-.rt-drec { border: 1.5px solid var(--rt-accent); border-radius: 22px; overflow: hidden; background: #fff;
+[data-rt="diagnosis-vehicle-preview"] .rt-drec { border: 1.5px solid var(--rt-accent); border-radius: 22px; overflow: hidden; background: #fff;
   box-shadow: 0 16px 44px rgba(201, 168, 76, 0.2); }
-.rt-drec-media { position: relative; aspect-ratio: 16/10;
+[data-rt="diagnosis-vehicle-preview"] .rt-drec-media { position: relative; aspect-ratio: 16/10;
   display: flex; align-items: center; justify-content: center;
   background: linear-gradient(150deg, hsl(var(--hue, 210) 32% 93%), hsl(var(--hue, 210) 26% 83%));
   color: hsl(var(--hue, 210) 30% 40%); font-size: 14px; font-weight: 700; }
-.rt-drec-match { position: absolute; left: 14px; top: 14px; z-index: 3; display: flex; align-items: center; gap: 6px;
+[data-rt="diagnosis-vehicle-preview"] .rt-drec-match { position: absolute; left: 14px; top: 14px; z-index: 3; display: flex; align-items: center; gap: 6px;
   background: var(--rt-navy); color: #fff; font-size: 12px; font-weight: 700; padding: 7px 13px; border-radius: 999px;
   box-shadow: 0 6px 18px rgba(13, 27, 42, 0.25); }
-.rt-drec-match b { color: var(--rt-accent); font-weight: 800; }
-.rt-drec-rank { position: absolute; right: 14px; top: 14px; z-index: 3; font-size: 11px; font-weight: 800;
+[data-rt="diagnosis-vehicle-preview"] .rt-drec-match b { color: var(--rt-accent); font-weight: 800; }
+[data-rt="diagnosis-vehicle-preview"] .rt-drec-rank { position: absolute; right: 14px; top: 14px; z-index: 3; font-size: 11px; font-weight: 800;
   background: var(--rt-accent); color: var(--rt-navy); padding: 5px 11px; border-radius: 999px; }
-.rt-drec-body { padding: 18px; }
-.rt-drec-brand { font-size: 12.5px; font-weight: 700; color: var(--rt-muted); }
-.rt-drec-name { font-size: 24px; font-weight: 800; letter-spacing: -0.035em; color: var(--rt-ink); margin: 4px 0 0; }
-.rt-drec-seg { font-size: 13px; color: var(--rt-sub); margin: 3px 0 0; }
-.rt-drec-reasons { display: flex; flex-direction: column; gap: 9px; margin-top: 16px; }
-.rt-drec-reason { display: flex; align-items: center; gap: 9px; font-size: 13.5px; font-weight: 600; color: var(--rt-ink); }
-.rt-drec-reason svg { color: var(--rt-accent); flex-shrink: 0; }
-.rt-drec-foot { display: flex; align-items: flex-end; justify-content: space-between; gap: 10px;
+[data-rt="diagnosis-vehicle-preview"] .rt-drec-body { padding: 18px; }
+[data-rt="diagnosis-vehicle-preview"] .rt-drec-brand { font-size: 12.5px; font-weight: 700; color: var(--rt-muted); }
+[data-rt="diagnosis-vehicle-preview"] .rt-drec-name { font-size: 24px; font-weight: 800; letter-spacing: -0.035em; color: var(--rt-ink); margin: 4px 0 0; }
+[data-rt="diagnosis-vehicle-preview"] .rt-drec-seg { font-size: 13px; color: var(--rt-sub); margin: 3px 0 0; }
+[data-rt="diagnosis-vehicle-preview"] .rt-drec-reasons { display: flex; flex-direction: column; gap: 9px; margin-top: 16px; }
+[data-rt="diagnosis-vehicle-preview"] .rt-drec-reason { display: flex; align-items: center; gap: 9px; font-size: 13.5px; font-weight: 600; color: var(--rt-ink); }
+[data-rt="diagnosis-vehicle-preview"] .rt-drec-reason svg { color: var(--rt-accent); flex-shrink: 0; }
+[data-rt="diagnosis-vehicle-preview"] .rt-drec-foot { display: flex; align-items: flex-end; justify-content: space-between; gap: 10px;
   margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--rt-line); }
-.rt-drec-price-k { font-size: 11.5px; font-weight: 700; color: var(--rt-muted); }
-.rt-drec-price { display: flex; align-items: baseline; gap: 3px; margin-top: 2px; }
-.rt-drec-price b { font-size: 27px; font-weight: 800; letter-spacing: -0.035em; color: var(--rt-ink);
+[data-rt="diagnosis-vehicle-preview"] .rt-drec-price-k { font-size: 11.5px; font-weight: 700; color: var(--rt-muted); }
+[data-rt="diagnosis-vehicle-preview"] .rt-drec-price { display: flex; align-items: baseline; gap: 3px; margin-top: 2px; }
+[data-rt="diagnosis-vehicle-preview"] .rt-drec-price b { font-size: 27px; font-weight: 800; letter-spacing: -0.035em; color: var(--rt-ink);
   font-variant-numeric: tabular-nums; }
-.rt-drec-price span { font-size: 14px; font-weight: 700; color: var(--rt-ink); }
-.rt-drec-link { flex-shrink: 0; display: flex; align-items: center; gap: 3px; height: 38px; padding: 0 15px;
+[data-rt="diagnosis-vehicle-preview"] .rt-drec-price span { font-size: 14px; font-weight: 700; color: var(--rt-ink); }
+[data-rt="diagnosis-vehicle-preview"] .rt-drec-link { flex-shrink: 0; display: flex; align-items: center; gap: 3px; height: 38px; padding: 0 15px;
   border-radius: 11px; background: var(--rt-navy); color: #fff; font-size: 13px; font-weight: 800; text-decoration: none; }
-.rt-drec-link:hover { filter: brightness(1.1); }
+[data-rt="diagnosis-vehicle-preview"] .rt-drec-link:hover { filter: brightness(1.1); }
 
 /* ===== 감가 등급 카드 (rt-diagnosis.css) ===== */
-.rt-dgrade { border: 1px solid var(--rt-line); border-radius: 18px; background: #fff; overflow: hidden;
+[data-rt="diagnosis-vehicle-preview"] .rt-dgrade { border: 1px solid var(--rt-line); border-radius: 18px; background: #fff; overflow: hidden;
   box-shadow: 0 2px 14px rgba(13, 27, 42, 0.05); }
-.rt-dgrade-head { display: flex; align-items: center; gap: 14px; padding: 16px 17px; }
-.rt-dgrade-badge { flex-shrink: 0; width: 52px; height: 52px; border-radius: 15px; display: flex; align-items: center;
+[data-rt="diagnosis-vehicle-preview"] .rt-dgrade-head { display: flex; align-items: center; gap: 14px; padding: 16px 17px; }
+[data-rt="diagnosis-vehicle-preview"] .rt-dgrade-badge { flex-shrink: 0; width: 52px; height: 52px; border-radius: 15px; display: flex; align-items: center;
   justify-content: center; font-size: 23px; font-weight: 800; letter-spacing: -0.04em; color: #fff;
   background: var(--g, #c9a84c); box-shadow: 0 6px 18px color-mix(in srgb, var(--g, #c9a84c) 38%, transparent); }
-.rt-dgrade-label { font-size: 16px; font-weight: 800; letter-spacing: -0.02em; color: var(--rt-ink); }
-.rt-dgrade-sub { font-size: 12.5px; color: var(--rt-sub); margin-top: 3px; line-height: 1.45; text-wrap: pretty; }
-.rt-dgrade-bars { padding: 4px 17px 17px; }
-.rt-dgrade-row { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
-.rt-dgrade-rk { font-size: 13px; font-weight: 700; color: var(--rt-sub); }
-.rt-dgrade-rv { font-size: 20px; font-weight: 800; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
-.rt-dgrade-track { position: relative; height: 9px; border-radius: 999px; background: var(--rt-soft);
+[data-rt="diagnosis-vehicle-preview"] .rt-dgrade-label { font-size: 16px; font-weight: 800; letter-spacing: -0.02em; color: var(--rt-ink); }
+[data-rt="diagnosis-vehicle-preview"] .rt-dgrade-sub { font-size: 12.5px; color: var(--rt-sub); margin-top: 3px; line-height: 1.45; text-wrap: pretty; }
+[data-rt="diagnosis-vehicle-preview"] .rt-dgrade-bars { padding: 4px 17px 17px; }
+[data-rt="diagnosis-vehicle-preview"] .rt-dgrade-row { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+[data-rt="diagnosis-vehicle-preview"] .rt-dgrade-rk { font-size: 13px; font-weight: 700; color: var(--rt-sub); }
+[data-rt="diagnosis-vehicle-preview"] .rt-dgrade-rv { font-size: 20px; font-weight: 800; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+[data-rt="diagnosis-vehicle-preview"] .rt-dgrade-track { position: relative; height: 9px; border-radius: 999px; background: var(--rt-soft);
   border: 1px solid var(--rt-line); overflow: visible; }
-.rt-dgrade-fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 999px;
+[data-rt="diagnosis-vehicle-preview"] .rt-dgrade-fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 999px;
   transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
-.rt-dgrade-avg { position: absolute; top: -4px; bottom: -4px; width: 2px; background: var(--rt-ink); border-radius: 2px; }
-.rt-dgrade-avg::after { content: '동급 평균'; position: absolute; top: -17px; left: 50%; transform: translateX(-50%);
+[data-rt="diagnosis-vehicle-preview"] .rt-dgrade-avg { position: absolute; top: -4px; bottom: -4px; width: 2px; background: var(--rt-ink); border-radius: 2px; }
+[data-rt="diagnosis-vehicle-preview"] .rt-dgrade-avg::after { content: '동급 평균'; position: absolute; top: -17px; left: 50%; transform: translateX(-50%);
   font-size: 9.5px; font-weight: 700; color: var(--rt-muted); white-space: nowrap; }
-.rt-dgrade-legend { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 13px;
+[data-rt="diagnosis-vehicle-preview"] .rt-dgrade-legend { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 13px;
   font-size: 12px; font-weight: 600; color: var(--rt-muted); }
-.rt-dgrade-delta { font-weight: 800; }
-.rt-dgrade-delta.up { color: #10b981; }
-.rt-dgrade-delta.down { color: #c0563b; }
-.rt-dgrade-why { display: flex; gap: 9px; align-items: flex-start; padding: 13px 17px; background: var(--rt-soft);
+[data-rt="diagnosis-vehicle-preview"] .rt-dgrade-delta { font-weight: 800; }
+[data-rt="diagnosis-vehicle-preview"] .rt-dgrade-delta.up { color: #10b981; }
+[data-rt="diagnosis-vehicle-preview"] .rt-dgrade-delta.down { color: #c0563b; }
+[data-rt="diagnosis-vehicle-preview"] .rt-dgrade-why { display: flex; gap: 9px; align-items: flex-start; padding: 13px 17px; background: var(--rt-soft);
   border-top: 1px solid var(--rt-line); font-size: 12.5px; line-height: 1.55; color: var(--rt-sub); text-wrap: pretty; }
-.rt-dgrade-why svg { flex-shrink: 0; width: 16px; height: 16px; color: var(--rt-accent); margin-top: 1px; }
-.rt-dgrade-why b { color: var(--rt-ink); font-weight: 800; }
-.rt-dgrade-link { display: flex; align-items: center; justify-content: center; gap: 5px; margin-top: 11px; height: 44px;
+[data-rt="diagnosis-vehicle-preview"] .rt-dgrade-why svg { flex-shrink: 0; width: 16px; height: 16px; color: var(--rt-accent); margin-top: 1px; }
+[data-rt="diagnosis-vehicle-preview"] .rt-dgrade-why b { color: var(--rt-ink); font-weight: 800; }
+[data-rt="diagnosis-vehicle-preview"] .rt-dgrade-link { display: flex; align-items: center; justify-content: center; gap: 5px; margin-top: 11px; height: 44px;
   border-radius: 13px; border: 1.5px solid var(--rt-line); background: #fff; text-decoration: none;
   font-size: 13.5px; font-weight: 800; letter-spacing: -0.02em; color: var(--rt-ink);
   transition: border-color 0.15s, background 0.15s; }
-.rt-dgrade-link:hover { border-color: var(--rt-accent); background: rgba(201, 168, 76, 0.06); }
-.rt-dgrade-link svg { color: var(--rt-accent); }
+[data-rt="diagnosis-vehicle-preview"] .rt-dgrade-link:hover { border-color: var(--rt-accent); background: rgba(201, 168, 76, 0.06); }
+[data-rt="diagnosis-vehicle-preview"] .rt-dgrade-link svg { color: var(--rt-accent); }

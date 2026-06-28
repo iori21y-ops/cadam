@@ -297,7 +297,7 @@ export default function LoginPreviewPage() {
   }
 
   return (
-    <div className="rt-root" style={cssVar({ '--rt-accent': ACCENT })}>
+    <div data-rt="login-preview" className="rt-root" style={cssVar({ '--rt-accent': ACCENT })}>
       <div className="rt-page">{screen}</div>
     </div>
   );

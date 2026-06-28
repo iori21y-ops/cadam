@@ -76,7 +76,7 @@ export default function InfoDetailPreviewPage() {
 
   if (loading) {
     return (
-      <div className="rt-root">
+      <div data-rt="info-preview" className="rt-root">
         <div className="rt-page" id="top">
           <RtTopNav title="렌트 가이드" backHref="/info-preview" />
           <p className="rt-info-empty">불러오는 중…</p>
@@ -87,7 +87,7 @@ export default function InfoDetailPreviewPage() {
 
   if (!art) {
     return (
-      <div className="rt-root">
+      <div data-rt="info-preview" className="rt-root">
         <div className="rt-page" id="top">
           <RtTopNav title="렌트 가이드" backHref="/info-preview" />
           <p className="rt-info-empty">
@@ -109,7 +109,7 @@ export default function InfoDetailPreviewPage() {
   // ── 회원 전용 잠금 화면 (헤더·리드까지, 본문은 상담 CTA로 대체) ──
   if (locked) {
     return (
-      <div className="rt-root">
+      <div data-rt="info-preview" className="rt-root">
         <div className="rt-page" id="top">
           <RtTopNav title="렌트 가이드" backHref="/info-preview" />
           <div className="rt-id-hero" style={hueStyle(art)}>
@@ -144,7 +144,7 @@ export default function InfoDetailPreviewPage() {
   }
 
   return (
-    <div className="rt-root">
+    <div data-rt="info-preview" className="rt-root">
       <div className="rt-page" id="top">
         <RtTopNav title="렌트 가이드" backHref="/info-preview" />
 

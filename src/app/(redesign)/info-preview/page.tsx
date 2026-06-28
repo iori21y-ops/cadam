@@ -191,7 +191,7 @@ export default function InfoPreviewPage() {
     ) : null;
 
   return (
-    <div className="rt-root">
+    <div data-rt="info-preview" className="rt-root">
       <div className="rt-page" id="top">
         <RtTopNav title="렌트 가이드" />
 

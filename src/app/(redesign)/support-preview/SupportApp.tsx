@@ -130,7 +130,7 @@ export default function SupportApp() {
   );
 
   return (
-    <div className="rt-root" style={{ ['--rt-accent' as string]: ACCENT }}>
+    <div data-rt="support-preview" className="rt-root" style={{ ['--rt-accent' as string]: ACCENT }}>
       <div className="rt-page" data-page="support">
         <RtTopNav title="고객센터" />
 

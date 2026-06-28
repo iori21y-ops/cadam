@@ -165,7 +165,7 @@ export default function CarsDetailPreviewPage() {
 
   if (!car) {
     return (
-      <div className="rt-root">
+      <div data-rt="cars-detail-preview" className="rt-root">
         <div className="rt-page" id="top">
           <RtTopNav title="차종 상세" backHref="/cars-preview" />
           <div className="rt-empty">
@@ -219,7 +219,7 @@ export default function CarsDetailPreviewPage() {
   };
 
   return (
-    <div className="rt-root">
+    <div data-rt="cars-detail-preview" className="rt-root">
       <div className="rt-page" data-page="detail" id="top">
         <RtTopNav title={car.brand + ' ' + car.model} backHref="/cars-preview" />
         <RtGuestGate accent={ACCENT} strict />

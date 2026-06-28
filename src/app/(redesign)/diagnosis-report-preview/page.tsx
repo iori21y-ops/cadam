@@ -143,7 +143,7 @@ export default function DiagnosisReportPreview() {
   };
 
   return (
-    <div className="rt-root" style={cssVar({ '--rt-accent': ACCENT, '--rt-radius': '20px' })}>
+    <div data-rt="diagnosis-report-preview" className="rt-root" style={cssVar({ '--rt-accent': ACCENT, '--rt-radius': '20px' })}>
       <div className="rt-page" data-page="deprec">
         <div className={'rt-scroll' + (locked ? ' rt-anim-lock' : '')} ref={scrollRef}>
           <RtTopNav title="감가상각 분석" backHref="/diagnosis" />

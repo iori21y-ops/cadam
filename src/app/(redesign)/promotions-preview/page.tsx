@@ -182,7 +182,7 @@ export default function PromotionsPreview() {
   const list = DS_DEALS.filter((d) => filter === 'all' || d.tags.includes(filter as DealTag));
 
   return (
-    <div className="rt-root" style={cssVar({ '--rt-accent': ACCENT, '--rt-radius': '20px' })}>
+    <div data-rt="promotions-preview" className="rt-root" style={cssVar({ '--rt-accent': ACCENT, '--rt-radius': '20px' })}>
       <div className="rt-page" data-page="deals">
         <div className="rt-scroll">
           <RtTopNav title="특가" />

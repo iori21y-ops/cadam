@@ -145,7 +145,7 @@ function OptionsApp() {
   const priceLabel = '월 ' + total + '만원';
 
   return (
-    <div className="rt-root">
+    <div data-rt="car-options-preview" className="rt-root">
       <div className="rt-page" data-page="options" id="top">
         <RtTopNav title="옵션·사양" backHref={`/cars-detail-preview/${car.id}`} />
 

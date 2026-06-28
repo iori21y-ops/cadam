@@ -1,3 +1,4 @@
+/* @scoped data-rt="reviews-preview" */
 /* reviews.css — 고객 후기 목록 미리보기 (co-located)
    - 프레임(.rt-root/.rt-page/.rt-scroll/.rt-bar/.rt-fade-up/.rt-anim-lock)은
      형제 프리뷰 라우트(diagnosis-report-preview/deprec.css)와 byte-identical 하게 유지한다.
@@ -5,7 +6,7 @@
    - .rt-nav / .rt-sheet / .rt-gold 은 globals.css 전역 정의를 그대로 사용한다.
    - 세그먼트 필터칩은 API 미제공 필드(seg/tag)라 의도적으로 제외. */
 
-.rt-root {
+.rt-root[data-rt="reviews-preview"] {
   --rt-navy: #0d1b2a;
   --rt-ink: #0d1b2a;
   --rt-sub: #4a5568;
@@ -27,10 +28,10 @@
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
-.rt-root * { box-sizing: border-box; }
-.rt-root button { font-family: inherit; }
+.rt-root[data-rt="reviews-preview"] * { box-sizing: border-box; }
+.rt-root[data-rt="reviews-preview"] button { font-family: inherit; }
 
-.rt-page {
+[data-rt="reviews-preview"] .rt-page {
   width: 100%;
   height: 100%;
   background: #fff;
@@ -41,7 +42,7 @@
   container-type: inline-size;
   container-name: page;
 }
-.rt-scroll {
+[data-rt="reviews-preview"] .rt-scroll {
   flex: 1;
   min-height: 0;
   display: flex;
@@ -50,11 +51,11 @@
   overflow-x: hidden;
   scrollbar-width: none;
 }
-.rt-scroll > * { flex-shrink: 0; }
-.rt-scroll::-webkit-scrollbar { width: 0; height: 0; }
+[data-rt="reviews-preview"] .rt-scroll > * { flex-shrink: 0; }
+[data-rt="reviews-preview"] .rt-scroll::-webkit-scrollbar { width: 0; height: 0; }
 
 /* ---------- bottom bar ---------- */
-.rt-bar {
+[data-rt="reviews-preview"] .rt-bar {
   position: sticky;
   bottom: 0;
   z-index: 28;
@@ -64,65 +65,65 @@
   border-top: 1px solid var(--rt-line);
   box-shadow: 0 -10px 30px rgba(13, 27, 42, 0.07);
 }
-.rt-bar-inner { padding: 14px var(--rt-pad) calc(14px + env(safe-area-inset-bottom)); }
-.rt-bar button:active { transform: scale(0.97); }
-.rt-bar .rt-gold {
+[data-rt="reviews-preview"] .rt-bar-inner { padding: 14px var(--rt-pad) calc(14px + env(safe-area-inset-bottom)); }
+[data-rt="reviews-preview"] .rt-bar button:active { transform: scale(0.97); }
+[data-rt="reviews-preview"] .rt-bar .rt-gold {
   background: var(--rt-accent) !important;
   color: var(--rt-navy) !important;
   box-shadow: 0 8px 22px rgba(201, 168, 76, 0.32);
 }
-.rt-bar .rt-gold:hover { filter: brightness(1.04); }
-.rt-bar-row { display: flex; gap: 10px; align-items: stretch; }
+[data-rt="reviews-preview"] .rt-bar .rt-gold:hover { filter: brightness(1.04); }
+[data-rt="reviews-preview"] .rt-bar-row { display: flex; gap: 10px; align-items: stretch; }
 
 /* ---------- fade-up ---------- */
 @keyframes rtFadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
-.rt-fade-up { animation: rtFadeUp 0.5s cubic-bezier(0.16, 0.84, 0.44, 1) both; animation-delay: var(--d, 0ms); }
-.rt-anim-lock .rt-fade-up { opacity: 1 !important; transform: none !important; }
+[data-rt="reviews-preview"] .rt-fade-up { animation: rtFadeUp 0.5s cubic-bezier(0.16, 0.84, 0.44, 1) both; animation-delay: var(--d, 0ms); }
+[data-rt="reviews-preview"] .rt-anim-lock .rt-fade-up { opacity: 1 !important; transform: none !important; }
 @media (prefers-reduced-motion: reduce) {
-  .rt-fade-up { animation: none !important; opacity: 1 !important; transform: none !important; }
+  [data-rt="reviews-preview"] .rt-fade-up { animation: none !important; opacity: 1 !important; transform: none !important; }
 }
 
 /* ===== 후기 hero (rt-reviews.css) ===== */
-.rt-rv-hero{ background:var(--rt-navy); color:#fff; padding:24px var(--rt-pad) 22px; }
-.rt-rv-hero-t{ font-size:23px; font-weight:800; letter-spacing:-0.035em; line-height:1.25; margin:0; }
-.rt-rv-hero-d{ font-size:13.5px; color:rgba(255,255,255,.68); margin:8px 0 0; line-height:1.55; }
-.rt-rv-stats{ display:flex; gap:0; margin-top:18px; border:1px solid rgba(255,255,255,.13);
+[data-rt="reviews-preview"] .rt-rv-hero { background:var(--rt-navy); color:#fff; padding:24px var(--rt-pad) 22px; }
+[data-rt="reviews-preview"] .rt-rv-hero-t { font-size:23px; font-weight:800; letter-spacing:-0.035em; line-height:1.25; margin:0; }
+[data-rt="reviews-preview"] .rt-rv-hero-d { font-size:13.5px; color:rgba(255,255,255,.68); margin:8px 0 0; line-height:1.55; }
+[data-rt="reviews-preview"] .rt-rv-stats { display:flex; gap:0; margin-top:18px; border:1px solid rgba(255,255,255,.13);
   border-radius:14px; background:rgba(255,255,255,.04); }
-.rt-rv-stat{ flex:1; padding:13px 10px; text-align:center; }
-.rt-rv-stat + .rt-rv-stat{ border-left:1px solid rgba(255,255,255,.1); }
-.rt-rv-stat b{ font-size:19px; font-weight:800; color:var(--rt-accent); letter-spacing:-0.02em; display:flex;
+[data-rt="reviews-preview"] .rt-rv-stat { flex:1; padding:13px 10px; text-align:center; }
+[data-rt="reviews-preview"] .rt-rv-stat + .rt-rv-stat { border-left:1px solid rgba(255,255,255,.1); }
+[data-rt="reviews-preview"] .rt-rv-stat b { font-size:19px; font-weight:800; color:var(--rt-accent); letter-spacing:-0.02em; display:flex;
   align-items:center; justify-content:center; gap:3px; }
-.rt-rv-stat span{ font-size:11px; color:rgba(255,255,255,.6); margin-top:3px; display:block; }
+[data-rt="reviews-preview"] .rt-rv-stat span { font-size:11px; color:rgba(255,255,255,.6); margin-top:3px; display:block; }
 
 /* 후기 카드 */
-.rt-rv-list{ display:flex; flex-direction:column; gap:13px; padding:16px var(--rt-pad) 20px; }
-.rt-rv-card{ border:1px solid var(--rt-line); border-radius:var(--rt-radius); background:#fff; padding:17px 18px;
+[data-rt="reviews-preview"] .rt-rv-list { display:flex; flex-direction:column; gap:13px; padding:16px var(--rt-pad) 20px; }
+[data-rt="reviews-preview"] .rt-rv-card { border:1px solid var(--rt-line); border-radius:var(--rt-radius); background:#fff; padding:17px 18px;
   box-shadow:0 6px 20px rgba(13,27,42,.04); }
-.rt-rv-card-top{ display:flex; align-items:center; gap:11px; }
-.rt-rv-av{ width:42px; height:42px; border-radius:50%; flex-shrink:0; display:flex; align-items:center;
+[data-rt="reviews-preview"] .rt-rv-card-top { display:flex; align-items:center; gap:11px; }
+[data-rt="reviews-preview"] .rt-rv-av { width:42px; height:42px; border-radius:50%; flex-shrink:0; display:flex; align-items:center;
   justify-content:center; font-size:15px; font-weight:800; color:#fff; }
-.rt-rv-who{ flex:1; min-width:0; }
-.rt-rv-name{ font-size:14px; font-weight:800; color:var(--rt-ink); }
-.rt-rv-sub{ font-size:11.5px; color:var(--rt-sub); margin-top:1px; }
-.rt-rv-stars{ display:flex; gap:1px; color:var(--rt-accent); }
-.rt-rv-q{ font-size:15px; font-weight:800; letter-spacing:-0.025em; color:var(--rt-ink); margin:13px 0 6px;
+[data-rt="reviews-preview"] .rt-rv-who { flex:1; min-width:0; }
+[data-rt="reviews-preview"] .rt-rv-name { font-size:14px; font-weight:800; color:var(--rt-ink); }
+[data-rt="reviews-preview"] .rt-rv-sub { font-size:11.5px; color:var(--rt-sub); margin-top:1px; }
+[data-rt="reviews-preview"] .rt-rv-stars { display:flex; gap:1px; color:var(--rt-accent); }
+[data-rt="reviews-preview"] .rt-rv-q { font-size:15px; font-weight:800; letter-spacing:-0.025em; color:var(--rt-ink); margin:13px 0 6px;
   line-height:1.4; word-break:keep-all; }
-.rt-rv-body{ font-size:13.5px; color:var(--rt-sub); line-height:1.6; word-break:keep-all; }
+[data-rt="reviews-preview"] .rt-rv-body { font-size:13.5px; color:var(--rt-sub); line-height:1.6; word-break:keep-all; }
 
 /* 계약 사례 (절감) */
-.rt-rv-save{ display:flex; align-items:center; gap:10px; margin-top:13px; padding:12px 14px;
+[data-rt="reviews-preview"] .rt-rv-save { display:flex; align-items:center; gap:10px; margin-top:13px; padding:12px 14px;
   border-radius:13px; background:var(--rt-soft); }
-.rt-rv-save-col{ flex:1; text-align:center; }
-.rt-rv-save-k{ font-size:10.5px; font-weight:700; color:var(--rt-muted); }
-.rt-rv-save-v{ font-size:15px; font-weight:800; color:var(--rt-sub); margin-top:2px; letter-spacing:-0.02em; }
-.rt-rv-save-v.was{ text-decoration:line-through; color:var(--rt-muted); font-weight:700; font-size:13px; }
-.rt-rv-save-v.now{ color:var(--rt-ink); }
-.rt-rv-save-arrow{ color:var(--rt-accent); flex-shrink:0; }
-.rt-rv-save-badge{ flex-shrink:0; font-size:12px; font-weight:800; color:#1F8A5B; background:rgba(31,138,91,.1);
+[data-rt="reviews-preview"] .rt-rv-save-col { flex:1; text-align:center; }
+[data-rt="reviews-preview"] .rt-rv-save-k { font-size:10.5px; font-weight:700; color:var(--rt-muted); }
+[data-rt="reviews-preview"] .rt-rv-save-v { font-size:15px; font-weight:800; color:var(--rt-sub); margin-top:2px; letter-spacing:-0.02em; }
+[data-rt="reviews-preview"] .rt-rv-save-v.was { text-decoration:line-through; color:var(--rt-muted); font-weight:700; font-size:13px; }
+[data-rt="reviews-preview"] .rt-rv-save-v.now { color:var(--rt-ink); }
+[data-rt="reviews-preview"] .rt-rv-save-arrow { color:var(--rt-accent); flex-shrink:0; }
+[data-rt="reviews-preview"] .rt-rv-save-badge { flex-shrink:0; font-size:12px; font-weight:800; color:#1F8A5B; background:rgba(31,138,91,.1);
   padding:6px 10px; border-radius:9px; }
-.rt-rv-meta{ display:flex; align-items:center; gap:12px; margin-top:13px; padding-top:12px;
+[data-rt="reviews-preview"] .rt-rv-meta { display:flex; align-items:center; gap:12px; margin-top:13px; padding-top:12px;
   border-top:1px solid var(--rt-line); font-size:12px; color:var(--rt-muted); }
-.rt-rv-helpful{ margin-left:auto; display:inline-flex; align-items:center; gap:4px; }
+[data-rt="reviews-preview"] .rt-rv-helpful { margin-left:auto; display:inline-flex; align-items:center; gap:4px; }
 
 /* 로딩/빈 상태 */
-.rt-rv-state{ padding:40px var(--rt-pad); text-align:center; font-size:13.5px; color:var(--rt-muted); }
+[data-rt="reviews-preview"] .rt-rv-state { padding:40px var(--rt-pad); text-align:center; font-size:13.5px; color:var(--rt-muted); }

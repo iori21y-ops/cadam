@@ -428,7 +428,7 @@ export default function DiagnosisFinancePreview() {
   else body = <FnQuestion flow={flow} />;
 
   return (
-    <div className="rt-root" style={cssVar({ '--rt-accent': ACCENT, '--rt-radius': '20px' })}>
+    <div data-rt="diagnosis-finance-preview" className="rt-root" style={cssVar({ '--rt-accent': ACCENT, '--rt-radius': '20px' })}>
       <div className="rt-page" data-page="finance">
         <div className="rt-scroll" ref={scrollRef}>
           {/* 인트로에서만 상단 back(진단 허브로). 질문 단계 back은 진행바의 rt-qback가 담당. */}

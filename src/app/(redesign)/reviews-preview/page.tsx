@@ -145,7 +145,7 @@ export default function ReviewsPreview() {
   }, []);
 
   return (
-    <div className="rt-root" style={cssVar({ '--rt-accent': ACCENT, '--rt-radius': '20px' })}>
+    <div data-rt="reviews-preview" className="rt-root" style={cssVar({ '--rt-accent': ACCENT, '--rt-radius': '20px' })}>
       <div className="rt-page" data-page="reviews">
         <div className="rt-scroll">
           <RtTopNav title="고객 후기" />

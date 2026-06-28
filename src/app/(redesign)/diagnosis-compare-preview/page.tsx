@@ -36,7 +36,7 @@ export default function DiagnosisComparePreview() {
   };
 
   return (
-    <div className="rt-root" style={cssVar({ '--rt-accent': ACCENT, '--rt-radius': '20px' })}>
+    <div data-rt="diagnosis-compare-preview" className="rt-root" style={cssVar({ '--rt-accent': ACCENT, '--rt-radius': '20px' })}>
       <div className="rt-page" data-page="compare">
         <div className="rt-scroll" ref={scrollRef}>
           <RtTopNav title="결제방식 비교" backHref="/diagnosis-preview" />

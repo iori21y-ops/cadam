@@ -446,7 +446,7 @@ export default function DiagnosisVehiclePreview() {
   else if (question) body = <DgQuestion q={question} flow={flow} />;
 
   return (
-    <div className="rt-root" style={cssVar({ '--rt-accent': ACCENT, '--rt-radius': '20px' })}>
+    <div data-rt="diagnosis-vehicle-preview" className="rt-root" style={cssVar({ '--rt-accent': ACCENT, '--rt-radius': '20px' })}>
       <div className="rt-page" data-page="diagnosis">
         <div className={'rt-scroll' + (locked ? ' rt-anim-lock' : '')} ref={scrollRef}>
           {/* 진단 허브로 back (인트로만) — 질문 단계는 DgProgress 의 자체 back 사용 */}

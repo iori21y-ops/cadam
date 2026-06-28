@@ -82,7 +82,7 @@ export default function DiagnosisPreview() {
   const [sheet, setSheet] = useState(false);
 
   return (
-    <div className="rt-root" style={cssVar({ '--rt-accent': ACCENT, '--rt-radius': '20px' })}>
+    <div data-rt="diagnosis-preview" className="rt-root" style={cssVar({ '--rt-accent': ACCENT, '--rt-radius': '20px' })}>
       <div className="rt-page" data-page="hub">
         <div className="rt-scroll">
           <RtTopNav title="AI 진단" />

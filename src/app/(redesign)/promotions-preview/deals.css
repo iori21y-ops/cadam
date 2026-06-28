@@ -1,10 +1,11 @@
+/* @scoped data-rt="promotions-preview" */
 /* deals.css — 이벤트·특가 미리보기 (co-located)
    - 프레임(.rt-root/.rt-page/.rt-scroll/.rt-bar/.rt-gold)은 형제 프리뷰 라우트와 동일 값 유지.
    - .rt-nav, .rt-sheet, .rt-tabbar, .rt-gold 은 globals.css 전역 정의를 그대로 사용한다.
    - .rt-dl-* 는 _design_ref/rt-deals.css 를 이식. image-slot 은 색상 div(.rt-dl-shot)로 대체.
    - .rt-dl-promo* 는 /api/promotions(배너형) 최소 렌더용 추가 클래스. */
 
-.rt-root {
+.rt-root[data-rt="promotions-preview"] {
   --rt-navy: #0d1b2a;
   --rt-ink: #0d1b2a;
   --rt-sub: #4a5568;
@@ -26,11 +27,11 @@
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
-.rt-root * { box-sizing: border-box; }
-.rt-root button { font-family: inherit; }
-.rt-root a { color: inherit; }
+.rt-root[data-rt="promotions-preview"] * { box-sizing: border-box; }
+.rt-root[data-rt="promotions-preview"] button { font-family: inherit; }
+.rt-root[data-rt="promotions-preview"] a { color: inherit; }
 
-.rt-page {
+[data-rt="promotions-preview"] .rt-page {
   width: 100%;
   height: 100%;
   background: #fff;
@@ -41,7 +42,7 @@
   container-type: inline-size;
   container-name: page;
 }
-.rt-scroll {
+[data-rt="promotions-preview"] .rt-scroll {
   flex: 1;
   min-height: 0;
   display: flex;
@@ -50,11 +51,11 @@
   overflow-x: hidden;
   scrollbar-width: none;
 }
-.rt-scroll > * { flex-shrink: 0; }
-.rt-scroll::-webkit-scrollbar { width: 0; height: 0; }
+[data-rt="promotions-preview"] .rt-scroll > * { flex-shrink: 0; }
+[data-rt="promotions-preview"] .rt-scroll::-webkit-scrollbar { width: 0; height: 0; }
 
 /* ---------- bottom bar ---------- */
-.rt-bar {
+[data-rt="promotions-preview"] .rt-bar {
   position: sticky;
   bottom: 0;
   z-index: 28;
@@ -64,82 +65,82 @@
   border-top: 1px solid var(--rt-line);
   box-shadow: 0 -10px 30px rgba(13, 27, 42, 0.07);
 }
-.rt-bar-inner { padding: 14px var(--rt-pad) calc(14px + env(safe-area-inset-bottom)); }
-.rt-bar button:active { transform: scale(0.97); }
-.rt-bar .rt-gold {
+[data-rt="promotions-preview"] .rt-bar-inner { padding: 14px var(--rt-pad) calc(14px + env(safe-area-inset-bottom)); }
+[data-rt="promotions-preview"] .rt-bar button:active { transform: scale(0.97); }
+[data-rt="promotions-preview"] .rt-bar .rt-gold {
   background: var(--rt-accent) !important;
   color: var(--rt-navy) !important;
   box-shadow: 0 8px 22px rgba(201, 168, 76, 0.32);
 }
-.rt-bar .rt-gold:hover { filter: brightness(1.04); }
+[data-rt="promotions-preview"] .rt-bar .rt-gold:hover { filter: brightness(1.04); }
 
 /* ===== 특가 (rt-deals.css 이식) ===== */
-.rt-dl-head { padding: 20px var(--rt-pad) 6px; }
-.rt-dl-eyebrow { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 800;
+[data-rt="promotions-preview"] .rt-dl-head { padding: 20px var(--rt-pad) 6px; }
+[data-rt="promotions-preview"] .rt-dl-eyebrow { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 800;
   letter-spacing: .02em; color: var(--rt-accent); margin: 0 0 8px; }
-.rt-dl-title { font-size: 25px; font-weight: 800; letter-spacing: -0.035em; line-height: 1.24; margin: 0; color: var(--rt-ink); }
-.rt-dl-desc { font-size: 14px; color: var(--rt-sub); margin: 9px 0 0; line-height: 1.55; }
+[data-rt="promotions-preview"] .rt-dl-title { font-size: 25px; font-weight: 800; letter-spacing: -0.035em; line-height: 1.24; margin: 0; color: var(--rt-ink); }
+[data-rt="promotions-preview"] .rt-dl-desc { font-size: 14px; color: var(--rt-sub); margin: 9px 0 0; line-height: 1.55; }
 
 /* 카운트다운 배너 */
-.rt-dl-banner { margin: 16px var(--rt-pad) 0; border-radius: var(--rt-radius); overflow: hidden;
+[data-rt="promotions-preview"] .rt-dl-banner { margin: 16px var(--rt-pad) 0; border-radius: var(--rt-radius); overflow: hidden;
   background: var(--rt-navy); color: #fff; padding: 18px 20px; position: relative; }
-.rt-dl-banner::after { content: ""; position: absolute; right: -30px; top: -30px; width: 120px; height: 120px;
+[data-rt="promotions-preview"] .rt-dl-banner::after { content: ""; position: absolute; right: -30px; top: -30px; width: 120px; height: 120px;
   border-radius: 50%; background: radial-gradient(circle, rgba(201, 168, 76, .5), transparent 70%); }
-.rt-dl-banner-k { font-size: 12px; font-weight: 800; color: var(--rt-accent); letter-spacing: .04em; }
-.rt-dl-banner-t { font-size: 18px; font-weight: 800; letter-spacing: -0.03em; margin: 6px 0 12px; line-height: 1.3; }
-.rt-dl-count { display: flex; gap: 8px; }
-.rt-dl-count-c { background: rgba(255, 255, 255, .08); border: 1px solid rgba(255, 255, 255, .14); border-radius: 11px;
+[data-rt="promotions-preview"] .rt-dl-banner-k { font-size: 12px; font-weight: 800; color: var(--rt-accent); letter-spacing: .04em; }
+[data-rt="promotions-preview"] .rt-dl-banner-t { font-size: 18px; font-weight: 800; letter-spacing: -0.03em; margin: 6px 0 12px; line-height: 1.3; }
+[data-rt="promotions-preview"] .rt-dl-count { display: flex; gap: 8px; }
+[data-rt="promotions-preview"] .rt-dl-count-c { background: rgba(255, 255, 255, .08); border: 1px solid rgba(255, 255, 255, .14); border-radius: 11px;
   padding: 8px 0; width: 54px; text-align: center; }
-.rt-dl-count-c b { font-size: 20px; font-weight: 800; color: #fff; font-variant-numeric: tabular-nums; }
-.rt-dl-count-c span { display: block; font-size: 10px; color: rgba(255, 255, 255, .55); margin-top: 1px; }
-.rt-dl-count-sep { align-self: center; font-size: 18px; font-weight: 800; color: rgba(255, 255, 255, .4); }
+[data-rt="promotions-preview"] .rt-dl-count-c b { font-size: 20px; font-weight: 800; color: #fff; font-variant-numeric: tabular-nums; }
+[data-rt="promotions-preview"] .rt-dl-count-c span { display: block; font-size: 10px; color: rgba(255, 255, 255, .55); margin-top: 1px; }
+[data-rt="promotions-preview"] .rt-dl-count-sep { align-self: center; font-size: 18px; font-weight: 800; color: rgba(255, 255, 255, .4); }
 
 /* API 프로모션(배너형) 최소 렌더 */
-.rt-dl-promos { display: flex; flex-direction: column; gap: 10px; padding: 16px var(--rt-pad) 0; }
-.rt-dl-promo { display: flex; align-items: center; gap: 13px; border: 1px solid var(--rt-line);
+[data-rt="promotions-preview"] .rt-dl-promos { display: flex; flex-direction: column; gap: 10px; padding: 16px var(--rt-pad) 0; }
+[data-rt="promotions-preview"] .rt-dl-promo { display: flex; align-items: center; gap: 13px; border: 1px solid var(--rt-line);
   border-radius: var(--rt-radius); background: #fff; padding: 14px 16px; text-decoration: none;
   box-shadow: 0 2px 14px rgba(13, 27, 42, .05); }
-.rt-dl-promo-thumb { flex-shrink: 0; width: 56px; height: 56px; border-radius: 12px; overflow: hidden;
+[data-rt="promotions-preview"] .rt-dl-promo-thumb { flex-shrink: 0; width: 56px; height: 56px; border-radius: 12px; overflow: hidden;
   background: var(--rt-soft); display: flex; align-items: center; justify-content: center; }
-.rt-dl-promo-thumb img { width: 100%; height: 100%; object-fit: cover; }
-.rt-dl-promo-main { flex: 1; min-width: 0; }
-.rt-dl-promo-t { font-size: 15px; font-weight: 800; letter-spacing: -0.02em; color: var(--rt-ink);
+[data-rt="promotions-preview"] .rt-dl-promo-thumb img { width: 100%; height: 100%; object-fit: cover; }
+[data-rt="promotions-preview"] .rt-dl-promo-main { flex: 1; min-width: 0; }
+[data-rt="promotions-preview"] .rt-dl-promo-t { font-size: 15px; font-weight: 800; letter-spacing: -0.02em; color: var(--rt-ink);
   margin: 0; line-height: 1.35; }
-.rt-dl-promo-d { font-size: 12.5px; color: var(--rt-sub); margin: 4px 0 0; line-height: 1.45;
+[data-rt="promotions-preview"] .rt-dl-promo-d { font-size: 12.5px; color: var(--rt-sub); margin: 4px 0 0; line-height: 1.45;
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.rt-dl-promo svg { flex-shrink: 0; color: var(--rt-muted); }
+[data-rt="promotions-preview"] .rt-dl-promo svg { flex-shrink: 0; color: var(--rt-muted); }
 
 /* 필터 칩 */
-.rt-dl-chips { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding: 16px var(--rt-pad) 4px; }
-.rt-dl-chips::-webkit-scrollbar { display: none; }
-.rt-dl-chip { flex: 0 0 auto; padding: 9px 15px; border: 1.5px solid var(--rt-line); border-radius: 999px;
+[data-rt="promotions-preview"] .rt-dl-chips { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding: 16px var(--rt-pad) 4px; }
+[data-rt="promotions-preview"] .rt-dl-chips::-webkit-scrollbar { display: none; }
+[data-rt="promotions-preview"] .rt-dl-chip { flex: 0 0 auto; padding: 9px 15px; border: 1.5px solid var(--rt-line); border-radius: 999px;
   background: #fff; font-size: 13px; font-weight: 700; color: var(--rt-sub); cursor: pointer; transition: all .15s; white-space: nowrap; }
-.rt-dl-chip.is-on { border-color: var(--rt-navy); background: var(--rt-navy); color: #fff; }
+[data-rt="promotions-preview"] .rt-dl-chip.is-on { border-color: var(--rt-navy); background: var(--rt-navy); color: #fff; }
 
 /* 특가 카드 */
-.rt-dl-list { display: flex; flex-direction: column; gap: 14px; padding: 12px var(--rt-pad) 20px; }
-.rt-dl-card { border: 1px solid var(--rt-line); border-radius: var(--rt-radius); overflow: hidden; background: #fff;
+[data-rt="promotions-preview"] .rt-dl-list { display: flex; flex-direction: column; gap: 14px; padding: 12px var(--rt-pad) 20px; }
+[data-rt="promotions-preview"] .rt-dl-card { border: 1px solid var(--rt-line); border-radius: var(--rt-radius); overflow: hidden; background: #fff;
   text-decoration: none; color: inherit; box-shadow: 0 8px 24px rgba(13, 27, 42, .05); transition: transform .15s; }
-.rt-dl-card:active { transform: scale(.992); }
-.rt-dl-card-media { position: relative; height: 140px; background: var(--rt-soft); }
-.rt-dl-shot { width: 100%; height: 100%; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 12px; }
-.rt-dl-shot svg { opacity: 0.85; }
-.rt-dl-tagrow { position: absolute; top: 12px; left: 12px; display: flex; gap: 6px; z-index: 2; }
-.rt-dl-tag { font-size: 11px; font-weight: 800; padding: 5px 10px; border-radius: 8px; letter-spacing: -0.01em; }
-.rt-dl-tag.hot { background: #D24B4B; color: #fff; }
-.rt-dl-tag.ev { background: #2A7DE1; color: #fff; }
-.rt-dl-tag.corp { background: var(--rt-navy); color: var(--rt-accent); }
-.rt-dl-tag.fast { background: var(--rt-accent); color: var(--rt-navy); }
-.rt-dl-card-body { padding: 15px 17px 17px; }
-.rt-dl-card-name { font-size: 17px; font-weight: 800; letter-spacing: -0.03em; color: var(--rt-ink); }
-.rt-dl-card-seg { font-size: 12.5px; color: var(--rt-sub); margin-top: 2px; }
-.rt-dl-price { display: flex; align-items: baseline; gap: 8px; margin-top: 12px; }
-.rt-dl-price-was { font-size: 13px; color: var(--rt-muted); text-decoration: line-through; }
-.rt-dl-price-now { font-size: 22px; font-weight: 800; letter-spacing: -0.04em; color: var(--rt-ink); }
-.rt-dl-price-now em { font-style: normal; font-size: 14px; font-weight: 700; color: var(--rt-sub); }
-.rt-dl-price-off { font-size: 13px; font-weight: 800; color: #D24B4B; margin-left: auto; }
-.rt-dl-meta { display: flex; align-items: center; gap: 7px; margin-top: 13px; padding-top: 13px;
+[data-rt="promotions-preview"] .rt-dl-card:active { transform: scale(.992); }
+[data-rt="promotions-preview"] .rt-dl-card-media { position: relative; height: 140px; background: var(--rt-soft); }
+[data-rt="promotions-preview"] .rt-dl-shot { width: 100%; height: 100%; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 12px; }
+[data-rt="promotions-preview"] .rt-dl-shot svg { opacity: 0.85; }
+[data-rt="promotions-preview"] .rt-dl-tagrow { position: absolute; top: 12px; left: 12px; display: flex; gap: 6px; z-index: 2; }
+[data-rt="promotions-preview"] .rt-dl-tag { font-size: 11px; font-weight: 800; padding: 5px 10px; border-radius: 8px; letter-spacing: -0.01em; }
+[data-rt="promotions-preview"] .rt-dl-tag.hot { background: #D24B4B; color: #fff; }
+[data-rt="promotions-preview"] .rt-dl-tag.ev { background: #2A7DE1; color: #fff; }
+[data-rt="promotions-preview"] .rt-dl-tag.corp { background: var(--rt-navy); color: var(--rt-accent); }
+[data-rt="promotions-preview"] .rt-dl-tag.fast { background: var(--rt-accent); color: var(--rt-navy); }
+[data-rt="promotions-preview"] .rt-dl-card-body { padding: 15px 17px 17px; }
+[data-rt="promotions-preview"] .rt-dl-card-name { font-size: 17px; font-weight: 800; letter-spacing: -0.03em; color: var(--rt-ink); }
+[data-rt="promotions-preview"] .rt-dl-card-seg { font-size: 12.5px; color: var(--rt-sub); margin-top: 2px; }
+[data-rt="promotions-preview"] .rt-dl-price { display: flex; align-items: baseline; gap: 8px; margin-top: 12px; }
+[data-rt="promotions-preview"] .rt-dl-price-was { font-size: 13px; color: var(--rt-muted); text-decoration: line-through; }
+[data-rt="promotions-preview"] .rt-dl-price-now { font-size: 22px; font-weight: 800; letter-spacing: -0.04em; color: var(--rt-ink); }
+[data-rt="promotions-preview"] .rt-dl-price-now em { font-style: normal; font-size: 14px; font-weight: 700; color: var(--rt-sub); }
+[data-rt="promotions-preview"] .rt-dl-price-off { font-size: 13px; font-weight: 800; color: #D24B4B; margin-left: auto; }
+[data-rt="promotions-preview"] .rt-dl-meta { display: flex; align-items: center; gap: 7px; margin-top: 13px; padding-top: 13px;
   border-top: 1px solid var(--rt-line); }
-.rt-dl-bar2 { flex: 1; height: 7px; border-radius: 999px; background: var(--rt-soft); overflow: hidden; }
-.rt-dl-bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #E0A93B, #D24B4B); }
-.rt-dl-left { font-size: 12px; font-weight: 800; color: #D24B4B; white-space: nowrap; }
+[data-rt="promotions-preview"] .rt-dl-bar2 { flex: 1; height: 7px; border-radius: 999px; background: var(--rt-soft); overflow: hidden; }
+[data-rt="promotions-preview"] .rt-dl-bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #E0A93B, #D24B4B); }
+[data-rt="promotions-preview"] .rt-dl-left { font-size: 12px; font-weight: 800; color: #D24B4B; white-space: nowrap; }

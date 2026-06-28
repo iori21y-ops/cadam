@@ -711,7 +711,7 @@ export default function CommunityPreview() {
   const loading = member === undefined || posts === null;
 
   return (
-    <div className="rt-root" style={cssVar({ '--rt-accent': ACCENT, '--rt-radius': '20px' })}>
+    <div data-rt="community-preview" className="rt-root" style={cssVar({ '--rt-accent': ACCENT, '--rt-radius': '20px' })}>
       {loading ? (
         <div className="rt-page" data-page="community">
           <div className="rt-scroll">

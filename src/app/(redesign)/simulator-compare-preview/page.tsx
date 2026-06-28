@@ -106,7 +106,7 @@ export default function SimulatorComparePreview() {
   const gridStyle: React.CSSProperties = { gridTemplateColumns: `repeat(${cars.length}, 1fr)` };
 
   return (
-    <div className="rt-root" style={cssVar({ '--rt-accent': ACCENT, '--rt-radius': '20px' })}>
+    <div data-rt="simulator-compare-preview" className="rt-root" style={cssVar({ '--rt-accent': ACCENT, '--rt-radius': '20px' })}>
       <div className="rt-page" data-page="vscompare">
         <div className="rt-scroll">
           <RtTopNav title="차량 직접 비교" />
