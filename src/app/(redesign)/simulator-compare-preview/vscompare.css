@@ -1,0 +1,129 @@
+/* vscompare.css — 차량 직접 비교 미리보기 (co-located)
+   - 프레임(.rt-root/.rt-page/.rt-scroll/.rt-bar)은 형제 프리뷰 라우트와 byte-identical 유지.
+   - .rt-vs-* 는 rt-vscompare.css 에서 이식. image-slot 은 페이지에서 hue div 로 대체.
+   - .rt-nav/.rt-sheet-scrim/.rt-gold 는 globals.css 전역 정의를 그대로 사용. */
+
+.rt-root {
+  --rt-navy: #0d1b2a;
+  --rt-ink: #0d1b2a;
+  --rt-sub: #4a5568;
+  --rt-muted: #9ca3af;
+  --rt-line: #e8eaee;
+  --rt-soft: #f6f7f9;
+  --rt-accent: #c9a84c;
+  --rt-radius: 20px;
+  --rt-nav-h: 56px;
+  --rt-pad: 22px;
+
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: #fff;
+  font-family: 'Pretendard', var(--font-pretendard), -apple-system, BlinkMacSystemFont,
+    'Apple SD Gothic Neo', sans-serif;
+  color: var(--rt-ink);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+.rt-root * { box-sizing: border-box; }
+.rt-root button { font-family: inherit; }
+
+.rt-page {
+  width: 100%;
+  height: 100%;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  container-type: inline-size;
+  container-name: page;
+}
+.rt-scroll {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+}
+.rt-scroll > * { flex-shrink: 0; }
+.rt-scroll::-webkit-scrollbar { width: 0; height: 0; }
+
+/* ---------- bottom bar ---------- */
+.rt-bar {
+  position: sticky;
+  bottom: 0;
+  z-index: 28;
+  margin-top: auto;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(14px);
+  border-top: 1px solid var(--rt-line);
+  box-shadow: 0 -10px 30px rgba(13, 27, 42, 0.07);
+}
+.rt-bar-inner { padding: 14px var(--rt-pad) calc(14px + env(safe-area-inset-bottom)); }
+.rt-bar button:active { transform: scale(0.97); }
+.rt-bar .rt-gold {
+  background: var(--rt-accent) !important;
+  color: var(--rt-navy) !important;
+  box-shadow: 0 8px 22px rgba(201, 168, 76, 0.32);
+}
+.rt-bar .rt-gold:hover { filter: brightness(1.04); }
+
+/* ===== 차량 직접 비교 (rt-vscompare.css) ===== */
+.rt-vs-head { padding: 20px var(--rt-pad) 4px; }
+.rt-vs-title { font-size: 25px; font-weight: 800; letter-spacing: -0.035em; line-height: 1.24; margin: 0; color: var(--rt-ink); }
+.rt-vs-desc { font-size: 14px; color: var(--rt-sub); margin: 8px 0 0; line-height: 1.55; }
+
+/* 차량 슬롯 */
+.rt-vs-slots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; padding: 16px var(--rt-pad) 6px; }
+.rt-vs-slot { position: relative; border: 1.5px solid var(--rt-line); border-radius: 15px; background: #fff;
+  overflow: hidden; min-height: 128px; display: flex; flex-direction: column; }
+.rt-vs-slot-media { height: 64px; background: var(--rt-soft); }
+.rt-vs-slot-body { padding: 8px 9px 10px; flex: 1; display: flex; flex-direction: column; }
+.rt-vs-slot-name { font-size: 12.5px; font-weight: 800; color: var(--rt-ink); letter-spacing: -0.02em; line-height: 1.25;
+  word-break: keep-all; }
+.rt-vs-slot-price { font-size: 12px; font-weight: 700; color: var(--rt-accent); margin-top: auto; padding-top: 5px; }
+.rt-vs-slot-x { position: absolute; top: 6px; right: 6px; width: 22px; height: 22px; border-radius: 50%; border: 0;
+  background: rgba(13, 27, 42, .6); color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 2; }
+.rt-vs-add { border: 1.5px dashed var(--rt-line); border-radius: 15px; background: var(--rt-soft);
+  min-height: 128px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px;
+  cursor: pointer; color: var(--rt-muted); transition: all .15s; }
+.rt-vs-add:active { transform: scale(.98); }
+.rt-vs-add-ic { width: 30px; height: 30px; border-radius: 50%; background: #fff; border: 1.5px solid var(--rt-line);
+  display: flex; align-items: center; justify-content: center; color: var(--rt-accent); }
+.rt-vs-add span { font-size: 12px; font-weight: 700; }
+
+/* 비교 표 */
+.rt-vs-table { margin: 14px var(--rt-pad) 8px; border: 1px solid var(--rt-line); border-radius: 16px;
+  overflow: hidden; background: #fff; }
+.rt-vs-row { display: grid; }
+.rt-vs-rowhead { padding: 9px 13px; background: var(--rt-soft); font-size: 11px; font-weight: 800;
+  color: var(--rt-muted); letter-spacing: .02em; border-bottom: 1px solid var(--rt-line); }
+.rt-vs-cells { display: grid; border-bottom: 1px solid var(--rt-line); }
+.rt-vs-cells:last-child { border-bottom: 0; }
+.rt-vs-cell { padding: 13px 8px; font-size: 12.5px; font-weight: 700; color: var(--rt-ink); text-align: center;
+  line-height: 1.35; word-break: keep-all; border-left: 1px solid var(--rt-line);
+  display: flex; align-items: center; justify-content: center; gap: 4px; }
+.rt-vs-cell:first-child { border-left: 0; }
+.rt-vs-cell.best { color: var(--rt-navy); background: rgba(201, 168, 76, .1); font-weight: 800; }
+.rt-vs-cell .rt-vs-crown { color: var(--rt-accent); }
+.rt-vs-empty-note { padding: 40px 24px; text-align: center; font-size: 13px; color: var(--rt-muted); line-height: 1.6; }
+
+/* 차량 선택 시트 */
+.rt-vs-picker { position: absolute; left: 0; right: 0; bottom: 0; z-index: 61; background: #fff;
+  border-radius: 26px 26px 0 0; box-shadow: 0 -16px 48px rgba(13, 27, 42, .22); max-height: 80%;
+  display: flex; flex-direction: column; transform: translateY(102%); transition: transform .32s cubic-bezier(.16, .84, .44, 1); }
+.rt-vs-picker.is-open { transform: translateY(0); }
+.rt-vs-picker-grab { width: 40px; height: 4px; border-radius: 999px; background: var(--rt-line); margin: 8px auto 10px; }
+.rt-vs-picker-t { font-size: 16px; font-weight: 800; color: var(--rt-ink); padding: 0 var(--rt-pad) 10px;
+  border-bottom: 1px solid var(--rt-line); }
+.rt-vs-picker-list { overflow-y: auto; padding: 6px var(--rt-pad) calc(16px + env(safe-area-inset-bottom)); }
+.rt-vs-pick-item { display: flex; align-items: center; gap: 12px; padding: 11px 4px; cursor: pointer;
+  border-bottom: 1px solid var(--rt-soft); width: 100%; background: none; border-left: 0; border-right: 0; border-top: 0; text-align: left; }
+.rt-vs-pick-thumb { width: 54px; height: 40px; border-radius: 9px; background: var(--rt-soft); overflow: hidden; flex-shrink: 0; }
+.rt-vs-pick-name { font-size: 14px; font-weight: 700; color: var(--rt-ink); }
+.rt-vs-pick-seg { font-size: 12px; color: var(--rt-sub); margin-top: 1px; }
+.rt-vs-pick-price { margin-left: auto; font-size: 13px; font-weight: 800; color: var(--rt-accent); }
+.rt-vs-pick-item:disabled { opacity: .4; cursor: not-allowed; }
