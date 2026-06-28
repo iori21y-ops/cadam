@@ -10,6 +10,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { RtTopNav, RtTabBar } from '@/components/rentailor/RtChrome';
 import { ptBalance, ptComma as ptCommaFn, ptSetCtx } from '@/lib/rentailor/points';
+import { RtTermDefs } from '@/lib/rentailor/personalize';
 import './contract-care.css';
 
 const ACCENT = '#C9A84C';
@@ -684,6 +685,19 @@ export default function ContractCarePage() {
               <div className="rt-sub-intro">
                 <h1 className="rt-sub-intro-t">계약 케어</h1>
                 <p className="rt-sub-intro-d">계약 기간 중·만기에 필요한 계산과 안내를 한 곳에서</p>
+              </div>
+
+              {/* A2 personalize: 이해도 레벨별 용어설명(초급 펼침/중급 접힘/고급 숨김). 허브 메인에만 1회. */}
+              <div style={{ padding: '0 var(--rt-pad)' }}>
+                <RtTermDefs
+                  title="계약 비용 핵심 용어"
+                  items={[
+                    ['면책금(자기부담금)', '사고 수리 시 내가 부담하는 금액. 보험 처리해도 일부는 본인 부담.'],
+                    ['중도해지 수수료', '계약 기간을 다 못 채우고 끝낼 때 내는 위약금(규정손해금).'],
+                    ['초과운행금', '약정 주행거리를 넘기면 km당 단가로 정산하는 비용.'],
+                    ['만기 인수가', '계약 끝에 차를 사들일 때 내는 금액. 잔존가치 기준으로 결정.'],
+                  ]}
+                />
               </div>
 
               {/* 계약 선택 */}

@@ -13,6 +13,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { RtTopNav } from '@/components/rentailor/RtChrome';
 import { RtConsultSheet } from '@/components/rentailor/RtConsultSheet';
+import { RtTermDefs } from '@/lib/rentailor/personalize';
 import { RT_CATALOG, type Car } from '@/lib/rentailor/catalog';
 import { SL_YEARS, SL_MILE, SL_COND, sellCalc, won } from './data';
 import './sell.css';
@@ -179,6 +180,16 @@ export default function SellPage() {
                   차량 정보를 입력하면 예상 매입 시세와 시세 분포, 갈아타기 전환 인수가를 알려드려요.
                 </p>
               </div>
+
+              {/* A2 personalize: 이해도 레벨별 용어설명(초급 펼침/중급 접힘/고급 숨김) */}
+              <RtTermDefs
+                title="시세 핵심 용어"
+                items={[
+                  ['매입 시세', '딜러·플랫폼이 내 차를 사들일 때 주는 예상 금액.'],
+                  ['감가', '시간·주행거리가 늘며 차값이 떨어지는 것.'],
+                  ['전환 인수가', '장기렌트로 갈아탈 때 기존 차를 넘기고 정산하는 금액.'],
+                ]}
+              />
 
               <div className="rt-fcard">
                 <p className="rt-fcard-t">차량 정보</p>

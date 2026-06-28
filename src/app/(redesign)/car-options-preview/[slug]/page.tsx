@@ -8,6 +8,7 @@ import React, { Suspense, useState } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import { RtTopNav } from '@/components/rentailor/RtChrome';
 import { RtConsultSheet } from '@/components/rentailor/RtConsultSheet';
+import { RtTermDefs } from '@/lib/rentailor/personalize';
 import { Button } from '@/components/ui/Button';
 import { rtFindCar, FUEL, RT_CATALOG, type Car } from '@/lib/rentailor/catalog';
 import '../../cars-detail-preview/detail.css';
@@ -153,6 +154,18 @@ function OptionsApp() {
           <div className="rt-op-brand">{car.brand}</div>
           <h1 className="rt-op-name">{car.model}</h1>
           <p className="rt-op-seg">{car.segLabel} · {FUEL[car.fuel].label} · {car.trims.length}개 트림</p>
+        </div>
+
+        {/* A2 personalize: 이해도 레벨별 용어설명(초급 펼침/중급 접힘/고급 숨김) */}
+        <div style={{ padding: '0 var(--rt-pad)' }}>
+          <RtTermDefs
+            title="옵션·트림 용어"
+            items={[
+              ['트림', '같은 차의 사양 등급. 위 등급일수록 기본 옵션이 많아요.'],
+              ['깡통옵션', '옵션을 거의 넣지 않은 기본형. 월 납부금이 가장 낮아요.'],
+              ['풀옵션', '주요 옵션을 모두 넣은 사양. 편의·안전 사양이 많아요.'],
+            ]}
+          />
         </div>
 
         <div className="rt-op-trims">
