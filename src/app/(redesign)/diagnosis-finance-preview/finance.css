@@ -1,0 +1,264 @@
+/* finance.css — 금융상품 진단 미리보기 (co-located)
+   - 프레임(.rt-root/.rt-page/.rt-scroll/.rt-bar/.rt-fade-up/.rt-anim-lock)은
+     형제 프리뷰 라우트(deprec.css 등)와 byte-identical 하게 유지한다.
+     (Next 글로벌 CSS는 클라이언트 내비게이션 간 유지되므로 값이 갈라지면 안 됨)
+   - 질문 셸/옵션/진행바/결과 공통은 rt-quote.css, 인트로·로딩은 rt-diagnosis.css,
+     금융 결과 카드는 rt-diag-tools.css 에서 이식.
+   - .rt-nav, .rt-sheet, .rt-gold 은 globals.css 전역 정의를 그대로 사용한다. */
+
+.rt-root {
+  --rt-navy: #0d1b2a;
+  --rt-ink: #0d1b2a;
+  --rt-sub: #4a5568;
+  --rt-muted: #9ca3af;
+  --rt-line: #e8eaee;
+  --rt-soft: #f6f7f9;
+  --rt-accent: #c9a84c;
+  --rt-radius: 20px;
+  --rt-nav-h: 56px;
+  --rt-pad: 22px;
+
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: #fff;
+  font-family: 'Pretendard', var(--font-pretendard), -apple-system, BlinkMacSystemFont,
+    'Apple SD Gothic Neo', sans-serif;
+  color: var(--rt-ink);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+.rt-root * { box-sizing: border-box; }
+.rt-root button { font-family: inherit; }
+
+.rt-page {
+  width: 100%;
+  height: 100%;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  container-type: inline-size;
+  container-name: page;
+}
+.rt-scroll {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+}
+.rt-scroll > * { flex-shrink: 0; }
+.rt-scroll::-webkit-scrollbar { width: 0; height: 0; }
+
+/* ---------- bottom bar ---------- */
+.rt-bar {
+  position: sticky;
+  bottom: 0;
+  z-index: 28;
+  margin-top: auto;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(14px);
+  border-top: 1px solid var(--rt-line);
+  box-shadow: 0 -10px 30px rgba(13, 27, 42, 0.07);
+}
+.rt-bar-inner { padding: 14px var(--rt-pad) calc(14px + env(safe-area-inset-bottom)); }
+.rt-bar button:active { transform: scale(0.97); }
+.rt-bar .rt-gold {
+  background: var(--rt-accent) !important;
+  color: var(--rt-navy) !important;
+  box-shadow: 0 8px 22px rgba(201, 168, 76, 0.32);
+}
+.rt-bar .rt-gold:hover { filter: brightness(1.04); }
+.rt-bar-row { display: flex; gap: 10px; align-items: stretch; }
+.rt-bar-call {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  width: 84px;
+  border: 1.5px solid var(--rt-line);
+  border-radius: 14px;
+  text-decoration: none;
+  color: var(--rt-ink);
+  font-size: 12px;
+  font-weight: 700;
+}
+.rt-bar-call:active { transform: scale(0.97); }
+.rt-bar-row > :last-child { flex: 1; }
+
+/* ---------- fade-up ---------- */
+@keyframes rtFadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+.rt-fade-up { animation: rtFadeUp 0.5s cubic-bezier(0.16, 0.84, 0.44, 1) both; animation-delay: var(--d, 0ms); }
+.rt-anim-lock .rt-fade-up { opacity: 1 !important; transform: none !important; }
+@media (prefers-reduced-motion: reduce) {
+  .rt-fade-up { animation: none !important; opacity: 1 !important; transform: none !important; }
+}
+
+/* ===== 단계 래퍼 + 전환 (rt-quote.css) ===== */
+.rt-qwrap { flex: 1 0 auto; }
+@keyframes rtQSlideIn { from { transform: translateX(24px); } to { transform: none; } }
+@keyframes rtQSlideInBack { from { transform: translateX(-24px); } to { transform: none; } }
+.rt-qin { animation: rtQSlideIn 0.3s cubic-bezier(0.16, 0.84, 0.44, 1) both; }
+.rt-qwrap.is-back .rt-qin { animation-name: rtQSlideInBack; }
+.rt-anim-lock .rt-qin { animation: none !important; transform: none !important; }
+@media (prefers-reduced-motion: reduce) {
+  .rt-qin { animation: none !important; transform: none !important; }
+}
+
+/* ===== 진행 바 ===== */
+.rt-qprogress { display: flex; align-items: center; gap: 12px; padding: 14px var(--rt-pad) 4px; }
+.rt-qback {
+  flex-shrink: 0; width: 38px; height: 38px; border-radius: 11px; border: 1px solid var(--rt-line);
+  background: #fff; color: var(--rt-ink); display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: background 0.15s, border-color 0.15s;
+}
+.rt-qback:hover { border-color: var(--rt-accent); }
+.rt-qback:active { transform: scale(0.95); }
+.rt-qtrack { flex: 1; height: 6px; border-radius: 999px; background: var(--rt-line); overflow: hidden; }
+.rt-qfill { height: 100%; border-radius: 999px; background: var(--rt-accent); transition: width 0.42s cubic-bezier(0.4, 0, 0.2, 1); }
+.rt-qstepn { flex-shrink: 0; font-size: 12.5px; font-weight: 700; color: var(--rt-muted); font-variant-numeric: tabular-nums; }
+
+/* ===== 질문 본문 ===== */
+.rt-qbody { padding: 24px var(--rt-pad) 28px; }
+.rt-qeyebrow { font-size: 12px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: var(--rt-accent); margin: 0 0 12px; }
+.rt-qtitle { font-size: 26px; line-height: 1.26; font-weight: 800; letter-spacing: -0.03em; margin: 0; color: var(--rt-ink); text-wrap: balance; }
+.rt-qdesc { font-size: 15px; line-height: 1.6; color: var(--rt-sub); margin: 12px 0 0; text-wrap: pretty; }
+.rt-qcontent { margin-top: 20px; }
+
+/* ===== 옵션 카드 ===== */
+.rt-opts { display: flex; flex-direction: column; gap: 12px; }
+.rt-opt {
+  display: flex; align-items: center; gap: 14px; width: 100%; text-align: left; cursor: pointer;
+  background: #fff; border: 1.5px solid var(--rt-line); border-radius: 16px; padding: 17px 18px;
+  font-family: inherit; transition: border-color 0.16s, box-shadow 0.16s, transform 0.12s, background 0.16s;
+}
+.rt-opt:hover { border-color: rgba(201, 168, 76, 0.55); box-shadow: 0 6px 18px rgba(13, 27, 42, 0.06); }
+.rt-opt:active { transform: scale(0.99); }
+.rt-opt.is-on { border-color: var(--rt-accent); background: rgba(201, 168, 76, 0.07); box-shadow: 0 8px 22px rgba(201, 168, 76, 0.16); }
+.rt-opt-main { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0; }
+.rt-opt-label { font-size: 18px; font-weight: 800; letter-spacing: -0.02em; color: var(--rt-ink); line-height: 1.25; }
+.rt-opt-sub { font-size: 13.5px; font-weight: 500; color: var(--rt-muted); line-height: 1.4; }
+.rt-opt-check {
+  flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--rt-line);
+  display: flex; align-items: center; justify-content: center; transition: background 0.16s, border-color 0.16s;
+}
+.rt-opt-check svg { opacity: 0; transform: scale(0.5); transition: opacity 0.16s, transform 0.16s; }
+.rt-opt.is-on .rt-opt-check { background: var(--rt-accent); border-color: var(--rt-accent); }
+.rt-opt.is-on .rt-opt-check svg { opacity: 1; transform: scale(1); }
+
+/* ===== 결과 공통 =====
+   ⚠️ 이 5개 클래스는 형제 라우트 deprec.css(공유·수정불가)가 다른 값으로 전역 정의한다.
+      co-located CSS는 전역이라 로드 순서로 충돌하므로 [data-page='finance'] 로 스코프해
+      특이도(0,2,0)로 deprec의 bare 클래스(0,1,0)를 이 페이지에서만 이긴다. */
+[data-page='finance'] .rt-qresult { padding: 22px var(--rt-pad) 28px; }
+[data-page='finance'] .rt-qresult-kicker { font-size: 12.5px; font-weight: 800; letter-spacing: 0.02em; color: var(--rt-accent); margin: 0; }
+[data-page='finance'] .rt-qresult-title { font-size: 25px; font-weight: 800; letter-spacing: -0.03em; color: var(--rt-ink); margin: 7px 0 0; line-height: 1.25; text-wrap: balance; }
+[data-page='finance'] .rt-qblock { margin-top: 26px; }
+[data-page='finance'] .rt-qblock-t { font-size: 16px; font-weight: 800; letter-spacing: -0.02em; color: var(--rt-ink); margin: 0 0 13px; }
+
+/* ===== 신뢰 밴드 ===== */
+.rt-qtrust { display: flex; background: var(--rt-soft); border: 1px solid var(--rt-line); border-radius: 16px; overflow: hidden; }
+.rt-qtrust-cell { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 16px 8px; position: relative; }
+.rt-qtrust-cell + .rt-qtrust-cell::before { content: ""; position: absolute; left: 0; top: 22%; bottom: 22%; width: 1px; background: var(--rt-line); }
+.rt-qtrust-v { font-size: 19px; font-weight: 800; letter-spacing: -0.02em; color: var(--rt-accent); font-variant-numeric: tabular-nums; }
+.rt-qtrust-l { font-size: 11.5px; font-weight: 600; color: var(--rt-sub); }
+
+/* 결과 → 비교 허브 연결 링크 */
+.rt-fin-cmp-link {
+  display: flex; align-items: center; justify-content: center; gap: 5px; margin-top: 13px;
+  height: 48px; border-radius: 14px; border: 1.5px solid var(--rt-line); background: #fff; cursor: pointer;
+  text-decoration: none; font-family: inherit; font-size: 14px; font-weight: 800; letter-spacing: -0.02em;
+  color: var(--rt-ink); transition: border-color 0.15s, background 0.15s;
+}
+.rt-fin-cmp-link:hover { border-color: var(--rt-accent); background: rgba(201, 168, 76, 0.06); }
+.rt-fin-cmp-link:active { transform: scale(0.99); }
+.rt-fin-cmp-link svg { color: var(--rt-accent); }
+
+/* ===== 인트로 히어로 (rt-diagnosis.css) ===== */
+.rt-dhero-intro { padding: 34px var(--rt-pad) 20px; }
+.rt-dbadge {
+  display: inline-flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 800;
+  letter-spacing: 0.02em; color: var(--rt-accent); background: rgba(201, 168, 76, 0.12); padding: 7px 13px;
+  border-radius: 999px; margin-bottom: 18px;
+}
+.rt-dbadge i { width: 6px; height: 6px; border-radius: 50%; background: var(--rt-accent); box-shadow: 0 0 0 0 rgba(201, 168, 76, 0.5); animation: rtPulse 1.6s ease-out infinite; }
+@keyframes rtPulse { 0% { box-shadow: 0 0 0 0 rgba(201, 168, 76, 0.5); } 70% { box-shadow: 0 0 0 8px rgba(201, 168, 76, 0); } 100% { box-shadow: 0 0 0 0 rgba(201, 168, 76, 0); } }
+.rt-dhero-title { font-size: 30px; line-height: 1.2; font-weight: 800; letter-spacing: -0.035em; margin: 0; color: var(--rt-ink); text-wrap: balance; }
+.rt-dhero-title em { font-style: normal; color: var(--rt-accent); }
+.rt-dhero-desc { font-size: 15px; line-height: 1.6; color: var(--rt-sub); margin: 14px 0 0; text-wrap: pretty; }
+.rt-dfeats { display: flex; flex-direction: column; gap: 10px; margin-top: 24px; }
+.rt-dfeat {
+  display: flex; align-items: center; gap: 13px; padding: 15px 16px; border: 1px solid var(--rt-line);
+  border-radius: 15px; background: #fff; box-shadow: 0 2px 12px rgba(13, 27, 42, 0.05);
+}
+.rt-dfeat-ic {
+  flex-shrink: 0; width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center;
+  justify-content: center; background: rgba(201, 168, 76, 0.13); color: var(--rt-accent);
+}
+.rt-dfeat-t { font-size: 14.5px; font-weight: 800; letter-spacing: -0.02em; color: var(--rt-ink); }
+.rt-dfeat-d { font-size: 12.5px; color: var(--rt-sub); margin-top: 2px; }
+
+/* ===== 분석 중 로딩 (rt-diagnosis.css) ===== */
+.rt-dload {
+  min-height: 440px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 40px var(--rt-pad); text-align: center;
+}
+.rt-dload-ring { width: 62px; height: 62px; border-radius: 50%; border: 4px solid var(--rt-line); border-top-color: var(--rt-accent); animation: rtSpin 0.9s linear infinite; }
+@keyframes rtSpin { to { transform: rotate(360deg); } }
+.rt-dload-t { font-size: 19px; font-weight: 800; color: var(--rt-ink); margin: 24px 0 0; letter-spacing: -0.02em; }
+.rt-dload-d { font-size: 13.5px; color: var(--rt-sub); margin: 8px 0 0; line-height: 1.5; }
+.rt-dload-list { margin-top: 22px; display: flex; flex-direction: column; gap: 9px; width: 100%; max-width: 280px; }
+.rt-dload-row { display: flex; align-items: center; gap: 9px; font-size: 13px; font-weight: 600; color: var(--rt-muted); opacity: 0; animation: rtFadeUp 0.4s ease forwards; }
+.rt-dload-row.r1 { animation-delay: 0.1s; }
+.rt-dload-row.r2 { animation-delay: 0.5s; }
+.rt-dload-row.r3 { animation-delay: 0.95s; }
+.rt-dload-row svg { color: var(--rt-accent); flex-shrink: 0; }
+
+/* ===== 금융상품 진단 결과 카드 (rt-diag-tools.css) ===== */
+.rt-fin-hero { border: 1.5px solid var(--rt-accent); border-radius: 22px; padding: 22px; background: #fff; box-shadow: 0 16px 44px rgba(201, 168, 76, 0.18); }
+.rt-fin-top { display: flex; align-items: center; gap: 14px; }
+.rt-fin-ic { flex-shrink: 0; width: 56px; height: 56px; border-radius: 16px; background: var(--rt-navy); color: var(--rt-accent); display: flex; align-items: center; justify-content: center; }
+.rt-fin-match { font-size: 12px; font-weight: 800; color: var(--rt-accent); letter-spacing: 0.02em; }
+.rt-fin-name { font-size: 23px; font-weight: 800; letter-spacing: -0.03em; color: var(--rt-ink); margin-top: 2px; }
+.rt-fin-tag { font-size: 13px; color: var(--rt-sub); margin-top: 5px; line-height: 1.45; }
+.rt-fin-pros { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 16px; }
+.rt-fin-pro { font-size: 12px; font-weight: 700; color: var(--rt-ink); background: rgba(201, 168, 76, 0.13); border-radius: 999px; padding: 7px 13px; }
+.rt-fin-reasons { display: flex; flex-direction: column; gap: 9px; margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--rt-line); }
+.rt-fin-reason { display: flex; align-items: center; gap: 9px; font-size: 13.5px; font-weight: 600; color: var(--rt-ink); }
+.rt-fin-reason svg { color: var(--rt-accent); flex-shrink: 0; }
+
+/* ===== 대안 방식 카드 (rt-diag-tools.css 허브 카드 재사용) ===== */
+.rt-hub-list { display: flex; flex-direction: column; gap: 11px; padding: 14px var(--rt-pad) 8px; }
+.rt-hub-card {
+  display: flex; align-items: center; gap: 14px; text-decoration: none; color: inherit;
+  border: 1px solid var(--rt-line); border-radius: 18px; padding: 18px; background: #fff;
+  box-shadow: 0 2px 14px rgba(13, 27, 42, 0.05); transition: transform 0.16s, box-shadow 0.16s, border-color 0.16s;
+}
+.rt-hub-card:hover { transform: translateY(-3px); box-shadow: 0 16px 32px rgba(13, 27, 42, 0.1); border-color: rgba(201, 168, 76, 0.5); }
+.rt-hub-ic { flex-shrink: 0; width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; background: rgba(201, 168, 76, 0.13); color: var(--rt-accent); }
+.rt-hub-main { flex: 1; min-width: 0; }
+.rt-hub-h { display: flex; align-items: center; gap: 7px; }
+.rt-hub-h b { font-size: 16px; font-weight: 800; letter-spacing: -0.02em; color: var(--rt-ink); }
+.rt-hub-new { font-size: 10px; font-weight: 800; color: #fff; background: var(--rt-accent); padding: 2px 7px; border-radius: 999px; letter-spacing: 0.04em; }
+.rt-hub-d { font-size: 13px; color: var(--rt-sub); margin-top: 4px; line-height: 1.45; text-wrap: pretty; }
+
+/* ===== 직접 비교 표 — 금융 전용 3열 (구분 / 추천 / 대조)
+   ※ rt-diag-tools.css의 rt-pay-brow는 결제비교용 4열 그리드라 3셀이면 빈 칸이 생긴다.
+      금융 진단은 3셀 비교이므로 여기서 3열로 재정의한다. ===== */
+.rt-pay-break { border: 1px solid var(--rt-line); border-radius: 16px; overflow: hidden; background: #fff; }
+/* compare.css는 같은 클래스를 4열로 정의 → 전역 충돌. data-page 스코프로 분리(3열은 이 페이지만). */
+[data-page='finance'] .rt-pay-brow { display: grid; grid-template-columns: 1.1fr 1fr 1fr; border-bottom: 1px solid var(--rt-line); }
+.rt-pay-brow:last-child { border-bottom: 0; }
+.rt-pay-bcell { padding: 12px 6px; font-size: 11.5px; text-align: center; color: var(--rt-sub); font-variant-numeric: tabular-nums; }
+.rt-pay-brow.h .rt-pay-bcell { font-weight: 800; color: var(--rt-ink); background: var(--rt-soft); }
+.rt-pay-bcell.k { text-align: left; font-weight: 700; color: var(--rt-ink); padding-left: 14px; }
+.rt-pay-bcell.on { background: rgba(201, 168, 76, 0.08); font-weight: 700; color: var(--rt-ink); }
+
+/* ===== 안내 문구 ===== */
+.rt-fnote { font-size: 11.5px; color: var(--rt-muted); padding: 14px var(--rt-pad) 4px; line-height: 1.55; }
