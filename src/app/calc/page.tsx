@@ -12,6 +12,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { RtTopNav } from '@/components/rentailor/RtChrome';
 import { RtConsultSheet } from '@/components/rentailor/RtConsultSheet';
+import { RtTermDefs } from '@/lib/rentailor/personalize';
 import { Button } from '@/components/ui/Button';
 import { RT_CATALOG, type Car } from '@/lib/rentailor/catalog';
 import './calc.css';
@@ -359,6 +360,17 @@ function CalcPage({ accent }: { accent: string }) {
           <h1 className="rt-ftitle">사기 전에, 진짜 비용을 계산해 보세요</h1>
           <p className="rt-fsub">자차 구매와 장기렌트의 총 비용을 비교하고, 취득세·자동차세를 미리 확인해요.</p>
         </div>
+
+        {/* A2 personalize: 이해도 레벨별 용어설명(초급 펼침/중급 접힘/고급 숨김) */}
+        <RtTermDefs
+          title="비용·세금 용어"
+          items={[
+            ['취득세', '차를 등록할 때 한 번 내는 세금(보통 차값의 7%).'],
+            ['자동차세', '차를 가진 동안 매년 내는 세금. 배기량 기준.'],
+            ['감가', '시간이 지나며 차값이 떨어지는 것. 구매의 숨은 비용.'],
+            ['장기렌트', '렌트료에 보험·세금·정비가 포함돼 별도 세금 부담이 없어요.'],
+          ]}
+        />
 
         <div className="rt-ctab">
           <button className={'rt-ctab-btn' + (tab === 'cost' ? ' is-on' : '')} onClick={() => setTab('cost')}>

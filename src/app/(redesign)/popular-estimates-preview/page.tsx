@@ -15,6 +15,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { RtTopNav, RtTabBar } from '@/components/rentailor/RtChrome';
 import { RtGuestGate } from '@/components/rentailor/RtGuestGate';
+import { RtTermDefs } from '@/lib/rentailor/personalize';
 import {
   RT_TABS,
   RT_SEGS,
@@ -297,6 +298,19 @@ export default function PopularEstimatesPreviewPage() {
           <h1 className="rt-list-title">원하는 차, 사지 말고<br />골라서 빌려 타세요</h1>
           <p className="rt-list-desc">국산·수입·전기차까지 {RT_CATALOG.length}개 차종을 월 렌트료로 비교하고,
             마음에 드는 차의 맞춤 견적을 받아보세요.</p>
+        </div>
+
+        {/* A2 personalize: 이해도 레벨별 용어설명(초급 펼침/중급 접힘/고급 숨김) */}
+        <div style={{ padding: '0 var(--rt-pad)' }}>
+          <RtTermDefs
+            title="빌려 타기 핵심 용어"
+            items={[
+              ['월 렌트료', '매달 내는 이용료. 보험·세금·정비가 보통 포함돼요.'],
+              ['장기렌트', '회사가 산 차를 1~5년 빌려 타는 방식. 면허만 있으면 OK.'],
+              ['오토리스', '차를 빌리되 비용처리·명의에 유리한 금융 상품.'],
+              ['보증금·선납', '미리 내면 월 렌트료가 낮아지는 옵션.'],
+            ]}
+          />
         </div>
 
         {budget && (

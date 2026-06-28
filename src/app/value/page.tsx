@@ -13,6 +13,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { RtTopNav } from '@/components/rentailor/RtChrome';
 import { RtConsultSheet } from '@/components/rentailor/RtConsultSheet';
+import { RtTermDefs } from '@/lib/rentailor/personalize';
 import { RT_CATALOG, FUEL, type Car } from '@/lib/rentailor/catalog';
 import { newCarCalc, won, type ValueReportData } from './data';
 import './value.css';
@@ -211,6 +212,16 @@ export default function ValuePage() {
               </p>
               <h2 className="rt-qresult-title">{car.model.replace(/\s*\(.*\)/, '')} 가치 분석</h2>
             </div>
+
+            {/* A2 personalize: 이해도 레벨별 용어설명(초급 펼침/중급 접힘/고급 숨김) */}
+            <RtTermDefs
+              title="가치 분석 핵심 용어"
+              items={[
+                ['잔존가치', '지금 차를 팔 때 받을 수 있는 예상 가치.'],
+                ['감가율', '신차 대비 값이 떨어진 비율. 클수록 손해가 커요.'],
+                ['처분손익', '차를 팔 때 생기는 이익·손실(사업자 세무에 반영).'],
+              ]}
+            />
 
             {/* 사업자 안내 — personalize 범위 밖이라 일반 렌더(항상 노출). 원본은 sole/corp 한정 */}
             <div className="rt-ccg-biz" style={{ margin: '0 0 14px' }}>

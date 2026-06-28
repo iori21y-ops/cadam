@@ -9,6 +9,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Button } from '@/components/ui/Button';
 import { RtTopNav } from '@/components/rentailor/RtChrome';
 import { RtConsultSheet } from '@/components/rentailor/RtConsultSheet';
+import { RtTermDefs } from '@/lib/rentailor/personalize';
 import {
   FQ,
   FG_ORDER,
@@ -253,6 +254,18 @@ function FnResult({ flow }: { flow: Flow }) {
         <p className="rt-qresult-kicker">AI 진단 완료 · 적합도 {top.match}%</p>
         <h2 className="rt-qresult-title">이 금융 방식을 추천해요</h2>
       </div>
+
+      {/* A2 personalize: 이해도 레벨별 용어설명(초급 펼침/중급 접힘/고급 숨김) */}
+      <RtTermDefs
+        title="추천 결과 핵심 용어"
+        items={[
+          ['장기렌트', '차를 빌려 타고 보험·세금·정비를 월납에 포함.'],
+          ['오토리스', '운용리스 — 비용처리·명의에 유리한 금융 상품.'],
+          ['할부', '내 명의로 사고 매달 나눠 갚음. 만기 후 내 차.'],
+          ['잔존가치', '계약 종료 시 차의 예상 가치. 높을수록 월납이 낮아져요.'],
+          ['인수(만기 매입)', '계약 끝에 차를 사들이는 것. 인수가만큼 지불.'],
+        ]}
+      />
 
       <div className="rt-fin-hero rt-fade-up" style={cssVar({ '--d': '70ms', marginTop: 18 })}>
         <div className="rt-fin-top">

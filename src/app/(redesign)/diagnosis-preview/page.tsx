@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/Button';
 import { RtTopNav, RtTabBar } from '@/components/rentailor/RtChrome';
 import { RtConsultSheet } from '@/components/rentailor/RtConsultSheet';
 import { RtIconMoney, RtIconCar } from '@/components/rentailor/RtIcons';
+import { RtTermDefs } from '@/lib/rentailor/personalize';
 import './diagnosis.css';
 
 const ACCENT = '#C9A84C';
@@ -101,6 +102,16 @@ export default function DiagnosisPreview() {
               양복 맞추듯, 2가지 AI 진단으로 금융 방식부터 차종까지 나에게 딱 맞게 찾아드려요.
             </p>
           </div>
+
+          {/* A2 personalize: 이해도 레벨별 용어설명(초급 펼침/중급 접힘/고급 숨김) */}
+          <RtTermDefs
+            title="금융 방식 한눈에"
+            items={[
+              ['장기렌트', '회사 차를 빌려 타고 매달 렌트료를 내요. 보험·정비 포함.'],
+              ['오토리스', '차를 빌리되 회계·세무에 유리한 금융 방식.'],
+              ['할부 구매', '내 명의로 사고 매달 나눠 갚는 방식. 끝나면 내 차.'],
+            ]}
+          />
 
           <div className="rt-hub-cta">
             <Button variant="primary" size="lg" fullWidth className="rt-gold" onClick={() => setSheet(true)}>
