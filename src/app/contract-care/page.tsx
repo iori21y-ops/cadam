@@ -68,8 +68,30 @@ const CC_CAPITAL: Record<string, CapitalInfo> = {
   kb: { name: 'KB캐피탈', cs: '1588-1990', hours: '평일 09:00–18:00', accident: '1544-0114', accidentName: '삼성화재 사고접수(24시간)', issues: [{ k: '부채(채무)증명서', how: 'KB캐피탈 홈페이지 > 증명서 발급 또는 고객센터' }, { k: '상환·납입 스케줄표', how: '고객센터 또는 앱 > 내 계약' }, { k: '원천징수영수증·세금계산서', how: '홈페이지 > 증명서 발급' }, { k: '사업자 고객 필요서류', how: '사업자등록증·대표자 신분증 지참' }], home: '#' },
 };
 const CC_CAPITAL_BY_NAME: Record<string, string> = Object.fromEntries(Object.entries(CC_CAPITAL).map(([id, v]) => [v.name, id]));
+
+// capital_directory 실데이터 오버레이(capital_id·name 양쪽 키). 비어있으면 CC_CAPITAL 폴백.
+//   ⚠️ 추정 연락처 시드 금지 — 빈 테이블이면 오버레이 없음 → 기존 하드코딩 유지.
+const CC_OVERLAY: Record<string, CapitalInfo> = {};
+interface ApiCapital {
+  capital_id: string; name: string; cs_phone: string | null; cs_hours: string | null;
+  accident_phone: string | null; issue_menus: unknown; homepage: string | null;
+}
+function ccIssues(menus: unknown): CapitalIssue[] {
+  if (Array.isArray(menus))
+    return menus
+      .map((m) => (m && typeof m === 'object'
+        ? { k: String((m as Record<string, unknown>).k ?? (m as Record<string, unknown>).label ?? ''), how: String((m as Record<string, unknown>).how ?? (m as Record<string, unknown>).path ?? '') }
+        : { k: String(m), how: '' }))
+      .filter((x) => x.k);
+  if (menus && typeof menus === 'object')
+    return Object.entries(menus as Record<string, unknown>).map(([k, how]) => ({ k, how: String(how) }));
+  return [];
+}
+function apiToCapital(a: ApiCapital): CapitalInfo {
+  return { name: a.name, cs: a.cs_phone || '', hours: a.cs_hours || '', accident: a.accident_phone || '', accidentName: '', issues: ccIssues(a.issue_menus), home: a.homepage || '#' };
+}
 function ccCapital(c: Contract): CapitalInfo | null {
-  return CC_CAPITAL[c.capitalId] || CC_CAPITAL[CC_CAPITAL_BY_NAME[c.capital]] || null;
+  return CC_OVERLAY[c.capitalId] || CC_OVERLAY[c.capital] || CC_CAPITAL[c.capitalId] || CC_CAPITAL[CC_CAPITAL_BY_NAME[c.capital]] || null;
 }
 
 /* ════════ 계약 중·만기 체크리스트 ════════ */
@@ -580,6 +602,27 @@ export default function ContractCarePage() {
     }
   }, []);
   const contracts = useMemo(() => MY_CONTRACTS.map((c) => ({ ...c, ...(overrides[c.carId] || {}) })), [overrides]);
+
+  // /api/capital-directory — 실데이터 있으면 CC_OVERLAY 채워 캐피탈 안내 교체. 빈 테이블이면 폴백 유지.
+  const [, setCapVer] = useState(0);
+  useEffect(() => {
+    let alive = true;
+    fetch('/api/capital-directory', { cache: 'no-store' })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d: { capitals: ApiCapital[] } | null) => {
+        if (!alive || !d || !d.capitals?.length) return; // 빈 테이블 → CC_CAPITAL 폴백
+        d.capitals.forEach((a) => {
+          const info = apiToCapital(a);
+          CC_OVERLAY[a.capital_id] = info;
+          CC_OVERLAY[a.name] = info;
+        });
+        setCapVer((v) => v + 1);
+      })
+      .catch(() => {/* 폴백 유지 */});
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   const [idx, setIdx] = useState(0);
   const [view, setView] = useState<View>('hub');

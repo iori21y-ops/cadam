@@ -239,6 +239,29 @@ function ggRegToVehicle(reg: RegVehicle): VehicleInfo {
   return { vin: reg.vin, plate: reg.plate, regDate: reg.regDate, color: reg.color, odo: reg.odo, source: 'molit', maker: reg.maker, model: reg.model };
 }
 
+/* contract_vehicles(BFF) 행 → 화면 RegVehicle. 회원 로그인+계약차량 적재 시 실 차량 표시. */
+interface ApiCV {
+  id: string; vin: string | null; plate: string | null; reg_date: string | null; odo: number | null;
+  color: string | null; maker: string | null; model: string | null; model_slug: string | null;
+  year: number | null; source: string | null;
+}
+function cvToReg(v: ApiCV): RegVehicle {
+  return {
+    id: v.id,
+    maker: v.maker || '—',
+    model: v.model || '차량',
+    year: v.year ? String(v.year) : '',
+    fuel: '—',
+    cc: '—',
+    color: v.color || '—',
+    regDate: (v.reg_date || '').replace(/-/g, '.'),
+    vin: v.vin || '조회필요',
+    odo: v.odo || 0,
+    slug: v.model_slug || '',
+    plate: v.plate || '—',
+  };
+}
+
 /* ════════ 아이콘 ════════ */
 function GgIcon({ name, size = 20 }: { name: string; size?: number }) {
   const p: Record<string, React.ReactNode> = {
@@ -569,14 +592,33 @@ export default function GaragePage() {
   const [reg, setReg] = useState<RegVehicle[]>([]);
   useEffect(() => setReg(ggLoadReg()), [view]);
 
+  // /api/garage — 회원이면 실 계약차량(contract_vehicles)으로 swap, 아니면(또는 오류) 시드 유지.
+  const [member, setMember] = useState(false);
+  const [apiVehicles, setApiVehicles] = useState<RegVehicle[]>([]);
+  useEffect(() => {
+    let alive = true;
+    fetch('/api/garage', { cache: 'no-store' })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d: { member: boolean; vehicles: ApiCV[] } | null) => {
+        if (!alive || !d || !d.member) return; // 비회원·실패 → 시드 폴백
+        setMember(true);
+        setApiVehicles((d.vehicles ?? []).map(cvToReg));
+      })
+      .catch(() => {/* 시드 폴백 */});
+    return () => {
+      alive = false;
+    };
+  }, []);
+  const allReg = [...apiVehicles, ...reg];
+
   useEffect(() => {
     if (!toast) return;
     const t = setTimeout(() => setToast(null), 2600);
     return () => clearTimeout(t);
   }, [toast]);
 
-  const active = MY_CONTRACTS.filter((c) => c.state === 'active');
-  const total = active.length + reg.length;
+  const active = (member ? [] : MY_CONTRACTS).filter((c) => c.state === 'active');
+  const total = active.length + allReg.length;
 
   const renderList = () => (
     <GgSub title="내 차고" intro="내 차고" desc={total ? total + '대의 차량을 관리하고 있어요' : '내 차를 등록하고 케어 안내를 받아보세요'} onBack={() => (window.location.href = '/mypage')}>
@@ -604,7 +646,7 @@ export default function GaragePage() {
             </button>
           );
         })}
-        {reg.map((r) => (
+        {allReg.map((r) => (
           <button className="gg-list-card" key={r.id} type="button" onClick={() => setView({ name: 'reg', id: r.id })} style={cssVar({ '--hue': 210 })}>
             <div className="gg-list-thumb"><ThumbPh label={r.model} /></div>
             <div className="gg-list-main">
@@ -647,7 +689,7 @@ export default function GaragePage() {
             })()}
           {view.name === 'reg' &&
             (() => {
-              const r = reg.find((x) => x.id === view.id);
+              const r = allReg.find((x) => x.id === view.id);
               if (!r) return renderList();
               return <GarageCarScreen c={ggRegToContract(r)} car={null} veh={ggRegToVehicle(r)} onBack={() => setView({ name: 'list' })} onToast={setToast} />;
             })()}
