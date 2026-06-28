@@ -1,0 +1,201 @@
+/* @scoped data-rt="calc" */
+/* calc.css — 비용·세금 계산기 (자차 vs 장기렌트 시뮬레이션 · 취득/자동차세) (co-located)
+   원본: _design_ref/rt-calc.css + rt-diag-tools.css(폼 헬퍼) + rt-base.css(쉘/바)
+   - 프레임(.rt-root/.rt-page/.rt-scroll/.rt-bar/.rt-fade-up/.rt-anim-lock)은
+     형제 프리뷰 라우트(finance.css 등)와 byte-identical 하게 유지한다.
+   - .rt-nav, .rt-sheet, .rt-gold 은 globals.css 전역 정의를 그대로 사용한다.
+   - 디바이스프레임(.rt-viewport[data-device])·전역리셋·tweaks 패널은 제외. */
+
+.rt-root[data-rt="calc"] {
+  --rt-navy: #0d1b2a;
+  --rt-ink: #0d1b2a;
+  --rt-sub: #4a5568;
+  --rt-muted: #9ca3af;
+  --rt-line: #e8eaee;
+  --rt-soft: #f6f7f9;
+  --rt-accent: #c9a84c;
+  --rt-radius: 20px;
+  --rt-nav-h: 56px;
+  --rt-pad: 22px;
+
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: #fff;
+  font-family: 'Pretendard', var(--font-pretendard), -apple-system, BlinkMacSystemFont,
+    'Apple SD Gothic Neo', sans-serif;
+  color: var(--rt-ink);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+.rt-root[data-rt="calc"] * { box-sizing: border-box; }
+.rt-root[data-rt="calc"] button { font-family: inherit; }
+
+[data-rt="calc"] .rt-page {
+  width: 100%;
+  height: 100%;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  container-type: inline-size;
+  container-name: page;
+}
+[data-rt="calc"] .rt-scroll {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+}
+[data-rt="calc"] .rt-scroll > * { flex-shrink: 0; }
+[data-rt="calc"] .rt-scroll::-webkit-scrollbar { width: 0; height: 0; }
+
+/* ---------- bottom bar ---------- */
+[data-rt="calc"] .rt-bar {
+  position: sticky;
+  bottom: 0;
+  z-index: 28;
+  margin-top: auto;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(14px);
+  border-top: 1px solid var(--rt-line);
+  box-shadow: 0 -10px 30px rgba(13, 27, 42, 0.07);
+}
+[data-rt="calc"] .rt-bar-inner { padding: 14px var(--rt-pad) calc(14px + env(safe-area-inset-bottom)); }
+[data-rt="calc"] .rt-bar button:active { transform: scale(0.97); }
+[data-rt="calc"] .rt-bar .rt-gold {
+  background: var(--rt-accent) !important;
+  color: var(--rt-navy) !important;
+  box-shadow: 0 8px 22px rgba(201, 168, 76, 0.32);
+}
+[data-rt="calc"] .rt-bar .rt-gold:hover { filter: brightness(1.04); }
+[data-rt="calc"] .rt-bar-row { display: flex; gap: 10px; align-items: stretch; }
+[data-rt="calc"] .rt-bar-row > :last-child { flex: 1; }
+[data-rt="calc"] .rt-bar-price { flex-shrink: 0; display: flex; flex-direction: column; justify-content: center; padding-right: 4px; }
+[data-rt="calc"] .rt-bar-price-k { font-size: 11px; font-weight: 700; color: var(--rt-muted); }
+[data-rt="calc"] .rt-bar-price-v { display: flex; align-items: baseline; gap: 2px; }
+[data-rt="calc"] .rt-bar-price-v b { font-size: 22px; font-weight: 800; letter-spacing: -0.03em; color: var(--rt-ink); font-variant-numeric: tabular-nums; }
+[data-rt="calc"] .rt-bar-price-v em { font-style: normal; font-size: 13px; font-weight: 700; color: var(--rt-ink); }
+
+/* ---------- fade-up ---------- */
+@keyframes rtFadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+[data-rt="calc"] .rt-fade-up { animation: rtFadeUp 0.5s cubic-bezier(0.16, 0.84, 0.44, 1) both; animation-delay: var(--d, 0ms); }
+[data-rt="calc"] .rt-anim-lock .rt-fade-up { opacity: 1 !important; transform: none !important; }
+@media (prefers-reduced-motion: reduce) {
+  [data-rt="calc"] .rt-fade-up { animation: none !important; opacity: 1 !important; transform: none !important; }
+}
+
+/* ===== 입력 폼 헬퍼 (rt-diag-tools.css) ===== */
+[data-rt="calc"] .rt-fhead { padding: 22px var(--rt-pad) 2px; }
+[data-rt="calc"] .rt-feyebrow { font-size: 12px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--rt-accent); margin: 0 0 8px; }
+[data-rt="calc"] .rt-ftitle { font-size: 25px; font-weight: 800; letter-spacing: -0.035em; margin: 0; color: var(--rt-ink); line-height: 1.2; }
+[data-rt="calc"] .rt-fsub { font-size: 14px; color: var(--rt-sub); margin: 8px 0 0; line-height: 1.5; }
+[data-rt="calc"] .rt-fcard { margin: 16px var(--rt-pad) 0; border: 1px solid var(--rt-line); border-radius: 18px; padding: 18px; background: #fff; box-shadow: 0 2px 14px rgba(13, 27, 42, 0.04); }
+[data-rt="calc"] .rt-fcard-t { display: flex; align-items: baseline; gap: 8px; font-size: 15px; font-weight: 800; letter-spacing: -0.02em; color: var(--rt-ink); margin: 0 0 14px; }
+[data-rt="calc"] .rt-fcard-t span { font-size: 12px; font-weight: 600; color: var(--rt-muted); }
+[data-rt="calc"] .rt-fpills { display: flex; flex-wrap: wrap; gap: 8px; }
+[data-rt="calc"] .rt-fpill { border: 1.5px solid var(--rt-line); background: #fff; border-radius: 11px; padding: 11px 15px; cursor: pointer; font-size: 13.5px; font-weight: 700; color: var(--rt-sub); transition: all .15s; }
+[data-rt="calc"] .rt-fpill:hover { border-color: rgba(201, 168, 76, .5); }
+[data-rt="calc"] .rt-fpill.is-on { border-color: var(--rt-accent); background: rgba(201, 168, 76, .08); color: var(--rt-ink); }
+[data-rt="calc"] .rt-fpill-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+[data-rt="calc"] .rt-fpill-3 .rt-fpill { display: flex; flex-direction: column; align-items: center; gap: 3px; text-align: center; }
+[data-rt="calc"] .rt-fpill-3 .rt-fpill span { font-size: 11px; font-weight: 600; color: var(--rt-muted); }
+[data-rt="calc"] .rt-ffield { display: flex; flex-direction: column; gap: 7px; }
+[data-rt="calc"] .rt-ffield + .rt-ffield { margin-top: 13px; }
+[data-rt="calc"] .rt-flabel { font-size: 13px; font-weight: 700; color: var(--rt-ink); }
+[data-rt="calc"] .rt-flabel em { font-style: normal; font-weight: 600; color: var(--rt-muted); margin-left: 5px; }
+[data-rt="calc"] .rt-fselect {
+  width: 100%; height: 52px; padding: 0 42px 0 16px; border: 1.5px solid var(--rt-line); border-radius: 14px;
+  font-size: 15px; font-family: inherit; color: var(--rt-ink); background-color: #fff; outline: none;
+  -webkit-appearance: none; appearance: none; cursor: pointer;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' fill='none' stroke='%239CA3AF' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>");
+  background-repeat: no-repeat; background-position: right 14px center;
+}
+[data-rt="calc"] .rt-fselect:focus { border-color: var(--rt-accent); }
+[data-rt="calc"] .rt-fselect:disabled { background-color: var(--rt-soft); color: var(--rt-muted); cursor: not-allowed; }
+[data-rt="calc"] .rt-fnote { font-size: 11.5px; color: var(--rt-muted); padding: 14px var(--rt-pad) 4px; line-height: 1.55; }
+
+/* ===== 상단 세그먼트 탭 (rt-calc.css) ===== */
+[data-rt="calc"] .rt-ctab { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin: 16px var(--rt-pad) 0; padding: 4px; background: var(--rt-soft); border-radius: 15px; border: 1px solid var(--rt-line); }
+[data-rt="calc"] .rt-ctab-btn { position: relative; border: 0; background: transparent; border-radius: 11px; cursor: pointer; padding: 11px 8px; font-family: inherit; font-size: 14px; font-weight: 800; letter-spacing: -0.02em; color: var(--rt-muted); transition: color .18s; display: flex; align-items: center; justify-content: center; gap: 6px; }
+[data-rt="calc"] .rt-ctab-btn svg { width: 17px; height: 17px; }
+[data-rt="calc"] .rt-ctab-btn.is-on { background: #fff; color: var(--rt-ink); box-shadow: 0 2px 10px rgba(13, 27, 42, .08); }
+[data-rt="calc"] .rt-ctab-btn.is-on svg { color: var(--rt-accent); }
+
+/* ===== 입력 보조 ===== */
+[data-rt="calc"] .rt-cfields { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; align-items: end; }
+[data-rt="calc"] .rt-cfields .rt-flabel { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+[data-rt="calc"] .rt-cinput { width: 100%; height: 52px; padding: 0 14px; border: 1.5px solid var(--rt-line); border-radius: 14px; font-size: 15px; font-weight: 700; font-family: inherit; color: var(--rt-ink); background: #fff; outline: none; text-align: right; font-variant-numeric: tabular-nums; transition: border-color .15s; }
+[data-rt="calc"] .rt-cinput:focus { border-color: var(--rt-accent); }
+[data-rt="calc"] .rt-cinput-wrap { position: relative; display: flex; align-items: center; }
+[data-rt="calc"] .rt-cinput-suffix { position: absolute; right: 14px; font-size: 13px; font-weight: 700; color: var(--rt-muted); pointer-events: none; }
+[data-rt="calc"] .rt-cinput-wrap .rt-cinput { padding-right: 42px; }
+
+/* ===== 결과 히어로 (네이비) ===== */
+[data-rt="calc"] .rt-chero { background: var(--rt-navy); border-radius: 22px; padding: 22px; color: #fff; box-shadow: 0 14px 36px rgba(13, 27, 42, .22); }
+[data-rt="calc"] .rt-chero-k { font-size: 12.5px; font-weight: 700; color: rgba(255, 255, 255, .6); margin: 0; }
+[data-rt="calc"] .rt-chero-big { display: flex; align-items: baseline; gap: 4px; margin-top: 7px; }
+[data-rt="calc"] .rt-chero-big b { font-size: 40px; font-weight: 800; letter-spacing: -0.04em; color: var(--rt-accent); font-variant-numeric: tabular-nums; line-height: 1; }
+[data-rt="calc"] .rt-chero-big span { font-size: 18px; font-weight: 700; }
+[data-rt="calc"] .rt-chero-big em { font-style: normal; font-size: 14px; font-weight: 700; color: rgba(255, 255, 255, .55); margin-left: 6px; }
+[data-rt="calc"] .rt-chero-chips { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 15px; }
+[data-rt="calc"] .rt-chero-chip { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 700; color: #fff; background: rgba(255, 255, 255, .1); border-radius: 999px; padding: 6px 11px; }
+[data-rt="calc"] .rt-chero-chip svg { width: 13px; height: 13px; color: var(--rt-accent); flex-shrink: 0; }
+[data-rt="calc"] .rt-chero-note { font-size: 12.5px; color: rgba(255, 255, 255, .78); margin: 15px 0 0; line-height: 1.55; padding-top: 14px; border-top: 1px solid rgba(255, 255, 255, .12); text-wrap: pretty; }
+[data-rt="calc"] .rt-chero-note b { color: #fff; font-weight: 800; }
+
+/* ===== 자차 vs 렌트 비교 ===== */
+[data-rt="calc"] .rt-cmp { border: 1px solid var(--rt-line); border-radius: 18px; overflow: hidden; background: #fff; box-shadow: 0 2px 14px rgba(13, 27, 42, .04); }
+[data-rt="calc"] .rt-cmp-head { display: grid; grid-template-columns: 1.05fr 1fr 1fr; background: var(--rt-soft); border-bottom: 1px solid var(--rt-line); }
+[data-rt="calc"] .rt-cmp-hcell { padding: 13px 10px; text-align: center; font-size: 13.5px; font-weight: 800; color: var(--rt-ink); }
+[data-rt="calc"] .rt-cmp-hcell:first-child { text-align: left; padding-left: 16px; color: var(--rt-muted); font-size: 12px; }
+[data-rt="calc"] .rt-cmp-hcell.rent { position: relative; color: var(--rt-navy); }
+[data-rt="calc"] .rt-cmp-hcell.rent::after { content: "추천"; display: inline-block; margin-left: 6px; font-size: 9.5px; font-weight: 800; color: #fff; background: var(--rt-accent); padding: 2px 6px; border-radius: 999px; vertical-align: middle; }
+[data-rt="calc"] .rt-cmp-row { display: grid; grid-template-columns: 1.05fr 1fr 1fr; border-bottom: 1px solid var(--rt-line); }
+[data-rt="calc"] .rt-cmp-row:last-child { border-bottom: 0; }
+[data-rt="calc"] .rt-cmp-row.hl { background: rgba(201, 168, 76, .06); }
+[data-rt="calc"] .rt-cmp-cell { padding: 13px 10px; text-align: center; font-size: 13.5px; font-weight: 700; color: var(--rt-ink); font-variant-numeric: tabular-nums; display: flex; align-items: center; justify-content: center; gap: 5px; }
+[data-rt="calc"] .rt-cmp-cell.k { text-align: left; justify-content: flex-start; padding-left: 16px; font-size: 12.5px; font-weight: 600; color: var(--rt-sub); }
+[data-rt="calc"] .rt-cmp-cell.rent { color: var(--rt-navy); }
+[data-rt="calc"] .rt-cmp-cell.muted { color: var(--rt-muted); font-weight: 600; }
+[data-rt="calc"] .rt-cmp-cell .ck { color: var(--rt-accent); }
+[data-rt="calc"] .rt-cmp-cell .xk { color: var(--rt-muted); }
+[data-rt="calc"] .rt-cmp-cell small { font-size: 11px; font-weight: 600; color: var(--rt-muted); }
+
+/* ===== 절세 배너 (사업자) ===== */
+[data-rt="calc"] .rt-csave { display: flex; gap: 12px; padding: 15px 16px; border: 1.5px solid var(--rt-accent); border-radius: 16px; background: rgba(201, 168, 76, .07); }
+[data-rt="calc"] .rt-csave-ic { flex-shrink: 0; width: 40px; height: 40px; border-radius: 12px; background: var(--rt-accent); color: var(--rt-navy); display: flex; align-items: center; justify-content: center; }
+[data-rt="calc"] .rt-csave-h { font-size: 14.5px; font-weight: 800; letter-spacing: -0.02em; color: var(--rt-ink); }
+[data-rt="calc"] .rt-csave-h b { color: var(--rt-accent); }
+[data-rt="calc"] .rt-csave-d { font-size: 12.5px; color: var(--rt-sub); margin-top: 3px; line-height: 1.5; text-wrap: pretty; }
+
+/* ===== 비용 구성 / 세금 내역 행 리스트 ===== */
+[data-rt="calc"] .rt-brk { border: 1px solid var(--rt-line); border-radius: 16px; overflow: hidden; background: #fff; }
+[data-rt="calc"] .rt-brk-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 16px; border-bottom: 1px solid var(--rt-line); }
+[data-rt="calc"] .rt-brk-row:last-child { border-bottom: 0; }
+[data-rt="calc"] .rt-brk-row.total { background: var(--rt-soft); }
+[data-rt="calc"] .rt-brk-l { display: flex; align-items: center; gap: 9px; font-size: 13.5px; font-weight: 600; color: var(--rt-sub); }
+[data-rt="calc"] .rt-brk-row.total .rt-brk-l { font-size: 14.5px; font-weight: 800; color: var(--rt-ink); }
+[data-rt="calc"] .rt-brk-dot { width: 8px; height: 8px; border-radius: 3px; flex-shrink: 0; background: var(--rt-accent); }
+[data-rt="calc"] .rt-brk-l small { display: block; font-size: 11px; font-weight: 600; color: var(--rt-muted); margin-top: 1px; }
+[data-rt="calc"] .rt-brk-v { font-size: 14px; font-weight: 800; color: var(--rt-ink); font-variant-numeric: tabular-nums; flex-shrink: 0; }
+[data-rt="calc"] .rt-brk-row.total .rt-brk-v { font-size: 18px; color: var(--rt-accent); }
+[data-rt="calc"] .rt-brk-v small { font-size: 11px; font-weight: 600; color: var(--rt-muted); margin-left: 3px; }
+
+/* ===== 세금 단일 결과 카드 ===== */
+[data-rt="calc"] .rt-taxhero { border: 1.5px solid var(--rt-accent); border-radius: 22px; padding: 22px; background: #fff; box-shadow: 0 16px 44px rgba(201, 168, 76, .16); }
+[data-rt="calc"] .rt-taxhero-k { font-size: 12.5px; font-weight: 800; letter-spacing: .02em; color: var(--rt-accent); margin: 0; }
+[data-rt="calc"] .rt-taxhero-big { display: flex; align-items: baseline; gap: 4px; margin-top: 6px; }
+[data-rt="calc"] .rt-taxhero-big b { font-size: 36px; font-weight: 800; letter-spacing: -0.04em; color: var(--rt-ink); font-variant-numeric: tabular-nums; line-height: 1; }
+[data-rt="calc"] .rt-taxhero-big span { font-size: 17px; font-weight: 700; color: var(--rt-ink); }
+[data-rt="calc"] .rt-taxhero-sub { font-size: 13px; color: var(--rt-sub); margin: 12px 0 0; line-height: 1.5; padding-top: 14px; border-top: 1px solid var(--rt-line); text-wrap: pretty; }
+[data-rt="calc"] .rt-taxhero-sub b { color: var(--rt-ink); font-weight: 800; }
+
+/* ===== 섹션 라벨 ===== */
+[data-rt="calc"] .rt-csec { font-size: 14px; font-weight: 800; letter-spacing: -0.02em; color: var(--rt-ink); margin: 0 0 12px; padding: 0 2px; display: flex; align-items: baseline; gap: 8px; }
+[data-rt="calc"] .rt-csec span { font-size: 12px; font-weight: 600; color: var(--rt-muted); }
+[data-rt="calc"] .rt-cblock { margin: 18px var(--rt-pad) 0; }

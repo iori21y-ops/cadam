@@ -1,0 +1,200 @@
+/* @scoped data-rt="sell" */
+/* sell.css — 내차 시세 조회 (co-located)
+   원본: _design_ref/sell-app.jsx + rt-diag-tools.css(폼) + rt-sell.css(결과) 발췌.
+   - 프레임(.rt-root/.rt-page/.rt-scroll/.rt-bar/.rt-fade-up/.rt-anim-lock)은
+     형제 라우트(deprec.css)와 동일 값으로 유지(글로벌 CSS는 클라 내비 간 유지됨).
+   - .rt-nav / .rt-sheet / 게스트 모달은 globals.css 전역 정의를 그대로 사용.
+   - 전역 reset / 디바이스 프레임 / tweaks / image-slot 은 제외.
+   - 전 셀렉터를 [data-rt="sell"] 로 스코프. */
+
+.rt-root[data-rt="sell"] {
+  --rt-navy: #0d1b2a;
+  --rt-ink: #0d1b2a;
+  --rt-sub: #4a5568;
+  --rt-muted: #9ca3af;
+  --rt-line: #e8eaee;
+  --rt-soft: #f6f7f9;
+  --rt-accent: #c9a84c;
+  --rt-radius: 20px;
+  --rt-nav-h: 56px;
+  --rt-pad: 22px;
+
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: #fff;
+  font-family: 'Pretendard', var(--font-pretendard), -apple-system, BlinkMacSystemFont,
+    'Apple SD Gothic Neo', sans-serif;
+  color: var(--rt-ink);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+.rt-root[data-rt="sell"] * { box-sizing: border-box; }
+.rt-root[data-rt="sell"] button { font-family: inherit; }
+
+[data-rt="sell"] .rt-page {
+  width: 100%;
+  height: 100%;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  container-type: inline-size;
+  container-name: page;
+}
+[data-rt="sell"] .rt-scroll {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+}
+[data-rt="sell"] .rt-scroll > * { flex-shrink: 0; }
+[data-rt="sell"] .rt-scroll::-webkit-scrollbar { width: 0; height: 0; }
+
+/* ---------- bottom bar ---------- */
+[data-rt="sell"] .rt-bar {
+  position: sticky;
+  bottom: 0;
+  z-index: 28;
+  margin-top: auto;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(14px);
+  border-top: 1px solid var(--rt-line);
+  box-shadow: 0 -10px 30px rgba(13, 27, 42, 0.07);
+}
+[data-rt="sell"] .rt-bar-inner { padding: 14px var(--rt-pad) calc(14px + env(safe-area-inset-bottom)); }
+[data-rt="sell"] .rt-bar button:active { transform: scale(0.97); }
+[data-rt="sell"] .rt-bar .rt-gold {
+  background: var(--rt-accent) !important;
+  color: var(--rt-navy) !important;
+  box-shadow: 0 8px 22px rgba(201, 168, 76, 0.32);
+}
+[data-rt="sell"] .rt-bar .rt-gold:hover { filter: brightness(1.04); }
+[data-rt="sell"] .rt-bar-row { display: flex; gap: 10px; align-items: stretch; }
+[data-rt="sell"] .rt-bar-call {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  width: 84px;
+  border: 1.5px solid var(--rt-line);
+  border-radius: 14px;
+  text-decoration: none;
+  color: var(--rt-ink);
+  font-size: 12px;
+  font-weight: 700;
+}
+[data-rt="sell"] .rt-bar-call:active { transform: scale(0.97); }
+[data-rt="sell"] .rt-bar-row > :last-child { flex: 1; }
+
+/* ---------- fade-up ---------- */
+@keyframes rtFadeUpSell { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+[data-rt="sell"] .rt-fade-up { animation: rtFadeUpSell 0.5s cubic-bezier(0.16, 0.84, 0.44, 1) both; animation-delay: var(--d, 0ms); }
+[data-rt="sell"] .rt-anim-lock .rt-fade-up { opacity: 1 !important; transform: none !important; }
+@media (prefers-reduced-motion: reduce) {
+  [data-rt="sell"] .rt-fade-up { animation: none !important; opacity: 1 !important; transform: none !important; }
+}
+
+/* ===== 결과 공통 ===== */
+[data-rt="sell"] .rt-qresult { padding: 20px var(--rt-pad) 12px; display: flex; flex-direction: column; }
+[data-rt="sell"] .rt-qresult-kicker { font-size: 12.5px; font-weight: 700; color: var(--rt-accent); margin: 0 0 6px; letter-spacing: -0.01em; }
+[data-rt="sell"] .rt-qresult-title { font-size: 24px; font-weight: 800; letter-spacing: -0.035em; color: var(--rt-ink); margin: 0; line-height: 1.2; }
+[data-rt="sell"] .rt-qblock { margin-top: 20px; }
+[data-rt="sell"] .rt-qblock-t { font-size: 15px; font-weight: 800; letter-spacing: -0.02em; color: var(--rt-ink); margin: 0 0 12px; }
+[data-rt="sell"] .rt-fnote { font-size: 11.5px; color: var(--rt-muted); padding: 14px var(--rt-pad) 4px; line-height: 1.55; }
+
+/* ===== 입력 폼 ===== */
+[data-rt="sell"] .rt-fhead { padding: 22px var(--rt-pad) 2px; }
+[data-rt="sell"] .rt-feyebrow { font-size: 12px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--rt-accent); margin: 0 0 8px; }
+[data-rt="sell"] .rt-ftitle { font-size: 25px; font-weight: 800; letter-spacing: -0.035em; margin: 0; color: var(--rt-ink); line-height: 1.2; }
+[data-rt="sell"] .rt-fsub { font-size: 14px; color: var(--rt-sub); margin: 8px 0 0; line-height: 1.5; }
+[data-rt="sell"] .rt-fcard { margin: 16px var(--rt-pad) 0; border: 1px solid var(--rt-line); border-radius: 18px; padding: 18px;
+  background: #fff; box-shadow: 0 2px 14px rgba(13, 27, 42, .04); }
+[data-rt="sell"] .rt-fcard-t { display: flex; align-items: baseline; gap: 8px; font-size: 15px; font-weight: 800; letter-spacing: -0.02em;
+  color: var(--rt-ink); margin: 0 0 14px; }
+[data-rt="sell"] .rt-fcard-t span { font-size: 12px; font-weight: 600; color: var(--rt-muted); }
+[data-rt="sell"] .rt-fpill { border: 1.5px solid var(--rt-line); background: #fff; border-radius: 11px; padding: 11px 15px; cursor: pointer;
+  font-size: 13.5px; font-weight: 700; color: var(--rt-sub); transition: all .15s; }
+[data-rt="sell"] .rt-fpill:hover { border-color: rgba(201, 168, 76, .5); }
+[data-rt="sell"] .rt-fpill.is-on { border-color: var(--rt-accent); background: rgba(201, 168, 76, .08); color: var(--rt-ink); }
+[data-rt="sell"] .rt-fpill-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+[data-rt="sell"] .rt-fpill-3 .rt-fpill { display: flex; flex-direction: column; align-items: center; gap: 3px; text-align: center; }
+[data-rt="sell"] .rt-fpill-3 .rt-fpill span { font-size: 11px; font-weight: 600; color: var(--rt-muted); }
+[data-rt="sell"] .rt-ffield { display: flex; flex-direction: column; gap: 7px; }
+[data-rt="sell"] .rt-ffield + .rt-ffield { margin-top: 13px; }
+[data-rt="sell"] .rt-flabel { font-size: 13px; font-weight: 700; color: var(--rt-ink); }
+[data-rt="sell"] .rt-fselect { width: 100%; height: 52px; padding: 0 42px 0 16px; border: 1.5px solid var(--rt-line); border-radius: 14px;
+  font-size: 15px; font-family: inherit; color: var(--rt-ink); background-color: #fff; outline: none;
+  -webkit-appearance: none; appearance: none; cursor: pointer;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' fill='none' stroke='%239CA3AF' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>");
+  background-repeat: no-repeat; background-position: right 14px center; }
+[data-rt="sell"] .rt-fselect:focus { border-color: var(--rt-accent); }
+
+/* ===== 히어로 ===== */
+[data-rt="sell"] .rt-dep-hero { background: var(--rt-navy); border-radius: 22px; padding: 22px; color: #fff; box-shadow: 0 14px 36px rgba(13, 27, 42, .2); }
+[data-rt="sell"] .rt-dep-hero-k { font-size: 12.5px; font-weight: 700; color: rgba(255, 255, 255, .6); margin: 0; }
+[data-rt="sell"] .rt-dep-now { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; margin-top: 8px; }
+[data-rt="sell"] .rt-dep-now b { font-size: 36px; font-weight: 800; letter-spacing: -0.04em; color: var(--rt-accent); font-variant-numeric: tabular-nums; line-height: 1.05; white-space: nowrap; }
+[data-rt="sell"] .rt-dep-now span { font-size: 17px; font-weight: 700; }
+[data-rt="sell"] .rt-dep-now em { flex-basis: 100%; font-style: normal; font-size: 13.5px; font-weight: 700; color: rgba(255, 255, 255, .55); margin: 4px 0 0; line-height: 1.45; }
+
+/* ===== 시세 레인지 배지 ===== */
+[data-rt="sell"] .rt-sell-range { display: inline-flex; align-items: center; gap: 6px; margin-top: 14px;
+  font-size: 12.5px; font-weight: 700; color: rgba(255, 255, 255, .82); background: rgba(255, 255, 255, .1);
+  border-radius: 999px; padding: 6px 13px; }
+[data-rt="sell"] .rt-sell-range b { color: #fff; font-weight: 800; font-variant-numeric: tabular-nums; }
+
+/* ===== 시세 분포 막대 ===== */
+[data-rt="sell"] .rt-sell-distwrap { position: relative; margin-top: 28px; }
+[data-rt="sell"] .rt-sell-dist { position: relative; height: 46px; border-radius: 12px;
+  background: linear-gradient(90deg, #eef0f3, #e2e6ec); overflow: hidden; }
+[data-rt="sell"] .rt-sell-dist-band { position: absolute; top: 0; bottom: 0; background: rgba(201, 168, 76, .22);
+  border-left: 1.5px dashed rgba(201, 168, 76, .8); border-right: 1.5px dashed rgba(201, 168, 76, .8); }
+[data-rt="sell"] .rt-sell-dist-mark { position: absolute; top: 0; bottom: 0; width: 3px; background: var(--rt-accent);
+  box-shadow: 0 0 0 4px rgba(201, 168, 76, .2); border-radius: 2px; }
+[data-rt="sell"] .rt-sell-dist-lbl { display: flex; justify-content: space-between; margin-top: 8px;
+  font-size: 11px; font-weight: 600; color: var(--rt-muted); }
+[data-rt="sell"] .rt-sell-dist-cap { position: absolute; top: -24px; transform: translateX(-50%); white-space: nowrap;
+  font-size: 11px; font-weight: 800; color: var(--rt-navy); background: #fff; border: 1px solid var(--rt-accent);
+  border-radius: 999px; padding: 3px 9px; box-shadow: 0 2px 8px rgba(13, 27, 42, .12); z-index: 1; }
+[data-rt="sell"] .rt-sell-dist-cap::after { content: ""; position: absolute; left: 50%; bottom: -4px; transform: translateX(-50%) rotate(45deg);
+  width: 7px; height: 7px; background: #fff; border-right: 1px solid var(--rt-accent); border-bottom: 1px solid var(--rt-accent); }
+
+/* ===== 채널별 막대 ===== */
+[data-rt="sell"] .rt-paybars { display: flex; flex-direction: column; gap: 15px; }
+[data-rt="sell"] .rt-paybar-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+[data-rt="sell"] .rt-paybar-name { display: flex; align-items: center; gap: 7px; font-size: 15px; font-weight: 800; color: var(--rt-ink); }
+[data-rt="sell"] .rt-paybar-val { font-size: 16px; font-weight: 800; color: var(--rt-ink); font-variant-numeric: tabular-nums; }
+[data-rt="sell"] .rt-paybar-track { height: 32px; border-radius: 10px; background: var(--rt-soft); overflow: hidden; }
+[data-rt="sell"] .rt-paybar-fill { height: 100%; border-radius: 10px; background: linear-gradient(90deg, #c3cbd6, #aab3c0);
+  transition: width .7s cubic-bezier(.16, .84, .44, 1); min-width: 42%; }
+[data-rt="sell"] .rt-paybar.best .rt-paybar-fill { background: linear-gradient(90deg, var(--rt-accent), #dcc06a); }
+[data-rt="sell"] .rt-paybar-tag { font-size: 10px; font-weight: 800; color: var(--rt-navy); background: var(--rt-accent);
+  padding: 3px 8px; border-radius: 999px; }
+[data-rt="sell"] .rt-paybar-tag.plain { color: var(--rt-sub); background: var(--rt-soft); border: 1px solid var(--rt-line); }
+
+/* ===== 전환 인수가 카드 ===== */
+[data-rt="sell"] .rt-sell-offer { border: 1.5px solid var(--rt-accent); border-radius: 18px; background: rgba(201, 168, 76, .07); padding: 18px; }
+[data-rt="sell"] .rt-sell-offer-top { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
+[data-rt="sell"] .rt-sell-offer-k { font-size: 13px; font-weight: 800; color: var(--rt-ink); }
+[data-rt="sell"] .rt-sell-offer-k em { font-style: normal; display: block; font-size: 11.5px; font-weight: 600; color: var(--rt-muted); margin-top: 2px; }
+[data-rt="sell"] .rt-sell-offer-v { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 10px; }
+[data-rt="sell"] .rt-sell-offer-v b { font-size: 28px; font-weight: 800; letter-spacing: -0.03em; color: var(--rt-accent);
+  font-variant-numeric: tabular-nums; white-space: nowrap; line-height: 1; }
+[data-rt="sell"] .rt-sell-offer-plus { display: inline-flex; align-items: center; gap: 4px; margin-top: 0; font-size: 11.5px;
+  font-weight: 800; color: var(--rt-navy); background: var(--rt-accent); border-radius: 999px; padding: 3px 9px; white-space: nowrap; }
+[data-rt="sell"] .rt-sell-offer-d { font-size: 12.5px; color: var(--rt-sub); margin: 14px 0 0; line-height: 1.5;
+  padding-top: 13px; border-top: 1px solid rgba(201, 168, 76, .3); text-wrap: pretty; }
+[data-rt="sell"] .rt-sell-offer-d b { color: var(--rt-ink); font-weight: 800; }
+
+/* ===== 요약 칩 행 ===== */
+[data-rt="sell"] .rt-sell-tags { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 14px; }
+[data-rt="sell"] .rt-sell-tag { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 700;
+  color: var(--rt-sub); background: var(--rt-soft); border-radius: 999px; padding: 7px 12px; }
+[data-rt="sell"] .rt-sell-tag svg { width: 13px; height: 13px; color: var(--rt-accent); }

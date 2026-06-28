@@ -1,0 +1,74 @@
+/* @scoped data-rt="direct-care" */
+/* direct-care.css — 신청 방법(다이렉트 vs 상담 케어) 선택 카드
+   원본: _design_ref/rt-catalog.css 의 .rt-trk 블록.
+   전역 reset 과 디바이스 프레임(.rt-viewport)은 의도적으로 제외했고,
+   프레임은 .rt-root(풀스크린 오버레이) + .rt-page(스크롤 컨테이너)로 대체했다.
+   공용 크롬(.rt-nav / .rt-sheet / .rt-tabbar / .rt-footer)은 globals.css 에 이미 존재한다.
+   모든 규칙은 .rt-root[data-rt="direct-care"] 아래로 스코프해 전역 누수를 막는다. */
+
+.rt-root[data-rt="direct-care"] {
+  --rt-navy: #0d1b2a;
+  --rt-ink: #0d1b2a;
+  --rt-sub: #4a5568;
+  --rt-muted: #9ca3af;
+  --rt-line: #e8eaee;
+  --rt-soft: #f6f7f9;
+  --rt-accent: #c9a84c;
+  --rt-radius: 20px;
+  --rt-nav-h: 56px;
+  --rt-pad: 22px;
+
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: #fff;
+  font-family: 'Pretendard', var(--font-pretendard), -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
+  color: var(--rt-ink);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+.rt-root[data-rt="direct-care"] * { box-sizing: border-box; }
+.rt-root[data-rt="direct-care"] button { font-family: inherit; }
+
+.rt-root[data-rt="direct-care"] .rt-page {
+  width: 100%;
+  height: 100%;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+}
+.rt-root[data-rt="direct-care"] .rt-scroll {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.rt-root[data-rt="direct-care"] .rt-scroll::-webkit-scrollbar { width: 0; height: 0; }
+
+/* ---------- 히어로 ---------- */
+[data-rt="direct-care"] .rt-dc-head { padding: 22px var(--rt-pad) 4px; }
+[data-rt="direct-care"] .rt-dc-eyebrow { font-size: 12px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--rt-accent); margin: 0 0 8px; }
+[data-rt="direct-care"] .rt-dc-title { font-size: 25px; font-weight: 800; letter-spacing: -0.035em; line-height: 1.24; margin: 0; color: var(--rt-ink); }
+[data-rt="direct-care"] .rt-dc-desc { font-size: 14px; color: var(--rt-sub); margin: 9px 0 0; line-height: 1.55; word-break: keep-all; }
+
+/* ---------- 신청 방법 카드 (원본: rt-catalog.css .rt-trk) ---------- */
+[data-rt="direct-care"] .rt-trk-wrap { margin: 18px var(--rt-pad) 0; }
+[data-rt="direct-care"] .rt-trk-hd { font-size: 14px; font-weight: 800; color: var(--rt-ink); margin-bottom: 11px; }
+[data-rt="direct-care"] .rt-trk { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; }
+[data-rt="direct-care"] .rt-trk-card { border: 1px solid var(--rt-line); border-radius: 16px; background: #fff; padding: 15px 15px 16px;
+  display: flex; flex-direction: column; box-shadow: 0 2px 12px rgba(13, 27, 42, .05); }
+[data-rt="direct-care"] .rt-trk-card.is-care { border-color: rgba(201, 168, 76, .5); background: rgba(201, 168, 76, .05); }
+[data-rt="direct-care"] .rt-trk-badge { align-self: flex-start; font-size: 11px; font-weight: 800; padding: 3px 9px; border-radius: 999px;
+  background: var(--rt-navy); color: #fff; margin-bottom: 10px; }
+[data-rt="direct-care"] .rt-trk-badge.is-free { background: #0E9E6E; }
+[data-rt="direct-care"] .rt-trk-t { font-size: 16px; font-weight: 800; letter-spacing: -0.02em; color: var(--rt-ink); }
+[data-rt="direct-care"] .rt-trk-t em { font-style: normal; font-size: 11px; font-weight: 800; color: var(--rt-accent); margin-left: 5px; }
+[data-rt="direct-care"] .rt-trk-d { font-size: 12.5px; color: var(--rt-sub); line-height: 1.5; margin: 6px 0 13px; flex: 1; word-break: keep-all; }
+[data-rt="direct-care"] .rt-trk-btn { display: flex; align-items: center; justify-content: center; height: 42px; border-radius: 11px;
+  border: 1.5px solid var(--rt-line); background: #fff; color: var(--rt-ink); font-size: 13.5px; font-weight: 800;
+  text-decoration: none; cursor: pointer; font-family: inherit; transition: background .15s, color .15s; }
+[data-rt="direct-care"] .rt-trk-btn:hover { border-color: var(--rt-accent); }
+[data-rt="direct-care"] .rt-trk-btn.is-primary { background: var(--rt-navy); color: #fff; border-color: var(--rt-navy); }
+[data-rt="direct-care"] .rt-trk-note { font-size: 11.5px; color: var(--rt-muted); line-height: 1.5; margin: 11px 0 0; }
+[data-rt="direct-care"] .rt-trk-note b { font-weight: 800; color: var(--rt-sub); }

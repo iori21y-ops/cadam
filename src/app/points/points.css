@@ -1,0 +1,127 @@
+/* @scoped data-rt="points" */
+/* points.css — 회원 포인트 (co-located, /points 타깃)
+   원본: _design_ref/rt-mypage.css 의 rt-pt-·rt-cc-(chips·field·input)·rt-dl·rt-dt 블록 추출 후 [data-rt="points"] 스코프.
+   프레임(.rt-root/.rt-page/.rt-scroll)은 형제 프리뷰와 동일 패턴. 전역리셋·디바이스프레임 제외. */
+
+.rt-root[data-rt="points"] {
+  --rt-navy: #0d1b2a;
+  --rt-ink: #0d1b2a;
+  --rt-sub: #4a5568;
+  --rt-muted: #9ca3af;
+  --rt-line: #e8eaee;
+  --rt-soft: #f6f7f9;
+  --rt-accent: #c9a84c;
+  --rt-radius: 20px;
+  --rt-nav-h: 56px;
+  --rt-pad: 22px;
+
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: #fff;
+  font-family: 'Pretendard', var(--font-pretendard), -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
+  color: var(--rt-ink);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+.rt-root[data-rt="points"] * { box-sizing: border-box; }
+.rt-root[data-rt="points"] button { font-family: inherit; }
+
+[data-rt="points"] .rt-page {
+  width: 100%;
+  height: 100%;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  container-type: inline-size;
+  container-name: page;
+}
+[data-rt="points"] .rt-scroll {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+}
+[data-rt="points"] .rt-scroll > * { flex-shrink: 0; }
+[data-rt="points"] .rt-scroll::-webkit-scrollbar { width: 0; height: 0; }
+
+/* ── 서브 화면 인트로 ── */
+[data-rt="points"] .rt-sub-intro { padding: 18px var(--rt-pad) 4px; }
+[data-rt="points"] .rt-sub-intro-t { font-size: 20px; font-weight: 800; letter-spacing: -0.03em; color: var(--rt-ink); margin: 0; }
+[data-rt="points"] .rt-sub-intro-d { font-size: 13px; color: var(--rt-muted); margin: 5px 0 0; letter-spacing: -0.01em; }
+
+/* ── 섹션·정의리스트 공통 ── */
+[data-rt="points"] .rt-dt-sect { margin: 22px 0 0; }
+[data-rt="points"] .rt-dt-sect-t { font-size: 13px; font-weight: 800; color: var(--rt-sub); letter-spacing: -0.01em; margin: 0 var(--rt-pad) 10px; text-transform: none; }
+[data-rt="points"] .rt-dl { margin: 0 var(--rt-pad); border: 1px solid var(--rt-line); border-radius: var(--rt-radius); overflow: hidden; }
+[data-rt="points"] .rt-dl-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 13px 16px; border-bottom: 1px solid var(--rt-line); }
+[data-rt="points"] .rt-dl-row:last-child { border-bottom: 0; }
+[data-rt="points"] .rt-dl-k { font-size: 13px; color: var(--rt-muted); font-weight: 600; }
+[data-rt="points"] .rt-dl-v { font-size: 13.5px; color: var(--rt-ink); font-weight: 700; letter-spacing: -0.01em; text-align: right; }
+[data-rt="points"] .rt-dt-cta { margin: 24px var(--rt-pad) 0; }
+
+/* ── 입력 필드 (슬라이더·숫자·칩) ── */
+[data-rt="points"] .rt-cc-field { margin: 0 var(--rt-pad) 14px; }
+[data-rt="points"] .rt-cc-field:last-child { margin-bottom: 0; }
+[data-rt="points"] .rt-cc-field-top { display: flex; align-items: baseline; justify-content: space-between; font-size: 13px; font-weight: 700; color: var(--rt-sub); margin-bottom: 9px; }
+[data-rt="points"] .rt-cc-field-v { font-size: 15px; font-weight: 800; color: var(--rt-ink); }
+[data-rt="points"] .rt-cc-field-ends { display: flex; justify-content: space-between; font-size: 11px; color: var(--rt-muted); margin-top: 5px; }
+[data-rt="points"] .rt-cc-range { width: 100%; -webkit-appearance: none; appearance: none; height: 6px; border-radius: 999px; background: var(--rt-line); outline: none; }
+[data-rt="points"] .rt-cc-range::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 22px; height: 22px; border-radius: 50%; background: var(--rt-accent, #c9a84c); border: 3px solid #fff; box-shadow: 0 2px 8px rgba(13, 27, 42, 0.25); cursor: pointer; }
+[data-rt="points"] .rt-cc-range::-moz-range-thumb { width: 22px; height: 22px; border-radius: 50%; background: var(--rt-accent, #c9a84c); border: 3px solid #fff; box-shadow: 0 2px 8px rgba(13, 27, 42, 0.25); cursor: pointer; }
+[data-rt="points"] .rt-cc-num-row { display: flex; align-items: center; gap: 8px; }
+[data-rt="points"] .rt-cc-input { flex: 1; width: 100%; height: 50px; padding: 0 14px; border: 1.5px solid var(--rt-line); border-radius: 13px; font-size: 17px; font-weight: 700; font-family: inherit; color: var(--rt-ink); background: #fff; outline: none; transition: border-color 0.15s; font-variant-numeric: tabular-nums; }
+[data-rt="points"] .rt-cc-input:focus { border-color: var(--rt-accent); }
+[data-rt="points"] .rt-cc-input-unit { font-size: 14px; font-weight: 700; color: var(--rt-sub); }
+[data-rt="points"] .rt-cc-chips { display: flex; gap: 7px; margin-top: 9px; flex-wrap: wrap; }
+[data-rt="points"] .rt-cc-chip { font-size: 12.5px; font-weight: 700; color: var(--rt-sub); background: var(--rt-soft); border: 1px solid var(--rt-line); border-radius: 999px; padding: 7px 13px; cursor: pointer; font-family: inherit; transition: all 0.14s; }
+[data-rt="points"] .rt-cc-chip.is-on { background: var(--rt-navy); color: #fff; border-color: var(--rt-navy); }
+
+/* ── 가상계산 안내 ── */
+[data-rt="points"] .rt-cc-note { margin: 14px var(--rt-pad) 0; display: flex; gap: 8px; align-items: flex-start; font-size: 12px; line-height: 1.55; color: var(--rt-muted); }
+[data-rt="points"] .rt-cc-note > svg { flex-shrink: 0; margin-top: 2px; color: var(--rt-muted); }
+[data-rt="points"] .rt-cc-note b { font-weight: 800; color: var(--rt-sub); }
+[data-rt="points"] .rt-cc-note a { color: var(--rt-accent, #b07a2e); font-weight: 700; }
+
+/* ── 포인트 ── */
+[data-rt="points"] .rt-pt-cta { width: calc(100% - var(--rt-pad) * 2); margin: 0 var(--rt-pad); display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 16px; border: 1.5px solid rgba(201, 168, 76, 0.5); border-radius: 14px; background: rgba(201, 168, 76, 0.08); cursor: pointer; font: inherit; color: var(--rt-ink); transition: background 0.15s, border-color 0.15s; }
+[data-rt="points"] .rt-pt-cta:hover { background: rgba(201, 168, 76, 0.15); border-color: var(--rt-accent); }
+[data-rt="points"] .rt-pt-cta span { font-size: 13.5px; font-weight: 700; }
+[data-rt="points"] .rt-pt-cta b { font-weight: 800; color: var(--rt-accent, #b07a2e); }
+[data-rt="points"] .rt-pt-cta > svg { flex-shrink: 0; color: var(--rt-accent); }
+[data-rt="points"] .rt-pt-lead { margin: 0 var(--rt-pad) 11px; font-size: 12.5px; color: var(--rt-muted); line-height: 1.55; word-break: keep-all; }
+[data-rt="points"] .rt-pt-lead b { color: var(--rt-accent, #b07a2e); font-weight: 800; }
+[data-rt="points"] .rt-pt-sect-row { display: flex; align-items: center; gap: 8px; }
+[data-rt="points"] .rt-pt-sect-sp { flex: 1; }
+[data-rt="points"] .rt-pt-tabs { display: inline-flex; gap: 4px; background: var(--rt-soft); border-radius: 9px; padding: 3px; }
+[data-rt="points"] .rt-pt-tab { border: 0; background: none; cursor: pointer; font: inherit; font-size: 12px; font-weight: 800; color: var(--rt-muted); padding: 5px 11px; border-radius: 7px; }
+[data-rt="points"] .rt-pt-tab.is-on { background: #fff; color: var(--rt-ink); box-shadow: 0 1px 4px rgba(13, 27, 42, 0.12); }
+[data-rt="points"] .rt-pt-bal { margin: 14px var(--rt-pad) 0; display: flex; align-items: center; justify-content: space-between; padding: 16px 18px; border-radius: 16px; background: var(--rt-navy); color: #fff; }
+[data-rt="points"] .rt-pt-bal span { font-size: 13px; font-weight: 700; color: rgba(255, 255, 255, 0.72); }
+[data-rt="points"] .rt-pt-bal b { font-size: 26px; font-weight: 800; letter-spacing: -0.03em; color: var(--rt-accent, #c9a84c); font-variant-numeric: tabular-nums; }
+[data-rt="points"] .rt-pt-bal b i { font-style: normal; font-size: 15px; margin-left: 2px; }
+[data-rt="points"] .rt-pt-sum { margin: 14px var(--rt-pad) 0; border: 1px solid var(--rt-line); border-radius: 14px; background: #fff; padding: 6px 16px; }
+[data-rt="points"] .rt-pt-sum-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--rt-line); font-size: 13.5px; color: var(--rt-sub); }
+[data-rt="points"] .rt-pt-sum-row:last-child { border-bottom: 0; }
+[data-rt="points"] .rt-pt-sum-row b { font-size: 15px; font-weight: 800; color: var(--rt-ink); font-variant-numeric: tabular-nums; }
+[data-rt="points"] .rt-pt-sum-row i { font-style: normal; font-size: 11px; font-weight: 700; color: var(--rt-muted); margin-left: 6px; }
+[data-rt="points"] .rt-pt-sum-row.is-total { border-top: 2px solid var(--rt-ink); }
+[data-rt="points"] .rt-pt-sum-row.is-total b { font-size: 18px; }
+[data-rt="points"] .rt-pt-empty { margin: 0 var(--rt-pad); padding: 20px; text-align: center; color: var(--rt-muted); font-size: 13px; }
+[data-rt="points"] .rt-pt-expire { margin: 0 var(--rt-pad) 12px; display: flex; align-items: flex-start; gap: 9px; padding: 11px 14px; border-radius: 12px; background: rgba(224, 84, 75, 0.07); border: 1px solid rgba(224, 84, 75, 0.22); color: #c0392b; }
+[data-rt="points"] .rt-pt-expire svg { flex-shrink: 0; margin-top: 1px; }
+[data-rt="points"] .rt-pt-expire span { font-size: 12.5px; font-weight: 600; line-height: 1.5; color: var(--rt-sub); word-break: keep-all; }
+[data-rt="points"] .rt-pt-expire b { font-weight: 800; color: #c0392b; }
+
+/* ── 기본 버튼 (CadamDS.Button primary 대체) ── */
+[data-rt="points"] .rt-prim-btn { display: inline-flex; align-items: center; justify-content: center; width: 100%; height: 52px; border: 0; border-radius: 16px; background: var(--rt-navy); color: #fff; font-size: 15px; font-weight: 800; font-family: inherit; cursor: pointer; transition: opacity 0.15s; }
+[data-rt="points"] .rt-prim-btn:hover { opacity: 0.92; }
+[data-rt="points"] .rt-prim-btn:disabled { background: #d1d1d6; cursor: default; opacity: 1; }
+
+/* ── 토스트 ── */
+[data-rt="points"] .rt-pt-toast { position: fixed; left: 50%; bottom: 90px; transform: translateX(-50%); z-index: 1400; max-width: 340px; background: rgba(13, 27, 42, 0.95); color: #fff; font-size: 13.5px; font-weight: 700; line-height: 1.45; padding: 13px 18px; border-radius: 13px; box-shadow: 0 12px 34px rgba(13, 27, 42, 0.34); text-align: center; }

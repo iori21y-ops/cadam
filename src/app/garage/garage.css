@@ -1,0 +1,172 @@
+/* @scoped data-rt="garage" */
+/* garage.css — 내 차고 (co-located, /garage 타깃)
+   원본: _design_ref/rt-mypage.css 의 gg-*·rt-dl·rt-dt 블록 추출 후 [data-rt="garage"] 스코프.
+   <image-slot> 은 .gg-thumb-ph 플레이스홀더로 대체. 프레임(.rt-root/.rt-page/.rt-scroll) 패턴 동일. 전역리셋·디바이스프레임 제외. */
+
+.rt-root[data-rt="garage"] {
+  --rt-navy: #0d1b2a;
+  --rt-ink: #0d1b2a;
+  --rt-sub: #4a5568;
+  --rt-muted: #9ca3af;
+  --rt-line: #e8eaee;
+  --rt-soft: #f6f7f9;
+  --rt-accent: #c9a84c;
+  --rt-radius: 20px;
+  --rt-nav-h: 56px;
+  --rt-pad: 22px;
+
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: #fff;
+  font-family: 'Pretendard', var(--font-pretendard), -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
+  color: var(--rt-ink);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+.rt-root[data-rt="garage"] * { box-sizing: border-box; }
+.rt-root[data-rt="garage"] button { font-family: inherit; }
+
+[data-rt="garage"] .rt-page {
+  width: 100%;
+  height: 100%;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  container-type: inline-size;
+  container-name: page;
+}
+[data-rt="garage"] .rt-scroll {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+}
+[data-rt="garage"] .rt-scroll > * { flex-shrink: 0; }
+[data-rt="garage"] .rt-scroll::-webkit-scrollbar { width: 0; height: 0; }
+
+/* ── 서브 화면 인트로 ── */
+[data-rt="garage"] .rt-sub-intro { padding: 18px var(--rt-pad) 4px; }
+[data-rt="garage"] .rt-sub-intro-t { font-size: 20px; font-weight: 800; letter-spacing: -0.03em; color: var(--rt-ink); margin: 0; }
+[data-rt="garage"] .rt-sub-intro-d { font-size: 13px; color: var(--rt-muted); margin: 5px 0 0; letter-spacing: -0.01em; }
+
+/* ── 섹션·정의리스트 공통 ── */
+[data-rt="garage"] .rt-dt-sect { margin: 22px 0 0; }
+[data-rt="garage"] .rt-dt-sect-t { font-size: 13px; font-weight: 800; color: var(--rt-sub); letter-spacing: -0.01em; margin: 0 var(--rt-pad) 10px; text-transform: none; }
+[data-rt="garage"] .rt-dl { margin: 0 var(--rt-pad); border: 1px solid var(--rt-line); border-radius: var(--rt-radius); overflow: hidden; }
+[data-rt="garage"] .rt-dl-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 13px 16px; border-bottom: 1px solid var(--rt-line); }
+[data-rt="garage"] .rt-dl-row:last-child { border-bottom: 0; }
+[data-rt="garage"] .rt-dl-k { font-size: 13px; color: var(--rt-muted); font-weight: 600; }
+[data-rt="garage"] .rt-dl-v { font-size: 13.5px; color: var(--rt-ink); font-weight: 700; letter-spacing: -0.01em; text-align: right; }
+[data-rt="garage"] .rt-dt-cta { margin: 24px var(--rt-pad) 0; }
+
+/* ── 이미지 플레이스홀더 (image-slot 대체) ── */
+[data-rt="garage"] .gg-thumb-ph { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; padding: 6px; text-align: center; font-size: 12px; font-weight: 700; letter-spacing: -0.01em; color: hsl(var(--hue, 210) 30% 46%); }
+
+/* ── 차량 목록 ── */
+[data-rt="garage"] .gg-list { display: flex; flex-direction: column; gap: 10px; padding: 0 var(--rt-pad); }
+[data-rt="garage"] .gg-list-card { display: flex; align-items: center; gap: 13px; padding: 12px; border: 1px solid var(--rt-line); border-radius: var(--rt-radius); background: #fff; text-align: left; cursor: pointer; transition: border-color 0.15s, box-shadow 0.15s; }
+[data-rt="garage"] .gg-list-card:hover { border-color: var(--rt-accent); box-shadow: 0 8px 22px rgba(13, 27, 42, 0.08); }
+[data-rt="garage"] .gg-list-thumb { flex-shrink: 0; width: 96px; height: 66px; border-radius: 12px; overflow: hidden; background: hsl(var(--hue, 210) 42% 94%); }
+[data-rt="garage"] .gg-list-main { flex: 1; min-width: 0; }
+[data-rt="garage"] .gg-list-name { font-size: 15px; font-weight: 800; color: var(--rt-navy); }
+[data-rt="garage"] .gg-list-plate { font-size: 12px; color: var(--rt-muted); margin-top: 2px; }
+[data-rt="garage"] .gg-list-alert { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 7px; }
+[data-rt="garage"] .gg-list-badge { font-size: 11px; font-weight: 700; color: var(--rt-sub, #4a5568); background: rgba(13, 27, 42, 0.06); border-radius: 999px; padding: 3px 9px; }
+[data-rt="garage"] .gg-list-badge.is-warn { color: #b4540a; background: rgba(214, 109, 20, 0.12); }
+[data-rt="garage"] .gg-list-badge.is-ok { color: #1f8a5b; background: rgba(31, 138, 91, 0.12); }
+[data-rt="garage"] .gg-list-chev { color: var(--rt-muted); flex-shrink: 0; }
+[data-rt="garage"] .gg-note { font-size: 11.5px; color: var(--rt-muted); line-height: 1.6; padding: 0 var(--rt-pad); margin: 14px 0 0; }
+
+/* ── 차량 히어로 ── */
+[data-rt="garage"] .gg-veh { margin: 0 var(--rt-pad); border: 1px solid var(--rt-line); border-radius: var(--rt-radius); overflow: hidden; background: #fff; }
+[data-rt="garage"] .gg-veh-thumb { position: relative; width: 100%; aspect-ratio: 16 / 8; background: linear-gradient(160deg, hsl(var(--hue, 210) 44% 95%), hsl(var(--hue, 210) 40% 90%)); }
+[data-rt="garage"] .gg-veh-meta { padding: 14px 16px 16px; }
+[data-rt="garage"] .gg-veh-name { font-size: 18px; font-weight: 800; color: var(--rt-navy); letter-spacing: -0.01em; }
+[data-rt="garage"] .gg-veh-plate { display: inline-block; margin-top: 6px; font-size: 13px; font-weight: 800; color: var(--rt-navy); background: rgba(13, 27, 42, 0.06); border-radius: 8px; padding: 3px 10px; letter-spacing: 0.02em; }
+[data-rt="garage"] .gg-veh-sub { font-size: 12.5px; color: var(--rt-muted); margin-top: 9px; }
+[data-rt="garage"] .gg-veh-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 11px; }
+[data-rt="garage"] .gg-veh-tag { font-size: 11.5px; font-weight: 700; color: var(--rt-sub, #4a5568); background: rgba(13, 27, 42, 0.05); border-radius: 999px; padding: 4px 11px; }
+[data-rt="garage"] .gg-veh-tag.is-rental { color: var(--rt-navy); background: rgba(201, 168, 76, 0.2); }
+
+/* ── 다가오는 일정 ── */
+[data-rt="garage"] .gg-up { display: flex; flex-direction: column; gap: 7px; padding: 0 var(--rt-pad); }
+[data-rt="garage"] .gg-up-row { display: flex; align-items: center; gap: 9px; padding: 11px 13px; border: 1px solid var(--rt-line); border-radius: 13px; background: #fff; }
+[data-rt="garage"] .gg-up-row.is-urgent { border-color: rgba(214, 109, 20, 0.4); background: rgba(214, 109, 20, 0.05); }
+[data-rt="garage"] .gg-up-ic { color: var(--rt-muted); flex-shrink: 0; }
+[data-rt="garage"] .gg-up-row.is-urgent .gg-up-ic { color: #d66d14; }
+[data-rt="garage"] .gg-up-k { font-size: 13px; font-weight: 800; color: var(--rt-navy); flex-shrink: 0; }
+[data-rt="garage"] .gg-up-txt { font-size: 12.5px; color: var(--rt-sub, #4a5568); flex: 1; }
+[data-rt="garage"] .gg-up-d { font-size: 12px; font-weight: 800; color: var(--rt-navy); flex-shrink: 0; }
+[data-rt="garage"] .gg-up-d.is-now { color: #d66d14; }
+
+/* ── 케어 모듈 카드 ── */
+[data-rt="garage"] .gg-care { margin: 0 var(--rt-pad); border: 1px solid var(--rt-line); border-radius: var(--rt-radius); background: #fff; padding: 15px 16px; }
+[data-rt="garage"] .gg-care.t-warn { border-color: rgba(214, 109, 20, 0.35); }
+[data-rt="garage"] .gg-care-hd { display: flex; align-items: center; gap: 10px; }
+[data-rt="garage"] .gg-care-ic { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; flex-shrink: 0; background: rgba(13, 27, 42, 0.05); color: var(--rt-navy); }
+[data-rt="garage"] .gg-care.t-warn .gg-care-ic { background: rgba(214, 109, 20, 0.12); color: #d66d14; }
+[data-rt="garage"] .gg-care.t-ok .gg-care-ic { background: rgba(31, 138, 91, 0.12); color: #1f8a5b; }
+[data-rt="garage"] .gg-care-t { font-size: 15px; font-weight: 800; color: var(--rt-navy); flex: 1; }
+[data-rt="garage"] .gg-care-st { font-size: 11.5px; font-weight: 800; border-radius: 999px; padding: 3px 10px; }
+[data-rt="garage"] .gg-care-st.t-neutral { color: var(--rt-sub, #4a5568); background: rgba(13, 27, 42, 0.06); }
+[data-rt="garage"] .gg-care-st.t-ok { color: #1f8a5b; background: rgba(31, 138, 91, 0.12); }
+[data-rt="garage"] .gg-care-st.t-warn { color: #b4540a; background: rgba(214, 109, 20, 0.14); }
+[data-rt="garage"] .gg-care-d { font-size: 12.8px; color: var(--rt-sub, #4a5568); line-height: 1.6; margin: 11px 0 0; word-break: keep-all; }
+[data-rt="garage"] .gg-care-act { display: flex; align-items: center; justify-content: center; gap: 4px; width: 100%; margin-top: 13px; border: 1px solid var(--rt-line); background: #fff; border-radius: 11px; padding: 10px; cursor: pointer; font-size: 13px; font-weight: 800; color: var(--rt-navy); }
+[data-rt="garage"] .gg-care-act:hover { border-color: var(--rt-accent); }
+
+/* ── 리콜 항목 ── */
+[data-rt="garage"] .gg-recalls { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+[data-rt="garage"] .gg-recall { border: 1px solid var(--rt-line); border-radius: 12px; padding: 11px 13px; background: var(--rt-soft, #f7f8fa); }
+[data-rt="garage"] .gg-recall.is-open { border-color: rgba(214, 109, 20, 0.35); background: rgba(214, 109, 20, 0.05); }
+[data-rt="garage"] .gg-recall-top { display: flex; align-items: center; justify-content: space-between; }
+[data-rt="garage"] .gg-recall-part { font-size: 11px; font-weight: 800; color: var(--rt-muted); }
+[data-rt="garage"] .gg-recall-st { font-size: 11px; font-weight: 800; color: #1f8a5b; }
+[data-rt="garage"] .gg-recall-st.is-open { color: #d66d14; }
+[data-rt="garage"] .gg-recall-title { font-size: 13.5px; font-weight: 700; color: var(--rt-navy); margin-top: 4px; }
+[data-rt="garage"] .gg-recall-act { font-size: 12px; color: var(--rt-sub, #4a5568); margin-top: 4px; }
+
+/* ── 소모품 ── */
+[data-rt="garage"] .gg-parts { display: flex; flex-direction: column; margin-top: 12px; }
+[data-rt="garage"] .gg-part { display: flex; align-items: center; gap: 8px; padding: 9px 0; border-top: 1px solid var(--rt-line); }
+[data-rt="garage"] .gg-part:first-child { border-top: none; }
+[data-rt="garage"] .gg-part-l { font-size: 13px; font-weight: 700; color: var(--rt-navy); flex: 1; }
+[data-rt="garage"] .gg-part-v { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--rt-muted); font-weight: 600; }
+[data-rt="garage"] .gg-part-dot { opacity: 0.5; }
+[data-rt="garage"] .gg-part.is-soon .gg-part-v { color: #b4540a; }
+[data-rt="garage"] .gg-part-soon { font-size: 10.5px; font-weight: 800; color: #b4540a; background: rgba(214, 109, 20, 0.12); border-radius: 6px; padding: 2px 7px; }
+
+/* ── 차량번호 불러오기 ── */
+[data-rt="garage"] .gg-addbtn { display: flex; align-items: center; gap: 12px; width: 100%; padding: 14px; border: 1.5px dashed var(--rt-line); border-radius: var(--rt-radius); background: var(--rt-soft, #f7f8fa); cursor: pointer; text-align: left; transition: border-color 0.15s, background 0.15s; }
+[data-rt="garage"] .gg-addbtn:hover { border-color: var(--rt-accent); background: #fff; }
+[data-rt="garage"] .gg-addbtn-ic { width: 38px; height: 38px; border-radius: 11px; flex: none; display: grid; place-items: center; background: var(--rt-navy); color: var(--rt-accent); }
+[data-rt="garage"] .gg-addbtn-main { flex: 1; display: flex; flex-direction: column; }
+[data-rt="garage"] .gg-addbtn-main b { font-size: 14px; font-weight: 800; color: var(--rt-navy); }
+[data-rt="garage"] .gg-addbtn-main span { font-size: 12px; color: var(--rt-muted); margin-top: 2px; }
+[data-rt="garage"] .gg-addbtn > svg { color: var(--rt-muted); flex: none; }
+[data-rt="garage"] .gg-add { margin: 0 var(--rt-pad); display: flex; flex-direction: column; gap: 8px; }
+[data-rt="garage"] .gg-add-label { font-size: 12.5px; font-weight: 800; color: var(--rt-navy); margin-top: 6px; }
+[data-rt="garage"] .gg-add-opt { font-weight: 600; color: var(--rt-muted); }
+[data-rt="garage"] .gg-add-input { border: 1px solid var(--rt-line); border-radius: 12px; padding: 13px 14px; font-size: 15px; font-weight: 700; color: var(--rt-navy); background: #fff; font-family: inherit; }
+[data-rt="garage"] .gg-add-input:focus { outline: 2px solid var(--rt-accent); outline-offset: -1px; }
+[data-rt="garage"] .gg-add .rt-prim-btn { margin-top: 8px; }
+[data-rt="garage"] .gg-add-err { font-size: 12.5px; color: #d11; font-weight: 700; margin: 2px 0 0; }
+[data-rt="garage"] .gg-add-note { font-size: 11.5px; color: var(--rt-muted); line-height: 1.6; margin: 6px 0 0; word-break: keep-all; }
+[data-rt="garage"] .gg-add-skel { margin: 16px var(--rt-pad) 0; display: flex; flex-direction: column; gap: 10px; }
+[data-rt="garage"] .gg-skel-bar { height: 54px; border-radius: 12px; background: linear-gradient(90deg, #f0f1f4, #f7f8fa, #f0f1f4); background-size: 200% 100%; animation: ggSkel 1.2s infinite; }
+[data-rt="garage"] .gg-skel-bar.short { width: 60%; }
+@keyframes ggSkel { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+/* ── 기본 버튼 (CadamDS.Button primary 대체) ── */
+[data-rt="garage"] .rt-prim-btn { display: inline-flex; align-items: center; justify-content: center; width: 100%; height: 52px; border: 0; border-radius: 16px; background: var(--rt-navy); color: #fff; font-size: 15px; font-weight: 800; font-family: inherit; cursor: pointer; transition: opacity 0.15s; }
+[data-rt="garage"] .rt-prim-btn:hover { opacity: 0.92; }
+[data-rt="garage"] .rt-prim-btn:disabled { background: #d1d1d6; cursor: default; opacity: 1; }
+
+/* ── 토스트 ── */
+[data-rt="garage"] .gg-toast { position: fixed; left: 50%; bottom: 90px; transform: translateX(-50%); z-index: 1400; max-width: 340px; background: rgba(13, 27, 42, 0.95); color: #fff; font-size: 13.5px; font-weight: 700; line-height: 1.45; padding: 13px 18px; border-radius: 13px; box-shadow: 0 12px 34px rgba(13, 27, 42, 0.34); text-align: center; }
