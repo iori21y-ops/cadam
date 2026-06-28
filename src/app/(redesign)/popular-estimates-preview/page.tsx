@@ -210,6 +210,11 @@ export default function PopularEstimatesPreviewPage() {
   const [saved, setSaved] = useState<string[]>([]);
   const [vsIds, setVsIds] = useState<string[]>([]);
   const [toast, setToast] = useState<ToastState | null>(null);
+  // A1: 실 가격(pricing) 바인딩 — 근사 from 을 실 월납으로 덮어씀
+  const [prices, setPrices] = useState<Record<string, number>>({});
+  useEffect(() => {
+    fetch('/api/catalog-pricing').then((r) => r.json()).then((d) => setPrices(d.prices ?? {})).catch(() => {});
+  }, []);
 
   // 마운트 후: 랜딩 쿼리(budget·cls) + localStorage(찜/비교) 복원 (SSR/hydration 안전)
   useEffect(() => {
@@ -265,7 +270,8 @@ export default function PopularEstimatesPreviewPage() {
       else l.sort((a, b) => (b.best ? 1 : 0) - (a.best ? 1 : 0)); // 추천순: BEST 우선
       return l;
     };
-    const base = RT_CATALOG.filter((c) => rtCarInTab(c, tab) && rtCarInSeg(c, seg));
+    const PRICED = RT_CATALOG.map((c) => (prices[c.id] != null ? { ...c, from: prices[c.id] } : c));
+    const base = PRICED.filter((c) => rtCarInTab(c, tab) && rtCarInSeg(c, seg));
     if (!budget) return { list: sortCars(base), widened: false };
     const idx = BUDGET_ORDER.indexOf(budget);
     for (let r = 0; r < BUDGET_ORDER.length; r++) {
@@ -275,7 +281,7 @@ export default function PopularEstimatesPreviewPage() {
       if (f.length) return { list: sortCars(f), widened: r > 0 };
     }
     return { list: sortCars(base), widened: false };
-  }, [tab, seg, sort, budget]);
+  }, [tab, seg, sort, budget, prices]);
 
   const segLabelOf = (k: string) => RT_SEGS.find((s) => s.key === k)?.label;
   const clearLanding = () => { setBudget(null); setSeg('all'); };

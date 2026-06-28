@@ -111,7 +111,7 @@ function readIds(key: string): string[] {
 export default function CarsDetailPreviewPage() {
   const params = useParams<{ slug: string }>();
   const slug = params?.slug ?? '';
-  const car = rtFindCar(slug);
+  const baseCar = rtFindCar(slug);
 
   // hooks 는 조건부 return 이전에 모두 호출 (car 없을 때도 안정)
   const [trimIdx, setTrimIdx] = useState(0);
@@ -124,6 +124,24 @@ export default function CarsDetailPreviewPage() {
   const [inVs, setInVs] = useState(false);
   const [toast, setToast] = useState<ToastState | null>(null);
   const [articles, setArticles] = useState<InfoArticleLike[]>([]);
+  // A1: 실 가격(pricing)·스펙(vehicle_trims) 바인딩
+  const [px, setPx] = useState<{ from?: number; spec?: Record<string, string | number> } | null>(null);
+  useEffect(() => {
+    if (!slug) return;
+    Promise.all([
+      fetch('/api/catalog-pricing').then((r) => r.json()).catch(() => ({ prices: {} })),
+      fetch(`/api/vehicle-spec?slug=${encodeURIComponent(slug)}`).then((r) => r.json()).catch(() => ({ spec: null })),
+    ]).then(([p, s]) => {
+      const from = p?.prices?.[slug];
+      const spec: Record<string, string | number> = {};
+      if (s?.spec?.eff) spec.eff = s.spec.eff;
+      if (s?.spec?.power) spec.power = s.spec.power;
+      setPx({ from: from ?? undefined, spec: Object.keys(spec).length ? spec : undefined });
+    });
+  }, [slug]);
+  const car = baseCar
+    ? { ...baseCar, from: px?.from ?? baseCar.from, spec: { ...baseCar.spec, ...(px?.spec ?? {}) } }
+    : null;
 
   // 마운트 후 localStorage 동기화 (SSR 안전)
   useEffect(() => {
