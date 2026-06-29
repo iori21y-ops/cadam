@@ -98,13 +98,13 @@
 /* ---------- main / step shell ---------- */
 [data-rt="home-preview"] .rt-main { flex:1 0 auto; }
 [data-rt="home-preview"] .rt-stepwrap { }
-[data-rt="home-preview"] .rt-stepbody { padding:30px var(--rt-pad) 28px; }
+[data-rt="home-preview"] .rt-stepbody { padding:18px var(--rt-pad) 16px; }
 [data-rt="home-preview"] .rt-step-eyebrow { font-size:12px; font-weight:800; letter-spacing:.12em; text-transform:uppercase;
   color:var(--rt-accent); margin:0 0 12px; }
 [data-rt="home-preview"] .rt-step-title { font-size:27px; line-height:1.25; font-weight:800; letter-spacing:-0.03em;
   margin:0; color:var(--rt-ink); text-wrap:balance; }
 [data-rt="home-preview"] .rt-step-desc { font-size:16px; line-height:1.6; color:var(--rt-sub); margin:13px 0 0; text-wrap:pretty; }
-[data-rt="home-preview"] .rt-step-content { margin-top:16px; }
+[data-rt="home-preview"] .rt-step-content { margin-top:12px; }
 
 /* step transition (transform-only so a non-animating context never hides content) */
 @keyframes rtSlideIn{ from{ transform:translateX(26px); } to{ transform:none; } }
@@ -112,8 +112,15 @@
 [data-rt="home-preview"] .rt-step-in { animation:rtSlideIn .3s cubic-bezier(.16,.84,.44,1) both; }
 [data-rt="home-preview"] .rt-stepwrap.is-back .rt-step-in { animation-name:rtSlideInBack; }
 
+/* progressive reveal — form 단계 연락처/동의/안내문 점진 노출 (rt-anim-lock 비대상: 별개 클래스) */
+@keyframes rtReveal{ from{ opacity:0; transform:translateY(10px); } to{ opacity:1; transform:none; } }
+[data-rt="home-preview"] .rt-reveal { animation:rtReveal .34s cubic-bezier(.16,.84,.44,1) both; }
+@media (prefers-reduced-motion: reduce){ [data-rt="home-preview"] .rt-reveal { animation:none; } }
+
 /* ---------- option cards ---------- */
-[data-rt="home-preview"] .rt-opts { display:flex; flex-direction:column; gap:13px; }
+[data-rt="home-preview"] .rt-opts { display:flex; flex-direction:column; gap:9px; }
+/* 모바일 무스크롤: 옵션카드(SelectCard <button p-7>) 상하 패딩 축소 — 데스크톱은 @container에서 원복 */
+[data-rt="home-preview"] .rt-opts > button { padding-top:18px; padding-bottom:18px; }
 [data-rt="home-preview"] .rt-opt-main { display:flex; flex-direction:column; gap:4px; flex:1; }
 [data-rt="home-preview"] .rt-opt-main.rt-opt-row { flex-direction:row; align-items:baseline; justify-content:space-between; }
 [data-rt="home-preview"] .rt-opt-label { font-size:19px; font-weight:800; letter-spacing:-0.02em; color:var(--rt-ink); }
@@ -455,7 +462,11 @@
   [data-rt="home-preview"] .rt-hero-title { font-size:54px; }
   [data-rt="home-preview"] .rt-step-title { font-size:34px; }
   [data-rt="home-preview"] .rt-cars { display:grid; grid-template-columns:repeat(3,1fr); }
-  [data-rt="home-preview"] .rt-opts { }
+  /* 데스크톱 원복 — 모바일 무스크롤용 STEP 축소를 원래 값으로 되돌림(.rt-hero 영향 없게 stepbody 분리) */
+  [data-rt="home-preview"] .rt-stepbody { padding-top:30px; padding-bottom:28px; }
+  [data-rt="home-preview"] .rt-step-content { margin-top:16px; }
+  [data-rt="home-preview"] .rt-opts { gap:13px; }
+  [data-rt="home-preview"] .rt-opts > button { padding-top:28px; padding-bottom:28px; }
 }
 
 /* safety-net: lock content visible once an entrance has had time to play */

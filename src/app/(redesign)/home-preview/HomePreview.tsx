@@ -472,6 +472,8 @@ function FormStep({ flow }: { flow: Flow }) {
     { tag: '실시간 특가 차량 알림', body: '이번 주 즉시 출고 특가 차량 · 한정 프로모션 안내' },
     { tag: '자주 묻는 질문', body: RT_FAQS[0].q },
   ];
+  // 토스식 점진 노출: 이름 1자 이상 입력되면 연락처·동의·안내문 노출. (CTA는 valid=phone필수라 그 전엔 자동 비활성)
+  const showContact = flow.name.trim().length > 0;
   return (
     <div className="rt-step-in rt-stepbody">
       <p className="rt-step-eyebrow">마지막 단계</p>
@@ -486,32 +488,36 @@ function FormStep({ flow }: { flow: Flow }) {
             <span className="rt-field-label">이름</span>
             <input className="rt-input" type="text" placeholder="홍길동" value={flow.name} onChange={(ev) => flow.setName(ev.target.value)} />
           </label>
-          <label className="rt-field">
-            <span className="rt-field-label">연락처</span>
-            <input
-              className="rt-input"
-              type="tel"
-              inputMode="numeric"
-              placeholder="010-0000-0000"
-              value={flow.phone}
-              onFocus={() => { if (!flow.phone) flow.setPhone('010-'); }}
-              onChange={(ev) => flow.setPhone(fmtPhone(ev.target.value))}
-            />
-          </label>
-          <label className="rt-consent">
-            <input type="checkbox" checked={flow.agree} onChange={(ev) => flow.setAgree(ev.target.checked)} />
-            <span className="rt-consent-box" style={cssVar({ '--rt-accent': ACCENT })} aria-hidden="true">
-              <svg viewBox="0 0 12 12" width="12" height="12">
-                <path d="M2 6l3 3 5-5" stroke="#fff" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </span>
-            <span className="rt-consent-text">
-              <Link href="/privacy" target="_blank" rel="noopener" onClick={(ev) => ev.stopPropagation()}>개인정보 처리방침</Link>에 동의합니다. <em>(필수)</em>
-            </span>
-          </label>
+          {showContact && (
+            <label className="rt-field rt-reveal">
+              <span className="rt-field-label">연락처</span>
+              <input
+                className="rt-input"
+                type="tel"
+                inputMode="numeric"
+                placeholder="010-0000-0000"
+                value={flow.phone}
+                onFocus={() => { if (!flow.phone) flow.setPhone('010-'); }}
+                onChange={(ev) => flow.setPhone(fmtPhone(ev.target.value))}
+              />
+            </label>
+          )}
+          {showContact && (
+            <label className="rt-consent rt-reveal">
+              <input type="checkbox" checked={flow.agree} onChange={(ev) => flow.setAgree(ev.target.checked)} />
+              <span className="rt-consent-box" style={cssVar({ '--rt-accent': ACCENT })} aria-hidden="true">
+                <svg viewBox="0 0 12 12" width="12" height="12">
+                  <path d="M2 6l3 3 5-5" stroke="#fff" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </span>
+              <span className="rt-consent-text">
+                <Link href="/privacy" target="_blank" rel="noopener" onClick={(ev) => ev.stopPropagation()}>개인정보 처리방침</Link>에 동의합니다. <em>(필수)</em>
+              </span>
+            </label>
+          )}
           <button type="submit" style={{ display: 'none' }} aria-hidden="true" />
         </form>
-        <p className="rt-form-note">입력하신 정보는 상담 목적 외에 사용되지 않습니다.</p>
+        {showContact && <p className="rt-form-note rt-reveal">입력하신 정보는 상담 목적 외에 사용되지 않습니다.</p>}
         {flow.error && <p className="rt-form-error" role="alert">{flow.error}</p>}
 
         <div className="rt-teaser">
