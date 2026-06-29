@@ -333,7 +333,18 @@ export interface InfoArticleLike {
   title?: string;
   read?: string;
   hue?: number;
+  thumbnailUrl?: string | null;
   [key: string]: unknown;
+}
+
+// rtRelatedContent 반환 아이템 (관련 콘텐츠 카드용)
+export interface RtRelatedItem {
+  id: string;
+  tag?: string;
+  title?: string;
+  read?: string;
+  hue?: number;
+  thumbnailUrl?: string | null;
 }
 const RT_CONTENT_BY_FUEL: Record<FuelKey, string[]> = {
   ev: ['ev-charge', 'ev-hybrid', 'included', 'corp-tax', 'trend-2026'],
@@ -345,7 +356,7 @@ const RT_CONTENT_PREMIUM = ['corp-tax', 'lease-vs', 'included', 'term', 'trend-2
 export function rtRelatedContent(
   c: Car | null,
   infoArticles: InfoArticleLike[] = [],
-): Array<{ id: string; tag?: string; title?: string; read?: string; hue?: number }> {
+): RtRelatedItem[] {
   if (!c) return [];
   const arts = infoArticles;
   const ids =
@@ -362,5 +373,5 @@ export function rtRelatedContent(
     if (picked.length >= 5) break;
     if (!picked.includes(a)) picked.push(a);
   }
-  return picked.slice(0, 5).map((a) => ({ id: a.id, tag: a.tag, title: a.title, read: a.read, hue: a.hue }));
+  return picked.slice(0, 5).map((a) => ({ id: a.id, tag: a.tag, title: a.title, read: a.read, hue: a.hue, thumbnailUrl: a.thumbnailUrl ?? null }));
 }

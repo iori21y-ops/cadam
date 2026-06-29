@@ -32,6 +32,7 @@ import {
   type Car,
   type ProductKey,
   type InfoArticleLike,
+  type RtRelatedItem,
 } from '@/lib/rentailor/catalog';
 import '../detail.css';
 import { RtTermDefs, RtTypeOnly, RtPersonalizeModal } from '@/lib/rentailor/personalize';
@@ -146,6 +147,38 @@ function readIds(key: string): string[] {
   } catch {
     return [];
   }
+}
+
+// 관련 콘텐츠 카드 — 라이브 CarArticles/InfoArticles 와 동일하게 thumbnailUrl 을 렌더.
+// 썸네일 없거나 로드 실패 시 이미지 미렌더 → rt-ccard-media 의 hue 그라데이션 폴백 노출.
+function RtRelatedCard({ p, fallbackHue }: { p: RtRelatedItem; fallbackHue: number }) {
+  const [imgOk, setImgOk] = useState(Boolean(p.thumbnailUrl));
+  return (
+    <Link className="rt-ccard" href={`/info-preview/${p.id}`} data-guest="allow" style={{ '--hue': p.hue ?? fallbackHue } as React.CSSProperties}>
+      <div className="rt-ccard-media">
+        {imgOk && p.thumbnailUrl && (
+          <>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              className="rt-ccard-img"
+              src={p.thumbnailUrl}
+              alt={p.title ?? ''}
+              loading="lazy"
+              onError={() => setImgOk(false)}
+            />
+            {p.tag && <span className="rt-ccard-shade" />}
+          </>
+        )}
+        {p.tag && <span className="rt-ccard-tag">{p.tag}</span>}
+      </div>
+      <div className="rt-ccard-body">
+        <p className="rt-ccard-title">{p.title}</p>
+        <div className="rt-ccard-meta">
+          <b>Rentailor 매거진</b><i></i><span>{p.read}</span>
+        </div>
+      </div>
+    </Link>
+  );
 }
 
 export default function CarsDetailPreviewPage() {
@@ -522,17 +555,7 @@ export default function CarsDetailPreviewPage() {
             </div>
             <div className="rt-similar-rail">
               {related.map((p, i) => (
-                <Link className="rt-ccard" key={p.id ?? i} href={`/info-preview/${p.id}`} data-guest="allow" style={{ '--hue': p.hue ?? car.hue } as React.CSSProperties}>
-                  <div className="rt-ccard-media">
-                    {p.tag && <span className="rt-ccard-tag">{p.tag}</span>}
-                  </div>
-                  <div className="rt-ccard-body">
-                    <p className="rt-ccard-title">{p.title}</p>
-                    <div className="rt-ccard-meta">
-                      <b>Rentailor 매거진</b><i></i><span>{p.read}</span>
-                    </div>
-                  </div>
-                </Link>
+                <RtRelatedCard key={p.id ?? i} p={p} fallbackHue={car.hue} />
               ))}
             </div>
           </section>
