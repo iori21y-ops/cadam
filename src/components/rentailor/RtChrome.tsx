@@ -7,7 +7,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { RT_CATALOG } from '@/lib/rentailor/catalog';
-import { RtLevelToggle } from '@/lib/rentailor/personalize';
+import { RtPersonalizeIcon } from '@/lib/rentailor/personalize';
+import { LogoAnimated } from '@/components/icons/LogoAnimated';
 
 // ── 상단 네비 ────────────────────────────────────────────────
 export interface RtTopNavProps {
@@ -43,12 +44,12 @@ export function RtTopNav({ title, backHref, onBack, showSearch = true }: RtTopNa
             <span className="rt-nav-title">{title}</span>
           ) : (
             <Link className="rt-brand" href="/" aria-label="Rentailor 홈">
-              Rentailor
+              <LogoAnimated size={28} />
             </Link>
           )}
           <span className="rt-nav-spacer"></span>
           <div className="rt-nav-icons" style={{ alignItems: 'center', gap: 8 }}>
-            <RtLevelToggle />
+            <RtPersonalizeIcon />
             {showSearch && (
               <button className="rt-nav-icon" onClick={() => setSearchOpen(true)} aria-label="검색">
                 <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

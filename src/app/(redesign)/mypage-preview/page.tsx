@@ -334,6 +334,31 @@ export default function MypagePreview() {
                 {/* 계약케어·내차고는 별도 프로토타입(contract-care.jsx·garage-app.jsx) — 이번 범위 제외 */}
               </div>
 
+              {/* 디자인 복원: 렌트 가이드(정적 4링크 → /info) */}
+              <div className="rt-my-sect">
+                <div className="rt-my-sect-head">
+                  <h2 className="rt-my-sect-t">렌트 가이드</h2>
+                  <Link className="rt-my-sect-more" href="/info">전체 보기</Link>
+                </div>
+                <div style={{ display: 'grid', gap: 8 }}>
+                  {([
+                    ['기초', '장기렌트 vs 리스, 뭐가 어떻게 다를까?', '3분'],
+                    ['비용', '월 렌트료에 포함되는 것과 아닌 것', '4분'],
+                    ['절세', '개인사업자 렌트 비용처리 완벽 정리', '5분'],
+                    ['반납', '만기 시 인수·반납·재계약 선택 가이드', '3분'],
+                  ] as [string, string, string][]).map(([tag, title, read]) => (
+                    <Link key={title} href="/info" style={{ display: 'flex', alignItems: 'center', gap: 11, padding: '12px 14px', border: '1px solid #e8eaee', borderRadius: 14, background: '#fff', textDecoration: 'none' }}>
+                      <span style={{ flexShrink: 0, fontSize: 11, fontWeight: 800, color: '#B07A2E', background: 'rgba(201,168,76,0.12)', borderRadius: 8, padding: '4px 8px' }}>{tag}</span>
+                      <span style={{ flex: 1, minWidth: 0 }}>
+                        <span style={{ display: 'block', fontSize: 13.5, fontWeight: 700, color: '#0D1B2A', lineHeight: 1.35 }}>{title}</span>
+                        <span style={{ fontSize: 11.5, color: '#9ca3af' }}>읽는 데 {read}</span>
+                      </span>
+                      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#c4c8cf" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 6l6 6-6 6" /></svg>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+
               {/* 고객센터 */}
               <a className="rt-my-cs" href="tel:16667000">
                 <span className="rt-my-cs-ic">

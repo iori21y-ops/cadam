@@ -28,7 +28,8 @@ import {
 import { RT_CATALOG, FUEL, type Car } from '@/lib/rentailor/catalog';
 import { rtMarkConsulted } from '@/lib/rentailor/guest-adapter';
 import { useSalesRank } from '@/lib/rentailor/useSalesRank';
-import { RtLevelToggle } from '@/lib/rentailor/personalize';
+import { RtPersonalizeIcon } from '@/lib/rentailor/personalize';
+import { LogoAnimated } from '@/components/icons/LogoAnimated';
 import './landing.css';
 
 const ACCENT = '#C9A84C';
@@ -173,21 +174,21 @@ function summary(flow: Flow) {
   }[];
 }
 
-// ── 상단 네비 (LogoAnimated → "Rentailor" 워드마크 텍스트) ─────
+// ── 상단 네비 (LogoAnimated 로고 — 디자인 일치) ─────
 function RtNav() {
   return (
     <header className="rt-nav">
       <div className="rt-nav-inner">
         <a className="rt-brand" href="#top" aria-label="Rentailor 홈">
-          Rentailor
+          <LogoAnimated size={28} />
         </a>
         <nav className="rt-nav-links">
           <Link href="/terms-preview">이용약관</Link>
           <Link href="/privacy">개인정보</Link>
         </nav>
-        {/* 디자인 복원: 우측 상단 개인화(이해도 초급/중급/고급) 토글 — 전 화면 rt_profile 공유 */}
-        <RtLevelToggle />
       </div>
+      {/* 디자인 복원: 우측 상단 개인화 아이콘(FAB+패널) — 이해도·고객유형·계약여정 */}
+      <RtPersonalizeIcon />
     </header>
   );
 }

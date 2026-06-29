@@ -33,7 +33,45 @@ import {
   type InfoArticleLike,
 } from '@/lib/rentailor/catalog';
 import '../detail.css';
-import { RtTermDefs } from '@/lib/rentailor/personalize';
+import { RtTermDefs, RtTypeOnly, RtPersonalizeModal } from '@/lib/rentailor/personalize';
+import { useSalesRank } from '@/lib/rentailor/useSalesRank';
+
+// 디자인 복원: 사업자 고객 안내(고객유형 sole/corp 한정). RtTypeOnly 재사용.
+function DetailBizCard() {
+  return (
+    <RtTypeOnly types={['sole', 'corp']}>
+      <div style={{ margin: '14px var(--rt-pad) 0', padding: '13px 15px', border: '1px solid #e8eaee', borderRadius: 14, background: '#faf7ef' }}>
+        <b style={{ display: 'block', fontSize: 13.5, fontWeight: 800, color: '#0D1B2A', marginBottom: 4 }}>사업자 고객 안내</b>
+        <span style={{ fontSize: 12.5, color: '#4a5568', lineHeight: 1.55 }}>장기렌트는 렌트료 전액을 비용처리할 수 있어 절세에 유리해요(부가세 환급은 차종·용도별). 법인은 임직원 전용 차량으로 운용할 수 있고, 세금계산서는 매월 발행돼요.</span>
+      </div>
+    </RtTypeOnly>
+  );
+}
+
+// 디자인 복원: 이달 판매 실적 밴드. car_sales_monthly 실데이터(useSalesRank). 매칭 없으면 미렌더.
+function SalesBand({ car }: { car: Car }) {
+  const { rows, period } = useSalesRank();
+  const sale = rows.find((r) => r.car.id === car.id);
+  if (!sale) return null;
+  const up = sale.momDir === 'up';
+  return (
+    <div style={{ display: 'flex', gap: 14, alignItems: 'center', margin: '14px var(--rt-pad) 0', padding: '13px 15px', border: '1px solid #e8eaee', borderRadius: 14, background: '#fff' }}>
+      <div style={{ flexShrink: 0, textAlign: 'center' }}>
+        <div style={{ fontSize: 22, fontWeight: 800, color: '#C9A84C', lineHeight: 1 }}>{sale.natRank}<i style={{ fontStyle: 'normal', fontSize: 13, color: '#9ca3af' }}>위</i></div>
+        <div style={{ fontSize: 10.5, color: '#9ca3af', marginTop: 3 }}>국내 신차 판매</div>
+      </div>
+      <div style={{ borderLeft: '1px solid #f0f0f0', paddingLeft: 14 }}>
+        <p style={{ margin: 0, fontSize: 13.5, fontWeight: 700, color: '#0D1B2A' }}>{car.segLabel} 판매 <b style={{ color: '#B07A2E' }}>{sale.segRank}위</b>의 인기 차종이에요</p>
+        <p style={{ margin: '4px 0 0', fontSize: 12, color: '#6b7280' }}>
+          {period} <b style={{ color: '#0D1B2A' }}>{sale.units.toLocaleString()}대</b> 등록
+          {sale.momDir !== 'flat' && sale.momPct !== 0 && (
+            <span style={{ marginLeft: 6, fontWeight: 700, color: up ? '#1F8A5B' : '#E0544B' }}>{up ? '▲' : '▼'} {Math.abs(sale.momPct)}%</span>
+          )}
+        </p>
+      </div>
+    </div>
+  );
+}
 
 const ACCENT = '#C9A84C';
 const SAVE_KEY = 'rt-saved';
@@ -241,6 +279,8 @@ export default function CarsDetailPreviewPage() {
   return (
     <div data-rt="cars-detail-preview" className="rt-root">
       <div className="rt-page" data-page="detail" id="top">
+        {/* 디자인 복원: 첫 진입 개인화 모달(이해도·고객유형) */}
+        <RtPersonalizeModal />
         <RtTopNav title={car.brand + ' ' + car.model} backHref="/cars-preview" />
         <RtGuestGate accent={ACCENT} strict />
 
@@ -301,6 +341,10 @@ export default function CarsDetailPreviewPage() {
             </div>
           </div>
         </div>
+
+        {/* 디자인 복원: 판매 실적 밴드 + 사업자 안내 */}
+        <SalesBand car={car} />
+        <DetailBizCard />
 
         {/* 트림 선택 */}
         <section className="rt-sec">

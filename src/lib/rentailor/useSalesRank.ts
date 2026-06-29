@@ -11,11 +11,14 @@ export interface SalesRankRow {
   units: number;
   momPct: number;
   momDir: 'up' | 'down' | 'flat';
-  rank: number;
+  rank: number;     // 취급 차종 내 1..N 재랭크(밴드·레일용)
+  natRank: number;  // 국내 신차(domestic_model) 순위 — car_sales_monthly.rank
+  segRank: number;  // 취급 차종 중 같은 차급 내 순위
 }
 
 interface ApiSales {
   slug: string | null;
+  rank?: number | null;
   units?: number | null;
   momPct?: number | null;
   momDir?: string | null;
@@ -43,9 +46,15 @@ export function useSalesRank(): { rows: SalesRankRow[]; period: string | null } 
           const car = RT_CATALOG.find((c) => c.id === s.slug);
           if (!car) continue;
           const dir = s.momDir === 'up' || s.momDir === 'down' ? s.momDir : 'flat';
-          rows.push({ car, units: s.units ?? 0, momPct: s.momPct ?? 0, momDir: dir, rank: 0 });
+          rows.push({ car, units: s.units ?? 0, momPct: s.momPct ?? 0, momDir: dir, rank: 0, natRank: s.rank ?? 0, segRank: 0 });
         }
-        rows.forEach((r, i) => { r.rank = i + 1; }); // 취급 차종 내 1..N 재랭크
+        const segCount: Record<string, number> = {};
+        rows.forEach((r, i) => {
+          r.rank = i + 1; // 취급 차종 내 1..N 재랭크
+          const seg = r.car.seg;
+          segCount[seg] = (segCount[seg] || 0) + 1;
+          r.segRank = segCount[seg];
+        });
         setState({ rows, period: fmtPeriod(d.salesAsOf ?? null) });
       })
       .catch(() => {/* 데이터 없으면 빈 배열 → 컴포넌트는 렌더 안 함 */});
