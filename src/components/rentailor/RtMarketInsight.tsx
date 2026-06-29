@@ -36,16 +36,23 @@ export function RtMarketInsight() {
   return (
     <section style={{ margin: '24px 22px', display: 'grid', gap: 12 }}>
       <h2 style={{ fontSize: 17, fontWeight: 800, letterSpacing: '-0.02em', margin: 0 }}>지금 시장은</h2>
-      {/* 기준금리 — ECOS 실데이터(source!=='interim')일 때만 노출. interim 잠정값은 오정보 방지 위해 숨김. */}
-      {d.baseRate.source !== 'interim' && (
-        <div style={{ border: '1px solid #e8eaee', borderRadius: 16, padding: 16, background: '#fff' }}>
-          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
-            <span style={{ fontSize: 13, fontWeight: 700, color: '#9ca3af' }}>한국은행 기준금리</span>
-            <span style={{ fontSize: 22, fontWeight: 800, color: '#0D1B2A' }}>{d.baseRate.rate}%</span>
-          </div>
-          {d.baseRate.comment && <p style={{ margin: '6px 0 0', fontSize: 13, color: '#4a5568', lineHeight: 1.5 }}>{d.baseRate.comment}</p>}
+      {/* 기준금리 — ECOS 실데이터면 실값, 미수집(interim)이면 '샘플 데이터' 배지와 함께 표시.
+          ⚠️ 표시 전용 — 실제 견적·계산(finance_rates·calc-monthly)에는 절대 사용되지 않음(분리 확인됨). */}
+      <div style={{ border: '1px solid #e8eaee', borderRadius: 16, padding: 16, background: '#fff' }}>
+        <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 8 }}>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: '#9ca3af' }}>
+            한국은행 기준금리
+            {d.baseRate.source === 'interim' && (
+              <span style={{ fontSize: 10.5, fontWeight: 800, color: '#B07A2E', background: 'rgba(201,168,76,0.16)', borderRadius: 999, padding: '2px 7px' }}>샘플 데이터</span>
+            )}
+          </span>
+          <span style={{ fontSize: 22, fontWeight: 800, color: '#0D1B2A' }}>{d.baseRate.rate}%</span>
         </div>
-      )}
+        {d.baseRate.comment && <p style={{ margin: '6px 0 0', fontSize: 13, color: '#4a5568', lineHeight: 1.5 }}>{d.baseRate.comment}</p>}
+        {d.baseRate.source === 'interim' && (
+          <p style={{ margin: '6px 0 0', fontSize: 11.5, color: '#b3b8c0', lineHeight: 1.45 }}>* ECOS 연동 전 샘플 표시값이에요. 실제 견적·월납 계산에는 사용되지 않아요.</p>
+        )}
+      </div>
       {/* 판매순위 */}
       <div style={{ border: '1px solid #e8eaee', borderRadius: 16, padding: 16, background: '#fff' }}>
         <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>

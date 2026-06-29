@@ -34,10 +34,74 @@ interface ReviewsResponse {
   reviews: Review[];
 }
 
+// 화면 내부 표준 후기 모델 (실 API + 가상 상수 공통)
+type RvSeg = 'sedan' | 'suv' | 'ev';
+interface RvItem {
+  id: string;
+  name: string;
+  seg: RvSeg;
+  car: string;
+  method: string;
+  rating: number;
+  q: string;
+  body: string;
+  save: { was: number; now: number } | null;
+  tag: string;
+  date: string;
+}
+
+// 디자인 원본 RV_FILTERS (세그먼트 필터칩)
+const RV_FILTERS: { key: string; label: string }[] = [
+  { key: 'all', label: '전체' },
+  { key: 'sedan', label: '세단' },
+  { key: 'suv', label: 'SUV' },
+  { key: 'ev', label: '전기차' },
+  { key: 'corp', label: '법인' },
+];
+
+// 가상 후기(코드 상수) — 디자인 RV_DATA 패턴. 실 DB 3행(이O우·김O진·박O서)과 중복 없게 구성.
+//   ★ DB 미적재(시드 금지) — 화면 표시 전용. /api/reviews 실 후기와 함께 노출.
+const VIRTUAL_REVIEWS: RvItem[] = [
+  { id: 'v01', name: '정O훈', seg: 'sedan', car: '현대 아반떼', method: '장기렌트 60개월', rating: 4, q: '사회초년생 첫 차로 부담 없었어요', body: '신용 이력이 길지 않아 걱정했는데 가능한 조건을 찾아주셨어요. 월 38만원이면 유지비까지 포함이라 만족합니다.', save: null, tag: '첫 차', date: '2026.04' },
+  { id: 'v02', name: '최O라', seg: 'suv', car: '현대 팰리세이드', method: '장기렌트 36개월', rating: 5, q: '대형 SUV도 생각보다 합리적', body: '구매하면 감가가 너무 커서 렌트로 결정했어요. 3년 뒤 신차로 교체하는 옵션이 있어서 좋네요. 추천합니다.', save: { was: 110, now: 96 }, tag: '감가 회피', date: '2026.03' },
+  { id: 'v03', name: '한O준', seg: 'ev', car: '기아 EV9', method: '장기렌트 48개월', rating: 5, q: '법인 전기 SUV, 비대면이 편했어요', body: '출장이 잦아 방문 상담이 어려웠는데 전부 비대면으로 처리했어요. 카톡으로 서류 주고받고 끝. 강력 추천해요.', save: null, tag: '법인', date: '2026.03' },
+  { id: 'v04', name: '강O민', seg: 'suv', car: '기아 카니발', method: '장기렌트 48개월', rating: 5, q: '7인승 패밀리카, 초기비용 0원이 컸어요', body: '아이 둘 키우는 집이라 목돈 부담이 컸는데 초기비용 없이 시작할 수 있어서 결정했어요. 상담도 친절하셨습니다.', save: { was: 95, now: 81 }, tag: '패밀리', date: '2026.04' },
+  { id: 'v05', name: '윤O경', seg: 'ev', car: '현대 아이오닉5', method: '장기렌트 36개월', rating: 4, q: '충전 말고는 다 만족스러워요', body: '보험·세금이 렌트료에 포함이라 매달 나가는 돈이 예측돼서 좋아요. 충전 인프라만 익숙해지면 완벽할 것 같아요.', save: null, tag: '전기차', date: '2026.05' },
+  { id: 'v06', name: '서O빈', seg: 'sedan', car: '기아 K8', method: '장기렌트 48개월', rating: 5, q: '캐피탈 비교를 대신 해주니 편했어요', body: '혼자 알아봤으면 어디가 싼지 몰랐을 텐데 9곳을 비교해서 가장 낮은 조건을 찾아주셨어요. 시간을 많이 아꼈습니다.', save: { was: 79, now: 68 }, tag: '비교', date: '2026.05' },
+  { id: 'v07', name: '오O택', seg: 'suv', car: '제네시스 GV70', method: '장기렌트 48개월', rating: 5, q: '법인 차량, 세금계산서까지 매월 깔끔', body: '법인 명의로 운용 중인데 비용처리가 명확하고 세금계산서도 매월 발행돼서 회계 처리가 편해요. 만족합니다.', save: null, tag: '법인 절세', date: '2026.02' },
+  { id: 'v08', name: '문O아', seg: 'suv', car: '기아 스포티지', method: '장기렌트 60개월', rating: 3, q: '무난해요, 인도까지 조금 기다렸어요', body: '차와 조건은 만족스러운데 인기 차종이라 차량 인도까지 시간이 좀 걸렸어요. 매니저님이 중간중간 안내는 잘 해주셨습니다.', save: null, tag: '준중형 SUV', date: '2026.04' },
+  { id: 'v09', name: '배O철', seg: 'sedan', car: '현대 쏘나타', method: '장기렌트 36개월', rating: 4, q: '출퇴근용으로 가성비 좋아요', body: '매일 왕복 60km 출퇴근하는데 유지비 걱정 없이 타고 있어요. 계약도 비대면으로 빠르게 끝나서 편했습니다.', save: { was: 62, now: 54 }, tag: '출퇴근', date: '2026.05' },
+];
+
 function hueIndex(s: string): number {
   let h = 0;
   for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
   return h % RV_HUES.length;
+}
+
+// 실 후기 car/내용에서 세그먼트 추정(디자인 seg 칩과 정합). 키워드 휴리스틱.
+function rvSegOf(text: string): RvSeg {
+  if (/전기|아이오닉|모델\s?[Y3]|\bEV\d?\b|테슬라|아이오닉/i.test(text)) return 'ev';
+  if (/쏘렌토|싼타페|투싼|스포티지|팰리세이드|셀토스|카니발|렉스턴|토레스|\bGV\d|\bSUV\b/i.test(text)) return 'suv';
+  return 'sedan';
+}
+// 실 API 후기 → RvItem. seg/tag는 내용에서 추정(법인 언급 시 법인 태그).
+function apiToItem(r: Review): RvItem {
+  const text = [r.car, r.method, r.title, r.body].filter(Boolean).join(' ');
+  const corp = /법인/.test(text);
+  return {
+    id: r.id,
+    name: r.display_name?.trim() || '익명',
+    seg: rvSegOf(text),
+    car: r.car || '',
+    method: r.method || '',
+    rating: r.rating,
+    q: r.title || '',
+    body: r.body,
+    save: r.saved_was != null && r.saved_now != null ? { was: r.saved_was, now: r.saved_now } : null,
+    tag: corp ? '법인' : '실고객 후기',
+    date: fmtMonth(r.published_at ?? r.created_at),
+  };
 }
 
 function fmtMonth(iso: string): string {
@@ -58,30 +122,27 @@ function RvStars({ n }: { n: number }) {
   );
 }
 
-function RvCard({ r }: { r: Review }) {
-  const name = r.display_name?.trim() || '익명';
+function RvCard({ r }: { r: RvItem }) {
   const sub = [r.car, r.method].filter(Boolean).join(' · ');
-  const hasSave = r.saved_was != null && r.saved_now != null;
-  const date = fmtMonth(r.published_at ?? r.created_at);
   return (
     <div className="rt-rv-card">
       <div className="rt-rv-card-top">
         <div className="rt-rv-av" style={{ background: RV_HUES[hueIndex(r.id)] }}>
-          {name[0]}
+          {r.name[0]}
         </div>
         <div className="rt-rv-who">
-          <div className="rt-rv-name">{name}</div>
+          <div className="rt-rv-name">{r.name}</div>
           {sub && <div className="rt-rv-sub">{sub}</div>}
         </div>
         <RvStars n={r.rating} />
       </div>
-      {r.title && <p className="rt-rv-q">“{r.title}”</p>}
+      {r.q && <p className="rt-rv-q">“{r.q}”</p>}
       <p className="rt-rv-body">{r.body}</p>
-      {hasSave && (
+      {r.save && (
         <div className="rt-rv-save">
           <div className="rt-rv-save-col">
             <div className="rt-rv-save-k">기존 견적</div>
-            <div className="rt-rv-save-v was">월 {r.saved_was}만원</div>
+            <div className="rt-rv-save-v was">월 {r.save.was}만원</div>
           </div>
           <svg
             className="rt-rv-save-arrow"
@@ -98,13 +159,14 @@ function RvCard({ r }: { r: Review }) {
           </svg>
           <div className="rt-rv-save-col">
             <div className="rt-rv-save-k">렌테일러</div>
-            <div className="rt-rv-save-v now">월 {r.saved_now}만원</div>
+            <div className="rt-rv-save-v now">월 {r.save.now}만원</div>
           </div>
-          <span className="rt-rv-save-badge">-{(r.saved_was as number) - (r.saved_now as number)}만원</span>
+          <span className="rt-rv-save-badge">-{r.save.was - r.save.now}만원</span>
         </div>
       )}
       <div className="rt-rv-meta">
-        {date && <span>{date} 계약</span>}
+        <span style={{ fontWeight: 700, color: '#B07A2E' }}>#{r.tag}</span>
+        {r.date && <span>{r.date} 계약</span>}
         <span className="rt-rv-helpful">
           <svg
             viewBox="0 0 24 24"
@@ -128,6 +190,7 @@ function RvCard({ r }: { r: Review }) {
 export default function ReviewsPreview() {
   const [reviews, setReviews] = useState<Review[] | null>(null);
   const [sheet, setSheet] = useState(false);
+  const [filter, setFilter] = useState('all');
 
   useEffect(() => {
     let alive = true;
@@ -178,17 +241,41 @@ export default function ReviewsPreview() {
             </div>
           </div>
 
-          {reviews === null ? (
-            <div className="rt-rv-state">후기를 불러오는 중…</div>
-          ) : reviews.length === 0 ? (
-            <div className="rt-rv-state">아직 등록된 후기가 없어요. 첫 후기를 남겨보세요.</div>
-          ) : (
-            <div className="rt-rv-list">
-              {reviews.map((r) => (
-                <RvCard key={r.id} r={r} />
-              ))}
-            </div>
-          )}
+          {(() => {
+            // 실 API 후기(있으면) + 가상 후기 merge → 세그먼트 필터.
+            const items: RvItem[] = [...(reviews ?? []).map(apiToItem), ...VIRTUAL_REVIEWS];
+            const list = items.filter((r) =>
+              filter === 'all' ? true : filter === 'corp' ? r.tag.includes('법인') : r.seg === filter,
+            );
+            return (
+              <>
+                <div className="rt-rv-chips" style={{ display: 'flex', gap: 8, overflowX: 'auto', padding: '0 var(--rt-pad, 18px) 4px', margin: '4px 0 12px', scrollbarWidth: 'none' }}>
+                  {RV_FILTERS.map((f) => {
+                    const on = filter === f.key;
+                    return (
+                      <button
+                        key={f.key}
+                        type="button"
+                        onClick={() => setFilter(f.key)}
+                        style={{ flexShrink: 0, cursor: 'pointer', borderRadius: 999, padding: '7px 15px', fontSize: 13, fontWeight: 700, border: '1px solid ' + (on ? '#0D1B2A' : '#e2e5ea'), background: on ? '#0D1B2A' : '#fff', color: on ? '#fff' : '#6b7280' }}
+                      >
+                        {f.label}
+                      </button>
+                    );
+                  })}
+                </div>
+                {list.length === 0 ? (
+                  <div className="rt-rv-state">해당 조건의 후기가 아직 없어요.</div>
+                ) : (
+                  <div className="rt-rv-list">
+                    {list.map((r) => (
+                      <RvCard key={r.id} r={r} />
+                    ))}
+                  </div>
+                )}
+              </>
+            );
+          })()}
 
           <div className="rt-bar" style={cssVar({ '--rt-accent': ACCENT })}>
             <div className="rt-bar-inner">
