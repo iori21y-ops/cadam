@@ -206,6 +206,7 @@ function ggLookupPlate(plate: string): PlateResult | null {
 }
 interface RegVehicle extends PlateResult {
   id: string;
+  source?: string; // 'contract'(계약차량·렌트/리스) | 'molit'(번호조회) | 'manual'(수기)
 }
 function ggLoadReg(): RegVehicle[] {
   if (typeof window === 'undefined') return [];
@@ -231,12 +232,15 @@ function ggAddReg(info: PlateResult): string {
   ggSaveReg(arr);
   return id;
 }
-// 번호조회 등록 차량 → 케어 허브용 계약형 객체
+// 등록 차량 → 케어 허브용 계약형 객체.
+//   source='contract'(렌트/리스 계약차량) → 렌테일러 관리(isRental=true → 세금·보험 '포함').
+//   그 외(번호조회 molit·수기 manual) → 자가 보유(직접 관리).
 function ggRegToContract(reg: RegVehicle): Contract {
-  return { carId: reg.id, method: '자가 보유', start: reg.regDate, state: 'active', annualKm: 15000, total: 0 };
+  const method = reg.source === 'contract' ? '운용리스(장기렌트)' : '자가 보유';
+  return { carId: reg.id, method, start: reg.regDate, state: 'active', annualKm: 15000, total: 0 };
 }
 function ggRegToVehicle(reg: RegVehicle): VehicleInfo {
-  return { vin: reg.vin, plate: reg.plate, regDate: reg.regDate, color: reg.color, odo: reg.odo, source: 'molit', maker: reg.maker, model: reg.model };
+  return { vin: reg.vin, plate: reg.plate, regDate: reg.regDate, color: reg.color, odo: reg.odo, source: reg.source || 'molit', maker: reg.maker, model: reg.model };
 }
 
 /* contract_vehicles(BFF) 행 → 화면 RegVehicle. 회원 로그인+계약차량 적재 시 실 차량 표시. */
@@ -259,6 +263,7 @@ function cvToReg(v: ApiCV): RegVehicle {
     odo: v.odo || 0,
     slug: v.model_slug || '',
     plate: v.plate || '—',
+    source: v.source || 'contract', // contract_vehicles 기본=계약차량(렌트/리스)
   };
 }
 

@@ -1,7 +1,9 @@
 // points.ts — 회원 포인트 원장(적립/사용/소멸) + 비용지원(카카오페이 캐시백) 헬퍼
 // 원본 프로토타입: _design_ref/points.jsx (window 전역 → @/lib import 로 이식)
 // 저장: localStorage["rt_points"] {txns}. 비용지원 맥락은 sessionStorage["rt_pt_ctx"].
-// ★ 갭: point_transactions/point_rules/point_redeem_policy 테이블 미생성 → 현재 전부 시드+localStorage 흉내.
+// 현황: point_transactions/point_rules/point_redeem_policy 테이블+RLS 생성 완료, /points는 회원 시
+//   /api/points 실원장 바인딩. 아래 시드/localStorage는 비회원(OTP 미활성) 폴백·UI 시연용.
+//   ★ 남은 갭: redeem 영속화(POST) + 카카오페이 지급 API 미연동.
 
 export const PT_KRW = 1; // 1P = 1원
 

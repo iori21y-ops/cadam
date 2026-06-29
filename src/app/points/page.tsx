@@ -3,8 +3,8 @@
 // points/page.tsx — 회원 포인트 (적립 원장 + 계약비용 지원 사용)
 // 원본: _design_ref/points.jsx (+ rt-mypage.css 의 rt-pt-* 블록)
 // 적립(earn): 활동별 자동 지급. 사용(redeem): 계약 비용(면책금·중도해지·초과운행·인수가)을 포인트로 지원 → 카카오페이 캐시백.
-// 데이터: 전부 시드+localStorage("rt_points") 흉내 (★갭: point_transactions/point_rules/point_redeem_policy 테이블 미생성, 카카오페이 지급 API 미연동).
-// 회원 게이트 없음 — 시드 원장으로 UI 시연.
+// 데이터: 회원 로그인 시 /api/points 실원장·잔액 바인딩. 비회원(OTP 미활성)·fetch 실패 시 시드+localStorage 폴백.
+// ★ 남은 갭: redeem 영속화(POST)·카카오페이 지급 API 미연동(현재 redeem은 로컬 시연).
 import React, { useEffect, useState } from 'react';
 import { RtTopNav, RtTabBar } from '@/components/rentailor/RtChrome';
 import {

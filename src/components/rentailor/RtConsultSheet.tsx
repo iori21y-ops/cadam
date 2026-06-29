@@ -2,7 +2,7 @@
 // RtConsultSheet.tsx — 상담 신청 바텀시트 (브랜드 폼)
 // 원본: _design_ref/chrome.jsx 의 RtConsultSheet (CDS.Button → @/components/ui/Button,
 //        <image-slot> 프로토타입 전용 → 제거하고 색상 플레이스홀더로 대체)
-// ⚠️ submit 은 현재 목업(완료 화면만). 실 POST /api/consultation 연동은 5조(§14.4).
+// submit → POST /api/consultation 실연동(name·phone·privacyAgreed + 차종·맥락). 성공/중복(409) 시 완료 화면.
 import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/Button';
 
@@ -28,6 +28,8 @@ export function RtConsultSheet({ open, onClose, car, priceLabel, accent, onSubmi
   const [phone, setPhone] = useState('');
   const [agree, setAgree] = useState(true);
   const [done, setDone] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (open) {
@@ -35,6 +37,8 @@ export function RtConsultSheet({ open, onClose, car, priceLabel, accent, onSubmi
       setName('');
       setPhone('');
       setAgree(true);
+      setSubmitting(false);
+      setError(null);
     }
   }, [open]);
 
@@ -45,11 +49,36 @@ export function RtConsultSheet({ open, onClose, car, priceLabel, accent, onSubmi
     return d.slice(0, 3) + '-' + d.slice(3, 7) + '-' + d.slice(7);
   };
   const valid = Boolean(name.trim() && phone.trim() && agree);
-  const submit = (e: React.FormEvent | React.MouseEvent) => {
+  const submit = async (e: React.FormEvent | React.MouseEvent) => {
     e.preventDefault();
-    if (valid) {
+    if (!valid || submitting) return;
+    setSubmitting(true);
+    setError(null);
+    const cleanModel = car ? car.model.replace(/\s*\(.*\)/, '').trim() : null;
+    try {
+      const res = await fetch('/api/consultation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: name.trim(),
+          phone: phone.trim(),
+          privacyAgreed: true,
+          contactMethod: 'phone',
+          carBrand: car?.brand ?? null,
+          carModel: cleanModel,
+          financeSummary: car ? `상담시트 · ${car.brand} ${cleanModel}${priceLabel ? ' · 예상 월 ' + priceLabel : ''}` : null,
+          context: { source: 'rt_consult_sheet', carId: car?.id ?? null, priceLabel: priceLabel ?? null },
+          stepCompleted: 5,
+        }),
+      });
+      // 409(24시간 내 중복)도 이미 접수된 것이므로 완료 처리
+      if (!res.ok && res.status !== 409) throw new Error('request failed');
       setDone(true);
       onSubmitted?.();
+    } catch {
+      setError('상담 신청 중 문제가 발생했어요. 잠시 후 다시 시도해 주세요.');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -153,10 +182,11 @@ export function RtConsultSheet({ open, onClose, car, priceLabel, accent, onSubmi
                 </span>
               </label>
               <div style={{ marginTop: 4 }}>
-                <Button variant="primary" size="lg" fullWidth className="rt-gold" disabled={!valid} onClick={submit}>
-                  비대면 상담 신청하기
+                <Button variant="primary" size="lg" fullWidth className="rt-gold" disabled={!valid || submitting} onClick={submit}>
+                  {submitting ? '신청 중…' : '비대면 상담 신청하기'}
                 </Button>
               </div>
+              {error && <p className="rt-form-note" style={{ color: '#C0563B' }}>{error}</p>}
             </form>
             <p className="rt-form-note">입력하신 정보는 상담 목적 외에 사용되지 않습니다.</p>
           </>

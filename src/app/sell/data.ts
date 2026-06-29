@@ -61,26 +61,43 @@ export interface SellReport {
   cols: SellCol[];
   drop1: number;
   depPct: number;
+  source: 'real' | 'estimate';
 }
-export function sellCalc(car: Car, year: number, mileV: string, condV: string): SellReport {
+
+// 내차팔기 주행거리 칩(a/b/c/d) → /api/used-prices 밴드(low/mid/high) 매핑
+export const SL_BAND: Record<string, 'low' | 'mid' | 'high'> = { a: 'low', b: 'mid', c: 'high', d: 'high' };
+// 실거래가(엔카 vehicle_used_prices) — market=선택 밴드 median, low/high=밴드별(저주행=시세최고·고주행=시세최저)
+export interface SellRealPrice {
+  market: number;
+  low?: number | null;
+  high?: number | null;
+}
+
+// real(엔카 실거래가) 있으면 market 교체→파생 전부 실데이터 기반, 없으면 추정식 폴백.
+export function sellCalc(car: Car, year: number, mileV: string, condV: string, real?: SellRealPrice | null): SellReport {
   const msrp = round10(car.from * 45);
   const age = Math.max(0, 2026 - year);
   const mm = (SL_MILE.find((x) => x.v === mileV) || SL_MILE[1]).mult;
   const cm = (SL_COND.find((x) => x.v === condV) || SL_COND[0]).mult;
-  const factor = Math.min(0.98, slResidual(age) * mm * cm);
-  const market = round10(msrp * factor); // 개인거래(엔카) 평균
+  const estFactor = Math.min(0.98, slResidual(age) * mm * cm);
+  const estMarket = round10(msrp * estFactor); // 추정 개인거래 평균
+  // 실거래가 있으면 차량상태(cm)만 반영해 market 교체, 없으면 추정
+  const market = real ? round10(real.market * cm) : estMarket;
   const dealer = round10(market * 0.88); // 일반 딜러 매입가
   const rentailor = round10(market * 0.95); // Rentailor 전환 우대 인수가
   const buyLow = round10(dealer * 0.95); // 딜러 매입 하한
   const buyHigh = round10(dealer * 1.06); // 딜러 매입 상한
-  const baseVal = msrp * slResidual(age); // 차종·연식 평균(상태 무관)
-  const distLow = round10(baseVal * 0.78); // 모델 시세 최저(고주행·사고)
-  const distHigh = round10(baseVal * 1.05); // 모델 시세 최고(저주행·무사고)
-  const bonus = rentailor - dealer;
+  // 시세 분포: 실데이터 밴드(저주행 low=시세최고 / 고주행 high=시세최저), 없으면 추정
+  const baseVal = msrp * slResidual(age);
+  let distHigh = real?.low != null ? round10(real.low * cm) : round10(baseVal * 1.05);
+  let distLow = real?.high != null ? round10(real.high * cm) : round10(baseVal * 0.78);
+  if (distLow > distHigh) { const t = distLow; distLow = distHigh; distHigh = t; }
+  // 미래 추이: 추정 곡선을 실 market에 맞춰 스케일(실데이터로 현재값 앵커)
+  const scale = real && estMarket > 0 ? market / estMarket : 1;
   const cols: SellCol[] = [0, 1, 2, 3].map((d) => ({
     d,
     label: d === 0 ? '현재' : '+' + d + '년',
-    value: round10(msrp * Math.min(0.98, slResidual(age + d) * mm * cm)),
+    value: round10(msrp * Math.min(0.98, slResidual(age + d) * mm * cm) * scale),
   }));
   const drop1 = cols[0].value - cols[1].value;
   return {
@@ -93,9 +110,10 @@ export function sellCalc(car: Car, year: number, mileV: string, condV: string): 
     buyHigh,
     distLow,
     distHigh,
-    bonus,
+    bonus: rentailor - dealer,
     cols,
     drop1,
-    depPct: Math.round((1 - factor) * 100),
+    depPct: Math.round((1 - market / Math.max(1, msrp)) * 100),
+    source: real ? 'real' : 'estimate',
   };
 }

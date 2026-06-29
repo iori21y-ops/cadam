@@ -15,7 +15,7 @@ import { RtTopNav } from '@/components/rentailor/RtChrome';
 import { RtConsultSheet } from '@/components/rentailor/RtConsultSheet';
 import { RtTermDefs } from '@/lib/rentailor/personalize';
 import { RT_CATALOG, type Car } from '@/lib/rentailor/catalog';
-import { SL_YEARS, SL_MILE, SL_COND, sellCalc, won } from './data';
+import { SL_YEARS, SL_MILE, SL_COND, SL_BAND, sellCalc, won, type SellRealPrice } from './data';
 import './sell.css';
 
 const ACCENT = '#C9A84C';
@@ -31,7 +31,26 @@ function IcCheck() {
 }
 
 function SellResult({ car, year, mile, cond }: { car: Car; year: number; mile: string; cond: string }) {
-  const d = useMemo(() => sellCalc(car, year, mile, cond), [car, year, mile, cond]);
+  // 엔카 실거래가(/api/used-prices) 조회 → 있으면 실데이터, 없으면(또는 오류) 추정 폴백.
+  const [real, setReal] = useState<SellRealPrice | null>(null);
+  useEffect(() => {
+    let alive = true;
+    setReal(null);
+    const model = car.model.replace(/\s*\(.*\)/, '').trim();
+    fetch(`/api/used-prices?brand=${encodeURIComponent(car.brand)}&model=${encodeURIComponent(model)}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((dd: { status?: string; prices?: Record<number, { low: number | null; mid: number | null; high: number | null }> } | null) => {
+        if (!alive || !dd || dd.status !== 'ok' || !dd.prices) return;
+        const band = SL_BAND[mile] || 'mid';
+        const p = dd.prices[year];
+        if (p && p[band] != null) setReal({ market: p[band] as number, low: p.low, high: p.high });
+      })
+      .catch(() => {/* 추정 폴백 */});
+    return () => {
+      alive = false;
+    };
+  }, [car, year, mile]);
+  const d = useMemo(() => sellCalc(car, year, mile, cond, real), [car, year, mile, cond, real]);
   const mileObj = SL_MILE.find((x) => x.v === mile) || SL_MILE[1];
   const condObj = SL_COND.find((x) => x.v === cond) || SL_COND[0];
   // 분포 막대 위치: 모델 시세 최저~최고 범위 안에서 내 차(market) 위치(%)
@@ -53,6 +72,9 @@ function SellResult({ car, year, mile, cond }: { car: Car; year: number; mile: s
           {year}년식 · {car.brand} · {mileObj.label} · {condObj.label}
         </p>
         <h2 className="rt-qresult-title">{cleanModel} 예상 시세</h2>
+        <p className="rt-fnote" style={{ padding: '4px 0 0' }}>
+          {d.source === 'real' ? '· 엔카 실거래 데이터 기준 시세예요' : '· 시세 통계 기반 추정값이에요(해당 차종 실거래 데이터 준비 중)'}
+        </p>
       </div>
 
       {/* 히어로 */}
