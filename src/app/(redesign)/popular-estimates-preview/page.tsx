@@ -14,6 +14,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { RtTopNav, RtTabBar } from '@/components/rentailor/RtChrome';
+import { carImageUrl } from '@/lib/car-image-url';
 import { RtGuestGate } from '@/components/rentailor/RtGuestGate';
 import { RtTermDefs } from '@/lib/rentailor/personalize';
 import { useSalesRank } from '@/lib/rentailor/useSalesRank';
@@ -92,10 +93,10 @@ function VCard({ car, saved, onToggleSave, inVs, onToggleVs }: VCardProps) {
         {car.imageKey && (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={`/cars/${car.imageKey}.webp`}
+            src={carImageUrl(car.imageKey)}
             alt={car.model}
             loading="lazy"
-            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', padding: '8%' }}
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', padding: '4%' }}
             onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
           />
         )}
@@ -376,27 +377,29 @@ export default function PopularEstimatesPreviewPage() {
           </div>
         )}
 
-        <div className="rt-tabs-wrap">
-          <div className="rt-tabs">
-            {RT_TABS.map((t) => (
-              <button key={t.key} className={'rt-cat-tab' + (t.key === tab ? ' is-on' : '')}
-                onClick={() => setTab(t.key)}>
-                {t.label}
-              </button>
+        <div className="rt-filterbar">
+          <div className="rt-tabs-wrap">
+            <div className="rt-tabs">
+              {RT_TABS.map((t) => (
+                <button key={t.key} className={'rt-cat-tab' + (t.key === tab ? ' is-on' : '')}
+                  onClick={() => setTab(t.key)}>
+                  {t.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="rt-controls">
+            <span className="rt-result-count">총 <b>{list.length}</b>개 차종</span>
+            <SortControl sort={sort} setSort={setSort} />
+          </div>
+
+          <div className="rt-segs">
+            {RT_SEGS.map((s) => (
+              <button key={s.key} className={'rt-seg' + (s.key === seg ? ' is-on' : '')}
+                onClick={() => setSeg(s.key)}>{s.label}</button>
             ))}
           </div>
-        </div>
-
-        <div className="rt-controls">
-          <span className="rt-result-count">총 <b>{list.length}</b>개 차종</span>
-          <SortControl sort={sort} setSort={setSort} />
-        </div>
-
-        <div className="rt-segs">
-          {RT_SEGS.map((s) => (
-            <button key={s.key} className={'rt-seg' + (s.key === seg ? ' is-on' : '')}
-              onClick={() => setSeg(s.key)}>{s.label}</button>
-          ))}
         </div>
 
         {list.length ? (

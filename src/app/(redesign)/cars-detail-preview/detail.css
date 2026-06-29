@@ -61,8 +61,7 @@
 
 /* ---------- 히어로 ---------- */
 [data-rt="cars-detail-preview"] .rt-dhero { position: relative; }
-[data-rt="cars-detail-preview"] .rt-dhero-media { position: relative; aspect-ratio: 16/11; background:
-  linear-gradient(155deg, hsl(var(--hue, 210) 32% 94%), hsl(var(--hue, 210) 26% 85%));
+[data-rt="cars-detail-preview"] .rt-dhero-media { position: relative; aspect-ratio: 16/11; background: #fff;
   display: flex; align-items: center; justify-content: center; }
 [data-rt="cars-detail-preview"] .rt-dhero-media-label { font-size: 15px; font-weight: 800; letter-spacing: 0.04em;
   color: hsl(var(--hue, 210) 36% 42%); text-transform: uppercase; opacity: .7; }
@@ -181,8 +180,7 @@
 [data-rt="cars-detail-preview"] .rt-scard { flex: 0 0 auto; width: 182px; text-decoration: none; color: inherit; border: 1px solid var(--rt-line);
   border-radius: 16px; overflow: hidden; background: #fff; box-shadow: 0 2px 12px rgba(13, 27, 42, 0.05); transition: transform .16s, box-shadow .16s; }
 [data-rt="cars-detail-preview"] .rt-scard:hover { transform: translateY(-3px); box-shadow: 0 14px 28px rgba(13, 27, 42, 0.12); }
-[data-rt="cars-detail-preview"] .rt-scard-media { aspect-ratio: 16/10; background:
-  linear-gradient(150deg, hsl(var(--hue, 210) 30% 94%), hsl(var(--hue, 210) 24% 87%));
+[data-rt="cars-detail-preview"] .rt-scard-media { position: relative; aspect-ratio: 16/10; background: #fff;
   display: flex; align-items: center; justify-content: center; }
 [data-rt="cars-detail-preview"] .rt-scard-media-label { font-size: 12px; font-weight: 800; letter-spacing: 0.03em; color: hsl(var(--hue, 210) 36% 44%); opacity: .65; }
 [data-rt="cars-detail-preview"] .rt-scard-body { padding: 12px 13px 14px; }

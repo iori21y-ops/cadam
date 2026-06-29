@@ -16,6 +16,7 @@ import { RtGuestGate } from '@/components/rentailor/RtGuestGate';
 import { RtIconConsult, RtIconCompare, RtIconContract, RtIconCar } from '@/components/rentailor/RtIcons';
 import { Button } from '@/components/ui/Button';
 import { CarSpinViewer } from '@/components/cars/CarSpinViewer';
+import { carImageUrl } from '@/lib/car-image-url';
 import {
   rtFindCar,
   rtSimilar,
@@ -292,13 +293,12 @@ export default function CarsDetailPreviewPage() {
             ) : car.imageKey ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
-                src={`/cars/${car.imageKey}.webp`}
+                src={carImageUrl(car.imageKey)}
                 alt={car.model}
-                style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', padding: '6%' }}
+                style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', padding: '3%' }}
                 onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
               />
             ) : null}
-            <span className="rt-dhero-media-label">{car.brand}</span>
             <div className="rt-dhero-badges">
               {badges.map((b, i) => (
                 <span className={'rt-badge ' + b.cls} key={i}>{b.label}</span>
@@ -487,7 +487,16 @@ export default function CarsDetailPreviewPage() {
             {similar.map((c) => (
               <Link className="rt-scard" key={c.id} href={`/cars-detail-preview/${c.id}`} data-guest="allow" style={{ '--hue': c.hue } as React.CSSProperties}>
                 <div className="rt-scard-media">
-                  <span className="rt-scard-media-label">{c.brand}</span>
+                  {c.imageKey && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={carImageUrl(c.imageKey)}
+                      alt={c.model}
+                      loading="lazy"
+                      style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', padding: '6%' }}
+                      onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+                    />
+                  )}
                 </div>
                 <div className="rt-scard-body">
                   <div className="rt-scard-brand">{c.brand}</div>

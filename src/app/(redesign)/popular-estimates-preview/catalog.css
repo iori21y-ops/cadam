@@ -77,10 +77,10 @@
 [data-rt="popular-estimates-preview"] .rt-applied.is-widened { background:rgba(201,168,76,.16); border-color:rgba(201,168,76,.5); }
 [data-rt="popular-estimates-preview"] .rt-applied.is-widened .rt-applied-ic { background:var(--rt-accent); color:var(--rt-navy); }
 
-/* 카테고리 탭 (sticky) — .rt-tab → .rt-cat-tab (globals GNB 충돌 회피) */
-[data-rt="popular-estimates-preview"] .rt-tabs-wrap { position:sticky; top:var(--rt-nav-h); z-index:24;
-  background:rgba(255,255,255,.94); backdrop-filter:blur(12px);
-  border-bottom:1px solid var(--rt-line); }
+/* 필터 헤더 (카테고리탭+컨트롤+세그먼트칩) 통합 sticky — 스크롤 시 카드 위로 고정 */
+[data-rt="popular-estimates-preview"] .rt-filterbar { position:sticky; top:var(--rt-nav-h); z-index:24;
+  background:#fff; border-bottom:1px solid var(--rt-line); }
+/* 카테고리 탭 — .rt-tab → .rt-cat-tab (globals GNB 충돌 회피) */
 [data-rt="popular-estimates-preview"] .rt-tabs { display:flex; gap:8px; overflow-x:auto; padding:12px var(--rt-pad);
   scrollbar-width:none; -webkit-overflow-scrolling:touch; }
 [data-rt="popular-estimates-preview"] .rt-tabs::-webkit-scrollbar { display:none; }
@@ -134,8 +134,7 @@
 [data-rt="popular-estimates-preview"] .rt-vcard:hover { transform:translateY(-3px); box-shadow:0 16px 34px rgba(13,27,42,.12);
   border-color:rgba(201,168,76,.5); }
 [data-rt="popular-estimates-preview"] .rt-vcard:active { transform:translateY(-1px) scale(.995); }
-[data-rt="popular-estimates-preview"] .rt-vcard-media { position:relative; aspect-ratio:16/10; background:
-  linear-gradient(150deg, hsl(var(--hue,210) 30% 95%), hsl(var(--hue,210) 24% 88%)); }
+[data-rt="popular-estimates-preview"] .rt-vcard-media { position:relative; aspect-ratio:16/10; background:#fff; }
 [data-rt="popular-estimates-preview"] .rt-vcard-badges { position:absolute; left:12px; top:12px; z-index:3; display:flex; gap:5px; flex-wrap:wrap; }
 [data-rt="popular-estimates-preview"] .rt-badge { font-size:11px; font-weight:800; letter-spacing:-0.01em; padding:4px 9px; border-radius:999px;
   background:rgba(255,255,255,.92); color:var(--rt-ink); backdrop-filter:blur(4px);
