@@ -25,7 +25,7 @@ import {
   RT_FAQS,
   rtEstimate,
 } from '@/lib/rentailor/landing-data';
-import { RT_CATALOG, FUEL, type Car } from '@/lib/rentailor/catalog';
+import { RT_CATALOG, FUEL, type Car, type CarSpec } from '@/lib/rentailor/catalog';
 import { rtMarkConsulted } from '@/lib/rentailor/guest-adapter';
 import { useSalesRank } from '@/lib/rentailor/useSalesRank';
 import { RtPersonalizeIcon } from '@/lib/rentailor/personalize';
@@ -592,10 +592,24 @@ function RtRecoCard({ car }: { car: Car }) {
         <h3 className="rt-vcard-name">{car.model}</h3>
         <p className="rt-vcard-seg">{car.segLabel}</p>
         <dl className="rt-vcard-specs">
-          <div className="rt-vcard-spec">
-            <dt>{isRange ? '전비' : '복합 연비'}</dt>
-            <dd>{car.spec.eff}</dd>
-          </div>
+          {car.spec.eff && (
+            <div className="rt-vcard-spec">
+              <dt>{isRange ? '전비' : '복합 연비'}</dt>
+              <dd>{car.spec.eff} {isRange ? 'km/kWh' : 'km/L'}</dd>
+            </div>
+          )}
+          {isRange && car.spec.range && (
+            <div className="rt-vcard-spec">
+              <dt>1회 충전 주행</dt>
+              <dd>{car.spec.range}km</dd>
+            </div>
+          )}
+          {car.spec.grade && (
+            <div className="rt-vcard-spec">
+              <dt>에너지 등급</dt>
+              <dd>{car.spec.grade}</dd>
+            </div>
+          )}
         </dl>
         <div className="rt-vcard-foot">
           <div>
@@ -656,6 +670,20 @@ function pickRecoCars(clsKey: string | null, budgetKey: string | null): Car[] {
 function ResultStep({ flow }: { flow: Flow }) {
   const e = flow.estimate || { lo: 39, hi: 49, center: 44 };
   const cars = pickRecoCars(flow.cls, flow.budget);
+  // 실 스펙(vehicle_powertrains) 배치 — slug→fuel_kind→{eff,range,grade}. 결과 단계 진입 시 1회 fetch.
+  const [specs, setSpecs] = useState<Record<string, Record<string, { eff: string | null; range: string | null; grade: string | null }>>>({});
+  useEffect(() => {
+    fetch('/api/catalog-specs').then((r) => r.json()).then((d) => setSpecs(d.specs ?? {})).catch(() => {});
+  }, []);
+  const enriched = cars.map((c) => {
+    const sp = specs[c.id]?.[c.fuel]; // 자기 연료(FuelKey)의 대표 스펙
+    if (!sp) return c;
+    const patch: Partial<CarSpec> = {};
+    if (sp.eff) patch.eff = sp.eff;
+    if (sp.range) patch.range = sp.range;
+    if (sp.grade) patch.grade = sp.grade;
+    return Object.keys(patch).length ? { ...c, spec: { ...c.spec, ...patch } } : c;
+  });
   return (
     <div className="rt-step-in rt-stepbody rt-result">
       <div className="rt-result-hd rt-fade-up" style={cssVar({ '--d': '0ms' })}>
@@ -684,7 +712,7 @@ function ResultStep({ flow }: { flow: Flow }) {
         <div className="rt-cont rt-fade-up" style={cssVar({ '--d': '140ms' })}>
           <h3 className="rt-cont-title">조건에 맞는 추천 차량</h3>
           <div className="rt-cars">
-            {cars.map((c) => <RtRecoCard key={c.id} car={c} />)}
+            {enriched.map((c) => <RtRecoCard key={c.id} car={c} />)}
           </div>
         </div>
       )}
