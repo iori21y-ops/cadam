@@ -393,13 +393,6 @@ export default function PopularEstimatesPreviewPage() {
             <span className="rt-result-count">총 <b>{list.length}</b>개 차종</span>
             <SortControl sort={sort} setSort={setSort} />
           </div>
-
-          <div className="rt-segs">
-            {RT_SEGS.map((s) => (
-              <button key={s.key} className={'rt-seg' + (s.key === seg ? ' is-on' : '')}
-                onClick={() => setSeg(s.key)}>{s.label}</button>
-            ))}
-          </div>
         </div>
 
         {list.length ? (
