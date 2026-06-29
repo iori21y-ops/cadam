@@ -124,7 +124,9 @@ function useQuoteFlow() {
   const back = () => { if (idx > 0) go(STEPS_ORDER[idx - 1], 'back'); };
 
   const estimate = rtEstimate(budget ?? '', cls ?? '', term);
-  const valid = Boolean(name.trim() && phone.trim() && agree);
+  // 전화번호는 010 + 11자리 완성 시에만 유효(미완성 제출 차단). onFocus 자동 '010-'(3자리)는 여기서 자동 탈락.
+  const phoneDigits = phone.replace(/\D/g, '');
+  const valid = Boolean(name.trim() && phoneDigits.length === 11 && phoneDigits.startsWith('010') && agree);
 
   // 실 API 제출: 유효할 때만, 진행 중 재진입 가드. 성공/중복 → 게스트 가드 해제 후 결과로.
   const submit = async () => {
@@ -500,6 +502,9 @@ function FormStep({ flow }: { flow: Flow }) {
                 onFocus={() => { if (!flow.phone) flow.setPhone('010-'); }}
                 onChange={(ev) => flow.setPhone(fmtPhone(ev.target.value))}
               />
+              {flow.phone && flow.phone.replace(/\D/g, '').length !== 11 && (
+                <span className="rt-field-hint">전화번호 11자리를 입력해주세요</span>
+              )}
             </label>
           )}
           {showContact && (

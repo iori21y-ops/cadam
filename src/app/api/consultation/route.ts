@@ -14,7 +14,7 @@ import { getRentEstimateManwon } from '@/lib/estimatePricing';
 
 const consultationSchema = z.object({
   name: z.string().min(1).max(50),
-  phone: z.string().default(''),
+  phone: z.string().regex(/^$|^010-?\d{4}-?\d{4}$/, '전화번호 형식 오류').default(''),
   email: z.string().default(''),
   contactMethod: z.enum(['phone', 'email', 'kakao', 'skip']).default('phone'),
   privacyAgreed: z.literal(true),
