@@ -357,15 +357,16 @@ export default function CarsDetailPreviewPage() {
           </div>
           <div className="rt-specs">
             <div className="rt-spec">
-              <span className="rt-spec-v">{car.spec.eff}</span>
+              <span className="rt-spec-v">{car.spec.eff || ''}</span>
               <span className="rt-spec-k">{effIsRange ? '1회 충전' : '복합 연비'}</span>
             </div>
             <div className="rt-spec">
-              <span className="rt-spec-v">{car.spec.power}</span>
+              <span className="rt-spec-v">{car.spec.power || ''}</span>
               <span className="rt-spec-k">최고 출력</span>
             </div>
             <div className="rt-spec">
-              <span className="rt-spec-v">{car.spec.seatLabel || (car.spec.seats + '인승')}</span>
+              {/* 가드: seatLabel/seats 없으면 빈칸 ("undefined인승" 차단) */}
+              <span className="rt-spec-v">{car.spec.seatLabel || (car.spec.seats != null ? `${car.spec.seats}인승` : '')}</span>
               <span className="rt-spec-k">승차 인원</span>
             </div>
             <div className="rt-spec">

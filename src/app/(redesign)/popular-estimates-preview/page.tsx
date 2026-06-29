@@ -82,6 +82,8 @@ interface VCardProps {
 function VCard({ car, saved, onToggleSave, inVs, onToggleVs }: VCardProps) {
   const badges = cardBadges(car);
   const effIsRange = car.fuel === 'ev';
+  // 가드: seatLabel/seats 없으면 빈 문자열 → 행 자체 미렌더 ("undefined인승" 차단)
+  const seatsText = car.spec.seatLabel || (car.spec.seats != null ? `${car.spec.seats}인승` : '');
   return (
     <Link
       className="rt-vcard"
@@ -122,18 +124,24 @@ function VCard({ car, saved, onToggleSave, inVs, onToggleVs }: VCardProps) {
         <h3 className="rt-vcard-name">{car.model}</h3>
         <p className="rt-vcard-seg">{car.segLabel}</p>
         <dl className="rt-vcard-specs">
-          <div className="rt-vcard-spec">
-            <dt>{effIsRange ? '1회 충전 주행' : '복합 연비'}</dt>
-            <dd>{car.spec.eff}</dd>
-          </div>
-          <div className="rt-vcard-spec">
-            <dt>최고 출력</dt>
-            <dd>{car.spec.power}</dd>
-          </div>
-          <div className="rt-vcard-spec">
-            <dt>승차 인원</dt>
-            <dd>{car.spec.seatLabel ?? `${car.spec.seats}인승`}</dd>
-          </div>
+          {car.spec.eff && (
+            <div className="rt-vcard-spec">
+              <dt>{effIsRange ? '1회 충전 주행' : '복합 연비'}</dt>
+              <dd>{car.spec.eff}</dd>
+            </div>
+          )}
+          {car.spec.power && (
+            <div className="rt-vcard-spec">
+              <dt>최고 출력</dt>
+              <dd>{car.spec.power}</dd>
+            </div>
+          )}
+          {seatsText && (
+            <div className="rt-vcard-spec">
+              <dt>승차 인원</dt>
+              <dd>{seatsText}</dd>
+            </div>
+          )}
         </dl>
         <div className="rt-vcard-foot">
           <div>
