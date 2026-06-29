@@ -9,7 +9,7 @@ import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { RtTopNav } from '@/components/rentailor/RtChrome';
 import { RtConsultSheet } from '@/components/rentailor/RtConsultSheet';
-import { RT_CATALOG, FUEL, type Car } from '@/lib/rentailor/catalog';
+import { RT_CATALOG, FUEL, type Car, type CarSpec } from '@/lib/rentailor/catalog';
 import { VS_ROWS, bestId, DEFAULT_IDS, STORAGE_KEY, MAX_CARS } from './data';
 import './vscompare.css';
 
@@ -80,6 +80,11 @@ export default function SimulatorComparePreview() {
   const [ids, setIds] = useState<string[]>(DEFAULT_IDS);
   const [picker, setPicker] = useState(false);
   const [sheet, setSheet] = useState(false);
+  // 실 스펙(vehicle_powertrains) 배치 — slug→fuel_kind→{eff,range,grade}
+  const [specs, setSpecs] = useState<Record<string, Record<string, { eff: string | null; range: string | null; grade: string | null }>>>({});
+  useEffect(() => {
+    fetch('/api/catalog-specs').then((r) => r.json()).then((d) => setSpecs(d.specs ?? {})).catch(() => {});
+  }, []);
 
   // SSR 안전: 클라이언트 마운트 후에만 localStorage hydrate
   useEffect(() => {
@@ -102,7 +107,15 @@ export default function SimulatorComparePreview() {
     }
   }, [ids]);
 
-  const cars = ids.map((id) => byId[id]).filter(Boolean);
+  const cars = ids.map((id) => byId[id]).filter(Boolean).map((c) => {
+    const sp = specs[c.id]?.[c.fuel]; // 자기 연료(FuelKey)의 대표 스펙
+    if (!sp) return c;
+    const patch: Partial<CarSpec> = {};
+    if (sp.eff) patch.eff = sp.eff;
+    if (sp.range) patch.range = sp.range;
+    if (sp.grade) patch.grade = sp.grade;
+    return Object.keys(patch).length ? { ...c, spec: { ...c.spec, ...patch } } : c;
+  });
   const gridStyle: React.CSSProperties = { gridTemplateColumns: `repeat(${cars.length}, 1fr)` };
 
   return (
@@ -173,7 +186,7 @@ export default function SimulatorComparePreview() {
 
           {cars.length >= 2 ? (
             <div className="rt-vs-table">
-              {VS_ROWS.map((row) => {
+              {VS_ROWS.filter((r) => r.k !== '1회 충전 주행' || cars.some((c) => c.spec.range)).map((row) => {
                 const bid = bestId(row, cars);
                 return (
                   <div className="rt-vs-row" key={row.k}>

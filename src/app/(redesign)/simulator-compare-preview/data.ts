@@ -23,7 +23,10 @@ export const VS_ROWS: VsRow[] = [
   { k: '월 렌트료', get: (c) => '월 ' + c.from + '만원~', val: (c) => c.from, best: 'min' },
   { k: '차급', get: (c) => c.segLabel },
   { k: '연료', get: (c) => FUEL[c.fuel]?.label ?? c.fuel },
-  { k: '연비·주행', get: (c) => c.spec.eff ?? '-', val: (c) => num(c.spec.eff), best: 'max' },
+  // 연비·주행: EV(km/kWh)·ICE(km/L) 단위 혼재 → best 제거(cross-unit 비교 오도 방지)
+  { k: '연비·주행', get: (c) => (c.spec.eff ? c.spec.eff + (c.fuel === 'ev' ? 'km/kWh' : 'km/L') : '-') },
+  { k: '에너지 등급', get: (c) => c.spec.grade ?? '-', val: (c) => num(c.spec.grade), best: 'min' },
+  { k: '1회 충전 주행', get: (c) => (c.spec.range ? c.spec.range + 'km' : '-'), val: (c) => num(c.spec.range), best: 'max' },
   { k: '구분', get: (c) => (c.origin === 'imported' ? '수입' : '국산') },
 ];
 
