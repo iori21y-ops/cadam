@@ -53,7 +53,7 @@ export function RtMarketInsight() {
           {d.salesAsOf && <span style={{ fontSize: 11, color: '#b3b8c0' }}>{d.salesAsOf.replace('-', '.')} 기준</span>}
         </div>
         <ol style={{ margin: '8px 0 0', padding: 0, listStyle: 'none', display: 'grid', gap: 6 }}>
-          {d.sales.map((s) => (
+          {d.sales.slice(0, 5).map((s) => (
             <li key={s.rank}>
               {s.slug ? (
                 <Link href={`/cars/${s.slug}`} style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none', color: '#0D1B2A' }}>

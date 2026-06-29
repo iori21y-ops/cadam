@@ -8,6 +8,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { RtTopNav, RtTabBar } from '@/components/rentailor/RtChrome';
 import { RtConsultSheet } from '@/components/rentailor/RtConsultSheet';
+import { RtMarketInsight } from '@/components/rentailor/RtMarketInsight';
 import { rtMemberLocked, rtIsMemberOnly, rtMarkConsulted } from '@/lib/rentailor/guest-adapter';
 import { Button } from '@/components/ui/Button';
 import {
@@ -200,6 +201,9 @@ export default function InfoPreviewPage() {
           <h1 className="rt-info-title">알고 타면<br />매달 더 아껴요</h1>
           <p className="rt-info-desc">장기렌트가 처음이어도 괜찮아요. 계약 전 꼭 알아야 할 정보를 쉽게 풀어드려요.</p>
         </div>
+
+        {/* 디자인 복원: 이달의 자동차 시장(판매순위). 금리 카드는 데이터(market_rates) 없어 자동 숨김. */}
+        <RtMarketInsight />
 
         {featured.length > 0 && (
           <div className="rt-feat-rail">

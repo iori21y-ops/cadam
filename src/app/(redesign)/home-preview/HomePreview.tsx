@@ -27,7 +27,8 @@ import {
 } from '@/lib/rentailor/landing-data';
 import { RT_CATALOG, FUEL, type Car } from '@/lib/rentailor/catalog';
 import { rtMarkConsulted } from '@/lib/rentailor/guest-adapter';
-import { RtMarketInsight } from '@/components/rentailor/RtMarketInsight';
+import { useSalesRank } from '@/lib/rentailor/useSalesRank';
+import { RtLevelToggle } from '@/lib/rentailor/personalize';
 import './landing.css';
 
 const ACCENT = '#C9A84C';
@@ -184,6 +185,8 @@ function RtNav() {
           <Link href="/terms-preview">이용약관</Link>
           <Link href="/privacy">개인정보</Link>
         </nav>
+        {/* 디자인 복원: 우측 상단 개인화(이해도 초급/중급/고급) 토글 — 전 화면 rt_profile 공유 */}
+        <RtLevelToggle />
       </div>
     </header>
   );
@@ -303,6 +306,39 @@ function RtTrustRail() {
 }
 
 // ── 히어로 (intro 본문) ──────────────────────────────────────
+// 디자인 복원: 이번 달 판매순위 밴드(TOP3). car_sales_monthly 실데이터(useSalesRank). 데이터 없으면 미렌더.
+function RtPopularBand() {
+  const { rows } = useSalesRank();
+  const top = rows.slice(0, 3);
+  if (!top.length) return null;
+  return (
+    <div style={{ margin: '6px 0 2px' }}>
+      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 10 }}>
+        <p style={{ margin: 0, fontSize: 15, fontWeight: 800, color: '#0D1B2A' }}>
+          이번 달 <b style={{ color: '#B07A2E' }}>가장 많이 고른 차</b>
+        </p>
+        <Link href="/popular-estimates" style={{ fontSize: 13, fontWeight: 700, color: '#9ca3af', textDecoration: 'none' }}>전체 순위 →</Link>
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 8 }}>
+        {top.map((r) => (
+          <Link
+            key={r.car.id}
+            href={`/cars/${r.car.id}`}
+            style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 2, padding: 12, border: '1px solid #e8eaee', borderRadius: 14, background: '#fff', textDecoration: 'none' }}
+          >
+            <span style={{ position: 'absolute', top: 8, right: 8, width: 20, height: 20, borderRadius: '50%', background: '#C9A84C', color: '#0D1B2A', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 800 }}>{r.rank}</span>
+            <span style={{ fontSize: 11, color: '#9ca3af', fontWeight: 600 }}>{r.car.brand}</span>
+            <span style={{ fontSize: 14, fontWeight: 800, color: '#0D1B2A', lineHeight: 1.2 }}>{r.car.model.replace(/\s*\(.*\)/, '')}</span>
+            <span style={{ marginTop: 4, fontSize: 13, color: '#0D1B2A', fontWeight: 700 }}>
+              <em style={{ fontStyle: 'normal', fontSize: 11, color: '#9ca3af' }}>월 </em>{r.car.from}<i style={{ fontStyle: 'normal', fontSize: 11, color: '#9ca3af' }}>만원~</i>
+            </span>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function RtHero() {
   const feats = [
     { Ic: RtIconConsult, label: '비대면 간편 상담' },
@@ -327,6 +363,7 @@ function RtHero() {
           </div>
         ))}
       </div>
+      <RtPopularBand />
       <RtTrustRail />
     </div>
   );
@@ -793,7 +830,7 @@ export default function HomePreview() {
           <main className="rt-main">
             {flow.step === 'intro' ? <RtHero /> : <QuoteBody flow={flow} />}
           </main>
-          {flow.step === 'intro' && <><RtMarketInsight /><RtFooter /></>}
+          {flow.step === 'intro' && <RtFooter />}
           <RtBottomBar flow={flow} />
         </div>
       </div>

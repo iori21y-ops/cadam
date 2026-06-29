@@ -45,8 +45,10 @@ export async function GET() {
     ? { rate: data[0].rate, comment: data[0].display_comment, source: 'ECOS', asOf: data[0].effective_date }
     : { rate: 3.0, comment: '한국은행 기준금리(잠정) — 금리 인하기엔 장기렌트 월납 부담이 줄어요', source: 'interim', asOf: null };
 
-  // 판매순위: car_sales_monthly 실데이터(domestic_model 최신월 TOP5). 실패 시 interim.
-  let sales: { rank: number; name: string; slug: string | null; brand: string }[] = SALES_INTERIM;
+  // 판매순위: car_sales_monthly 실데이터(domestic_model 최신월). 실패 시 interim.
+  //   상위 20행 반환(units·전월대비 포함) → 화면(밴드 TOP3/베스트셀러 TOP10/인사이트 TOP5)이 슬라이스.
+  type SalesRow = { rank: number; name: string; slug: string | null; brand: string; units?: number | null; momPct?: number | null; momDir?: string | null };
+  let sales: SalesRow[] = SALES_INTERIM;
   let salesSource = 'interim';
   let salesAsOf: string | null = null;
   const { data: latest } = await supabase
@@ -59,18 +61,33 @@ export async function GET() {
   if (ym) {
     const { data: rows } = await supabase
       .from('car_sales_monthly')
-      .select('rank, brand, model, sales_count')
+      .select('rank, brand, model, sales_count, mom_change, mom_change_dir')
       .eq('category', 'domestic_model')
       .eq('year_month', ym)
       .order('rank', { ascending: true })
-      .limit(5);
+      .limit(20);
     if (rows && rows.length) {
-      sales = rows.map((r) => ({
-        rank: r.rank as number,
-        name: (r.model as string) ?? (r.brand as string) ?? '',
-        slug: matchSlug(r.model as string | null),
-        brand: (r.brand as string) ?? '',
-      }));
+      sales = rows.map((r) => {
+        // mom_change = 전월 대비 절대 대수 차(|당월-전월|), mom_change_dir = 방향. 실제 %로 환산.
+        //   전월 = down이면 당월+차, up이면 당월-차 → momPct = ±(차/전월×100). (검증: 쏘렌토 -35%)
+        const units = (r.sales_count as number) ?? null;
+        const mc = (r.mom_change as number) ?? null;
+        const dir = (r.mom_change_dir as string) ?? null;
+        let momPct: number | null = null;
+        if (units != null && mc != null && dir && dir !== 'flat') {
+          const prev = dir === 'down' ? units + mc : units - mc;
+          if (prev > 0) momPct = Math.round((mc / prev) * 100) * (dir === 'down' ? -1 : 1);
+        }
+        return {
+          rank: r.rank as number,
+          name: (r.model as string) ?? (r.brand as string) ?? '',
+          slug: matchSlug(r.model as string | null),
+          brand: (r.brand as string) ?? '',
+          units,
+          momPct,
+          momDir: dir,
+        };
+      });
       salesSource = 'car_sales_monthly';
       salesAsOf = ym;
     }
