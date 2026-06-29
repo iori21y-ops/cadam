@@ -226,7 +226,7 @@ export default function CarsDetailPreviewPage() {
     return (
       <div data-rt="cars-detail-preview" className="rt-root">
         <div className="rt-page" id="top">
-          <RtTopNav title="차종 상세" backHref="/cars-preview" />
+          <RtTopNav title="차종 상세" backHref="/popular-estimates" />
           <div className="rt-empty">
             <b>차종을 찾을 수 없어요</b>
             <span>요청하신 차종 정보가 없습니다.</span>
@@ -282,7 +282,7 @@ export default function CarsDetailPreviewPage() {
       <div className="rt-page" data-page="detail" id="top">
         {/* 디자인 복원: 첫 진입 개인화 모달(이해도·고객유형) */}
         <RtPersonalizeModal />
-        <RtTopNav title={car.brand + ' ' + car.model} backHref="/cars-preview" />
+        <RtTopNav title={car.brand + ' ' + car.model} backHref="/popular-estimates" />
         <RtGuestGate accent={ACCENT} strict />
 
         {/* 히어로 */}
