@@ -6,6 +6,7 @@ import { YoutubeModal, extractYouTubeId } from '@/components/ui/YoutubeModal';
 import { getVehicleBySlug } from '@/constants/vehicles';
 import { CarouselNavButtons } from '@/components/info/CarouselNavButtons';
 import { InfoSectionNav } from '@/components/info/InfoSectionNav';
+import { Container } from '@/components/Container';
 
 interface Article {
   id: string;
@@ -72,7 +73,7 @@ function HorizontalScroll({ articles, emptyMessage = '콘텐츠가 없습니다'
     );
   }
   return (
-    <div className="max-w-2xl mx-auto w-full">
+    <div className="max-w-4xl mx-auto w-full">
       <div className="relative">
         {articles.length > 1 && (
           <CarouselNavButtons
@@ -179,7 +180,7 @@ function ClipsHorizontal({ articles, onCardClick, onActiveChange }: {
     );
   }
   return (
-    <div className="max-w-2xl mx-auto w-full">
+    <div className="max-w-4xl mx-auto w-full">
       <div className="relative">
         {articles.length > 1 && (
           <CarouselNavButtons
@@ -326,9 +327,9 @@ export function InfoArticles({ initialArticles, prices = {} }: {
 
       {/* 아티클 */}
       <section id="articles" className="scroll-mt-24 pt-10">
-        <div className="max-w-2xl mx-auto px-5 mb-4">
+        <Container className="mb-4">
           <h2 className="text-2xl font-bold text-gray-900">아티클</h2>
-        </div>
+        </Container>
         {loading ? <SectionSpinner /> : (
           <HorizontalScroll
             articles={regularArticles}
@@ -342,9 +343,9 @@ export function InfoArticles({ initialArticles, prices = {} }: {
 
       {/* 카드뉴스 */}
       <section id="cardnews" className="scroll-mt-24 mt-16">
-        <div className="max-w-2xl mx-auto px-5 mb-4">
+        <Container className="mb-4">
           <h2 className="text-2xl font-bold text-gray-900">카드뉴스</h2>
-        </div>
+        </Container>
         {loading ? <SectionSpinner /> : (
           <HorizontalScroll
             articles={cardNewsArticles}
@@ -358,9 +359,9 @@ export function InfoArticles({ initialArticles, prices = {} }: {
 
       {/* 클립 */}
       <section id="clips" className="scroll-mt-24 mt-16">
-        <div className="max-w-2xl mx-auto px-5 mb-4">
+        <Container className="mb-4">
           <h2 className="text-2xl font-bold text-gray-900">클립</h2>
-        </div>
+        </Container>
         {loading ? <SectionSpinner /> : (
           <ClipsHorizontal
             articles={filteredClips}
@@ -371,10 +372,10 @@ export function InfoArticles({ initialArticles, prices = {} }: {
 
       {/* 약관비교 */}
       <section id="terms" className="scroll-mt-24 mt-16">
-        <div className="max-w-2xl mx-auto px-5 mb-4">
+        <Container className="mb-4">
           <h2 className="text-2xl font-bold text-gray-900">약관비교</h2>
-        </div>
-        <div className="max-w-2xl mx-auto px-5">
+        </Container>
+        <Container>
           <CardLink
             href="/compare/terms"
             className="block bg-white rounded-2xl border border-border-solid shadow-md p-5 hover:border-primary transition-colors"
@@ -384,7 +385,7 @@ export function InfoArticles({ initialArticles, prices = {} }: {
               5개사 약관 원문 기준 중도해지·초과주행·승계 조건 비교
             </p>
           </CardLink>
-        </div>
+        </Container>
       </section>
 
       {selectedClip && (
