@@ -593,16 +593,8 @@ function RtRecoCard({ car }: { car: Car }) {
         <p className="rt-vcard-seg">{car.segLabel}</p>
         <dl className="rt-vcard-specs">
           <div className="rt-vcard-spec">
-            <dt>{isRange ? '1회 충전 주행' : '복합 연비'}</dt>
+            <dt>{isRange ? '전비' : '복합 연비'}</dt>
             <dd>{car.spec.eff}</dd>
-          </div>
-          <div className="rt-vcard-spec">
-            <dt>최고 출력</dt>
-            <dd>{car.spec.power}</dd>
-          </div>
-          <div className="rt-vcard-spec">
-            <dt>승차 인원</dt>
-            <dd>{car.spec.seatLabel || (car.spec.seats != null ? car.spec.seats + '인승' : '')}</dd>
           </div>
         </dl>
         <div className="rt-vcard-foot">

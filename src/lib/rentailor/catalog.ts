@@ -11,6 +11,8 @@ export interface CarSpec {
   seats?: number;
   seatLabel?: string;
   effLabel?: string;
+  range?: string; // EV 1회충전 주행거리(km). WU2 vehicle_powertrains 바인딩
+  grade?: string; // 에너지효율 등급. WU2 vehicle_powertrains 바인딩
 }
 export interface CarTrim {
   name: string;

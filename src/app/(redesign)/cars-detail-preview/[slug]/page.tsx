@@ -203,12 +203,14 @@ export default function CarsDetailPreviewPage() {
     if (!slug) return;
     Promise.all([
       fetch('/api/catalog-pricing').then((r) => r.json()).catch(() => ({ prices: {} })),
-      fetch(`/api/vehicle-spec?slug=${encodeURIComponent(slug)}`).then((r) => r.json()).catch(() => ({ spec: null })),
+      fetch(`/api/vehicle-spec?slug=${encodeURIComponent(slug)}&fuel=${encodeURIComponent(baseCar?.fuel ?? '')}`).then((r) => r.json()).catch(() => ({ spec: null })),
     ]).then(([p, s]) => {
       const from = p?.prices?.[slug];
       const spec: Record<string, string | number> = {};
       if (s?.spec?.eff) spec.eff = s.spec.eff;
       if (s?.spec?.power) spec.power = s.spec.power;
+      if (s?.spec?.range) spec.range = s.spec.range;
+      if (s?.spec?.grade) spec.grade = s.spec.grade;
       setPx({ from: from ?? undefined, spec: Object.keys(spec).length ? spec : undefined });
     });
   }, [slug]);
@@ -356,19 +358,25 @@ export default function CarsDetailPreviewPage() {
             <p className="rt-dhero-note">36개월·무보증 최저 트림 기준 · 보험·세금 포함</p>
           </div>
           <div className="rt-specs">
+            {/* 연비/전비 — 항상 렌더, 값 없으면 '—' */}
             <div className="rt-spec">
-              <span className="rt-spec-v">{car.spec.eff || ''}</span>
-              <span className="rt-spec-k">{effIsRange ? '1회 충전' : '복합 연비'}</span>
+              <span className="rt-spec-v">{car.spec.eff ? `${car.spec.eff} ${effIsRange ? 'km/kWh' : 'km/L'}` : '—'}</span>
+              <span className="rt-spec-k">{effIsRange ? '전비' : '복합 연비'}</span>
             </div>
-            <div className="rt-spec">
-              <span className="rt-spec-v">{car.spec.power || ''}</span>
-              <span className="rt-spec-k">최고 출력</span>
-            </div>
-            <div className="rt-spec">
-              {/* 가드: seatLabel/seats 없으면 빈칸 ("undefined인승" 차단) */}
-              <span className="rt-spec-v">{car.spec.seatLabel || (car.spec.seats != null ? `${car.spec.seats}인승` : '')}</span>
-              <span className="rt-spec-k">승차 인원</span>
-            </div>
+            {/* 1회 충전 주행 — EV & range 있을 때만 */}
+            {effIsRange && car.spec.range && (
+              <div className="rt-spec">
+                <span className="rt-spec-v">{car.spec.range}km</span>
+                <span className="rt-spec-k">1회 충전 주행</span>
+              </div>
+            )}
+            {/* 에너지 등급 — grade 있을 때만 */}
+            {car.spec.grade && (
+              <div className="rt-spec">
+                <span className="rt-spec-v">{car.spec.grade}</span>
+                <span className="rt-spec-k">에너지 등급</span>
+              </div>
+            )}
             <div className="rt-spec">
               <span className="rt-spec-v">{car.trims.length}개</span>
               <span className="rt-spec-k">선택 트림</span>

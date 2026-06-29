@@ -27,6 +27,7 @@ import {
   rtCarInTab,
   rtCarInSeg,
   type Car,
+  type CarSpec,
 } from '@/lib/rentailor/catalog';
 import './catalog.css';
 
@@ -82,8 +83,6 @@ interface VCardProps {
 function VCard({ car, saved, onToggleSave, inVs, onToggleVs }: VCardProps) {
   const badges = cardBadges(car);
   const effIsRange = car.fuel === 'ev';
-  // 가드: seatLabel/seats 없으면 빈 문자열 → 행 자체 미렌더 ("undefined인승" 차단)
-  const seatsText = car.spec.seatLabel || (car.spec.seats != null ? `${car.spec.seats}인승` : '');
   return (
     <Link
       className="rt-vcard"
@@ -126,20 +125,20 @@ function VCard({ car, saved, onToggleSave, inVs, onToggleVs }: VCardProps) {
         <dl className="rt-vcard-specs">
           {car.spec.eff && (
             <div className="rt-vcard-spec">
-              <dt>{effIsRange ? '1회 충전 주행' : '복합 연비'}</dt>
-              <dd>{car.spec.eff}</dd>
+              <dt>{effIsRange ? '전비' : '복합 연비'}</dt>
+              <dd>{car.spec.eff} {effIsRange ? 'km/kWh' : 'km/L'}</dd>
             </div>
           )}
-          {car.spec.power && (
+          {effIsRange && car.spec.range && (
             <div className="rt-vcard-spec">
-              <dt>최고 출력</dt>
-              <dd>{car.spec.power}</dd>
+              <dt>1회 충전 주행</dt>
+              <dd>{car.spec.range}km</dd>
             </div>
           )}
-          {seatsText && (
+          {car.spec.grade && (
             <div className="rt-vcard-spec">
-              <dt>승차 인원</dt>
-              <dd>{seatsText}</dd>
+              <dt>에너지 등급</dt>
+              <dd>{car.spec.grade}</dd>
             </div>
           )}
         </dl>
@@ -261,8 +260,11 @@ export default function PopularEstimatesPreviewPage() {
   const [toast, setToast] = useState<ToastState | null>(null);
   // A1: 실 가격(pricing) 바인딩 — 근사 from 을 실 월납으로 덮어씀
   const [prices, setPrices] = useState<Record<string, number>>({});
+  // WU2: 실 스펙(vehicle_powertrains) 배치 바인딩 — slug→fuel_kind→{eff,range,grade}
+  const [specs, setSpecs] = useState<Record<string, Record<string, { eff: string | null; range: string | null; grade: string | null }>>>({});
   useEffect(() => {
     fetch('/api/catalog-pricing').then((r) => r.json()).then((d) => setPrices(d.prices ?? {})).catch(() => {});
+    fetch('/api/catalog-specs').then((r) => r.json()).then((d) => setSpecs(d.specs ?? {})).catch(() => {});
   }, []);
 
   // 마운트 후: 랜딩 쿼리(budget·cls) + localStorage(찜/비교) 복원 (SSR/hydration 안전)
@@ -319,7 +321,16 @@ export default function PopularEstimatesPreviewPage() {
       else l.sort((a, b) => (b.best ? 1 : 0) - (a.best ? 1 : 0)); // 추천순: BEST 우선
       return l;
     };
-    const PRICED = RT_CATALOG.map((c) => (prices[c.id] != null ? { ...c, from: prices[c.id] } : c));
+    const PRICED = RT_CATALOG.map((c) => {
+      const base: Car = prices[c.id] != null ? { ...c, from: prices[c.id] } : c;
+      const sp = specs[c.id]?.[c.fuel]; // 자기 연료(FuelKey)의 대표 스펙
+      if (!sp) return base;
+      const patch: Partial<CarSpec> = {};
+      if (sp.eff) patch.eff = sp.eff;
+      if (sp.range) patch.range = sp.range;
+      if (sp.grade) patch.grade = sp.grade;
+      return Object.keys(patch).length ? { ...base, spec: { ...c.spec, ...patch } } : base;
+    });
     const base = PRICED.filter((c) => rtCarInTab(c, tab) && rtCarInSeg(c, seg));
     if (!budget) return { list: sortCars(base), widened: false };
     const idx = BUDGET_ORDER.indexOf(budget);
@@ -330,7 +341,7 @@ export default function PopularEstimatesPreviewPage() {
       if (f.length) return { list: sortCars(f), widened: r > 0 };
     }
     return { list: sortCars(base), widened: false };
-  }, [tab, seg, sort, budget, prices]);
+  }, [tab, seg, sort, budget, prices, specs]);
 
   const segLabelOf = (k: string) => RT_SEGS.find((s) => s.key === k)?.label;
   const clearLanding = () => { setBudget(null); setSeg('all'); };

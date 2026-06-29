@@ -24,13 +24,6 @@ export const VS_ROWS: VsRow[] = [
   { k: '차급', get: (c) => c.segLabel },
   { k: '연료', get: (c) => FUEL[c.fuel]?.label ?? c.fuel },
   { k: '연비·주행', get: (c) => c.spec.eff ?? '-', val: (c) => num(c.spec.eff), best: 'max' },
-  { k: '출력', get: (c) => c.spec.power ?? '-', val: (c) => num(c.spec.power), best: 'max' },
-  {
-    k: '인승',
-    get: (c) => c.spec.seatLabel ?? (c.spec.seats != null ? c.spec.seats + '인승' : '-'),
-    val: (c) => c.spec.seats ?? 0,
-    best: 'max',
-  },
   { k: '구분', get: (c) => (c.origin === 'imported' ? '수입' : '국산') },
 ];
 

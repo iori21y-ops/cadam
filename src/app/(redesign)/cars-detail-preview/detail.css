@@ -106,7 +106,7 @@
 [data-rt="cars-detail-preview"] .rt-vcmp-toast a { color: var(--rt-accent); font-weight: 800; text-decoration: none; }
 
 /* ---------- 스펙 스트립 ---------- */
-[data-rt="cars-detail-preview"] .rt-specs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; margin: 18px var(--rt-pad) 0;
+[data-rt="cars-detail-preview"] .rt-specs { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: 0; margin: 18px var(--rt-pad) 0;
   border: 1px solid var(--rt-line); border-radius: 16px; overflow: hidden; background: #fff; }
 [data-rt="cars-detail-preview"] .rt-spec { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 15px 6px; border-right: 1px solid var(--rt-line); }
 [data-rt="cars-detail-preview"] .rt-spec:last-child { border-right: 0; }
