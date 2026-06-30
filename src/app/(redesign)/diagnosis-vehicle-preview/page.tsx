@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/Button';
 import { RtTopNav } from '@/components/rentailor/RtChrome';
 import { RtConsultSheet } from '@/components/rentailor/RtConsultSheet';
 import { RtIconSpark, RtIconCompare, RtIconLightning } from '@/components/rentailor/RtIcons';
-import { type Car } from '@/lib/rentailor/catalog';
+import { FUEL, type Car } from '@/lib/rentailor/catalog';
 import { carImageUrl } from '@/lib/car-image-url';
 import {
   DQ,
@@ -277,27 +277,48 @@ function DgResult({ ranked }: { ranked: ScoredCar[] }) {
         <h2 className="rt-qresult-title">이 차를 추천해요</h2>
       </div>
 
-      <a
-        className="rt-qcar rt-qcar-top rt-fade-up"
-        href={`/cars-detail-preview/${top.car.id}`}
-        style={cssVar({ '--d': '70ms', '--hue': top.car.hue, marginTop: 18 })}
-      >
-        <div className="rt-qcar-thumb">
+      <div className="rt-drec rt-fade-up" style={cssVar({ '--d': '70ms', '--hue': top.car.hue, marginTop: 18 })}>
+        <div className="rt-drec-media">
           <MediaPlaceholder label={top.car.brand + ' ' + top.car.model} imageKey={top.car.imageKey} />
+          <span className="rt-drec-match">
+            AI 적합도 <b>{top.match}%</b>
+          </span>
+          <span className="rt-drec-rank">1순위 추천</span>
         </div>
-        <div className="rt-qcar-meta">
-          <div className="rt-qcar-badges">
-            <span className="rt-qcar-rank">1순위 추천</span>
-            <span className="rt-qcar-match">AI 적합도 {top.match}%</span>
+        <div className="rt-drec-body">
+          <div className="rt-drec-brand">
+            {top.car.brand} · {FUEL[top.car.fuel].label}
           </div>
-          <div className="rt-qcar-name">{top.car.model}</div>
-          <div className="rt-qcar-seg">{top.reasons[0] ?? top.car.segLabel}</div>
+          <div className="rt-drec-name">{top.car.model}</div>
+          <div className="rt-drec-seg">{top.car.segLabel}</div>
+          <div className="rt-drec-reasons">
+            {top.reasons.map((rs, i) => (
+              <div className="rt-drec-reason" key={i}>
+                <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M5 12.5l4.5 4.5L19 7" />
+                </svg>
+                {rs}
+              </div>
+            ))}
+          </div>
+          <div className="rt-drec-foot">
+            <div>
+              <div className="rt-drec-price-k">월 렌트료</div>
+              <div className="rt-drec-price">
+                <span>월</span>
+                <b>{top.car.from}</b>
+                <span>만원~</span>
+              </div>
+            </div>
+            <a className="rt-drec-link" href={`/cars-detail-preview/${top.car.id}`}>
+              상세 보기
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 6l6 6-6 6" />
+              </svg>
+            </a>
+          </div>
         </div>
-        <div className="rt-qcar-price">
-          <b>월 {top.car.from}</b>
-          <span>만원~</span>
-        </div>
-      </a>
+      </div>
 
       <div className="rt-qblock rt-fade-up" style={cssVar({ '--d': '120ms' })}>
         <h3 className="rt-qblock-t">이 차의 감가 등급</h3>
