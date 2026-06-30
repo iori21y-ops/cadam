@@ -34,7 +34,7 @@ export function RtMarketInsight() {
   }, []);
   if (!d) return null;
   return (
-    <section style={{ margin: '24px 22px', display: 'grid', gap: 12 }}>
+    <section style={{ marginBlock: '24px', marginInline: 'auto', maxWidth: 860, display: 'grid', gap: 12 }}>
       <h2 style={{ fontSize: 17, fontWeight: 800, letterSpacing: '-0.02em', margin: 0 }}>지금 시장은</h2>
       {/* 기준금리 — ECOS 실데이터면 실값, 미수집(interim)이면 '샘플 데이터' 배지와 함께 표시.
           ⚠️ 표시 전용 — 실제 견적·계산(finance_rates·calc-monthly)에는 절대 사용되지 않음(분리 확인됨). */}

@@ -174,8 +174,19 @@
 [data-rt="info-preview"] .rt-ccg-iss-row b { font-size: 12px; font-weight: 800; color: var(--rt-ink); }
 [data-rt="info-preview"] .rt-ccg-iss-row span { font-size: 12px; color: var(--rt-sub); line-height: 1.45; word-break: keep-all; }
 
-@container page (min-width:680px) {
-  [data-rt="info-preview"] .rt-ccg { max-width: 860px; margin-left: auto; margin-right: auto; }
+@container page (min-width: 680px) {
+  [data-rt="info-preview"] .rt-info-head,
+  [data-rt="info-preview"] .rt-info-formats,
+  [data-rt="info-preview"] .rt-info-cats,
+  [data-rt="info-preview"] .rt-ccg,
+  [data-rt="info-preview"] .rt-arts {
+    max-width: 860px;
+    margin-inline: auto;
+  }
+  [data-rt="info-preview"] .rt-feat-rail,
+  [data-rt="info-preview"] .rt-clip-rail {
+    padding-left: max(22px, calc((100% - 860px) / 2 + 22px));
+  }
 }
 
 /* ============================================================
