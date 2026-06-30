@@ -254,10 +254,11 @@
 @media (min-width: 768px) {
   /* (1) 빌보드 차량 이미지: 더 크게 + object-position 모바일식(right 30%) 상속 */
   [data-rt="home-cinematic"] .nf-bb-kb {
-    width: 72%;
+    width: 56%;
     height: 88%;
     top: 8%;
-    right: -2%;
+    right: 4%;
+    object-position: center;
   }
 
   /* (2) 버튼: 꽉 채우지 않게 — info의 flex 해제, 내용폭 정렬 */
