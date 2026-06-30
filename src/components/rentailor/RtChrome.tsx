@@ -200,11 +200,18 @@ export function RtFooter() {
 }
 
 // ── 하단 글로벌 탭바 (GNB) ───────────────────────────────────
-type TabKey = 'home' | 'cars' | 'diag' | 'info' | 'event' | 'mypage';
+type TabKey = 'home' | 'cars' | 'diag' | 'info' | 'event' | 'mypage' | 'search';
 function RtTabIcon({ name, on }: { name: TabKey; on: boolean }) {
   const ink = on ? 'var(--rt-navy, #0D1B2A)' : '#aeb4bd';
   const gold = on ? 'var(--rt-accent, #C9A84C)' : '#ccd1d8';
   const P: Record<TabKey, React.ReactNode> = {
+    // 차량찾기 — 항상 브랜드 골드 돋보기(상단 헤더 검색 아이콘과 동일 형상)
+    search: (
+      <g fill="none" stroke="var(--rt-accent, #C9A84C)" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="11" cy="11" r="6.4" />
+        <path d="M20 20l-3.8-3.8" />
+      </g>
+    ),
     home: (
       <>
         <path d="M3.5 11.4 L12 3.6 L20.5 11.4 V19.8 a1.1 1.1 0 0 1-1.1 1.1 H4.6 a1.1 1.1 0 0 1-1.1-1.1 Z" fill={ink} />
@@ -257,11 +264,12 @@ export interface RtTabBarProps {
   active?: TabKey;
 }
 export function RtTabBar({ active }: RtTabBarProps) {
-  const tabs: Array<{ key: TabKey; label: string; href: string }> = [
+  // 차량찾기 탭은 라우팅 대신 전역 검색 오버레이를 띄움(상단 헤더 돋보기와 동일 동작).
+  const [searchOpen, setSearchOpen] = useState(false);
+  const tabs: Array<{ key: TabKey; label: string; href?: string; search?: boolean }> = [
     { key: 'home', label: '홈', href: '/' },
-    { key: 'cars', label: '차량', href: '/popular-estimates' },
-    { key: 'event', label: '특가', href: '/promotions' },
     { key: 'diag', label: 'AI진단', href: '/diagnosis' },
+    { key: 'search', label: '차량찾기', search: true },
     { key: 'info', label: '정보', href: '/info' },
     { key: 'mypage', label: '마이', href: '/mypage' },
   ];
@@ -269,15 +277,31 @@ export function RtTabBar({ active }: RtTabBarProps) {
     <>
       <div className="rt-tabbar-filler" aria-hidden="true"></div>
       <nav className="rt-tabbar">
-        {tabs.map((t) => (
-          <Link key={t.key} className={'rt-tab' + (t.key === active ? ' is-on' : '')} href={t.href}>
-            <span className="rt-tab-ic">
-              <RtTabIcon name={t.key} on={t.key === active} />
-            </span>
-            {t.label}
-          </Link>
-        ))}
+        {tabs.map((t) =>
+          t.search ? (
+            <button
+              key={t.key}
+              type="button"
+              className="rt-tab rt-tab--search"
+              onClick={() => setSearchOpen(true)}
+              aria-label="차량찾기"
+            >
+              <span className="rt-tab-ic">
+                <RtTabIcon name={t.key} on={false} />
+              </span>
+              {t.label}
+            </button>
+          ) : (
+            <Link key={t.key} className={'rt-tab' + (t.key === active ? ' is-on' : '')} href={t.href!}>
+              <span className="rt-tab-ic">
+                <RtTabIcon name={t.key} on={t.key === active} />
+              </span>
+              {t.label}
+            </Link>
+          )
+        )}
       </nav>
+      <RtSearch open={searchOpen} onClose={() => setSearchOpen(false)} />
     </>
   );
 }

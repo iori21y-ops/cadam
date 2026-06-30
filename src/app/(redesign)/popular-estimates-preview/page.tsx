@@ -13,7 +13,7 @@
 //     부수효과로 카드 내부 찜/비교 버튼도 게스트에게 비차단됨(시각 프리뷰 허용 범위).
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
-import { RtTopNav, RtTabBar } from '@/components/rentailor/RtChrome';
+import { RtTabBar } from '@/components/rentailor/RtChrome';
 import { carImageUrl } from '@/lib/car-image-url';
 import { RtGuestGate } from '@/components/rentailor/RtGuestGate';
 import { RtTermDefs } from '@/lib/rentailor/personalize';
@@ -315,7 +315,6 @@ export default function PopularEstimatesPreviewPage() {
   return (
     <div data-rt="popular-estimates-preview" className="rt-root">
       <div className="rt-page" data-page="list" id="top">
-        <RtTopNav />
         <RtGuestGate accent={ACCENT} />
 
         <div className="rt-list-head">

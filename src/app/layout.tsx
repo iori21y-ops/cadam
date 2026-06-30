@@ -4,7 +4,6 @@ import { Cormorant_Garamond, Outfit } from 'next/font/google';
 import Script from 'next/script';
 import './globals.css';
 import { NavBar } from '@/components/NavBar';
-import MobileTabBar from '@/components/MobileTabBar';
 import { GAPageView } from '@/components/GAPageView';
 import { DynamicToast } from '@/components/DynamicToast';
 import { PageTransition } from '@/components/PageTransition';
@@ -85,7 +84,6 @@ export default function RootLayout({
           <NavBar />
           <PageTransition>{children}</PageTransition>
         </div>
-        <MobileTabBar />
         <DynamicToast />
         <PwaRegistration />
         {GA_ID && (
