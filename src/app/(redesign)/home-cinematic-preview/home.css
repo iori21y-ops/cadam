@@ -203,3 +203,24 @@
 [data-rt="home-cinematic"] .nf-bb-dot{ width:20px; height:3px; border-radius:2px; border:0; padding:0; cursor:pointer;
   background:rgba(13,27,42,.18); transition:background .2s, width .2s; }
 [data-rt="home-cinematic"] .nf-bb-dot.is-on{ width:30px; background:var(--rt-accent); }
+
+/* ───────── 앱셸 프레임 (landing.css home-preview 패턴 이식) ─────────
+   목적: 풀스크린 내부 스크롤 컨테이너 성립 → .rt-tabbar(sticky) 하단 고정 + filler 작동.
+   position:fixed 기반이라 html/body height 체인 불필요. 기존 .rt-page[data-page=home] 배경/색 선언은 유지(병합). */
+.rt-root[data-rt="home-cinematic"]{
+  position:fixed; inset:0; z-index:200; background:#fff;
+  display:flex; flex-direction:column;
+}
+.rt-root[data-rt="home-cinematic"] *{ box-sizing:border-box; }
+.rt-root[data-rt="home-cinematic"] button{ font-family:inherit; }
+[data-rt="home-cinematic"] .rt-page{
+  width:100%; height:100%;
+  display:flex; flex-direction:column;
+  overflow:hidden; position:relative;
+}
+[data-rt="home-cinematic"] .rt-scroll{
+  flex:1; min-height:0;
+  display:flex; flex-direction:column;
+  overflow-y:auto; overflow-x:hidden;
+}
+[data-rt="home-cinematic"] .rt-scroll>*{ flex-shrink:0; }
