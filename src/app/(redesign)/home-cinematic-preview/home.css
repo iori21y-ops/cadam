@@ -224,3 +224,52 @@
   overflow-y:auto; overflow-x:hidden;
 }
 [data-rt="home-cinematic"] .rt-scroll>*{ flex-shrink:0; }
+
+/* ===== 데스크톱(768px↑) 홈 확대: 빌보드·카드 키우기 ===== */
+@media (min-width: 768px) {
+  /* 빌보드 키우기 */
+  [data-rt="home-cinematic"] .nf-bb { min-height: 640px; }
+  [data-rt="home-cinematic"] .nf-bb-body { padding: 40px; }
+  [data-rt="home-cinematic"] .nf-bb-art::after { background: linear-gradient(180deg, transparent 85%, #FFF 100%); }
+  [data-rt="home-cinematic"] .nf-bb-dots { padding-left: 40px; padding-top: 4px; }
+  [data-rt="home-cinematic"] .nf-bb-title { font-size: 44px; }
+  [data-rt="home-cinematic"] .nf-bb-sub { font-size: 17px; }
+  [data-rt="home-cinematic"] .nf-bb-price em { font-size: 32px; }
+  [data-rt="home-cinematic"] .nf-bb-rank { font-size: 13px; padding: 5px 13px; }
+  [data-rt="home-cinematic"] .nf-bb-meta { font-size: 14px; }
+
+  /* 카드 키우기 (모바일 188→데스크톱 240 등, 비율 유지) */
+  [data-rt="home-cinematic"] .nf-card { width: 320px; }
+  [data-rt="home-cinematic"] .nf-track--top .nf-card { width: 250px; }
+  [data-rt="home-cinematic"] .nf-track--clip .nf-clip { width: 210px; }
+  [data-rt="home-cinematic"] .nf-art { width: 400px; }
+  [data-rt="home-cinematic"] .nf-poster { height: 190px; }
+  [data-rt="home-cinematic"] .nf-track--top .nf-poster { height: 210px; }
+  [data-rt="home-cinematic"] .nf-clip-poster { height: 340px; }
+  [data-rt="home-cinematic"] .nf-art-top { height: 170px; }
+  [data-rt="home-cinematic"] .nf-track { gap: 16px; }
+}
+
+/* ===== 데스크톱(768px↑) 빌보드 이미지·버튼 조정 ===== */
+@media (min-width: 768px) {
+  /* (1) 빌보드 차량 이미지: 더 크게 + object-position 모바일식(right 30%) 상속 */
+  [data-rt="home-cinematic"] .nf-bb-kb {
+    width: 72%;
+    height: 88%;
+    top: 8%;
+    right: -2%;
+  }
+
+  /* (2) 버튼: 꽉 채우지 않게 — info의 flex 해제, 내용폭 정렬 */
+  [data-rt="home-cinematic"] .nf-bb-actions { justify-content: flex-start; }
+  [data-rt="home-cinematic"] .nf-btn--info { flex: 0 0 auto; }
+  [data-rt="home-cinematic"] .nf-btn--play { flex: 0 0 auto; min-width: 200px; }
+}
+
+/* ===== 데스크톱(768px↑) 빌보드 마감 보정 ===== */
+@media (min-width: 768px) {
+  /* (1) 견적받기 버튼 좌측 빈 공간 → min-width 제거 (내용폭에 맞춤) */
+  [data-rt="home-cinematic"] .nf-btn--play { min-width: 0; }
+
+  /* (2) 빌보드 좌측 스크림 전환을 넓고 부드럽게 → 가운데 경계선 제거 */
+}

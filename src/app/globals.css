@@ -805,3 +805,11 @@ body {
 .rti-d3 { animation-delay: .36s; }
 @media (prefers-reduced-motion: reduce) { .rti [class*="rti-anim"] { animation: none !important; } }
 
+
+@media (min-width: 768px) {
+  .rt-root .rt-scroll {
+    max-width: 960px;
+    margin-inline: auto;
+    width: 100%;
+  }
+}
