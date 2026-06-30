@@ -167,11 +167,16 @@
 [data-rt="diagnosis-vehicle-preview"] .rt-qcar { display: flex; align-items: center; gap: 13px; text-decoration: none; color: inherit;
   background: #fff; border: 1px solid var(--rt-line); border-radius: 16px; padding: 11px;
   transition: transform 0.12s, border-color 0.15s, box-shadow 0.15s; }
+[data-rt="diagnosis-vehicle-preview"] .rt-qcar-top { border: 1.5px solid var(--rt-accent); box-shadow: 0 12px 32px rgba(201, 168, 76, 0.18); }
+[data-rt="diagnosis-vehicle-preview"] .rt-qcar-badges { display: flex; align-items: center; gap: 6px; margin-bottom: 3px; }
+[data-rt="diagnosis-vehicle-preview"] .rt-qcar-rank { font-size: 10.5px; font-weight: 800; color: #fff; background: var(--rt-accent); border-radius: 5px; padding: 2px 7px; letter-spacing: -0.01em; }
+[data-rt="diagnosis-vehicle-preview"] .rt-qcar-match { font-size: 11px; font-weight: 700; color: var(--rt-accent); }
 [data-rt="diagnosis-vehicle-preview"] .rt-qcar:hover { border-color: rgba(201, 168, 76, 0.5); box-shadow: 0 8px 20px rgba(13, 27, 42, 0.07); }
+[data-rt="diagnosis-vehicle-preview"] .rt-qcar-top:hover { border-color: var(--rt-accent); box-shadow: 0 12px 32px rgba(201, 168, 76, 0.26); }
 [data-rt="diagnosis-vehicle-preview"] .rt-qcar:active { transform: scale(0.99); }
 [data-rt="diagnosis-vehicle-preview"] .rt-qcar-thumb { position: relative; flex-shrink: 0; width: 92px; aspect-ratio: 16/11; border-radius: 11px; overflow: hidden;
   display: flex; align-items: center; justify-content: center;
-  background: linear-gradient(150deg, hsl(var(--hue, 210) 32% 92%), hsl(var(--hue, 210) 26% 82%));
+  background: #fff;
   color: hsl(var(--hue, 210) 30% 42%); font-size: 10.5px; font-weight: 700; }
 [data-rt="diagnosis-vehicle-preview"] .rt-qcar-meta { flex: 1; min-width: 0; }
 [data-rt="diagnosis-vehicle-preview"] .rt-qcar-brand { font-size: 11.5px; font-weight: 700; color: var(--rt-muted); }
@@ -239,7 +244,7 @@
   box-shadow: 0 16px 44px rgba(201, 168, 76, 0.2); }
 [data-rt="diagnosis-vehicle-preview"] .rt-drec-media { position: relative; aspect-ratio: 16/10;
   display: flex; align-items: center; justify-content: center;
-  background: linear-gradient(150deg, hsl(var(--hue, 210) 32% 93%), hsl(var(--hue, 210) 26% 83%));
+  background: #fff;
   color: hsl(var(--hue, 210) 30% 40%); font-size: 14px; font-weight: 700; }
 [data-rt="diagnosis-vehicle-preview"] .rt-drec-match { position: absolute; left: 14px; top: 14px; z-index: 3; display: flex; align-items: center; gap: 6px;
   background: var(--rt-navy); color: #fff; font-size: 12px; font-weight: 700; padding: 7px 13px; border-radius: 999px;
