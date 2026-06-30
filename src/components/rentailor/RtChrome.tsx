@@ -6,6 +6,7 @@
 // 링크는 .html → 실 라우트(next/link) 로 적응(임시 — §14.1 라우팅 확정 시 재조정).
 import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { RT_CATALOG } from '@/lib/rentailor/catalog';
 import { carImageUrl } from '@/lib/car-image-url';
 import { RtPersonalizeIcon } from '@/lib/rentailor/personalize';
@@ -238,6 +239,8 @@ export interface RtTabBarProps {
 export function RtTabBar({ active }: RtTabBarProps) {
   // 차량찾기 탭은 라우팅 대신 전역 검색 오버레이를 띄움(상단 헤더 돋보기와 동일 동작).
   const [searchOpen, setSearchOpen] = useState(false);
+  const pathname = usePathname();
+  useEffect(() => { setSearchOpen(false); }, [pathname]);
   const tabs: Array<{ key: TabKey; label: string; href?: string; search?: boolean }> = [
     { key: 'home', label: '홈', href: '/' },
     { key: 'diag', label: 'AI진단', href: '/diagnosis' },
@@ -264,7 +267,7 @@ export function RtTabBar({ active }: RtTabBarProps) {
               {t.label}
             </button>
           ) : (
-            <Link key={t.key} className={'rt-tab' + (t.key === active && !searchOpen ? ' is-on' : '')} href={t.href!}>
+            <Link key={t.key} className={'rt-tab' + (t.key === active && !searchOpen ? ' is-on' : '')} href={t.href!} onClick={() => setSearchOpen(false)}>
               <span className="rt-tab-ic">
                 <RtTabIcon name={t.key} on={t.key === active && !searchOpen} />
               </span>
