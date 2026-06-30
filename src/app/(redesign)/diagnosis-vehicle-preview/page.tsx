@@ -450,7 +450,7 @@ export default function DiagnosisVehiclePreview() {
       <div className="rt-page" data-page="diagnosis">
         <div className={'rt-scroll' + (locked ? ' rt-anim-lock' : '')} ref={scrollRef}>
           {/* 진단 허브로 back (인트로만) — 질문 단계는 DgProgress 의 자체 back 사용 */}
-          <RtTopNav title="차종 추천" backHref={flow.step === 'intro' ? '/diagnosis-preview' : undefined} />
+          <RtTopNav title="차종 진단" backHref={flow.step === 'intro' ? '/diagnosis-preview' : undefined} />
           <DgProgress flow={flow} />
           <main className={(locked ? 'rt-anim-lock ' : '') + 'rt-qwrap' + (flow.dir === 'back' ? ' is-back' : '')}>{body}</main>
           <DgBottomBar flow={flow} onConsult={() => setSheet(true)} />

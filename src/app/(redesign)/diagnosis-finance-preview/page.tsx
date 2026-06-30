@@ -445,7 +445,7 @@ export default function DiagnosisFinancePreview() {
       <div className="rt-page" data-page="finance">
         <div className="rt-scroll" ref={scrollRef}>
           {/* 인트로에서만 상단 back(진단 허브로). 질문 단계 back은 진행바의 rt-qback가 담당. */}
-          <RtTopNav title="금융상품 진단" backHref={flow.step === 'intro' ? '/diagnosis-preview' : undefined} />
+          <RtTopNav title="상품 진단" backHref={flow.step === 'intro' ? '/diagnosis-preview' : undefined} />
           <FnProgress flow={flow} />
           <main className={(locked ? 'rt-anim-lock ' : '') + 'rt-qwrap' + (flow.dir === 'back' ? ' is-back' : '')}>{body}</main>
           <FnBottomBar flow={flow} onConsult={() => setSheet(true)} />
