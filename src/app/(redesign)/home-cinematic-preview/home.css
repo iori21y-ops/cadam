@@ -1,0 +1,205 @@
+/* home.css — 홈 = 시네마틱 허브 (라이트 톤). 화이트/라이트그레이 + 네이비 텍스트 + 골드/코랄 포인트.
+   원본: 디자인 프로젝트 rt-home.css. image-slot(::part) → 실 <img>(.nf-img cover, 폴백=hue 그라데이션)로 적응.
+   globals.css 의 --rt-pad·--rt-accent·.rt-page·.rt-scroll·.rt-tabbar 토큰/크롬 위에 얹는 페이지 레이어. */
+
+[data-rt="home-cinematic"]{ --rt-point:#FF5C39;
+  --nf-bg:#FFFFFF; --nf-card:#FFFFFF; --nf-ink:#0D1B2A; --nf-sub:#4A5568;
+  --nf-muted:#9CA3AF; --nf-line:#E8EAEE; --nf-soft:#F0F2F5; }
+
+/* ───────── 실 차량 사진 (drop-in img) ───────── */
+[data-rt="home-cinematic"] .nf-img{ position:absolute; inset:0; width:100%; height:100%;
+  object-fit:cover; display:block; z-index:0; }
+[data-rt="home-cinematic"] .nf-poster .nf-img{ object-fit:contain; padding:0; transform:scale(1.08); }
+
+/* 홈은 라이트 테마 */
+[data-rt="home-cinematic"] .rt-page[data-page="home"]{ background:var(--nf-bg); }
+[data-rt="home-cinematic"] .rt-page[data-page="home"] .rt-scroll{ background:var(--nf-bg); color:var(--nf-ink); }
+[data-rt="home-cinematic"] .rt-page[data-page="home"] .rt-scroll::-webkit-scrollbar{ width:0; }
+/* 가로 overflow 가드 — 뷰포트 폭 초과 요소 클립(내부 행 가로스크롤엔 무영향) */
+[data-rt="home-cinematic"] .rt-scroll{ overflow-x:hidden; }
+
+/* ───────── 빌보드 히어로 (사진) ───────── */
+[data-rt="home-cinematic"] .nf-bb{ position:relative; margin-top:0; padding:0 0 64px; min-height:400px; display:flex;
+  flex-direction:column; justify-content:flex-end; overflow:hidden; }
+[data-rt="home-cinematic"] .nf-bb-art{ position:absolute; inset:0; z-index:0; }
+[data-rt="home-cinematic"] .nf-bb-body{ position:relative; z-index:2; padding:0 var(--rt-pad) 4px; }
+[data-rt="home-cinematic"] .nf-bb-rank{ display:inline-flex; align-items:center; gap:6px; font-size:11.5px; font-weight:800;
+  letter-spacing:.04em; background:rgba(201,168,76,.95); color:#1a1305;
+  padding:4px 10px; border-radius:6px; margin-bottom:13px; box-shadow:0 4px 14px rgba(0,0,0,.18); }
+[data-rt="home-cinematic"] .nf-bb-title{ font-size:30px; line-height:1.1; font-weight:900; letter-spacing:-0.035em; margin:0;
+  color:var(--nf-ink); text-wrap:balance; white-space:pre-line; max-width:11em; }
+[data-rt="home-cinematic"] .nf-bb-sub{ font-size:14px; line-height:1.55; color:var(--nf-sub); margin:11px 0 0;
+  max-width:20ch; text-wrap:pretty; }
+[data-rt="home-cinematic"] .nf-bb-meta{ display:flex; align-items:center; gap:9px; margin-top:12px; font-size:12.5px;
+  font-weight:600; color:var(--nf-sub); }
+[data-rt="home-cinematic"] .nf-bb-meta b{ color:#A9842F; font-weight:800; }
+[data-rt="home-cinematic"] .nf-bb-meta .dot{ width:3px; height:3px; border-radius:50%; background:rgba(13,27,42,.28); }
+[data-rt="home-cinematic"] .nf-bb-price{ color:var(--nf-ink); }
+[data-rt="home-cinematic"] .nf-bb-price em{ font-style:normal; color:var(--rt-point); font-weight:900; font-size:22px; }
+
+[data-rt="home-cinematic"] .nf-bb-actions{ display:flex; gap:9px; margin-top:16px; }
+[data-rt="home-cinematic"] .nf-btn{ display:inline-flex; align-items:center; justify-content:center; gap:7px; height:46px;
+  padding:0 20px; border-radius:11px; font-size:14.5px; font-weight:800; letter-spacing:-0.01em;
+  text-decoration:none; border:0; cursor:pointer; transition:transform .12s, filter .15s, background .15s; }
+[data-rt="home-cinematic"] .nf-btn:active{ transform:scale(.97); }
+[data-rt="home-cinematic"] .nf-btn--play{ background:linear-gradient(135deg,#E8C461,#C9A84C 55%,#B8923A); color:#1a1305;
+  box-shadow:0 8px 22px rgba(201,168,76,.4); flex:1; }
+[data-rt="home-cinematic"] .nf-btn--play:hover{ filter:brightness(1.05); }
+[data-rt="home-cinematic"] .nf-btn--info{ background:#fff; border:1px solid var(--nf-line); color:var(--nf-ink); flex:1; }
+[data-rt="home-cinematic"] .nf-btn--info:hover{ background:var(--nf-soft); }
+[data-rt="home-cinematic"] .nf-btn--icon{ width:46px; padding:0; background:#fff; border:1px solid var(--nf-line); color:var(--nf-ink); }
+[data-rt="home-cinematic"] .nf-btn--icon:hover{ background:var(--nf-soft); }
+
+/* ───────── 행(줄) 공통 ───────── */
+[data-rt="home-cinematic"] .nf-row{ margin-top:24px; }
+[data-rt="home-cinematic"] .nf-row-hd{ display:flex; align-items:baseline; justify-content:space-between; gap:10px;
+  padding:0 var(--rt-pad); margin-bottom:11px; }
+[data-rt="home-cinematic"] .nf-row-t{ font-size:17px; font-weight:800; letter-spacing:-0.02em; color:var(--nf-ink); margin:0; }
+[data-rt="home-cinematic"] .nf-row-t .pt{ color:var(--rt-point); }
+[data-rt="home-cinematic"] .nf-row-more{ flex-shrink:0; font-size:12px; font-weight:700; color:var(--nf-muted); text-decoration:none; }
+[data-rt="home-cinematic"] .nf-row-more:hover{ color:var(--rt-accent); }
+[data-rt="home-cinematic"] .nf-track{ display:flex; gap:11px; overflow-x:auto; scroll-snap-type:x proximity;
+  padding:2px var(--rt-pad) 4px; scrollbar-width:none; -webkit-overflow-scrolling:touch; }
+[data-rt="home-cinematic"] .nf-track::-webkit-scrollbar{ height:0; }
+
+/* ── 차종 포스터 카드 ── */
+[data-rt="home-cinematic"] .nf-card{ flex:0 0 auto; width:188px; scroll-snap-align:start; text-decoration:none;
+  border-radius:11px; overflow:visible; position:relative; transition:transform .18s; }
+[data-rt="home-cinematic"] .nf-card:hover{ transform:scale(1.045); z-index:3; }
+[data-rt="home-cinematic"] .nf-poster{ position:relative; height:112px; border-radius:13px; overflow:hidden;
+  border:1px solid var(--nf-line); background:#FFFFFF;
+  box-shadow:0 2px 12px rgba(13,27,42,.07); }
+[data-rt="home-cinematic"] .nf-poster::after{ content:""; position:absolute; inset:0; z-index:1; pointer-events:none;
+  background:linear-gradient(180deg, rgba(0,0,0,0) 42%, rgba(0,0,0,.5) 100%); }
+[data-rt="home-cinematic"] .nf-poster-badge{ position:absolute; top:8px; left:8px; z-index:2; font-size:9.5px; font-weight:800;
+  letter-spacing:.02em; padding:2px 7px; border-radius:5px; background:rgba(0,0,0,.45);
+  color:#fff; backdrop-filter:blur(2px); pointer-events:none; }
+[data-rt="home-cinematic"] .nf-poster-badge.ev{ background:rgba(42,125,225,.92); }
+[data-rt="home-cinematic"] .nf-poster-badge.new{ background:rgba(201,168,76,.95); color:#1a1305; }
+[data-rt="home-cinematic"] .nf-poster-info{ position:absolute; left:9px; right:9px; bottom:8px; z-index:2; pointer-events:none; }
+[data-rt="home-cinematic"] .nf-poster-brand{ font-size:10.5px; font-weight:600; color:rgba(255,255,255,.85); }
+[data-rt="home-cinematic"] .nf-poster-name{ font-size:14px; font-weight:800; letter-spacing:-0.02em; color:#fff; line-height:1.15;
+  text-shadow:0 1px 6px rgba(0,0,0,.5); }
+[data-rt="home-cinematic"] .nf-card-foot{ display:flex; align-items:baseline; gap:4px; padding:8px 3px 2px; text-decoration:none; }
+[data-rt="home-cinematic"] .nf-card-from{ font-size:11.5px; font-weight:700; color:var(--nf-muted); }
+[data-rt="home-cinematic"] .nf-card-price{ font-size:21px; font-weight:900; letter-spacing:-0.02em; color:var(--nf-ink);
+  font-variant-numeric:tabular-nums; }
+[data-rt="home-cinematic"] .nf-card-unit{ font-size:11.5px; font-weight:700; color:var(--nf-muted); }
+
+/* ── Top 10 (거대 아웃라인 넘버) ── */
+[data-rt="home-cinematic"] .nf-track--top .nf-rankcard{ flex:0 0 auto; display:flex; align-items:flex-end; scroll-snap-align:start; }
+[data-rt="home-cinematic"] .nf-rank-num{ font-size:96px; line-height:.74; font-weight:900; letter-spacing:-0.06em;
+  color:transparent; -webkit-text-stroke:2.5px rgba(13,27,42,.22); margin-right:-18px;
+  font-variant-numeric:tabular-nums; user-select:none; padding-bottom:2px; }
+[data-rt="home-cinematic"] .nf-track--top .nf-card{ width:150px; }
+[data-rt="home-cinematic"] .nf-track--top .nf-poster{ height:128px; }
+
+/* ── 특가 카드 (코랄 포인트) ── */
+[data-rt="home-cinematic"] .nf-deal .nf-poster{ border-color:color-mix(in srgb, var(--rt-point) 42%, var(--nf-line)); }
+[data-rt="home-cinematic"] .nf-deal-ribbon{ position:absolute; top:8px; left:8px; z-index:3; font-size:9.5px; font-weight:900;
+  letter-spacing:.03em; padding:3px 8px; border-radius:5px; background:var(--rt-point); color:#fff;
+  box-shadow:0 4px 12px color-mix(in srgb, var(--rt-point) 40%, transparent); pointer-events:none; }
+[data-rt="home-cinematic"] .nf-deal-left{ position:absolute; top:8px; right:8px; z-index:3; font-size:9.5px; font-weight:800;
+  padding:2px 7px; border-radius:999px; background:rgba(0,0,0,.45); color:#fff; backdrop-filter:blur(2px); pointer-events:none; }
+[data-rt="home-cinematic"] .nf-deal-foot{ display:flex; align-items:baseline; gap:6px; padding:8px 3px 2px; text-decoration:none; }
+[data-rt="home-cinematic"] .nf-deal-was{ font-size:11px; font-weight:600; color:var(--nf-muted); text-decoration:line-through;
+  font-variant-numeric:tabular-nums; }
+[data-rt="home-cinematic"] .nf-deal-now{ font-size:21px; font-weight:900; letter-spacing:-0.02em; color:var(--rt-point);
+  font-variant-numeric:tabular-nums; }
+[data-rt="home-cinematic"] .nf-deal-now i{ font-style:normal; font-size:11.5px; font-weight:700; color:var(--nf-muted); }
+
+/* ── 쇼츠 카드 (세로 9:16) ── */
+[data-rt="home-cinematic"] .nf-track--clip .nf-clip{ flex:0 0 auto; width:124px; scroll-snap-align:start; text-decoration:none;
+  transition:transform .18s; }
+[data-rt="home-cinematic"] .nf-track--clip .nf-clip:hover{ transform:scale(1.045); z-index:3; }
+[data-rt="home-cinematic"] .nf-clip-poster{ position:relative; height:200px; border-radius:14px; overflow:hidden;
+  border:1px solid var(--nf-line); box-shadow:0 2px 12px rgba(13,27,42,.07); background:#FFFFFF; }
+[data-rt="home-cinematic"] .nf-clip-poster::after{ content:""; position:absolute; inset:0; z-index:1; pointer-events:none;
+  background:linear-gradient(180deg, rgba(0,0,0,.05) 0%, rgba(0,0,0,0) 38%, rgba(0,0,0,.68) 100%); }
+[data-rt="home-cinematic"] .nf-clip-play{ position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); z-index:2;
+  width:38px; height:38px; border-radius:50%; background:rgba(255,255,255,.22); backdrop-filter:blur(3px);
+  display:grid; place-items:center; border:1.5px solid rgba(255,255,255,.6); }
+[data-rt="home-cinematic"] .nf-clip-dur{ position:absolute; top:8px; right:8px; z-index:2; font-size:10px; font-weight:800;
+  padding:2px 6px; border-radius:5px; background:rgba(0,0,0,.5); color:#fff; }
+[data-rt="home-cinematic"] .nf-clip-title{ position:absolute; left:9px; right:9px; bottom:9px; z-index:2; font-size:12px;
+  font-weight:800; line-height:1.28; color:#fff; text-shadow:0 1px 6px rgba(0,0,0,.6); word-break:keep-all; }
+
+/* ── 아티클 카드 (라이트) ── */
+[data-rt="home-cinematic"] .nf-art{ flex:0 0 auto; width:230px; scroll-snap-align:start; text-decoration:none;
+  border-radius:14px; overflow:hidden; background:var(--nf-card);
+  border:1px solid var(--nf-line); box-shadow:0 2px 12px rgba(13,27,42,.06);
+  transition:transform .18s, box-shadow .18s; }
+[data-rt="home-cinematic"] .nf-art:hover{ transform:translateY(-3px); box-shadow:0 14px 28px rgba(13,27,42,.12); }
+[data-rt="home-cinematic"] .nf-art-top{ position:relative; height:96px; background:#FFFFFF; }
+[data-rt="home-cinematic"] .nf-art-top::after{ content:""; position:absolute; inset:0; z-index:1; pointer-events:none;
+  background:linear-gradient(180deg, rgba(0,0,0,0) 40%, rgba(0,0,0,.32) 100%); }
+[data-rt="home-cinematic"] .nf-art-tag{ position:absolute; top:8px; left:9px; z-index:2; font-size:10px; font-weight:800;
+  padding:2px 8px; border-radius:999px; background:rgba(0,0,0,.45); color:#fff; backdrop-filter:blur(2px); }
+[data-rt="home-cinematic"] .nf-art-body{ padding:11px 12px 13px; }
+[data-rt="home-cinematic"] .nf-art-title{ font-size:13.5px; font-weight:800; letter-spacing:-0.01em; line-height:1.34; color:var(--nf-ink);
+  word-break:keep-all; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+[data-rt="home-cinematic"] .nf-art-read{ font-size:11px; font-weight:600; color:var(--nf-muted); margin-top:7px; }
+
+/* ── 라이트 푸터 ── */
+[data-rt="home-cinematic"] .nf-foot{ margin-top:30px; padding:22px var(--rt-pad) 18px; border-top:1px solid var(--nf-line); }
+[data-rt="home-cinematic"] .nf-foot-links{ display:flex; flex-wrap:wrap; gap:14px 18px; }
+[data-rt="home-cinematic"] .nf-foot-links a{ font-size:12px; font-weight:600; color:var(--nf-sub); text-decoration:none; }
+[data-rt="home-cinematic"] .nf-foot-links a:hover{ color:var(--nf-ink); }
+[data-rt="home-cinematic"] .nf-foot-copy{ margin-top:14px; font-size:11px; color:var(--nf-muted); line-height:1.6; }
+[data-rt="home-cinematic"] .nf-foot-brand{ font-size:14px; font-weight:900; letter-spacing:.14em; color:#A9842F; margin-bottom:10px; }
+
+/* 진입 페이드 */
+@media (prefers-reduced-motion: no-preference){
+  [data-rt="home-cinematic"] .rt-page[data-page="home"][data-deck-active] .nf-bb-body{ animation:nfUp .5s ease both; }
+  [data-rt="home-cinematic"] .nf-row{ animation:nfUp .5s ease both; }
+  @keyframes nfUp{ from{ opacity:0; transform:translateY(14px);} to{ opacity:1; transform:none;} }
+}
+
+/* ───────── 빌보드 시네마틱 애니메이션 ───────── */
+[data-rt="home-cinematic"] .nf-bb-art{ opacity:0; transition:opacity .9s ease; }
+[data-rt="home-cinematic"] .nf-bb-art[data-show="1"]{ opacity:1; }
+/* 화이트 톤: 단절선 약화 — transparent를 차량 바퀴 한참 아래(70%)까지 유지해 차량 근처엔 전환이 없게 하고,
+   70%→100%(빌보드 맨 아래)로 길고 완만하게 흰색(=var(--nf-bg) #FFFFFF) 도달 → 선 없이 페이지로 이어짐. */
+[data-rt="home-cinematic"] .nf-bb-art::after{ content:""; position:absolute; inset:0; z-index:1; pointer-events:none;
+  background:linear-gradient(180deg, transparent 70%, var(--nf-bg) 100%); }
+/* 넷플릭스식 좌우 분리: 좌측 흰 스크림(글씨존 보호) → 우측 투명(차량존) */
+[data-rt="home-cinematic"] .nf-bb-art::before{ content:""; position:absolute; inset:0; z-index:1; pointer-events:none;
+  background:linear-gradient(to right, var(--nf-bg) 0%, var(--nf-bg) 34%, transparent 72%); }
+[data-rt="home-cinematic"] .nf-bb-kb{ position:absolute; right:-4%; top:6%; width:92%; height:56%; z-index:0; display:block;
+  object-fit:contain; object-position:right 30%;
+  /* 차량 흰 컷아웃 하단변을 투명으로 페이드 → 틴트 배경과의 사각 경계 제거 (78% = 바퀴 아래부터) */
+  -webkit-mask-image:linear-gradient(180deg, #000 78%, transparent 100%);
+  mask-image:linear-gradient(180deg, #000 78%, transparent 100%); }
+
+/* 히어로 이미지 모션 (기본=gleam) ───────────────────── */
+[data-rt="home-cinematic"] .nf-bb[data-hero="kenburns"] .nf-bb-art[data-show="1"] .nf-bb-kb{ animation:nfKenBurns 18s ease-out both; }
+@keyframes nfKenBurns{ from{ transform:scale(1.0) translate(0,0); } to{ transform:scale(1.14) translate(-2.5%,-2%); } }
+[data-rt="home-cinematic"] .nf-bb[data-hero="drift"] .nf-bb-art[data-show="1"] .nf-bb-kb{ animation:nfDrift 20s ease-in-out infinite alternate; }
+@keyframes nfDrift{ from{ transform:scale(1.13) translateX(-3.2%); } to{ transform:scale(1.13) translateX(3.2%); } }
+[data-rt="home-cinematic"] .nf-bb[data-hero="gleam"] .nf-bb-art[data-show="1"] .nf-bb-kb{ animation:nfKenBurns 18s ease-out both; }
+[data-rt="home-cinematic"] .nf-bb[data-hero="reveal"] .nf-bb-art[data-show="1"] .nf-bb-kb{ animation:nfReveal 1.35s cubic-bezier(.2,.7,.2,1) both; }
+@keyframes nfReveal{ from{ transform:scale(1.24); } to{ transform:scale(1.06); } }
+
+/* 스태거 등장 — 콘텐츠 키 변경(차 전환) 시 재생 */
+@media (prefers-reduced-motion: no-preference){
+  [data-rt="home-cinematic"] .nf-bb-body > *{ animation:nfBbIn .62s cubic-bezier(.2,.7,.2,1) both; }
+  [data-rt="home-cinematic"] .nf-bb-rank{ animation-delay:.05s; }
+  [data-rt="home-cinematic"] .nf-bb-title{ animation-delay:.13s; }
+  [data-rt="home-cinematic"] .nf-bb-sub{ animation-delay:.23s; }
+  [data-rt="home-cinematic"] .nf-bb-meta{ animation-delay:.31s; }
+  [data-rt="home-cinematic"] .nf-bb-actions{ animation-delay:.4s; }
+  @keyframes nfBbIn{ from{ opacity:0; transform:translateY(20px); filter:blur(4px); }
+    to{ opacity:1; transform:none; filter:blur(0); } }
+}
+/* Play 버튼 골드 펄스 */
+@media (prefers-reduced-motion: no-preference){
+  [data-rt="home-cinematic"] .nf-btn--play{ animation:nfPulse 2.8s ease-in-out infinite; }
+  @keyframes nfPulse{ 0%,100%{ box-shadow:0 8px 22px rgba(201,168,76,.4); }
+    50%{ box-shadow:0 8px 30px rgba(201,168,76,.6); } }
+}
+
+/* 로테이션 인디케이터 */
+[data-rt="home-cinematic"] .nf-bb-dots{ position:relative; z-index:2; display:flex; gap:6px; padding:13px var(--rt-pad) 0; }
+[data-rt="home-cinematic"] .nf-bb-dot{ width:20px; height:3px; border-radius:2px; border:0; padding:0; cursor:pointer;
+  background:rgba(13,27,42,.18); transition:background .2s, width .2s; }
+[data-rt="home-cinematic"] .nf-bb-dot.is-on{ width:30px; background:var(--rt-accent); }
