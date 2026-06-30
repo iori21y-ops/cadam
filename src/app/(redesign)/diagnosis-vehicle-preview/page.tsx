@@ -11,6 +11,7 @@ import { RtTopNav } from '@/components/rentailor/RtChrome';
 import { RtConsultSheet } from '@/components/rentailor/RtConsultSheet';
 import { RtIconSpark, RtIconCompare, RtIconLightning } from '@/components/rentailor/RtIcons';
 import { FUEL, type Car } from '@/lib/rentailor/catalog';
+import { carImageUrl } from '@/lib/car-image-url';
 import {
   DQ,
   DG_ORDER,
@@ -27,9 +28,25 @@ import './diagnosis.css';
 const ACCENT = '#C9A84C';
 const cssVar = (vars: Record<string, string | number>): React.CSSProperties => vars as React.CSSProperties;
 
-// 차량 이미지 표준은 프리뷰 단계에서 색상 플레이스홀더로 대체 (image-slot 제외)
-function MediaPlaceholder({ label }: { label: string }) {
-  return <span aria-hidden="true">{label}</span>;
+// 실 이미지(carImageUrl) 연결 — 로드 실패/imageKey 없음이면 라벨 텍스트 fallback
+function MediaPlaceholder({ label, imageKey }: { label: string; imageKey?: string }) {
+  return (
+    <>
+      <span aria-hidden="true">{label}</span>
+      {imageKey && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={carImageUrl(imageKey)}
+          alt={label}
+          loading="lazy"
+          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', padding: '4%' }}
+          onError={(e) => {
+            (e.currentTarget as HTMLImageElement).style.display = 'none';
+          }}
+        />
+      )}
+    </>
+  );
 }
 
 // ── 상태 머신 훅 ─────────────────────────────────────────────
@@ -262,7 +279,7 @@ function DgResult({ ranked }: { ranked: ScoredCar[] }) {
 
       <div className="rt-drec rt-fade-up" style={cssVar({ '--d': '70ms', '--hue': top.car.hue, marginTop: 18 })}>
         <div className="rt-drec-media">
-          <MediaPlaceholder label={top.car.brand + ' ' + top.car.model} />
+          <MediaPlaceholder label={top.car.brand + ' ' + top.car.model} imageKey={top.car.imageKey} />
           <span className="rt-drec-match">
             AI 적합도 <b>{top.match}%</b>
           </span>
@@ -316,7 +333,7 @@ function DgResult({ ranked }: { ranked: ScoredCar[] }) {
             return (
               <a className="rt-qcar" key={it.car.id} href={`/cars-detail-preview/${it.car.id}`} style={cssVar({ '--hue': it.car.hue })}>
                 <div className="rt-qcar-thumb">
-                  <MediaPlaceholder label={it.car.model.replace(/\s*\(.*\)/, '')} />
+                  <MediaPlaceholder label={it.car.model.replace(/\s*\(.*\)/, '')} imageKey={it.car.imageKey} />
                 </div>
                 <div className="rt-qcar-meta">
                   <div className="rt-qcar-brand">

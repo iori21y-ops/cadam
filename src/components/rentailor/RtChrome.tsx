@@ -7,6 +7,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { RT_CATALOG } from '@/lib/rentailor/catalog';
+import { carImageUrl } from '@/lib/car-image-url';
 import { RtPersonalizeIcon } from '@/lib/rentailor/personalize';
 import { LogoAnimated } from '@/components/icons/LogoAnimated';
 
@@ -99,7 +100,7 @@ export function RtSearch({ open, onClose }: RtSearchProps) {
     : [];
   const popular = cars.filter((c) => c.best).slice(0, 6);
 
-  const Thumb = ({ hue }: { hue: number }) => (
+  const Thumb = ({ hue, imageKey }: { hue: number; imageKey?: string }) => (
     <div className="rt-search-thumb" style={{ background: 'hsl(' + hue + ' 42% 93%)', color: 'hsl(' + hue + ' 38% 42%)' }}>
       <svg viewBox="0 0 48 24" width="34" height="17" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
         <path d="M5 16l2.6-6.4A3 3 0 0 1 10.4 8h17.2a3 3 0 0 1 2.5 1.3L34 15l7 1.4a2 2 0 0 1 1.6 2V16" />
@@ -107,6 +108,18 @@ export function RtSearch({ open, onClose }: RtSearchProps) {
         <circle cx="13" cy="19" r="2.4" />
         <circle cx="33" cy="19" r="2.4" />
       </svg>
+      {imageKey && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={carImageUrl(imageKey)}
+          alt=""
+          loading="lazy"
+          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', padding: '3px' }}
+          onError={(e) => {
+            (e.currentTarget as HTMLImageElement).style.display = 'none';
+          }}
+        />
+      )}
     </div>
   );
 
@@ -163,7 +176,7 @@ export function RtSearch({ open, onClose }: RtSearchProps) {
             <div className="rt-search-results">
               {results.map((c) => (
                 <Link key={c.id} className="rt-search-row" href={'/cars/' + c.id}>
-                  <Thumb hue={c.hue} />
+                  <Thumb hue={c.hue} imageKey={c.imageKey} />
                   <div className="rt-search-row-meta">
                     <span className="rt-search-row-name">
                       {c.brand} {c.model}
