@@ -24,6 +24,8 @@ export default function MobileTabBar() {
   if (pathname.startsWith('/admin')) return null;
   // /estimate 견적 마법사는 집중 퍼널 — 하단 탭바 숨김(CTA 가림 방지)
   if (pathname.startsWith('/estimate')) return null;
+  // '/' = 시네마틱 홈(자체 RtTabBar 보유) — 전역 하단 탭바 숨김(중복 방지)
+  if (pathname === '/') return null;
 
   return (
     <>
