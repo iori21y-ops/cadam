@@ -9,8 +9,9 @@ export function NavBar() {
   if (pathname?.startsWith('/admin')) return null;
   // /estimate 견적 마법사는 집중 퍼널 — 상단 내비게이션 숨김
   if (pathname?.startsWith('/estimate')) return null;
-  // '/' = 시네마틱 홈(자체 크롬·RtTabBar 보유) — 전역 상단 네비 숨김(중복 방지)
-  if (pathname === '/') return null;
+  // '/' = 시네마틱 홈(자체 크롬·RtTabBar 보유) — 전역 상단 네비 숨김(중복 방지).
+  // FLIP rewrite로 '/'는 /home-cinematic-preview 라우트를 서빙 → prerender(pathname=/home-cinematic-preview)도 숨겨야 정적 HTML 중복 제거.
+  if (pathname === '/' || pathname === '/home-cinematic-preview') return null;
 
   return (
     <nav className="sticky top-0 z-50 glass border-b border-border-solid overflow-hidden lg:max-w-2xl lg:mx-auto">
