@@ -25,11 +25,6 @@ interface HubTool {
   href: string;
   badge?: string;
 }
-interface HubGuide {
-  q: string;
-  a: string;
-  href: string;
-}
 interface HubChip {
   t: string;
   d: string;
@@ -66,11 +61,6 @@ const TOOLS: HubTool[] = [
     desc: '라이프스타일·예산 맞춤 차종과 감가 등급까지 추천해요.',
     href: '/diagnosis-vehicle-preview',
   },
-];
-
-const GUIDES: HubGuide[] = [
-  { q: '아직 차를 안 정했어요', a: '차종 추천', href: '/diagnosis-vehicle-preview' },
-  { q: '렌트·리스·할부 방식이 고민이에요', a: '금융상품 진단', href: '/diagnosis-finance-preview' },
 ];
 
 const CHIPS: HubChip[] = [
@@ -117,30 +107,6 @@ export default function DiagnosisPreview() {
             <Button variant="primary" size="lg" fullWidth className="rt-gold" onClick={() => setSheet(true)}>
               즉시 상담 신청
             </Button>
-          </div>
-
-          <div className="rt-hub-guide">
-            <p className="rt-hub-guide-t">이럴 땐, 이 도구를 써보세요</p>
-            {GUIDES.map((g) => (
-              <Link className="rt-hub-guide-row" key={g.a} href={g.href}>
-                <span className="rt-hub-guide-q">{g.q}</span>
-                <span className="rt-hub-guide-a">
-                  {g.a}
-                  <svg
-                    viewBox="0 0 24 24"
-                    width="15"
-                    height="15"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.4"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M9 6l6 6-6 6" />
-                  </svg>
-                </span>
-              </Link>
-            ))}
           </div>
 
           <div className="rt-hub-list">
