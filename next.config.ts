@@ -7,7 +7,7 @@ const withBundleAnalyzer = BundleAnalyzer({
 
 // 프리뷰→운영 라우트 승격(플립). 운영 URL = 리디자인 콘텐츠. (순서: 구체 경로 먼저)
 const FLIP: [string, string][] = [
-  ['/', '/home-preview'],
+  ['/', '/home-cinematic-preview'],
   ['/popular-estimates', '/popular-estimates-preview'],
   ['/cars/:slug/options', '/car-options-preview/:slug'],
   ['/cars/:slug', '/cars-detail-preview/:slug'],
