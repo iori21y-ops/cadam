@@ -78,8 +78,10 @@ export default function InfoDetailPreviewPage() {
     return (
       <div data-rt="info-preview" className="rt-root">
         <div className="rt-page" id="top">
+          <div className="rt-scroll">
           <RtTopNav title="렌트 가이드" backHref="/info-preview" />
           <p className="rt-info-empty">불러오는 중…</p>
+          </div>
         </div>
       </div>
     );
@@ -89,6 +91,7 @@ export default function InfoDetailPreviewPage() {
     return (
       <div data-rt="info-preview" className="rt-root">
         <div className="rt-page" id="top">
+          <div className="rt-scroll">
           <RtTopNav title="렌트 가이드" backHref="/info-preview" />
           <p className="rt-info-empty">
             콘텐츠를 찾을 수 없어요.
@@ -96,6 +99,7 @@ export default function InfoDetailPreviewPage() {
             <Link href="/info-preview" style={{ color: ACCENT, fontWeight: 800 }}>← 렌트 가이드로</Link>
           </p>
           <RtTabBar active="info" />
+          </div>
         </div>
       </div>
     );
@@ -111,6 +115,7 @@ export default function InfoDetailPreviewPage() {
     return (
       <div data-rt="info-preview" className="rt-root">
         <div className="rt-page" id="top">
+          <div className="rt-scroll">
           <RtTopNav title="렌트 가이드" backHref="/info-preview" />
           <div className="rt-id-hero" style={hueStyle(art)}>
             <div className={mediaClass(art, 'rt-id-media')} style={mediaStyle(art)}>
@@ -132,6 +137,7 @@ export default function InfoDetailPreviewPage() {
             <Button variant="primary" size="lg" fullWidth className="rt-gold" onClick={() => setSheet(true)}>상담 신청하고 열람하기</Button>
           </div>
           <RtTabBar active="info" />
+          </div>
         </div>
         <RtConsultSheet
           open={sheet}
@@ -146,6 +152,7 @@ export default function InfoDetailPreviewPage() {
   return (
     <div data-rt="info-preview" className="rt-root">
       <div className="rt-page" id="top">
+        <div className="rt-scroll">
         <RtTopNav title="렌트 가이드" backHref="/info-preview" />
 
         {/* 히어로 — 쇼츠 / 아티클·카드 */}
@@ -260,6 +267,7 @@ export default function InfoDetailPreviewPage() {
         </div>
 
         <RtTabBar active="info" />
+        </div>
       </div>
     </div>
   );

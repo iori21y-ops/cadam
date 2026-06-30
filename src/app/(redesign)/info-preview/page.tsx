@@ -12,7 +12,6 @@ import { RtMarketInsight } from '@/components/rentailor/RtMarketInsight';
 import { rtMemberLocked, rtIsMemberOnly, rtMarkConsulted } from '@/lib/rentailor/guest-adapter';
 import { Button } from '@/components/ui/Button';
 import {
-  INFO_CATS,
   INFO_FORMATS,
   normalizeArticle,
   tagLabel,
@@ -139,7 +138,7 @@ function ContractCareHub() {
 export default function InfoPreviewPage() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
-  const [cat, setCat] = useState('all');
+  const [cat] = useState('all');
   const [fmt, setFmt] = useState('all');
   const [lockSheet, setLockSheet] = useState(false);
   const consultedRef = useRef(false);
@@ -194,6 +193,7 @@ export default function InfoPreviewPage() {
   return (
     <div data-rt="info-preview" className="rt-root">
       <div className="rt-page" id="top">
+        <div className="rt-scroll">
         <RtTopNav title="렌트 가이드" />
 
         <div className="rt-info-head">
@@ -250,12 +250,6 @@ export default function InfoPreviewPage() {
           </div>
         )}
 
-        <div className="rt-info-cats">
-          {INFO_CATS.map((c) => (
-            <button key={c.key} className={'rt-info-cat' + (c.key === cat ? ' is-on' : '')} onClick={() => setCat(c.key)}>{c.label}</button>
-          ))}
-        </div>
-
         {cat === 'contract' && <ContractCareHub />}
 
         <div className="rt-arts">
@@ -291,6 +285,7 @@ export default function InfoPreviewPage() {
         </div>
 
         <RtTabBar active="info" />
+        </div>
       </div>
 
       <RtConsultSheet
