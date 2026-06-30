@@ -691,27 +691,16 @@ body {
 .rt-tabbar { position: sticky; bottom: 0; z-index: 29; margin: 0 12px calc(12px + env(safe-area-inset-bottom)); display: flex;
   border: 1px solid var(--rt-line); background: rgba(255,255,255,.97); backdrop-filter: blur(14px); border-radius: 22px; padding: 5px 6px; box-shadow: 0 12px 30px rgba(13,27,42,.14); }
 .rt-tabbar .rt-tab { position: relative; flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;
-  background: transparent; border: 0; border-radius: 0; text-decoration: none; color: var(--rt-muted); font-size: 10px; font-weight: 700; letter-spacing: -0.01em; padding: 4px 2px 2px; transition: color .18s; }
+  background: transparent; border: 0; border-radius: 0; text-decoration: none; color: #1a1a1a; font-size: 10px; font-weight: 700; letter-spacing: -0.01em; padding: 4px 2px 2px; transition: color .18s; }
 .rt-tabbar .rt-tab:active { transform: scale(.95); }
 .rt-tab-ic { position: relative; display: flex; align-items: center; justify-content: center; width: 46px; height: 30px; border-radius: 15px;
   transition: background .22s ease, transform .22s cubic-bezier(.34,1.56,.64,1); }
-.rt-tab-ic svg { position: relative; z-index: 1; width: 24px; height: 24px; display: block; }
-.rt-tabbar .rt-tab.is-on { color: var(--rt-navy); }
+.rt-tab-ic svg { position: relative; z-index: 1; width: 28px; height: 28px; display: block; }
+.rt-tabbar .rt-tab.is-on { color: var(--rt-accent); }
 .rt-tabbar .rt-tab.is-on .rt-tab-ic { background: rgba(201,168,76,.16); transform: translateY(-1px); }
 .rt-tabbar-filler { flex: 1 0 auto; min-height: 0; pointer-events: none; }
 @media (prefers-reduced-motion: reduce) { .rt-tabbar .rt-tab.is-on .rt-tab-ic { transform: none; } }
 
-/* 차량찾기 — 브랜드 골드 강조 + 은은한 펄스 */
-.rt-tabbar .rt-tab--search { color: var(--rt-accent); cursor: pointer; }
-.rt-tabbar .rt-tab--search .rt-tab-ic { background: rgba(201,168,76,.14); animation: rtSearchPulse 2.4s ease-in-out infinite; }
-.rt-tabbar .rt-tab--search:active { transform: scale(.95); }
-@keyframes rtSearchPulse {
-  0%, 100% { transform: translateY(0) scale(1); box-shadow: 0 0 0 0 rgba(201,168,76,0); }
-  50% { transform: translateY(-1px) scale(1.09); box-shadow: 0 0 0 5px rgba(201,168,76,.10); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .rt-tabbar .rt-tab--search .rt-tab-ic { animation: none; transform: none; box-shadow: none; }
-}
 
 /* 상담 바텀시트 (오버레이 → fixed 로 적응) */
 .rt-sheet-scrim { position: fixed; inset: 0; z-index: 1060; background: rgba(13,27,42,.5); backdrop-filter: blur(2px); opacity: 0; pointer-events: none; transition: opacity .26s; }

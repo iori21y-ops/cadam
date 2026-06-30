@@ -215,12 +215,12 @@ export function RtFooter() {
 // ── 하단 글로벌 탭바 (GNB) ───────────────────────────────────
 type TabKey = 'home' | 'cars' | 'diag' | 'info' | 'event' | 'mypage' | 'search';
 function RtTabIcon({ name, on }: { name: TabKey; on: boolean }) {
-  const ink = on ? 'var(--rt-navy, #0D1B2A)' : '#aeb4bd';
-  const gold = on ? 'var(--rt-accent, #C9A84C)' : '#ccd1d8';
+  const ink = on ? 'var(--rt-accent, #C9A84C)' : '#1a1a1a';
+  const gold = on ? 'var(--rt-accent, #C9A84C)' : '#1a1a1a';
   const P: Record<TabKey, React.ReactNode> = {
     // 차량찾기 — 항상 브랜드 골드 돋보기(상단 헤더 검색 아이콘과 동일 형상)
     search: (
-      <g fill="none" stroke="var(--rt-accent, #C9A84C)" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">
+      <g fill="none" stroke={ink} strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">
         <circle cx="11" cy="11" r="6.4" />
         <path d="M20 20l-3.8-3.8" />
       </g>
@@ -295,7 +295,7 @@ export function RtTabBar({ active }: RtTabBarProps) {
             <button
               key={t.key}
               type="button"
-              className="rt-tab rt-tab--search"
+              className="rt-tab"
               onClick={() => setSearchOpen(true)}
               aria-label="차량찾기"
             >
