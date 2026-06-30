@@ -17,7 +17,6 @@ import { RtTopNav, RtTabBar } from '@/components/rentailor/RtChrome';
 import { carImageUrl } from '@/lib/car-image-url';
 import { RtGuestGate } from '@/components/rentailor/RtGuestGate';
 import { RtTermDefs } from '@/lib/rentailor/personalize';
-import { useSalesRank } from '@/lib/rentailor/useSalesRank';
 import {
   RT_TABS,
   RT_SEGS,
@@ -212,44 +211,6 @@ interface ToastState {
   msg: string;
 }
 
-// 디자인 복원: "이달의 베스트셀러" 판매순위 레일(TOP10). car_sales_monthly 실데이터(useSalesRank). 없으면 미렌더.
-function BestsellerRail() {
-  const { rows, period } = useSalesRank();
-  const top = rows.slice(0, 10);
-  if (!top.length) return null;
-  return (
-    <section style={{ margin: '4px 0 8px' }}>
-      <div style={{ padding: '0 var(--rt-pad)', marginBottom: 10 }}>
-        <p style={{ margin: 0, fontSize: 12, fontWeight: 700, color: '#B07A2E' }}>이달의 베스트셀러</p>
-        <h2 style={{ margin: '2px 0 0', fontSize: 18, fontWeight: 800, color: '#0D1B2A' }}>국내에서 가장 많이 산 차</h2>
-        {period && <p style={{ margin: '4px 0 0', fontSize: 12.5, color: '#6b7280' }}>{period} 국내 신차 판매량 순위예요. 인기 차종일수록 견적도 빠르게 받아요.</p>}
-      </div>
-      <div style={{ display: 'flex', gap: 10, overflowX: 'auto', padding: '2px var(--rt-pad) 6px', scrollbarWidth: 'none' }}>
-        {top.map((r) => (
-          <Link
-            key={r.car.id}
-            href={`/cars/${r.car.id}`}
-            style={{ flex: '0 0 auto', width: 150, display: 'flex', flexDirection: 'column', gap: 4, padding: 13, border: '1px solid ' + (r.rank <= 3 ? 'rgba(201,168,76,0.4)' : '#e8eaee'), borderRadius: 16, background: '#fff', textDecoration: 'none' }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span style={{ width: 24, height: 24, borderRadius: '50%', background: r.rank <= 3 ? '#C9A84C' : '#f0f0f0', color: r.rank <= 3 ? '#0D1B2A' : '#6b7280', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800 }}>{r.rank}</span>
-              {r.momDir !== 'flat' && r.momPct !== 0 && (
-                <span style={{ fontSize: 11, fontWeight: 700, color: r.momDir === 'up' ? '#1F8A5B' : '#E0544B' }}>{r.momDir === 'up' ? '▲' : '▼'} {Math.abs(r.momPct)}%</span>
-              )}
-            </div>
-            <div style={{ fontSize: 15, fontWeight: 800, color: '#0D1B2A', lineHeight: 1.2 }}>{r.car.model.replace(/\s*\(.*\)/, '')}</div>
-            <div style={{ fontSize: 11.5, color: '#9ca3af' }}>{r.car.brand} · {r.car.segLabel}</div>
-            <div style={{ fontSize: 12, color: '#4a5568' }}><b style={{ color: '#0D1B2A' }}>{r.units.toLocaleString()}</b>대 판매</div>
-            <div style={{ marginTop: 2, fontSize: 13, fontWeight: 700, color: '#0D1B2A' }}>
-              <em style={{ fontStyle: 'normal', fontSize: 11, color: '#9ca3af' }}>월 </em>{r.car.from}<i style={{ fontStyle: 'normal', fontSize: 11, color: '#9ca3af' }}>만원~</i>
-            </div>
-          </Link>
-        ))}
-      </div>
-    </section>
-  );
-}
-
 export default function PopularEstimatesPreviewPage() {
   const [tab, setTab] = useState<string>('all');
   const [seg, setSeg] = useState<string>('all');
@@ -358,8 +319,6 @@ export default function PopularEstimatesPreviewPage() {
           <p className="rt-list-desc">국산·수입·전기차까지 {RT_CATALOG.length}개 차종을 월 렌트료로 비교하고,
             마음에 드는 차의 맞춤 견적을 받아보세요.</p>
         </div>
-
-        <BestsellerRail />
 
         {/* A2 personalize: 이해도 레벨별 용어설명(초급 펼침/중급 접힘/고급 숨김) */}
         <div style={{ padding: '0 var(--rt-pad)' }}>
