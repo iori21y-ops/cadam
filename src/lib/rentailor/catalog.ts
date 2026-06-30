@@ -65,7 +65,7 @@ interface CarInput {
 // 카테고리 탭
 export const RT_TABS = [
   { key: 'all', label: '전체' },
-  { key: 'best', label: 'BEST' },
+  { key: 'sales', label: '판매순위' },
   { key: 'domestic', label: '국산차' },
   { key: 'imported', label: '수입차' },
   { key: 'ev', label: '전기차' },

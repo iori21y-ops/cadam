@@ -17,6 +17,7 @@ import { RtTopNav, RtTabBar } from '@/components/rentailor/RtChrome';
 import { carImageUrl } from '@/lib/car-image-url';
 import { RtGuestGate } from '@/components/rentailor/RtGuestGate';
 import { RtTermDefs } from '@/lib/rentailor/personalize';
+import { useSalesRank } from '@/lib/rentailor/useSalesRank';
 import {
   RT_TABS,
   RT_SEGS,
@@ -239,6 +240,8 @@ export default function PopularEstimatesPreviewPage() {
   const [prices, setPrices] = useState<Record<string, number>>({});
   // WU2: 실 스펙(vehicle_powertrains) 배치 바인딩 — slug→fuel_kind→{eff,range,grade}
   const [specs, setSpecs] = useState<Record<string, Record<string, { eff: string | null; range: string | null; grade: string | null }>>>({});
+  // 판매순위(sales) 탭용 — car_sales_monthly 실데이터(국산 신차 TOP). 비동기 로드, 매칭된 차종만 rank순.
+  const { rows: salesRows } = useSalesRank();
   useEffect(() => {
     fetch('/api/catalog-pricing').then((r) => r.json()).then((d) => setPrices(d.prices ?? {})).catch(() => {});
     fetch('/api/catalog-specs').then((r) => r.json()).then((d) => setSpecs(d.specs ?? {})).catch(() => {});
@@ -308,6 +311,13 @@ export default function PopularEstimatesPreviewPage() {
       if (sp.grade) patch.grade = sp.grade;
       return Object.keys(patch).length ? { ...base, spec: { ...c.spec, ...patch } } : base;
     });
+    // 판매순위 탭: car_sales_monthly 매칭 차종만, rank 오름차순 고정(정렬 드롭다운·예산밴딩 무시).
+    if (tab === 'sales') {
+      const order = new Map(salesRows.map((r) => [r.car.id, r.rank]));
+      const ranked = PRICED.filter((c) => order.has(c.id))
+        .sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0));
+      return { list: ranked, widened: false };
+    }
     const base = PRICED.filter((c) => rtCarInTab(c, tab) && rtCarInSeg(c, seg));
     if (!budget) return { list: sortCars(base), widened: false };
     const idx = BUDGET_ORDER.indexOf(budget);
@@ -318,7 +328,7 @@ export default function PopularEstimatesPreviewPage() {
       if (f.length) return { list: sortCars(f), widened: r > 0 };
     }
     return { list: sortCars(base), widened: false };
-  }, [tab, seg, sort, budget, prices, specs]);
+  }, [tab, seg, sort, budget, prices, specs, salesRows]);
 
   const segLabelOf = (k: string) => RT_SEGS.find((s) => s.key === k)?.label;
   const clearLanding = () => { setBudget(null); setSeg('all'); };
@@ -373,7 +383,10 @@ export default function PopularEstimatesPreviewPage() {
           <div className="rt-filter-card">
             <div className="rt-controls">
               <RtDropdown value={tab} onChange={setTab} options={RT_TABS} icon={CAT_ICON} align="left" />
-              <RtDropdown value={sort} onChange={setSort} options={RT_SORTS} icon={SORT_ICON} align="right" />
+              {/* 판매순위 탭은 rank 고정 → 정렬 드롭다운 숨김 */}
+              {tab !== 'sales' && (
+                <RtDropdown value={sort} onChange={setSort} options={RT_SORTS} icon={SORT_ICON} align="right" />
+              )}
             </div>
           </div>
         </div>
