@@ -17,6 +17,7 @@ import { RT_CATALOG, rtFindCar, type Car } from '@/lib/rentailor/catalog';
 import { useSalesRank } from '@/lib/rentailor/useSalesRank';
 import { carImageUrl } from '@/lib/car-image-url';
 import { RtTabBar } from '@/components/rentailor/RtChrome';
+import { RtConsultSheet } from '@/components/rentailor/RtConsultSheet';
 import './home.css';
 
 // ── 헬퍼 ─────────────────────────────────────────────────────
@@ -72,7 +73,7 @@ function ThumbImg({ url, alt }: { url: string | null; alt: string }) {
 interface Featured extends Car {
   tagline: { kicker: string; title: string; sub: string };
 }
-function NfBillboard({ featured, hero }: { featured: Featured[]; hero: string }) {
+function NfBillboard({ featured, hero, onConsult }: { featured: Featured[]; hero: string; onConsult: () => void }) {
   const [idx, setIdx] = useState(0);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -109,10 +110,10 @@ function NfBillboard({ featured, hero }: { featured: Featured[]; hero: string })
           <span className="nf-bb-price"><b>월</b> <em>{cur.from}만원</em>~</span>
         </div>
         <div className="nf-bb-actions">
-          <Link className="nf-btn nf-btn--play" href="/estimate">
+          <button type="button" className="nf-btn nf-btn--play" onClick={onConsult}>
             <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M7 5l12 7-12 7z" /></svg>
             견적받기
-          </Link>
+          </button>
           <Link className="nf-btn nf-btn--info" href={detailHref(cur.id)}>
             <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 7.5v.5" strokeLinecap="round" /></svg>
             자세히 보기
@@ -457,17 +458,20 @@ export default function HomeCinematic() {
   const articles = useInfoArticles();
   const { slides, sections } = useHomeCms();
   const featured = resolveFeatured(slides);
+  const [consultOpen, setConsultOpen] = useState(false);
 
   return (
     <div data-rt="home-cinematic" className="rt-root" style={{ ['--rt-accent' as string]: '#C9A84C' } as React.CSSProperties}>
       <div className="rt-page" data-page="home" data-deck-active id="top">
         <div className="rt-scroll" ref={scrollEl}>
-          <NfBillboard featured={featured} hero="gleam" />
+          <NfBillboard featured={featured} hero="gleam" onConsult={() => setConsultOpen(true)} />
           {sections.map((s) => <SectionRenderer key={s.id} section={s} articles={articles} />)}
           <NfFooter />
           <RtTabBar active="home" />
         </div>
       </div>
+      {/* 견적받기 → 상담 신청 모달(RtConsultSheet, /api/consultation). 홈 최상위 CTA라 car 없이 일반 상담. */}
+      <RtConsultSheet open={consultOpen} onClose={() => setConsultOpen(false)} accent="#C9A84C" />
     </div>
   );
 }
