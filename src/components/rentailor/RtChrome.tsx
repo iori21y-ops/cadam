@@ -10,6 +10,8 @@ import { RT_CATALOG } from '@/lib/rentailor/catalog';
 import { carImageUrl } from '@/lib/car-image-url';
 import { RtPersonalizeIcon } from '@/lib/rentailor/personalize';
 import { LogoAnimated } from '@/components/icons/LogoAnimated';
+import { HomeIcon as HomeOutline, SparklesIcon as SparklesOutline, MagnifyingGlassIcon as SearchOutline, NewspaperIcon as NewspaperOutline, UserIcon as UserOutline } from "@heroicons/react/24/outline";
+import { HomeIcon as HomeSolid, SparklesIcon as SparklesSolid, MagnifyingGlassIcon as SearchSolid, NewspaperIcon as NewspaperSolid, UserIcon as UserSolid } from "@heroicons/react/24/solid";
 
 // ── 상단 네비 ────────────────────────────────────────────────
 export interface RtTopNavProps {
@@ -215,62 +217,19 @@ export function RtFooter() {
 // ── 하단 글로벌 탭바 (GNB) ───────────────────────────────────
 type TabKey = 'home' | 'cars' | 'diag' | 'info' | 'event' | 'mypage' | 'search';
 function RtTabIcon({ name, on }: { name: TabKey; on: boolean }) {
-  const ink = on ? 'var(--rt-accent, #C9A84C)' : '#1a1a1a';
-  const gold = on ? 'var(--rt-accent, #C9A84C)' : '#1a1a1a';
-  const P: Record<TabKey, React.ReactNode> = {
-    // 차량찾기 — 항상 브랜드 골드 돋보기(상단 헤더 검색 아이콘과 동일 형상)
-    search: (
-      <g fill="none" stroke={ink} strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="11" cy="11" r="6.4" />
-        <path d="M20 20l-3.8-3.8" />
-      </g>
-    ),
-    home: (
-      <>
-        <path d="M3.5 11.4 L12 3.6 L20.5 11.4 V19.8 a1.1 1.1 0 0 1-1.1 1.1 H4.6 a1.1 1.1 0 0 1-1.1-1.1 Z" fill={ink} />
-        <rect x="10" y="13.8" width="4" height="7.1" rx="0.9" fill={gold} />
-      </>
-    ),
-    cars: (
-      <>
-        <path d="M3.3 13 L5 8.5 A2 2 0 0 1 6.9 7.1 H17.1 A2 2 0 0 1 19 8.5 L20.7 13 V16.4 A1.2 1.2 0 0 1 19.5 17.6 H4.5 A1.2 1.2 0 0 1 3.3 16.4 Z" fill={ink} />
-        <path d="M6.7 12.2 L7.7 9.4 A1 1 0 0 1 8.6 8.7 H15.4 A1 1 0 0 1 16.3 9.4 L17.3 12.2 Z" fill={gold} />
-        <circle cx="7.4" cy="17.4" r="1.7" fill={ink} />
-        <circle cx="16.6" cy="17.4" r="1.7" fill={ink} />
-      </>
-    ),
-    diag: (
-      <>
-        <path d="M12 3 L13.7 8.3 L19 10 L13.7 11.7 L12 17 L10.3 11.7 L5 10 L10.3 8.3 Z" fill={ink} />
-        <path d="M18.6 3.6 L19.4 5.8 L21.6 6.6 L19.4 7.4 L18.6 9.6 L17.8 7.4 L15.6 6.6 L17.8 5.8 Z" fill={gold} />
-      </>
-    ),
-    info: (
-      <>
-        <path d="M6 3.3 H13.3 L18.7 8.7 V19.6 A1.1 1.1 0 0 1 17.6 20.7 H6 A1.1 1.1 0 0 1 4.9 19.6 V4.4 A1.1 1.1 0 0 1 6 3.3 Z" fill={ink} />
-        <path d="M13.4 3.5 L18.6 8.7 H14 A.6 .6 0 0 1 13.4 8.1 Z" fill={gold} />
-        <rect x="7.8" y="12" width="7.6" height="1.7" rx="0.85" fill={gold} />
-        <rect x="7.8" y="15.4" width="5" height="1.7" rx="0.85" fill={gold} />
-      </>
-    ),
-    event: (
-      <>
-        <path d="M11.6 3.4 L20.6 12.4 A1.4 1.4 0 0 1 20.6 14.4 L14.4 20.6 A1.4 1.4 0 0 1 12.4 20.6 L3.4 11.6 A1.4 1.4 0 0 1 3 10.6 V4.4 A1.4 1.4 0 0 1 4.4 3 H10.6 A1.4 1.4 0 0 1 11.6 3.4 Z" fill={ink} />
-        <circle cx="7.6" cy="7.6" r="1.8" fill={gold} />
-      </>
-    ),
-    mypage: (
-      <g transform="translate(0,-1)">
-        <path d="M5 20.6 A7 7 0 0 1 19 20.6 V21 H5 Z" fill={ink} />
-        <circle cx="12" cy="8" r="3.8" fill={gold} />
-      </g>
-    ),
+  const color = on ? "var(--rt-accent, #C9A84C)" : "#1a1a1a";
+  const cls = "rt-tabicon-svg";
+  const map: Record<TabKey, { O: any; S: any }> = {
+    home:   { O: HomeOutline,     S: HomeSolid },
+    diag:   { O: SparklesOutline, S: SparklesSolid },
+    search: { O: SearchOutline,   S: SearchSolid },
+    info:   { O: NewspaperOutline,S: NewspaperSolid },
+    mypage: { O: UserOutline,     S: UserSolid },
+    cars:   { O: SearchOutline,   S: SearchSolid },
+    event:  { O: SparklesOutline, S: SparklesSolid },
   };
-  return (
-    <svg viewBox="0 0 24 24" width="25" height="25">
-      {P[name]}
-    </svg>
-  );
+  const Cmp = on ? map[name].S : map[name].O;
+  return <Cmp width={25} height={25} style={{ color }} strokeWidth={on ? undefined : 1.8} aria-hidden />;
 }
 
 export interface RtTabBarProps {
