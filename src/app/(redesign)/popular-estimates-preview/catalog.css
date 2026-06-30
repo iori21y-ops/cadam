@@ -80,23 +80,9 @@
 /* 필터 헤더 (카테고리탭+컨트롤+세그먼트칩) 통합 sticky — 스크롤 시 카드 위로 고정 */
 [data-rt="popular-estimates-preview"] .rt-filterbar { position:sticky; top:var(--rt-nav-h); z-index:24;
   background:#fff; border-bottom:1px solid var(--rt-line); }
-/* 카테고리 탭 — .rt-tab → .rt-cat-tab (globals GNB 충돌 회피) */
-[data-rt="popular-estimates-preview"] .rt-tabs { display:flex; gap:8px; overflow-x:auto; padding:12px var(--rt-pad);
-  scrollbar-width:none; -webkit-overflow-scrolling:touch; }
-[data-rt="popular-estimates-preview"] .rt-tabs::-webkit-scrollbar { display:none; }
-[data-rt="popular-estimates-preview"] .rt-cat-tab { flex:0 0 auto; display:flex; align-items:center; gap:6px; border:1.5px solid var(--rt-line);
-  background:#fff; color:var(--rt-sub); border-radius:999px; padding:9px 16px; font-size:14px;
-  font-weight:700; cursor:pointer; white-space:nowrap; transition:all .16s; }
-[data-rt="popular-estimates-preview"] .rt-cat-tab:hover { border-color:var(--rt-accent); color:var(--rt-ink); }
-[data-rt="popular-estimates-preview"] .rt-cat-tab.is-on { background:var(--rt-navy); border-color:var(--rt-navy); color:#fff; }
-[data-rt="popular-estimates-preview"] .rt-cat-tab-n { font-size:12px; font-weight:700; opacity:.6; font-variant-numeric:tabular-nums; }
-[data-rt="popular-estimates-preview"] .rt-cat-tab.is-on .rt-cat-tab-n { color:var(--rt-accent); opacity:1; }
-
-/* 컨트롤 행: 결과 수 + 정렬 */
+/* 컨트롤 행: 카테고리 드롭다운(좌) + 정렬 드롭다운(우) */
 [data-rt="popular-estimates-preview"] .rt-controls { display:flex; align-items:center; justify-content:space-between; gap:10px;
-  padding:14px var(--rt-pad) 4px; }
-[data-rt="popular-estimates-preview"] .rt-result-count { font-size:13.5px; font-weight:600; color:var(--rt-sub); }
-[data-rt="popular-estimates-preview"] .rt-result-count b { font-weight:800; color:var(--rt-ink); }
+  padding:14px var(--rt-pad); }
 [data-rt="popular-estimates-preview"] .rt-sort { position:relative; }
 [data-rt="popular-estimates-preview"] .rt-sort-btn { display:flex; align-items:center; gap:6px; border:0; background:transparent;
   font-size:13.5px; font-weight:700; color:var(--rt-ink); cursor:pointer; padding:6px 2px; }
@@ -107,6 +93,7 @@
   opacity:0; transform:translateY(-6px) scale(.98); transform-origin:top right; pointer-events:none;
   transition:opacity .16s, transform .16s; }
 [data-rt="popular-estimates-preview"] .rt-sort-menu.is-open { opacity:1; transform:none; pointer-events:auto; }
+[data-rt="popular-estimates-preview"] .rt-sort-menu--left { left:0; right:auto; transform-origin:top left; }
 [data-rt="popular-estimates-preview"] .rt-sort-item { display:flex; align-items:center; justify-content:space-between; width:100%; gap:10px;
   border:0; background:transparent; cursor:pointer; text-align:left; padding:11px 12px; border-radius:11px;
   font-size:14px; font-weight:600; color:var(--rt-sub); transition:background .12s; }
@@ -198,7 +185,7 @@
 @container page (min-width:680px){
   [data-rt="popular-estimates-preview"] .rt-list-head, [data-rt="popular-estimates-preview"] .rt-controls { max-width:860px; margin-left:auto; margin-right:auto; }
   [data-rt="popular-estimates-preview"] .rt-list-title { font-size:32px; }
-  [data-rt="popular-estimates-preview"] .rt-tabs, [data-rt="popular-estimates-preview"] .rt-segs { max-width:860px; margin-left:auto; margin-right:auto; }
+  [data-rt="popular-estimates-preview"] .rt-segs { max-width:860px; margin-left:auto; margin-right:auto; }
   [data-rt="popular-estimates-preview"] .rt-grid { display:grid; grid-template-columns:repeat(3,1fr); max-width:860px;
     margin-left:auto; margin-right:auto; }
 }

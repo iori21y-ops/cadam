@@ -161,12 +161,30 @@ function VCard({ car, saved, onToggleSave, inVs, onToggleVs }: VCardProps) {
   );
 }
 
-interface SortControlProps {
-  sort: string;
-  setSort: (k: string) => void;
+// 드롭다운 좌측 아이콘 — 카테고리=그리드, 정렬=정렬화살표 (버튼 외형은 동일, 글리프만 다름)
+const CAT_ICON = (
+  <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor"
+    strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" />
+    <rect x="3" y="14" width="7" height="7" rx="1.5" /><rect x="14" y="14" width="7" height="7" rx="1.5" /></svg>
+);
+const SORT_ICON = (
+  <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor"
+    strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M7 4v16M7 4l-3 4M7 4l3 4M17 20V4M17 20l-3-4M17 20l3-4" /></svg>
+);
+
+interface DropdownOption { key: string; label: string }
+interface RtDropdownProps {
+  value: string;
+  onChange: (k: string) => void;
+  options: readonly DropdownOption[];
+  icon: React.ReactNode;
+  align?: 'left' | 'right';
 }
 
-function SortControl({ sort, setSort }: SortControlProps) {
+// 범용 드롭다운 — 카테고리/정렬 공용. 버튼+메뉴+체크아이콘+외부클릭 닫힘 동일 외형.
+function RtDropdown({ value, onChange, options, icon, align = 'right' }: RtDropdownProps) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -176,21 +194,19 @@ function SortControl({ sort, setSort }: SortControlProps) {
     document.addEventListener('pointerdown', h);
     return () => document.removeEventListener('pointerdown', h);
   }, []);
-  const cur = RT_SORTS.find((s) => s.key === sort);
+  const cur = options.find((o) => o.key === value);
   return (
     <div className="rt-sort" ref={ref}>
       <button className="rt-sort-btn" onClick={() => setOpen(!open)}>
-        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor"
-          strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M7 4v16M7 4l-3 4M7 4l3 4M17 20V4M17 20l-3-4M17 20l3-4" /></svg>
+        {icon}
         {cur?.label}
       </button>
-      <div className={'rt-sort-menu' + (open ? ' is-open' : '')}>
-        {RT_SORTS.map((s) => (
-          <button key={s.key} className={'rt-sort-item' + (s.key === sort ? ' is-on' : '')}
-            onClick={() => { setSort(s.key); setOpen(false); }}>
-            {s.label}
-            {s.key === sort && (
+      <div className={'rt-sort-menu' + (align === 'left' ? ' rt-sort-menu--left' : '') + (open ? ' is-open' : '')}>
+        {options.map((o) => (
+          <button key={o.key} className={'rt-sort-item' + (o.key === value ? ' is-on' : '')}
+            onClick={() => { onChange(o.key); setOpen(false); }}>
+            {o.label}
+            {o.key === value && (
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
                 strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12.5l4.5 4.5L19 7" /></svg>
             )}
@@ -356,20 +372,9 @@ export default function PopularEstimatesPreviewPage() {
         )}
 
         <div className="rt-filterbar">
-          <div className="rt-tabs-wrap">
-            <div className="rt-tabs">
-              {RT_TABS.map((t) => (
-                <button key={t.key} className={'rt-cat-tab' + (t.key === tab ? ' is-on' : '')}
-                  onClick={() => setTab(t.key)}>
-                  {t.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
           <div className="rt-controls">
-            <span className="rt-result-count">총 <b>{list.length}</b>개 차종</span>
-            <SortControl sort={sort} setSort={setSort} />
+            <RtDropdown value={tab} onChange={setTab} options={RT_TABS} icon={CAT_ICON} align="left" />
+            <RtDropdown value={sort} onChange={setSort} options={RT_SORTS} icon={SORT_ICON} align="right" />
           </div>
         </div>
 
