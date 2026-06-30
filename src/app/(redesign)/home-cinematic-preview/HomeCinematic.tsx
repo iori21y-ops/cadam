@@ -139,14 +139,14 @@ function CarCard({ c }: { c: Car }) {
   const b = fuelBadge(c);
   return (
     <div className="nf-card">
-      <div className="nf-poster">
+      <Link className="nf-poster" href={detailHref(c.id)}>
         <CarImg imageKey={c.imageKey} alt={`${c.brand} ${shortM(c.model)}`} />
         {b ? <span className={'nf-poster-badge ' + b.cls}>{b.label}</span> : null}
         <div className="nf-poster-info">
           <div className="nf-poster-brand">{c.brand}</div>
           <div className="nf-poster-name">{shortM(c.model)}</div>
         </div>
-      </div>
+      </Link>
       <Link className="nf-card-foot" href={detailHref(c.id)}>
         <span className="nf-card-from">월</span>
         <span className="nf-card-price">{c.from}</span>
@@ -187,13 +187,13 @@ function NfTopRow({ title, limit = 10 }: { title?: React.ReactNode; limit?: numb
           <div className="nf-rankcard" key={r.car.id}>
             <span className="nf-rank-num">{r.rank}</span>
             <div className="nf-card">
-              <div className="nf-poster">
+              <Link className="nf-poster" href={detailHref(r.car.id)}>
                 <CarImg imageKey={r.car.imageKey} alt={`${r.car.brand} ${shortM(r.car.model)}`} />
                 <div className="nf-poster-info">
                   <div className="nf-poster-brand">{r.car.brand}</div>
                   <div className="nf-poster-name">{shortM(r.car.model)}</div>
                 </div>
-              </div>
+              </Link>
               <Link className="nf-card-foot" href={detailHref(r.car.id)}>
                 <span className="nf-card-from">월</span>
                 <span className="nf-card-price">{r.car.from}</span>
@@ -232,7 +232,7 @@ function NfDealRow({ title, limit }: { title?: React.ReactNode; limit?: number }
       <div className="nf-track">
         {deals.map(({ d, c }) => (
           <div className="nf-card nf-deal" key={d.carId}>
-            <div className="nf-poster">
+            <Link className="nf-poster" href="/promotions">
               <CarImg imageKey={c.imageKey} alt={`${c.brand} ${shortM(c.model)}`} />
               <span className="nf-deal-ribbon">특가</span>
               <span className="nf-deal-left">{d.left}대 남음</span>
@@ -240,7 +240,7 @@ function NfDealRow({ title, limit }: { title?: React.ReactNode; limit?: number }
                 <div className="nf-poster-brand">{c.brand}</div>
                 <div className="nf-poster-name">{shortM(c.model)}</div>
               </div>
-            </div>
+            </Link>
             <Link className="nf-deal-foot" href="/promotions">
               <span className="nf-deal-was">{d.was}</span>
               <span className="nf-deal-now">월 {d.now}<i>만원~</i></span>
