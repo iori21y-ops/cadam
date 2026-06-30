@@ -82,7 +82,6 @@ interface VCardProps {
 
 function VCard({ car, saved, onToggleSave, inVs, onToggleVs }: VCardProps) {
   const badges = cardBadges(car);
-  const effIsRange = car.fuel === 'ev';
   return (
     <Link
       className="rt-vcard"
@@ -122,26 +121,6 @@ function VCard({ car, saved, onToggleSave, inVs, onToggleVs }: VCardProps) {
         </div>
         <h3 className="rt-vcard-name">{car.model}</h3>
         <p className="rt-vcard-seg">{car.segLabel}</p>
-        <dl className="rt-vcard-specs">
-          {car.spec.eff && (
-            <div className="rt-vcard-spec">
-              <dt>{effIsRange ? '전비' : '복합 연비'}</dt>
-              <dd>{car.spec.eff} {effIsRange ? 'km/kWh' : 'km/L'}</dd>
-            </div>
-          )}
-          {effIsRange && car.spec.range && (
-            <div className="rt-vcard-spec">
-              <dt>1회 충전 주행</dt>
-              <dd>{car.spec.range}km</dd>
-            </div>
-          )}
-          {car.spec.grade && (
-            <div className="rt-vcard-spec">
-              <dt>에너지 등급</dt>
-              <dd>{car.spec.grade}</dd>
-            </div>
-          )}
-        </dl>
         <div className="rt-vcard-foot">
           <div>
             <div className="rt-vcard-price-k">월 렌트료</div>
