@@ -50,14 +50,14 @@ const TOOLS: HubTool[] = [
   {
     ic: <RtIconMoney size={26} />,
     blue: false,
-    title: '금융상품 진단',
+    title: '상품 진단',
     desc: '나에게 맞는 금융 방식을 1분 만에 진단해요.',
     href: '/diagnosis-finance-preview',
   },
   {
     ic: <RtIconCar size={26} />,
     blue: false,
-    title: '차종 추천',
+    title: '차종 진단',
     desc: '라이프스타일·예산 맞춤 차종과 감가 등급까지 추천해요.',
     href: '/diagnosis-vehicle-preview',
   },

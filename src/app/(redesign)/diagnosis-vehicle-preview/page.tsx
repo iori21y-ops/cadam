@@ -7,7 +7,7 @@
 //   ※ 설문(diagnosis_config)·결과 저장(diagnosis_reports) 실연동 대신 프리뷰는 로컬 로직(./data) 유지.
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Button } from '@/components/ui/Button';
-import { RtTopNav, RtFooter } from '@/components/rentailor/RtChrome';
+import { RtTopNav } from '@/components/rentailor/RtChrome';
 import { RtConsultSheet } from '@/components/rentailor/RtConsultSheet';
 import { RtIconSpark, RtIconCompare, RtIconLightning } from '@/components/rentailor/RtIcons';
 import { FUEL, type Car } from '@/lib/rentailor/catalog';
@@ -453,8 +453,6 @@ export default function DiagnosisVehiclePreview() {
           <RtTopNav title="차종 추천" backHref={flow.step === 'intro' ? '/diagnosis-preview' : undefined} />
           <DgProgress flow={flow} />
           <main className={(locked ? 'rt-anim-lock ' : '') + 'rt-qwrap' + (flow.dir === 'back' ? ' is-back' : '')}>{body}</main>
-          {/* 인트로에서만 공용 푸터 노출 (위저드 단계는 하단 고정 바가 차지) */}
-          {flow.step === 'intro' && <RtFooter />}
           <DgBottomBar flow={flow} onConsult={() => setSheet(true)} />
         </div>
       </div>
