@@ -260,10 +260,10 @@ function RtTabIcon({ name, on }: { name: TabKey; on: boolean }) {
       </>
     ),
     mypage: (
-      <>
+      <g transform="translate(0,-1)">
         <path d="M5 20.6 A7 7 0 0 1 19 20.6 V21 H5 Z" fill={ink} />
         <circle cx="12" cy="8" r="3.8" fill={gold} />
-      </>
+      </g>
     ),
   };
   return (
