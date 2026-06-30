@@ -332,8 +332,6 @@ export default function PopularEstimatesPreviewPage() {
         <div className="rt-list-head">
           <p className="rt-list-eyebrow">전체 차종</p>
           <h1 className="rt-list-title">원하는 차, 사지 말고<br />골라서 빌려 타세요</h1>
-          <p className="rt-list-desc">국산·수입·전기차까지 {RT_CATALOG.length}개 차종을 월 렌트료로 비교하고,
-            마음에 드는 차의 맞춤 견적을 받아보세요.</p>
         </div>
 
         {/* A2 personalize: 이해도 레벨별 용어설명(초급 펼침/중급 접힘/고급 숨김) */}
@@ -372,9 +370,11 @@ export default function PopularEstimatesPreviewPage() {
         )}
 
         <div className="rt-filterbar">
-          <div className="rt-controls">
-            <RtDropdown value={tab} onChange={setTab} options={RT_TABS} icon={CAT_ICON} align="left" />
-            <RtDropdown value={sort} onChange={setSort} options={RT_SORTS} icon={SORT_ICON} align="right" />
+          <div className="rt-filter-card">
+            <div className="rt-controls">
+              <RtDropdown value={tab} onChange={setTab} options={RT_TABS} icon={CAT_ICON} align="left" />
+              <RtDropdown value={sort} onChange={setSort} options={RT_SORTS} icon={SORT_ICON} align="right" />
+            </div>
           </div>
         </div>
 

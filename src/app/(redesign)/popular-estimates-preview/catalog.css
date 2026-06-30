@@ -60,7 +60,6 @@
   color:var(--rt-accent); margin:0 0 8px; }
 [data-rt="popular-estimates-preview"] .rt-list-title { font-size:27px; font-weight:800; letter-spacing:-0.035em; color:var(--rt-ink); margin:0;
   line-height:1.2; }
-[data-rt="popular-estimates-preview"] .rt-list-desc { font-size:14px; color:var(--rt-sub); margin:9px 0 0; line-height:1.55; }
 
 /* 랜딩에서 넘어온 예산·차급 적용 배너 */
 [data-rt="popular-estimates-preview"] .rt-applied { display:flex; align-items:center; gap:10px; margin:12px var(--rt-pad) 0;
@@ -77,12 +76,15 @@
 [data-rt="popular-estimates-preview"] .rt-applied.is-widened { background:rgba(201,168,76,.16); border-color:rgba(201,168,76,.5); }
 [data-rt="popular-estimates-preview"] .rt-applied.is-widened .rt-applied-ic { background:var(--rt-accent); color:var(--rt-navy); }
 
-/* 필터 헤더 (카테고리탭+컨트롤+세그먼트칩) 통합 sticky — 스크롤 시 카드 위로 고정 */
+/* 필터 헤더 sticky — 스크롤 시 카드 위로 고정. 배경을 페이지색(#fff)으로 채워 카드가 떠도 자연스럽게. */
 [data-rt="popular-estimates-preview"] .rt-filterbar { position:sticky; top:var(--rt-nav-h); z-index:24;
-  background:#fff; border-bottom:1px solid var(--rt-line); }
-/* 컨트롤 행: 카테고리 드롭다운(좌) + 정렬 드롭다운(우) */
+  background:#fff; padding:10px 0 12px; }
+/* 필터 카드 — 차량 카드와 동일 토큰(테두리/반경/그림자) 재사용. 좌우 마진=페이지 패딩 정렬. */
+[data-rt="popular-estimates-preview"] .rt-filter-card { margin:0 var(--rt-pad); background:#fff;
+  border:1px solid var(--rt-line); border-radius:var(--rt-radius); box-shadow:0 2px 14px rgba(13,27,42,.05); }
+/* 컨트롤 행: 카테고리 드롭다운(좌) + 정렬 드롭다운(우) — 카드 내부 패딩 */
 [data-rt="popular-estimates-preview"] .rt-controls { display:flex; align-items:center; justify-content:space-between; gap:10px;
-  padding:14px var(--rt-pad); }
+  padding:11px 15px; }
 [data-rt="popular-estimates-preview"] .rt-sort { position:relative; }
 [data-rt="popular-estimates-preview"] .rt-sort-btn { display:flex; align-items:center; gap:6px; border:0; background:transparent;
   font-size:13.5px; font-weight:700; color:var(--rt-ink); cursor:pointer; padding:6px 2px; }
@@ -183,7 +185,7 @@
    넓은 뷰포트 (데스크톱)
    ============================================================ */
 @container page (min-width:680px){
-  [data-rt="popular-estimates-preview"] .rt-list-head, [data-rt="popular-estimates-preview"] .rt-controls { max-width:860px; margin-left:auto; margin-right:auto; }
+  [data-rt="popular-estimates-preview"] .rt-list-head, [data-rt="popular-estimates-preview"] .rt-filter-card { max-width:860px; margin-left:auto; margin-right:auto; }
   [data-rt="popular-estimates-preview"] .rt-list-title { font-size:32px; }
   [data-rt="popular-estimates-preview"] .rt-segs { max-width:860px; margin-left:auto; margin-right:auto; }
   [data-rt="popular-estimates-preview"] .rt-grid { display:grid; grid-template-columns:repeat(3,1fr); max-width:860px;
