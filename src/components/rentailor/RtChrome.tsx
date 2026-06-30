@@ -254,19 +254,19 @@ export function RtTabBar({ active }: RtTabBarProps) {
             <button
               key={t.key}
               type="button"
-              className="rt-tab"
+              className={'rt-tab' + (searchOpen ? ' is-on' : '')}
               onClick={() => setSearchOpen(true)}
               aria-label="차량찾기"
             >
               <span className="rt-tab-ic">
-                <RtTabIcon name={t.key} on={false} />
+                <RtTabIcon name={t.key} on={searchOpen} />
               </span>
               {t.label}
             </button>
           ) : (
-            <Link key={t.key} className={'rt-tab' + (t.key === active ? ' is-on' : '')} href={t.href!}>
+            <Link key={t.key} className={'rt-tab' + (t.key === active && !searchOpen ? ' is-on' : '')} href={t.href!}>
               <span className="rt-tab-ic">
-                <RtTabIcon name={t.key} on={t.key === active} />
+                <RtTabIcon name={t.key} on={t.key === active && !searchOpen} />
               </span>
               {t.label}
             </Link>

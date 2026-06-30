@@ -688,7 +688,7 @@ body {
 .rt-footer-meta { display: block; margin-top: 12px; font-size: 11.5px; color: rgba(255,255,255,.42); line-height: 1.5; }
 
 /* 하단 글로벌 탭바 (GNB) */
-.rt-tabbar { position: sticky; bottom: 0; z-index: 29; margin: 0 12px calc(12px + env(safe-area-inset-bottom)); display: flex;
+.rt-tabbar { position: sticky; bottom: 0; z-index: 1100; margin: 0 12px calc(12px + env(safe-area-inset-bottom)); display: flex;
   border: 1px solid var(--rt-line); background: rgba(255,255,255,.97); backdrop-filter: blur(14px); border-radius: 22px; padding: 5px 6px; box-shadow: 0 12px 30px rgba(13,27,42,.14); }
 .rt-tabbar .rt-tab { position: relative; flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;
   background: transparent; border: 0; border-radius: 0; text-decoration: none; color: #1a1a1a; font-size: 10px; font-weight: 700; letter-spacing: -0.01em; padding: 4px 2px 2px; transition: color .18s; }
@@ -745,7 +745,7 @@ body {
 .rt-sheet-done-d { font-size: 14px; line-height: 1.6; color: var(--rt-sub); margin: 10px 0 0; }
 
 /* 검색 오버레이 (오버레이 → fixed 로 적응) */
-.rt-search { position: fixed; inset: 0 0 calc(77px + env(safe-area-inset-bottom)) 0; z-index: 1050; background: #fff; flex-direction: column; display: none; }
+.rt-search { position: fixed; inset: 0; z-index: 1050; background: #fff; flex-direction: column; display: none; }
 .rt-search.is-open { display: flex; animation: rtSearchIn .26s cubic-bezier(.16,.84,.44,1) both; }
 @keyframes rtSearchIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: none; } }
 .rt-search-bar { flex-shrink: 0; display: flex; align-items: center; gap: 10px; padding: 12px var(--rt-pad); border-bottom: 1px solid var(--rt-line); padding-top: calc(12px + env(safe-area-inset-top)); }
@@ -758,7 +758,7 @@ body {
 .rt-search-clear { flex-shrink: 0; width: 24px; height: 24px; border: 0; border-radius: 50%; cursor: pointer; background: var(--rt-line); color: #fff; display: flex; align-items: center; justify-content: center; }
 .rt-search-cancel { flex-shrink: 0; border: 0; background: transparent; cursor: pointer; font-size: 14.5px; font-weight: 700; color: var(--rt-sub); padding: 6px 2px; letter-spacing: -0.01em; }
 .rt-search-cancel:hover { color: var(--rt-accent); }
-.rt-search-body { flex: 1; overflow-y: auto; padding: 18px var(--rt-pad) 28px; scrollbar-width: none; }
+.rt-search-body { flex: 1; overflow-y: auto; padding: 18px var(--rt-pad) calc(89px + env(safe-area-inset-bottom)); scrollbar-width: none; }
 .rt-search-body::-webkit-scrollbar { display: none; }
 .rt-search-sect-t { font-size: 12.5px; font-weight: 800; letter-spacing: .02em; color: var(--rt-muted); margin: 0 0 12px; }
 .rt-search-chips { display: flex; flex-wrap: wrap; gap: 9px; }
