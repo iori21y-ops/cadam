@@ -29,7 +29,7 @@ const ACCENT = '#C9A84C';
 const cssVar = (vars: Record<string, string | number>): React.CSSProperties => vars as React.CSSProperties;
 
 // 실 이미지(carImageUrl) 연결 — 로드 실패/imageKey 없음이면 라벨 텍스트 fallback
-function MediaPlaceholder({ label, imageKey }: { label: string; imageKey?: string }) {
+function MediaPlaceholder({ label, imageKey, cover }: { label: string; imageKey?: string; cover?: boolean }) {
   return (
     <>
       <span aria-hidden="true">{label}</span>
@@ -39,7 +39,7 @@ function MediaPlaceholder({ label, imageKey }: { label: string; imageKey?: strin
           src={carImageUrl(imageKey)}
           alt={label}
           loading="lazy"
-          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', padding: '4%' }}
+          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: cover ? 'cover' : 'contain', padding: cover ? 0 : '4%' }}
           onError={(e) => {
             (e.currentTarget as HTMLImageElement).style.display = 'none';
           }}
@@ -279,7 +279,7 @@ function DgResult({ ranked }: { ranked: ScoredCar[] }) {
 
       <div className="rt-drec rt-fade-up" style={cssVar({ '--d': '70ms', '--hue': top.car.hue, marginTop: 18 })}>
         <div className="rt-drec-media">
-          <MediaPlaceholder label={top.car.brand + ' ' + top.car.model} imageKey={top.car.imageKey} />
+          <MediaPlaceholder label={top.car.brand + ' ' + top.car.model} imageKey={top.car.imageKey} cover />
           <span className="rt-drec-match">
             AI 적합도 <b>{top.match}%</b>
           </span>
