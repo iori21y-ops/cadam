@@ -5,7 +5,6 @@
 // 빌보드(자동 로테이션 + 켄번스 + 스태거 등장) + 가로 스크롤 행: TOP10·특가·전기차·쇼츠·아티클·프리미엄·가성비·도구.
 // 실데이터 배선:
 //   · 포스터/빌보드 이미지 = carImageUrl(car.imageKey)  (실패 시 hue 그라데이션 폴백)
-//   · TOP10 = useSalesRank (car_sales_monthly 실데이터)
 //   · 쇼츠/아티클 = /api/info-articles (contentType: clip / article)
 //   · 행 구성 = RT_CATALOG 필터
 // 제외(운영 빌드): TweaksPanel / RtControlBar / 디바이스 토글 / image-slot 커스텀 엘리먼트.
@@ -14,7 +13,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { RT_CATALOG, rtFindCar, type Car } from '@/lib/rentailor/catalog';
-import { useSalesRank } from '@/lib/rentailor/useSalesRank';
 import { carImageUrl } from '@/lib/car-image-url';
 import { RtTabBar } from '@/components/rentailor/RtChrome';
 import './home.css';
@@ -166,42 +164,6 @@ function CarRow({ title, pt, items, more }: { title: React.ReactNode; pt?: boole
       </div>
       <div className="nf-track">
         {items.map((c) => <CarCard key={c.id} c={c} />)}
-      </div>
-    </section>
-  );
-}
-
-// ── Top 10 (거대 넘버) — 실 판매순위 ─────────────────────────
-function NfTopRow({ title, limit = 10 }: { title?: React.ReactNode; limit?: number }) {
-  const { rows } = useSalesRank();
-  const items = rows.slice(0, limit);
-  if (!items.length) return null;
-  return (
-    <section className="nf-row">
-      <div className="nf-row-hd">
-        <h2 className="nf-row-t">{title || <>이번 달 가장 많이 찾는 차 <span className="pt">TOP 10</span></>}</h2>
-        <Link className="nf-row-more" href="/popular-estimates">전체 →</Link>
-      </div>
-      <div className="nf-track nf-track--top">
-        {items.map((r) => (
-          <div className="nf-rankcard" key={r.car.id}>
-            <span className="nf-rank-num">{r.rank}</span>
-            <div className="nf-card">
-              <Link className="nf-poster" href={detailHref(r.car.id)}>
-                <CarImg imageKey={r.car.imageKey} alt={`${r.car.brand} ${shortM(r.car.model)}`} />
-                <div className="nf-poster-info">
-                  <div className="nf-poster-brand">{r.car.brand}</div>
-                  <div className="nf-poster-name">{shortM(r.car.model)}</div>
-                </div>
-              </Link>
-              <Link className="nf-card-foot" href={detailHref(r.car.id)}>
-                <span className="nf-card-from">월</span>
-                <span className="nf-card-price">{r.car.from}</span>
-                <span className="nf-card-unit">만원~</span>
-              </Link>
-            </div>
-          </div>
-        ))}
       </div>
     </section>
   );
@@ -379,7 +341,6 @@ const FALLBACK_FEATURED_SLIDES: SlideInput[] = ['grandeur', 'ev9', 'gv70', 'ioni
 
 // 섹션 폴백 = 기존 하드코딩 9줄을 섹션 구성으로 승격(보존). title 미지정 행은 컴포넌트 기본 장식 제목 사용.
 const FALLBACK_SECTIONS: SectionConfig[] = [
-  { id: 'fb-sales', sectionType: 'sales_rank', params: { limit: 10 } },
   { id: 'fb-deals', sectionType: 'deals' },
   { id: 'fb-newev', sectionType: 'car_filter', title: '새로 나온 전기차', params: { fuel: 'ev', isNew: true }, more: '/popular-estimates' },
   { id: 'fb-clip', sectionType: 'article', params: { contentType: 'clip' } },
@@ -419,9 +380,11 @@ function useHomeCms(): HomeCmsData {
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => {
         if (!alive || !d) return;
+        const nextSections = Array.isArray(d.sections) && d.sections.length ? (d.sections as SectionConfig[]) : FALLBACK_SECTIONS;
         setData({
           slides: Array.isArray(d.slides) && d.slides.length ? (d.slides as SlideInput[]) : FALLBACK_FEATURED_SLIDES,
-          sections: Array.isArray(d.sections) && d.sections.length ? (d.sections as SectionConfig[]) : FALLBACK_SECTIONS,
+          // sales_rank(TOP10 판매순위) 섹션은 영구 제외 — CMS가 내려줘도 렌더 안 함.
+          sections: nextSections.filter((s) => s.sectionType !== 'sales_rank'),
         });
       })
       .catch(() => {}); // 에러 → 폴백 유지
@@ -438,8 +401,6 @@ function SectionRenderer({ section, articles }: { section: SectionConfig; articl
       return <CarRow title={section.title ?? ''} items={carsByFilter(p)} more={section.more ?? '/popular-estimates'} />;
     case 'car_manual':
       return <CarRow title={section.title ?? ''} items={carsByIds(p.car_ids ?? [])} more={section.more ?? '/popular-estimates'} />;
-    case 'sales_rank':
-      return <NfTopRow title={section.title} limit={p.limit ?? 10} />;
     case 'deals':
       return <NfDealRow title={section.title} limit={p.limit} />;
     case 'article':
