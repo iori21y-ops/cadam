@@ -745,7 +745,7 @@ body {
 .rt-sheet-done-d { font-size: 14px; line-height: 1.6; color: var(--rt-sub); margin: 10px 0 0; }
 
 /* 검색 오버레이 (오버레이 → fixed 로 적응) */
-.rt-search { position: fixed; inset: 0; z-index: 1050; background: #fff; flex-direction: column; display: none; }
+.rt-search { position: fixed; inset: 0 0 calc(77px + env(safe-area-inset-bottom)) 0; z-index: 1050; background: #fff; flex-direction: column; display: none; }
 .rt-search.is-open { display: flex; animation: rtSearchIn .26s cubic-bezier(.16,.84,.44,1) both; }
 @keyframes rtSearchIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: none; } }
 .rt-search-bar { flex-shrink: 0; display: flex; align-items: center; gap: 10px; padding: 12px var(--rt-pad); border-bottom: 1px solid var(--rt-line); padding-top: calc(12px + env(safe-area-inset-top)); }
