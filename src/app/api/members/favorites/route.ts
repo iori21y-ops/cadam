@@ -21,7 +21,29 @@ export async function GET() {
     console.error('[favorites GET]', error);
     return NextResponse.json({ error: '찜 목록을 불러오지 못했습니다.' }, { status: 500 });
   }
-  return NextResponse.json({ favorites: data });
+  // 차량 표시정보(name, image_key) 병합 — favorites→vehicles FK 없어 2쿼리 병합
+  const rows = data ?? [];
+  const slugs = [...new Set(rows.map((r) => r.vehicle_slug).filter(Boolean))];
+  let vmap: Record<string, { name: string | null; image_key: string | null }> = {};
+  if (slugs.length > 0) {
+    const { data: vehicles, error: vErr } = await supabase
+      .from('vehicles')
+      .select('slug, name, image_key')
+      .in('slug', slugs);
+    if (vErr) {
+      console.error('[favorites GET vehicles]', vErr);
+    } else {
+      vmap = Object.fromEntries(
+        (vehicles ?? []).map((v) => [v.slug, { name: v.name, image_key: v.image_key ? (v.image_key.endsWith('-v2') ? v.image_key : `${v.image_key}-v2`) : null }])
+      );
+    }
+  }
+  const favorites = rows.map((r) => ({
+    ...r,
+    name: vmap[r.vehicle_slug]?.name ?? null,
+    image_key: vmap[r.vehicle_slug]?.image_key ?? null,
+  }));
+  return NextResponse.json({ favorites });
 }
 
 // POST: 찜 추가 (중복은 409)

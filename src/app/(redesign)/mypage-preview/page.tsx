@@ -8,6 +8,7 @@
 // 인증: getMember() null 또는 /api/members/mypage 401 → 회원 게이트(/login-preview 유도).
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { carImageUrl } from '@/lib/car-image-url';
 import { RtTopNav, RtTabBar } from '@/components/rentailor/RtChrome';
 import { RtConsultSheet } from '@/components/rentailor/RtConsultSheet';
 import { getMember, memberSignOut, type MemberInfo } from '@/lib/member-auth';
@@ -42,6 +43,8 @@ interface Review {
 }
 interface LedgerRow { id: string; type: string; label: string | null; amount: number; balance_after: number | null; status: string; created_at: string }
 interface PointsData { balance: number; ledger: LedgerRow[] }
+interface FavRow { id: string; vehicle_slug: string; created_at: string; name: string | null; image_key: string | null }
+interface FavData { favorites: FavRow[]; priceMap: Record<string, number> }
 interface MypageData {
   member: MemberInfo;
   consultations: Consultation[];
@@ -108,6 +111,7 @@ export default function MypagePreview() {
   const [phase, setPhase] = useState<Phase>('loading');
   const [data, setData] = useState<MypageData | null>(null);
   const [points, setPoints] = useState<PointsData | null>(null);
+  const [favs, setFavs] = useState<FavData | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
 
@@ -150,6 +154,23 @@ export default function MypagePreview() {
       .then((r) => (r.ok ? r.json() : null))
       .then((j) => {
         if (alive && j && j.member) setPoints({ balance: j.balance, ledger: j.ledger });
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    let alive = true;
+    Promise.all([
+      fetch('/api/members/favorites', { cache: 'no-store' }).then((r) => (r.ok ? r.json() : null)),
+      fetch('/api/catalog-pricing', { cache: 'no-store' }).then((r) => (r.ok ? r.json() : null)),
+    ])
+      .then(([f, p]) => {
+        if (!alive || !f || !Array.isArray(f.favorites)) return;
+        const priceMap: Record<string, number> = (p && p.prices) ? p.prices : {};
+        setFavs({ favorites: f.favorites, priceMap });
       })
       .catch(() => {});
     return () => {
@@ -302,6 +323,28 @@ export default function MypagePreview() {
                   </div>
                 )}
               </div>
+
+              {/* ④ 내 찜 */}
+              {favs && favs.favorites.length > 0 && (
+                <div className="rt-my-sect">
+                  <div className="rt-my-sect-head">
+                    <h2 className="rt-my-sect-t">내 찜</h2>
+                  </div>
+                  <div className="rt-fav-grid">
+                    {favs.favorites.map((f) => (
+                      <Link key={f.id} className="rt-fav-card" href={`/cars/${f.vehicle_slug}`}>
+                        <div className="rt-fav-img" style={{ background: '#fff' }}>
+                          <img src={carImageUrl(f.image_key ?? '')} alt={f.name ?? ''} loading="lazy" />
+                        </div>
+                        <div className="rt-fav-name">{f.name ?? f.vehicle_slug}</div>
+                        {favs.priceMap[f.vehicle_slug] != null && (
+                          <div className="rt-fav-price">월 {favs.priceMap[f.vehicle_slug].toLocaleString()}만원~</div>
+                        )}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* ③ 내 후기 */}
               <div className="rt-my-sect">

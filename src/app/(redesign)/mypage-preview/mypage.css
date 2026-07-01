@@ -137,6 +137,20 @@
   color:var(--rt-muted); text-decoration:none; }
 [data-rt="mypage-preview"] .rt-my-sect-more:hover { color:var(--rt-accent); }
 
+/* ---------- ④ 내 찜 (favorites) ---------- */
+[data-rt="mypage-preview"] .rt-fav-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:13px; }
+[data-rt="mypage-preview"] .rt-fav-card { display:block; text-decoration:none; color:inherit;
+  border:1px solid var(--rt-line); border-radius:16px; background:#fff; overflow:hidden;
+  transition:border-color .15s, box-shadow .15s; }
+[data-rt="mypage-preview"] .rt-fav-card:hover { border-color:var(--rt-accent); box-shadow:0 6px 18px rgba(13,27,42,.07); }
+[data-rt="mypage-preview"] .rt-fav-img { aspect-ratio:940/515; background:#fff;
+  display:flex; align-items:center; justify-content:center; }
+[data-rt="mypage-preview"] .rt-fav-img img { width:100%; height:100%; object-fit:contain; }
+[data-rt="mypage-preview"] .rt-fav-name { font-size:14px; font-weight:800; letter-spacing:-0.02em;
+  color:var(--rt-ink); padding:10px 12px 0; }
+[data-rt="mypage-preview"] .rt-fav-price { font-size:12.5px; font-weight:700; letter-spacing:-0.01em;
+  color:var(--rt-muted); padding:2px 12px 12px; }
+
 /* 배지 */
 [data-rt="mypage-preview"] .rt-my-badge { flex-shrink:0; font-size:11px; font-weight:800; padding:3px 8px; border-radius:999px; letter-spacing:-0.01em; }
 [data-rt="mypage-preview"] .rt-my-badge.is-active { background:rgba(201,168,76,.16); color:#9a7d2e; }
