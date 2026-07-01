@@ -94,10 +94,14 @@ export default function RootLayout({
             />
             <Script id="gtag-init" strategy="afterInteractive">
               {`
-                window.dataLayer = window.dataLayer || [];
-                function gtag(){dataLayer.push(arguments);}
-                gtag('js', new Date());
-                gtag('config', '${GA_ID}');
+                if(localStorage.getItem("admin_mode")==="true"){
+                  // 관리자 브라우저: config(page_view) 전송 차단
+                }else{
+                  window.dataLayer = window.dataLayer || [];
+                  function gtag(){dataLayer.push(arguments);}
+                  gtag('js', new Date());
+                  gtag('config', '${GA_ID}');
+                }
               `}
             </Script>
           </>

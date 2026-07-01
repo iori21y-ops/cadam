@@ -1,3 +1,5 @@
+import { isAdminMode } from './adminMode';
+
 declare global {
   interface Window {
     gtag: (
@@ -9,6 +11,7 @@ declare global {
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
 
 export function pageView(pagePath: string, pageTitle?: string): void {
+  if (isAdminMode()) return; // 관리자면 전송 차단
   if (typeof window === 'undefined' || !GA_ID) return;
   window.gtag?.('config', GA_ID, {
     page_path: pagePath,
@@ -20,6 +23,7 @@ export function event(
   eventName: string,
   params?: Record<string, string | number | boolean>
 ): void {
+  if (isAdminMode()) return; // 관리자면 전송 차단
   if (typeof window === 'undefined' || !GA_ID) return;
   window.gtag?.('event', eventName, params ?? {});
 }
