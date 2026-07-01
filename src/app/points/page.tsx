@@ -38,10 +38,18 @@ interface ApiLedgerRow {
   status: string | null;
   created_at: string | null;
 }
+interface ApiRedeemPolicy {
+  key: string;
+  label: string;
+  max_pct: number | null;
+  sub: string | null;
+  min_balance: number | null;
+}
 interface ApiPointsResp {
   member: boolean;
   balance: number;
   ledger: ApiLedgerRow[];
+  redeem_policy?: ApiRedeemPolicy[];
 }
 function ptFmtDate(iso: string | null): string {
   if (!iso) return '';
@@ -143,11 +151,14 @@ function PtLedgerList({ filter, version, source }: { filter: LedgerFilter; versi
 
 // ── 포인트로 비용 지원 신청 화면 ──
 const PT_COST_CHIPS: PtCostKey[] = ['deductible', 'earlyterm', 'excess', 'buyout'];
-function PointRedeemScreen({ onBack, onDone }: { onBack: () => void; onDone: (msg: string) => void }) {
+function PointRedeemScreen({ onBack, onDone, policy }: { onBack: () => void; onDone: (msg: string) => void; policy: ApiRedeemPolicy[] }) {
   const ctx = ptGetCtx();
   const [cost, setCost] = useState<PtCostKey>(ctx && ctx.type ? ctx.type : 'deductible');
   const [amount, setAmount] = useState<number>(ctx && ctx.amount ? ctx.amount : 300000);
-  const pol = PT_REDEEM_POLICY[cost];
+  // 정책값은 서버(redeem_policy) 우선, 없으면 하드코딩 상수 폴백
+  const fallback = PT_REDEEM_POLICY[cost];
+  const srv = policy.find((p) => p.key === cost);
+  const pol = { maxPct: srv?.max_pct ?? fallback.maxPct, label: srv?.label ?? fallback.label, sub: srv?.sub ?? fallback.sub };
   const balance = ptBalance();
   const cap = Math.floor((amount || 0) * pol.maxPct / 100);
   const usable = Math.max(0, Math.min(balance, cap));
@@ -158,10 +169,15 @@ function PointRedeemScreen({ onBack, onDone }: { onBack: () => void; onDone: (ms
   }, [cost, amount]);
   const net = Math.max(0, (amount || 0) - use);
 
-  const apply = () => {
-    ptAddRedeem(cost, use, pol.label);
+  const apply = async () => {
+    // 서버엔 지원비용(amount) 전송 → 사용액은 서버가 정책·잔액으로 계산(클라 계산 불신)
+    const r = await ptAddRedeem(cost, amount, pol.label);
+    if (!r.ok) {
+      onDone('지원 신청 실패 · ' + (r.error || '다시 시도해 주세요'));
+      return;
+    }
     ptClearCtx();
-    onDone('지원 신청 완료 · 승인 후 ' + use.toLocaleString() + '원을 카카오페이로 보내드려요');
+    onDone('지원 신청 완료 · 승인 후 ' + (r.redeemed ?? use).toLocaleString() + '원을 카카오페이로 보내드려요');
   };
 
   return (
@@ -284,6 +300,7 @@ export default function PointsPage() {
   // 회원 로그인 시 /api/points 실 원장 바인딩. 비회원·실패 시 null → 시드 폴백.
   const [member, setMember] = useState(false);
   const [apiTxns, setApiTxns] = useState<PtTxn[] | null>(null);
+  const [redeemPolicy, setRedeemPolicy] = useState<ApiRedeemPolicy[]>([]);
 
   // 계약 케어에서 ptSetCtx 후 넘어온 경우 자동으로 지원 신청 화면 오픈
   useEffect(() => {
@@ -292,12 +309,15 @@ export default function PointsPage() {
   }, []);
 
   // /api/points 조회 — 회원이면 실 잔액·원장으로 swap, 아니면(또는 오류) 시드 유지.
+  //   정책(redeem_policy)은 회원 여부와 무관하게 반영. version 변경(redeem 후) 시 재조회.
   useEffect(() => {
     let alive = true;
     fetch('/api/points', { cache: 'no-store' })
       .then((r) => (r.ok ? r.json() : null))
       .then((d: ApiPointsResp | null) => {
-        if (!alive || !d || !d.member) return; // 비회원·실패 → 시드 폴백
+        if (!alive || !d) return;
+        if (Array.isArray(d.redeem_policy)) setRedeemPolicy(d.redeem_policy);
+        if (!d.member) return; // 비회원·실패 → 시드 폴백
         setMember(true);
         setApiTxns(ptMapLedger(d.ledger ?? []));
         setBalance(d.balance ?? 0);
@@ -306,7 +326,7 @@ export default function PointsPage() {
     return () => {
       alive = false;
     };
-  }, []);
+  }, [version]);
 
   useEffect(() => {
     if (!member) setBalance(ptBalance()); // 회원이면 API balance 유지(재계산 금지)
@@ -324,6 +344,7 @@ export default function PointsPage() {
         <div className="rt-scroll">
           {view === 'redeem' ? (
             <PointRedeemScreen
+              policy={redeemPolicy}
               onBack={() => setView('ledger')}
               onDone={(m) => {
                 setView('ledger');

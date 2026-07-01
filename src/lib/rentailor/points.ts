@@ -148,16 +148,42 @@ export function ptClearCtx(): void {
     /* ignore */
   }
 }
-export function ptAddRedeem(costKey: PtCostKey, amtWon: number, label?: string): void {
-  const s = ptLoad();
-  s.txns.unshift({
-    type: 'redeem',
-    label: (label || PT_REDEEM_POLICY[costKey].label) + ' 지원 신청',
-    amt: -Math.round(amtWon),
-    date: '방금 전',
-    method: '카카오페이',
-    cost: costKey,
-    status: '승인 대기',
-  });
-  ptSave(s);
+// 서버 영속화: cost(지원비용)를 보내면 서버가 정책·잔액으로 사용액을 계산해 pending 원장 기록.
+//   사용액 계산은 서버가 소스오브트루스(클라 계산 불신). 비회원(401)은 localStorage 폴백(시연 유지).
+export async function ptAddRedeem(
+  costKey: PtCostKey,
+  costWon: number,
+  label?: string,
+): Promise<{ ok: boolean; redeemed?: number; error?: string }> {
+  try {
+    const res = await fetch('/api/points', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key: costKey, cost: Math.round(costWon) }),
+    });
+    const j = (await res.json().catch(() => null)) as { ok?: boolean; redeemed?: number; error?: string } | null;
+    if (res.ok && j?.ok) return { ok: true, redeemed: j.redeemed };
+    if (res.status === 401) {
+      // 비회원 시연: 클라 정책(maxPct)·localStorage 잔액으로 부분사용 계산 후 폴백 기록
+      const cap = Math.floor((Math.round(costWon) * PT_REDEEM_POLICY[costKey].maxPct) / 100);
+      const use = Math.max(0, Math.min(ptBalance(), cap));
+      if (use > 0) {
+        const s = ptLoad();
+        s.txns.unshift({
+          type: 'redeem',
+          label: (label || PT_REDEEM_POLICY[costKey].label) + ' 지원 신청',
+          amt: -use,
+          date: '방금 전',
+          method: '카카오페이',
+          cost: costKey,
+          status: '승인 대기',
+        });
+        ptSave(s);
+      }
+      return { ok: true, redeemed: use };
+    }
+    return { ok: false, error: j?.error || '지원 신청에 실패했습니다.' };
+  } catch {
+    return { ok: false, error: '네트워크 오류로 신청하지 못했습니다.' };
+  }
 }
