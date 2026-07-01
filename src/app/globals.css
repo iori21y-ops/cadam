@@ -613,7 +613,10 @@ body {
 }
 
 .page-enter {
-  animation: pageEnter 0.45s ease-out both;
+  /* fill-mode: backwards — 시작 깜빡임 방지(from 상태 선적용)는 유지하되,
+     종료 후 transform 잔류(translateX(0))를 남기지 않아 하위 sticky의
+     containing block을 깨지 않게 함. (both → backwards) */
+  animation: pageEnter 0.45s ease-out backwards;
 }
 
 @media (prefers-reduced-motion: reduce) {

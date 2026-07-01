@@ -258,6 +258,8 @@ export const PopularEstimatesClient = memo(function PopularEstimatesClient({
 
   return (
     <div>
+      {/* 카테고리 탭 + 정렬/필터 바 — 스크롤 시 NavBar 아래 고정 */}
+      <div className="sticky top-[53px] z-40 bg-[#F7F8FA] pt-2">
       {/* 카테고리 탭 */}
       <div className="flex gap-1.5 mb-4 overflow-x-auto pb-1 scrollbar-hide">
         {TABS.map(tab => (
@@ -332,6 +334,7 @@ export const PopularEstimatesClient = memo(function PopularEstimatesClient({
             </span>
           )}
         </button>
+      </div>
       </div>
 
       {/* 차량 수 표시 */}
