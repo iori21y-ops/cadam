@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { getAuthAdapter, normalizePhone, DEV_OTP_CODE, isStubMode, isMemberOtpReady } from '@/lib/member-auth-adapter';
+import { getAuthAdapter, normalizePhone, DEV_OTP_CODE, isStubMode, isMemberOtpReady, isTempBypass } from '@/lib/member-auth-adapter';
 
 const schema = z.object({ phone: z.string().min(9).max(20) });
 
@@ -15,8 +15,8 @@ export async function POST(request: NextRequest) {
   if (phone.length < 10) {
     return NextResponse.json({ ok: false, error: 'invalid_phone' }, { status: 400 });
   }
-  // ★ 프로덕션 미준비(발신번호 미등록) → "발송 준비 중" 안내(고객 데이터 무단접근 차단)
-  if (!isMemberOtpReady()) {
+  // ★ 프로덕션 미준비(발신번호 미등록) → "발송 준비 중" 안내. 단 임시 바이패스 시 통과.
+  if (!isMemberOtpReady() && !isTempBypass()) {
     return NextResponse.json(
       { ok: false, error: 'provider_not_ready', message: '인증번호 발송 준비 중입니다. 잠시 후 다시 시도해 주세요.' },
       { status: 503 },

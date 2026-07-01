@@ -78,8 +78,14 @@ let override: AuthAdapter | null = null;
 let resolved: AuthAdapter | null = null;
 
 /** 활성 어댑터. live=실 OTP / stub+개발=devStub(000000) / ★stub+프로덕션=notReady(거부). */
+/** ★ 임시 바이패스: 프로덕션에서 000000 로그인 강제(발신번호 심사 대기용). 심사 완료 시 env 제거. */
+export function isTempBypass(): boolean {
+  return process.env.MEMBER_OTP_TEMP_BYPASS === 'true';
+}
+
 export function getAuthAdapter(): AuthAdapter {
   if (override) return override;
+  if (isTempBypass()) return devStubAuthAdapter; // ★ 캐시(resolved) 우회 — 즉시 반영
   if (!resolved) {
     if (!isStubMode()) resolved = makeKakaoAlimTalkAdapter(getOtpProvider());
     else resolved = isProd() ? notReadyAdapter : devStubAuthAdapter;
