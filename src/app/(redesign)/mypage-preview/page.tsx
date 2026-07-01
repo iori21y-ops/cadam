@@ -40,6 +40,8 @@ interface Review {
   created_at: string;
   published_at: string | null;
 }
+interface LedgerRow { id: string; type: string; label: string | null; amount: number; balance_after: number | null; status: string; created_at: string }
+interface PointsData { balance: number; ledger: LedgerRow[] }
 interface MypageData {
   member: MemberInfo;
   consultations: Consultation[];
@@ -105,6 +107,7 @@ function Stars({ rating }: { rating: number | null }) {
 export default function MypagePreview() {
   const [phase, setPhase] = useState<Phase>('loading');
   const [data, setData] = useState<MypageData | null>(null);
+  const [points, setPoints] = useState<PointsData | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
 
@@ -136,6 +139,19 @@ export default function MypagePreview() {
         if (alive) setPhase('gate');
       }
     })();
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    let alive = true;
+    fetch('/api/points', { cache: 'no-store' })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => {
+        if (alive && j && j.member) setPoints({ balance: j.balance, ledger: j.ledger });
+      })
+      .catch(() => {});
     return () => {
       alive = false;
     };
@@ -205,6 +221,34 @@ export default function MypagePreview() {
                     <span className="rt-my-stat-l">작성 후기</span>
                   </div>
                 </div>
+              </div>
+
+              {/* 내 포인트 */}
+              <div className="rt-my-sect">
+                <div className="rt-my-sect-head">
+                  <h2 className="rt-my-sect-t">내 포인트</h2>
+                  <span className="rt-my-sect-more">{points ? points.balance.toLocaleString() : 0} 원</span>
+                </div>
+                {!points || points.ledger.length === 0 ? (
+                  <div className="rt-sub-empty">적립 내역이 없습니다.</div>
+                ) : (
+                  <div className="rt-hl">
+                    {points.ledger.map((row) => (
+                      <div className="rt-hl-card" key={row.id}>
+                        <div className="rt-hl-top">
+                          <span className="rt-hl-name">{row.label || row.type}</span>
+                          <span className="rt-hl-price">
+                            <b>{row.amount.toLocaleString()}</b>
+                            <span>포인트</span>
+                          </span>
+                        </div>
+                        <div className="rt-hl-meta">
+                          <span className="rt-hl-sub">{fmtDate(row.created_at)}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* ② 내 상담 내역 */}
