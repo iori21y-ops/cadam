@@ -45,6 +45,7 @@ interface LedgerRow { id: string; type: string; label: string | null; amount: nu
 interface PointsData { balance: number; ledger: LedgerRow[] }
 interface FavRow { id: string; vehicle_slug: string; created_at: string; name: string | null; image_key: string | null }
 interface FavData { favorites: FavRow[]; priceMap: Record<string, number> }
+interface ContractRow { id: string; car_slug: string | null; car_name: string | null; contract_type: string | null; status: string | null; monthly_payment: number | null; term_months: number | null; contract_start_date: string | null; contract_end_date: string | null; created_at: string }
 interface MypageData {
   member: MemberInfo;
   consultations: Consultation[];
@@ -83,6 +84,7 @@ function Icon({ name }: { name: 'chev' | 'chat' | 'write' | 'phone' | 'lock' }) 
 
 // 상태 문자열 → 배지 스타일(완료성=done, 그 외=active). DB enum 미확정 → 문자열 그대로 노출.
 const DONE_HINTS = ['done', 'complete', 'completed', 'closed', 'published', '완료', '발행', '종료'];
+const CONTRACT_TYPE_LABEL: Record<string, string> = { rental: '장기렌트', lease: '리스', installment: '할부' };
 function badgeKind(status: string | null): 'is-active' | 'is-done' {
   const s = (status || '').toLowerCase();
   return DONE_HINTS.some((h) => s.includes(h)) ? 'is-done' : 'is-active';
@@ -112,6 +114,7 @@ export default function MypagePreview() {
   const [data, setData] = useState<MypageData | null>(null);
   const [points, setPoints] = useState<PointsData | null>(null);
   const [favs, setFavs] = useState<FavData | null>(null);
+  const [contracts, setContracts] = useState<ContractRow[] | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
 
@@ -172,6 +175,17 @@ export default function MypagePreview() {
         const priceMap: Record<string, number> = (p && p.prices) ? p.prices : {};
         setFavs({ favorites: f.favorites, priceMap });
       })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    let alive = true;
+    fetch('/api/members/contracts', { cache: 'no-store' })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => { if (alive && j && Array.isArray(j.contracts)) setContracts(j.contracts); })
       .catch(() => {});
     return () => {
       alive = false;
@@ -382,6 +396,32 @@ export default function MypagePreview() {
                   </div>
                 )}
               </div>
+
+              {/* 계약 케어 */}
+              {contracts && contracts.length > 0 && (
+                <div className="rt-my-sect">
+                  <div className="rt-my-sect-head"><h2 className="rt-my-sect-t">계약 케어</h2></div>
+                  <div className="rt-hl">
+                    {contracts.map((c) => (
+                      <div className="rt-hl-card" key={c.id}>
+                        <div className="rt-hl-top">
+                          <span className="rt-hl-name">{c.car_name ?? c.car_slug ?? '계약'}</span>
+                          {c.status && <span className={'rt-hl-badge ' + badgeKind(c.status)}>{c.status}</span>}
+                        </div>
+                        <div className="rt-hl-meta">
+                          <span className="rt-hl-sub">
+                            {[c.contract_type ? (CONTRACT_TYPE_LABEL[c.contract_type] ?? c.contract_type) : null, c.term_months ? `${c.term_months}개월` : null].filter(Boolean).join(' · ')}
+                            {c.contract_start_date && (<><br />{fmtDate(c.contract_start_date)}{c.contract_end_date ? ` ~ ${fmtDate(c.contract_end_date)}` : ''}</>)}
+                          </span>
+                          {c.monthly_payment != null && (
+                            <span className="rt-hl-price"><b>{c.monthly_payment.toLocaleString()}</b><span>원 / 월</span></span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* 내 메뉴 */}
               <div className="rt-my-sect">
