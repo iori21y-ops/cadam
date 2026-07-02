@@ -50,5 +50,8 @@
   },
   "overrides": {
     "jsdom": "27.3.0"
+  },
+  "engines": {
+    "node": "22.x"
   }
 }
