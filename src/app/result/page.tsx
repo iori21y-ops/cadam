@@ -331,7 +331,7 @@ export default function ResultPage() {
       </div>
 
       {/* ━━━ 하단 고정 ━━━ */}
-      <div className="fixed bottom-0 left-0 right-0 max-w-lg mx-auto px-5 py-4 bg-surface-secondary">
+      <div className="fixed bottom-0 left-0 right-0 max-w-lg mx-auto px-5 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))] bg-surface-secondary">
         <div className="bg-white rounded-2xl p-4 border border-accent shadow-[0_6px_18px_rgba(0,0,0,0.06)]">
           <Button type="button" variant="primary" size="lg" fullWidth onClick={handleRetry}>
             다른 조건으로 다시 상담하기

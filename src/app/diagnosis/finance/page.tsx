@@ -285,7 +285,7 @@ function FinResult({ answers, questions, mode, restart, toDetail, onHome }: {
 
       {/* 하단 고정 CTA 바 */}
       <div className="fixed bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-sm border-t border-border-solid shadow-[0_-2px_12px_rgba(0,0,0,0.06)]">
-        <div className="max-w-lg mx-auto px-5 py-3 flex items-center gap-3">
+        <div className="max-w-lg mx-auto px-5 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] flex items-center gap-3">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5 flex-wrap">
               <span className="text-xs font-bold text-text">{tierData.emoji} 장기렌트 {score}%</span>

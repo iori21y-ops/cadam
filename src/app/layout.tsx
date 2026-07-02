@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import localFont from 'next/font/local';
 import { Cormorant_Garamond, Outfit } from 'next/font/google';
 import Script from 'next/script';
@@ -68,6 +68,12 @@ export const metadata: Metadata = {
   other: {
     'naver-site-verification': '642fc78a7e958a0cd868e5cb41e737f8345415ff',
   },
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
 };
 
 export default function RootLayout({

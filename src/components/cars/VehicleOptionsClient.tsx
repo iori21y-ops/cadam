@@ -281,7 +281,7 @@ export default function VehicleOptionsClient({ vehicleName, slug, trims, options
       </div>
 
       {/* 하단 고정 CTA */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-border-solid px-5 py-4">
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-border-solid px-5 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
         <Link
           href="/direct"
           className="block w-full max-w-lg mx-auto bg-primary text-white text-center py-4 rounded-2xl font-bold text-base tracking-tight"

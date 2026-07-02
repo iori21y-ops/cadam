@@ -280,7 +280,7 @@ export function Step2Car({ onAdvance }: Step2CarProps = {}) {
               transition={{ type: 'tween', duration: 0.3 }}
               className="fixed bottom-0 left-4 right-4 z-50 md:hidden bg-white rounded-t-2xl shadow-lg max-h-[70vh] overflow-hidden"
             >
-              <div className="p-5 pb-8">
+              <div className="px-5 pt-5 pb-[calc(2rem+env(safe-area-inset-bottom))]">
                 <div className="w-12 h-1 bg-[#D1D1D6] rounded-full mx-auto mb-4" />
                 <h3 className="text-base font-bold text-text mb-1">
                   {normalizeModelName(selectedVehicle.model)}

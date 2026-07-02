@@ -96,7 +96,7 @@ export function ConsultationSheet({ isOpen, onClose, note }: ConsultationSheetPr
                 <p className="text-sm text-text-sub">빠른 시간 내에 연락드리겠습니다.</p>
               </div>
             </div>
-            <div className="shrink-0 px-5 pt-3 pb-24 bg-white border-t border-border">
+            <div className="shrink-0 px-5 pt-3 pb-[calc(6rem+env(safe-area-inset-bottom))] bg-white border-t border-border">
               <button
                 onClick={onClose}
                 className="w-full py-4 bg-primary text-white rounded-xl font-semibold"
@@ -117,7 +117,7 @@ export function ConsultationSheet({ isOpen, onClose, note }: ConsultationSheetPr
                 </p>
               </div>
             </div>
-            <div className="shrink-0 px-5 pt-3 pb-24 bg-white border-t border-border">
+            <div className="shrink-0 px-5 pt-3 pb-[calc(6rem+env(safe-area-inset-bottom))] bg-white border-t border-border">
               <button
                 onClick={onClose}
                 className="w-full py-4 bg-primary text-white rounded-xl font-semibold"
@@ -191,7 +191,7 @@ export function ConsultationSheet({ isOpen, onClose, note }: ConsultationSheetPr
               </div>
             </div>
 
-            <div className="shrink-0 px-5 pt-3 pb-24 bg-white border-t border-border">
+            <div className="shrink-0 px-5 pt-3 pb-[calc(6rem+env(safe-area-inset-bottom))] bg-white border-t border-border">
               <div>
                 {submitResult === 'error' && errorMsg && (
                   <p className="text-xs text-danger bg-red-50 px-3 py-2 rounded-lg mb-3">{errorMsg}</p>

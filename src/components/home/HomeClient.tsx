@@ -254,7 +254,7 @@ export function HomeClient({ vehicles }: Props) {
                 <p className="text-sm text-text-sub">빠른 시간 내에 연락드리겠습니다.</p>
               </div>
             </div>
-            <div className="shrink-0 px-5 pt-3 pb-24 bg-white border-t border-border">
+            <div className="shrink-0 px-5 pt-3 pb-[calc(6rem+env(safe-area-inset-bottom))] bg-white border-t border-border">
               <div className="flex flex-col gap-2">
                 {selectedVehicle && (
                   <Link
@@ -286,7 +286,7 @@ export function HomeClient({ vehicles }: Props) {
                 </p>
               </div>
             </div>
-            <div className="shrink-0 px-5 pt-3 pb-24 bg-white border-t border-border">
+            <div className="shrink-0 px-5 pt-3 pb-[calc(6rem+env(safe-area-inset-bottom))] bg-white border-t border-border">
               <div className="flex flex-col gap-2">
                 {selectedVehicle && (
                   <Link
@@ -394,7 +394,7 @@ export function HomeClient({ vehicles }: Props) {
             </div>
 
             {/* 신청 버튼 — 항상 하단 고정 (탭바 위) */}
-            <div className="shrink-0 px-5 pt-3 pb-24 bg-white border-t border-border">
+            <div className="shrink-0 px-5 pt-3 pb-[calc(6rem+env(safe-area-inset-bottom))] bg-white border-t border-border">
               <div>
                 {submitResult === 'error' && errorMsg && (
                   <p className="text-xs text-danger bg-red-50 px-3 py-2 rounded-lg mb-3">{errorMsg}</p>
